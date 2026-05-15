@@ -21,9 +21,9 @@ jobs:
         env:
           POSTGRES_PASSWORD: '2608'
           POSTGRES_DB: DBVECTOR
-        # Inyectamos el esquema en el volumen de inicialización de Postgres
+        # Inyectamos el esquema en el volumen de inicialización de Postgres mediante ruta absoluta
         volumes:
-          - src/db/init_schema.sql:/docker-entrypoint-initdb.d/init.sql
+          - ${{ github.workspace }}/src/db/init_schema.sql:/docker-entrypoint-initdb.d/init.sql
         options: >-
           --health-cmd pg_isready
           --health-interval 10s
