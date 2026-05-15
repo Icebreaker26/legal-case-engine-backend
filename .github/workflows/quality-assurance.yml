@@ -46,8 +46,8 @@ jobs:
           # 2. Esperar a que Postgres esté disponible
           until pg_isready -h localhost -p 5432; do echo "Esperando a Postgres..."; sleep 2; done
           
-          # 3. Inyectar el esquema usando el nombre dinámico
-          docker exec -i $CONTAINER_NAME psql -U postgres -d DBVECTOR < src/db/init_schema.sql
+          # 3. Inyectar el esquema usando el nombre dinámico y forzando UTF8
+          docker exec -i $CONTAINER_NAME env PGCLIENTENCODING=UTF8 psql -U postgres -d DBVECTOR < src/db/init_schema.sql
 
       - name: Run Testing Suite
         run: npm test
