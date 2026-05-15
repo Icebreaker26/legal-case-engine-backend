@@ -9,16 +9,21 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    # Forzar uso de Node 24 para compatibilidad futura según las deprecaciones de GitHub
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
     
-    # Servicio de DB efímero para pruebas (sin datos sensibles)
     services:
       postgres:
         image: ankane/pgvector
         ports:
           - 5432:5432
         env:
-          POSTGRES_PASSWORD: '0826'
+          POSTGRES_PASSWORD: '2608'
           POSTGRES_DB: DBVECTOR
+        # Inyectamos el esquema en el volumen de inicialización de Postgres
+        volumes:
+          - src/db/init_schema.sql:/docker-entrypoint-initdb.d/init.sql
         options: >-
           --health-cmd pg_isready
           --health-interval 10s
@@ -26,9 +31,9 @@ jobs:
           --health-retries 5
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Setup Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: '20'
           
@@ -36,10 +41,11 @@ jobs:
         run: npm ci
 
       # Inyectamos variables de entorno temporales SOLO para esta ejecución
-      # Esto evita el uso de archivos .env y previene fugas de datos
       - name: Run Testing Suite
         run: npm test
         env:
-          DATABASE_URL: postgresql://postgres:0826@localhost:5432/DBVECTOR
+          DATABASE_URL: postgresql://postgres:2608@localhost:5432/DBVECTOR
           JWT_SECRET: super_secret_key_change_me_123456
+          TEST_USER_EMAIL: alejandro.marin@enel.com
+          TEST_USER_PASS: 123456
           NODE_ENV: test
