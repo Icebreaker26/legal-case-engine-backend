@@ -15,8 +15,6 @@ jobs:
     services:
       postgres:
         image: ankane/pgvector
-        # Asignamos nombre fijo para facilitar la inyección desde steps
-        container_name: pg-test-service
         ports:
           - 5432:5432
         env:
@@ -41,9 +39,15 @@ jobs:
 
       - name: Initialize Database Schema
         run: |
-          # Esperar a que Postgres esté listo antes de inyectar el esquema
+          # 1. Identificar dinámicamente el nombre del contenedor de postgres
+          CONTAINER_NAME=$(docker ps --filter "ancestor=ankane/pgvector" --format "{{.Names}}")
+          echo "Contenedor de DB detectado: $CONTAINER_NAME"
+          
+          # 2. Esperar a que Postgres esté disponible
           until pg_isready -h localhost -p 5432; do echo "Esperando a Postgres..."; sleep 2; done
-          docker exec -i pg-test-service psql -U postgres -d DBVECTOR < src/db/init_schema.sql
+          
+          # 3. Inyectar el esquema usando el nombre dinámico
+          docker exec -i $CONTAINER_NAME psql -U postgres -d DBVECTOR < src/db/init_schema.sql
 
       - name: Run Testing Suite
         run: npm test
