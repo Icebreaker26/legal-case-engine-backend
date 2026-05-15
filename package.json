@@ -1,0 +1,52 @@
+{
+  "name": "legal-case-engine-backend",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "dev": "nodemon src/index.js",
+    "start": "node src/index.js",
+    "pretest": "node tests/pretest.js",
+    "test": "npm run pretest && node --experimental-vm-modules node_modules/jest/bin/jest.js",
+    "test:mutate": "stryker run",
+    "test:load": "bash run-load-test.sh",
+    "migrate:up": "node-pg-migrate up",
+    "migrate:down": "node-pg-migrate down",
+    "migrate:create": "node-pg-migrate create"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "overrides": {
+    "protobufjs": "^7.4.0"
+  },
+  "dependencies": {
+    "@xenova/transformers": "^2.0.1",
+    "bcrypt": "^6.0.0",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.6",
+    "date-holidays": "^3.29.0",
+    "docx": "^9.6.1",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "helmet": "^8.1.0",
+    "jsonwebtoken": "^9.0.3",
+    "multer": "^2.1.1",
+    "node-pg-migrate": "^8.0.4",
+    "openai": "^6.37.0",
+    "pdf-extraction": "^1.0.2",
+    "pdf-parse": "^2.4.5",
+    "pg": "^8.20.0",
+    "uuid": "^14.0.0",
+    "winston": "^3.19.0",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "artillery": "^2.0.30",
+    "fast-check": "^4.8.0",
+    "jest": "^30.4.2",
+    "nodemon": "^3.1.14",
+    "supertest": "^7.2.2"
+  }
+}

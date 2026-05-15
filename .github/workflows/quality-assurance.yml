@@ -1,0 +1,45 @@
+name: Quality Assurance Pipeline
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    # Servicio de DB efímero para pruebas (sin datos sensibles)
+    services:
+      postgres:
+        image: ankane/pgvector
+        ports:
+          - 5432:5432
+        env:
+          POSTGRES_PASSWORD: '0826'
+          POSTGRES_DB: DBVECTOR
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+          
+      - name: Install dependencies
+        run: npm ci
+
+      # Inyectamos variables de entorno temporales SOLO para esta ejecución
+      # Esto evita el uso de archivos .env y previene fugas de datos
+      - name: Run Testing Suite
+        run: npm test
+        env:
+          DATABASE_URL: postgresql://postgres:0826@localhost:5432/DBVECTOR
+          JWT_SECRET: super_secret_key_change_me_123456
+          NODE_ENV: test

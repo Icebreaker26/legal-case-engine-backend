@@ -1,0 +1,21 @@
+config:
+  target: 'http://localhost:4000'
+  phases:
+    - duration: 10
+      arrivalRate: 5
+      name: "Carga leve (Warm up)"
+    - duration: 20
+      arrivalRate: 15
+      name: "Carga sostenida (Estrés)"
+  defaults:
+    headers:
+      Cookie: 'token=${TEST_JWT_TOKEN}'
+
+scenarios:
+  - name: "Procesar Tutela"
+    flow:
+      - post:
+          url: "/api/tutelas/procesar"
+          json:
+            responsable_id: "1"
+            area_responsable: "General"
