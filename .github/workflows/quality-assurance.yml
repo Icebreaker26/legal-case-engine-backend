@@ -9,7 +9,6 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
-    # Forzar uso de Node 24 para compatibilidad futura según las deprecaciones de GitHub
     env:
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
     
@@ -21,9 +20,9 @@ jobs:
         env:
           POSTGRES_PASSWORD: '2608'
           POSTGRES_DB: DBVECTOR
-        # Inyectamos el esquema en el volumen de inicialización de Postgres mediante ruta absoluta
+        # Montamos el archivo copiado a la ruta temporal
         volumes:
-          - ${{ github.workspace }}/src/db/init_schema.sql:/docker-entrypoint-initdb.d/init.sql
+          - /tmp/init.sql:/docker-entrypoint-initdb.d/init.sql
         options: >-
           --health-cmd pg_isready
           --health-interval 10s
@@ -32,6 +31,10 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+      
+      - name: Prepare DB Schema
+        run: cp src/db/init_schema.sql /tmp/init.sql
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
@@ -40,7 +43,6 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      # Inyectamos variables de entorno temporales SOLO para esta ejecución
       - name: Run Testing Suite
         run: npm test
         env:
