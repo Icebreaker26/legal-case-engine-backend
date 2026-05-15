@@ -15,14 +15,13 @@ jobs:
     services:
       postgres:
         image: ankane/pgvector
+        # Asignamos nombre fijo para facilitar la inyección desde steps
+        container_name: pg-test-service
         ports:
           - 5432:5432
         env:
           POSTGRES_PASSWORD: '2608'
           POSTGRES_DB: DBVECTOR
-        # Montamos el archivo copiado a la ruta temporal
-        volumes:
-          - /tmp/init.sql:/docker-entrypoint-initdb.d/init.sql
         options: >-
           --health-cmd pg_isready
           --health-interval 10s
@@ -32,9 +31,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       
-      - name: Prepare DB Schema
-        run: cp src/db/init_schema.sql /tmp/init.sql
-
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
@@ -42,6 +38,12 @@ jobs:
           
       - name: Install dependencies
         run: npm ci
+
+      - name: Initialize Database Schema
+        run: |
+          # Esperar a que Postgres esté listo antes de inyectar el esquema
+          until pg_isready -h localhost -p 5432; do echo "Esperando a Postgres..."; sleep 2; done
+          docker exec -i pg-test-service psql -U postgres -d DBVECTOR < src/db/init_schema.sql
 
       - name: Run Testing Suite
         run: npm test
