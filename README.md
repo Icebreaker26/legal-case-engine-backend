@@ -1,6 +1,6 @@
 # Legal Case Engine Backend ⚖️🤖
 
-[![Quality Assurance Pipeline](https://github.com/Icebreaker26/legal-case-engine-backend/actions/workflows/quality-assurance.yml/badge.svg?branch=main)](https://github.com/Icebreaker26/legal-case-engine-backend/actions/workflows/quality-assurance.yml)(https://github.com/tu-usuario/legal-case-engine-backend/actions/workflows/quality-assurance.yml/badge.svg)](https://github.com/tu-usuario/legal-case-engine-backend/actions)
+[![Quality Assurance Pipeline](https://github.com/Icebreaker26/legal-case-engine-backend/actions/workflows/quality-assurance.yml/badge.svg?branch=main)](https://github.com/Icebreaker26/legal-case-engine-backend/actions/workflows/quality-assurance.yml)
 ![License: ISC](https://img.shields.io/badge/License-ISC-blue.svg)
 ![Node.js](https://img.shields.io/badge/Node.js-20.x-green.svg)
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15-blue.svg)
@@ -48,11 +48,13 @@ NODE_ENV=development
 TEST_USER_EMAIL=[email_para_testing]
 TEST_USER_PASS=[password_para_testing]
 OPENAI_API_KEY=[tu_api_key]
-`FRONTEND_URL`
+FRONTEND_URL=http://localhost:5173
 ```
 > **Nota:** Estas variables son validadas al arranque mediante un esquema de `Zod` (Fail-Fast), asegurando que el sistema no inicie si falta alguna configuración crítica.
 
 ---
+
+## 🧪 Estrategia de Testing Automatizado
 El sistema cuenta con una **Quality Gate** automatizada mediante GitHub Actions que garantiza la integridad antes de cada despliegue.
 
 *   **Total Tests:** 25+ suites (Unitarias e Integración).
