@@ -1,6 +1,6 @@
 # Legal Case Engine Backend ⚖️🤖
 
-[![Quality Assurance Pipeline](https://github.com/tu-usuario/legal-case-engine-backend/actions/workflows/quality-assurance.yml/badge.svg)](https://github.com/tu-usuario/legal-case-engine-backend/actions)
+[![Quality Assurance Pipeline](https://github.com/Icebreaker26/legal-case-engine-backend/actions/workflows/quality-assurance.yml/badge.svg?branch=main)](https://github.com/Icebreaker26/legal-case-engine-backend/actions/workflows/quality-assurance.yml)(https://github.com/tu-usuario/legal-case-engine-backend/actions/workflows/quality-assurance.yml/badge.svg)](https://github.com/tu-usuario/legal-case-engine-backend/actions)
 ![License: ISC](https://img.shields.io/badge/License-ISC-blue.svg)
 ![Node.js](https://img.shields.io/badge/Node.js-20.x-green.svg)
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15-blue.svg)
