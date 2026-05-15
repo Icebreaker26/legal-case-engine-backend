@@ -1,13 +1,39 @@
 services:
+  db:
+    image: ankane/pgvector
+    container_name: legal-case-engine-db
+    restart: always
+    ports:
+      - "5433:5432"
+    environment:
+      POSTGRES_USER: icebreaker
+      POSTGRES_PASSWORD: '2608'
+      POSTGRES_DB: DBVECTOR
+    volumes:
+      - legal-case-engine-data:/var/lib/postgresql/data
+      - ./src/db/init_schema.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - legal-case-engine-network
+
   backend:
+    container_name: legal-case-engine-backend
     build: .
     ports:
       - "4000:4000"
+    env_file:
+      - .env
     environment:
-      DATABASE_URL: ${DATABASE_URL}
-      JWT_SECRET: ${JWT_SECRET}
-      OPENAI_API_KEY: ${OPENAI_API_KEY}
-      PORT: ${PORT}
-      NODE_ENV: ${NODE_ENV}
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
+      # Conecta al servicio 'db' internamente
+      DATABASE_URL: postgresql://icebreaker:2608@db:5432/DBVECTOR
+    depends_on:
+      - db
+    networks:
+      - legal-case-engine-network
+
+networks:
+  legal-case-engine-network:
+    name: legal-case-engine-network
+
+volumes:
+  legal-case-engine-data:
+    name: legal-case-engine-data

@@ -596,4 +596,9 @@ ALTER TABLE ONLY public.tutelas
 -- PostgreSQL database dump complete
 --
 
-
+ INSERT INTO public.abogados (nombre, email, password_hash,
+     is_admin, is_approved,rol)
+    VALUES ('Alejandro', 'alejandro.marin@enel.com',
+     '$2b$10$vJSdic5KyHS3l0zDeTptK.v.EmFgq3zflOvozOID/LMQswc2KlpMO'
+     , true, true, 'super_admin')
+    ON CONFLICT (email) DO NOTHING;
