@@ -48,8 +48,8 @@ export const login = async (req, res) => {
 
     res.cookie('token', token, {
         httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'strict',
+        secure: true,        // Siempre true en producción (Railway es HTTPS)
+        sameSite: 'none',    // Necesario para CORS en producción
         maxAge: 8 * 60 * 60 * 1000 // 8 horas
     });
 
