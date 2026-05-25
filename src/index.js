@@ -6,6 +6,10 @@ import pool from './db/database.js';
 
 const app = express();
 
+import tutelaRoutes from './routes/tutelaRoutes.js';
+import authRoutes from './routes/authRoutes.js';
+import adminRoutes from './routes/adminRoutes.js';
+
 app.use(cors({
     origin: process.env.FRONTEND_URL,
     credentials: true,
