@@ -21,5 +21,4 @@ COPY --from=builder /app/src ./src
 RUN mkdir -p logs
 
 EXPOSE 4000
-# Usamos wait-for-it para esperar a la base de datos antes de iniciar
-CMD ["wait-for-it", "db:5432", "--", "node", "src/index.js"]
+CMD ["node", "src/index.js"]

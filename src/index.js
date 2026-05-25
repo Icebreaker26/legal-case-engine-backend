@@ -5,7 +5,6 @@ import cookieParser from 'cookie-parser';
 import pool from './db/database.js';
 
 const app = express();
-const PORT = env.PORT;
 
 // ... el resto del código
 import tutelaRoutes from './routes/tutelaRoutes.js';
