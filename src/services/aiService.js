@@ -5,9 +5,21 @@ import pool from '../db/database.js';
 
 dotenv.config();
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
+let openaiInstance;
+const getOpenAI = () => {
+  if (!openaiInstance) {
+    if (!process.env.OPENAI_API_KEY) {
+      console.warn('OPENAI_API_KEY no configurado. Las funciones de IA externa fallarán.');
+      return null;
+    }
+    openaiInstance = new OpenAI({
+      apiKey: process.env.OPENAI_API_KEY,
+    });
+  }
+  return openaiInstance;
+};
+
+// ... (después en las funciones, usas getOpenAI())
 
 // Inicializador perezoso (solo carga el modelo la primera vez que se usa)
 let extractorLocal;
@@ -66,50 +78,32 @@ const anonimizarDatos = (texto) => {
 
 export const redactarContestacion = async (textoTutela, casosPrevios) => {
     const enabled = await isFeatureEnabled('ai_draft_enabled');
+    const openai = getOpenAI();
     
-    if (!enabled) {
+    if (!enabled || !openai) {
       return {
-        borrador_completo: "La generación de borradores por IA externa está desactivada por el administrador. Por favor, revise los casos previos sugeridos localmente.",
+        borrador_completo: "La generación de borradores por IA externa está desactivada o no configurada.",
         status: "disabled"
       };
     }
 
     try {
       const prompt = `
-                INSTRUCCIÓN DE ALTA PRIORIDAD:
-                No generes una respuesta genérica o burocrática. Debes realizar un análisis MINUCIOSO de los hechos específicos (fechas, direcciones, incidentes técnicos) narrados por el accionante en el texto de la tutela adjunto. 
-                Si el accionante menciona un hecho puntual, tu respuesta debe ser un argumento concreto que enlace ese hecho con la normativa de Enel.
-
-                ESTRUCTURA DEL BORRADOR:
-
-                1. Identificación del accionante y radicado: (Extraer con precisión).
-
-                2. Pronunciamiento sobre los hechos: Para cada hecho relevante del accionante, responde con un argumento técnico-jurídico específico. Evita decir "conforme a la ley"; en su lugar di "respecto al hecho X mencionado, Enel Grids aclara Y debido a Z".
-
-                3. Fundamentos legales basados en estos CASOS PREVIOS EXITOSOS:
-                ${casosPrevios.map(c => `- ${c.titulo_referencia}: ${c.contenido_legal.substring(0, 300)}...`).join('\n')}
-
-                4. Integración de Principios de Obligatoriedad (Aplica estos datos a los hechos del caso):
+                INSTRUCCIÓN: Analiza los hechos anonimizados y redacta una contestación técnica.
                 
-                - Sobre el retiro de red: La negativa se fundamenta en la servidumbre legal de conducción de energía consolidada por más de 17 años de ejercicio continuo y público, prevaleciendo el servicio público esencial.
-                
-                - Sobre indemnizaciones: Argumentar la prescripción extintiva de la acción ordinaria conforme a la normativa civil (plazo superior a 10 años).
-                
-                - Sobre mantenimiento y acceso: Reiterar el deber legal de la empresa de realizar labores de mantenimiento y la obligación del propietario de permitir el ingreso del personal, so pena de incurrir en obstrucción al servicio público.
+                TEXTO DE LA TUTELA (ANONIMIZADO):
+                ${anonimizarDatos(textoTutela.substring(0, 4500))}
 
-                TEXTO DE LA TUTELA PARA ANALIZAR:
-                ${textoTutela.substring(0, 4500)}
+                PRECEDENTES:
+                ${casosPrevios.map(c => `- ${c.titulo_referencia}: ${anonimizarDatos(c.contenido_legal.substring(0, 300))}`).join('\n')}
 
-                REGLA FINAL: Tu objetivo es dar una SOLUCIÓN CONCRETA al caso, no una respuesta de plantilla.
+                ESTRUCTURA: Identificación, Análisis de Hechos técnicos, Principios de Enel (Retiro, Indemnización, Mantenimiento), Peticiones.
       `;
 
       const response = await openai.chat.completions.create({
         model: "gpt-4o-mini",
         messages: [
-          { 
-            role: "system", 
-            content: "Eres un abogado senior de Enel Colombia, experto en litigio constitucional. Tu estilo es técnico, persuasivo y basado estrictamente en el análisis de los hechos del expediente. Evitas el lenguaje genérico." 
-          },
+          { role: "system", content: "Abogado experto. Técnico, preciso. Trabajas con datos anonimizados." },
           { role: "user", content: prompt }
         ],
         temperature: 0.3
@@ -120,21 +114,22 @@ export const redactarContestacion = async (textoTutela, casosPrevios) => {
         status: "success"
       };
     } catch (error) {
-      console.error('Error en redactarContestacion (OpenAI):', error);
-      throw new Error('Error al conectar con el motor de redacción IA.');
+      console.error('Error en redactarContestacion:', error);
+      throw new Error('Error al conectar con el motor IA.');
     }
 };
 
 export const refinarContestacion = async (borradorActual, instrucciones) => {
     const enabled = await isFeatureEnabled('ai_draft_enabled');
-    if (!enabled) throw new Error('Función desactivada.');
+    const openai = getOpenAI();
+    if (!enabled || !openai) throw new Error('Función desactivada o IA no configurada.');
 
     try {
       const response = await openai.chat.completions.create({
         model: "gpt-4o-mini",
         messages: [
           { role: "system", content: "Eres un revisor jurídico. Ajusta el borrador según las instrucciones." },
-          { role: "user", content: `BORRADOR:\n${borradorActual}\n\nINSTRUCCIONES:\n${instrucciones}` }
+          { role: "user", content: `BORRADOR (ANONIMIZADO):\n${anonimizarDatos(borradorActual)}\n\nINSTRUCCIONES:\n${instrucciones}` }
         ]
       });
       return response.choices[0].message.content;
