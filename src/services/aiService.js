@@ -53,6 +53,17 @@ export const generarEmbedding = async (texto) => {
   return await generarEmbeddingLocal(texto);
 };
 
+/**
+ * Anonimiza datos personales básicos antes de enviar a servicios externos (IA).
+ */
+const anonimizarDatos = (texto) => {
+    if (!texto) return '';
+    return texto
+        .replace(/\d{6,11}/g, '[CEDULA_REDACTADA]')
+        .replace(/(Calle|Carrera|Avenida|Cll|Cra|Av|Vereda)\s+\d+[a-zA-Z0-9#\-\s]+/gi, '[DIRECCION_REDACTADA]')
+        .replace(/(Sr\.|Sra\.|Señor|Señora)\s+[A-Z][a-z]+\s+[A-Z][a-z]+/g, '[NOMBRE_REDACTADO]');
+};
+
 export const redactarContestacion = async (textoTutela, casosPrevios) => {
     const enabled = await isFeatureEnabled('ai_draft_enabled');
     
