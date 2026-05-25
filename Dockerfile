@@ -1,5 +1,5 @@
 # Etapa 1: Construcción
-FROM node:20-slim AS builder
+FROM node:22-slim AS builder
 WORKDIR /app
 COPY package*.json ./
 # Evitamos que playwright instale navegadores en la etapa de build
@@ -8,7 +8,7 @@ RUN npm ci
 COPY . .
 
 # Etapa 2: Ejecución
-FROM node:20-slim
+FROM node:22-slim
 WORKDIR /app
 # Instalamos wait-for-it para asegurar el arranque ordenado del ecosistema
 RUN apt-get update && apt-get install -y wait-for-it && rm -rf /var/lib/apt/lists/*
