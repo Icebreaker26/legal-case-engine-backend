@@ -22,7 +22,9 @@ import {
     obtenerROI,
     actualizarROIConfig,
     obtenerCargaTrabajo,
-    obtenerLatenciaOperativa
+    obtenerLatenciaOperativa,
+    obtenerConfiguracion,
+    actualizarConfiguracion
 } from '../controllers/adminController.js';
 import { listarLogs } from '../controllers/auditController.js';
 
@@ -30,6 +32,7 @@ const router = Router();
 
 router.use(authenticateToken);
 
+router.get('/config', obtenerConfiguracion);
 router.get('/abogados-activos', listarAbogadosActivos);
 router.get('/areas', listarAreas);
 router.post('/areas', crearArea);
@@ -56,6 +59,7 @@ router.get('/usuarios', listarUsuarios);
 router.patch('/usuarios/:id', actualizarUsuario);
 router.patch('/usuarios/:id/rol', cambiarRol);
 router.post('/usuarios/:id/reset-password', resetearPassword);
+router.post('/config', actualizarConfiguracion);
 router.get('/logs', listarLogs);
 
 export default router;

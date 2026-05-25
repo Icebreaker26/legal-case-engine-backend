@@ -138,10 +138,13 @@ export const obtenerEstadisticas = async (req, res) => {
 export const actualizarDatosTutela = async (req, res) => {
   try {
     const { id } = req.params;
-    const { radicado, accionante } = req.body;
+    const { radicado, accionante, sharepoint_link } = req.body;
     
-    await pool.query('UPDATE tutelas SET radicado = $1, accionante = $2 WHERE id = $3', [radicado, accionante, id]);
-    await registrarLog(req.user.id, 'ACTUALIZAR_DATOS_TUTELA', 'tutela', id, req, { radicado, accionante });
+    await pool.query(
+      'UPDATE tutelas SET radicado = $1, accionante = $2, sharepoint_link = COALESCE($3, sharepoint_link) WHERE id = $4', 
+      [radicado, accionante, sharepoint_link, id]
+    );
+    await registrarLog(req.user.id, 'ACTUALIZAR_DATOS_TUTELA', 'tutela', id, req, { radicado, accionante, sharepoint_link });
     
     res.status(200).json({ message: 'Datos actualizados correctamente.' });
   } catch (error) {
@@ -214,9 +217,21 @@ export const actualizarGestionTutela = async (req, res) => {
 
 export const listarTutelas = async (req, res) => {
   try {
-    const { rows } = await pool.query('SELECT t.*, a.nombre as responsable_nombre FROM tutelas t LEFT JOIN abogados a ON t.responsable_id = a.id WHERE t.is_active = TRUE ORDER BY t.fecha_vencimiento ASC;');
+    const query = `
+      SELECT t.*, 
+             COALESCE(array_agg(a.nombre) FILTER (WHERE a.nombre IS NOT NULL), '{}') as responsables_nombres,
+             COALESCE(array_agg(a.id) FILTER (WHERE a.id IS NOT NULL), '{}') as responsables_ids
+      FROM tutelas t
+      LEFT JOIN tutela_responsables tr ON t.id = tr.tutela_id
+      LEFT JOIN abogados a ON tr.abogado_id = a.id
+      WHERE t.is_active = TRUE
+      GROUP BY t.id
+      ORDER BY t.fecha_vencimiento ASC;
+    `;
+    const { rows } = await pool.query(query);
     res.status(200).json(rows);
   } catch (error) {
+    console.error('Error al listar tutelas:', error);
     res.status(500).json({ error: 'Error al obtener la lista.' });
   }
 };
@@ -242,6 +257,77 @@ export const obtenerSugerenciasTutela = async (req, res) => {
     res.status(200).json(await buscarContextoLegal(vectorLocal, textoOriginal));
   } catch (error) {
     res.status(500).json({ error: 'Error al generar sugerencias.' });
+  }
+};
+
+export const generarBorradorContestacion = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { rows } = await pool.query('SELECT contenido_original, contestacion_generada FROM tutelas WHERE id = $1', [id]);
+    if (rows.length === 0) return res.status(404).json({ error: 'Tutela no encontrada.' });
+
+    const { contenido_original, contestacion_generada } = rows[0];
+
+    // Si ya existe un borrador, lo devolvemos para no gastar API de OpenAI
+    if (contestacion_generada) {
+      return res.status(200).json({ 
+        borrador_completo: contestacion_generada, 
+        status: 'cached' 
+      });
+    }
+
+    const textoOriginal = contenido_original || '';
+    
+    // 1. Obtener contexto legal (sugerencias)
+    const vectorLocal = await generarEmbeddingLocal(textoOriginal.substring(0, 1500));
+    const sugerencias = await buscarContextoLegal(vectorLocal, textoOriginal);
+
+    // 2. Llamar al servicio de IA
+    const { redactarContestacion } = await import('../services/aiService.js');
+    const resultado = await redactarContestacion(textoOriginal, sugerencias);
+
+    if (resultado.status === 'disabled') {
+      return res.status(403).json({ error: resultado.borrador_completo });
+    }
+
+    // 3. Persistir el borrador generado
+    await pool.query('UPDATE tutelas SET contestacion_generada = $1 WHERE id = $2', [resultado.borrador_completo, id]);
+
+    await registrarLog(req.user.id, 'GENERAR_BORRADOR_IA', 'tutela', id, req);
+    res.status(200).json(resultado);
+
+  } catch (error) {
+    console.error('Error generando borrador:', error);
+    res.status(500).json({ error: 'Error al generar borrador por IA.' });
+  }
+};
+
+export const refinarBorrador = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { instrucciones, borradorManual } = req.body;
+
+    // Si el usuario solo quiere guardar su edición manual sin IA
+    if (borradorManual && !instrucciones) {
+      await pool.query('UPDATE tutelas SET contestacion_generada = $1 WHERE id = $2', [borradorManual, id]);
+      return res.json({ message: 'Borrador guardado correctamente.', status: 'saved' });
+    }
+
+    // Si el usuario quiere refinamiento por IA
+    const { rows } = await pool.query('SELECT contestacion_generada FROM tutelas WHERE id = $1', [id]);
+    const borradorActual = borradorManual || rows[0]?.contestacion_generada;
+
+    const { refinarContestacion } = await import('../services/aiService.js');
+    const nuevoBorrador = await refinarContestacion(borradorActual, instrucciones);
+
+    await pool.query('UPDATE tutelas SET contestacion_generada = $1 WHERE id = $2', [nuevoBorrador, id]);
+    await registrarLog(req.user.id, 'REFINAR_BORRADOR_IA', 'tutela', id, req, { instrucciones });
+
+    res.json({ borrador_completo: nuevoBorrador, status: 'refined' });
+
+  } catch (error) {
+    console.error('Error refinando borrador:', error);
+    res.status(500).json({ error: 'Error al refinar el borrador.' });
   }
 };
 
@@ -313,6 +399,34 @@ export const agregarAccionHistorial = async (req, res) => {
   }
 };
 
+export const gestionarResponsablesTutela = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { abogados_ids } = req.body; 
+
+    const client = await pool.connect();
+    try {
+      await client.query('BEGIN');
+      await client.query('DELETE FROM tutela_responsables WHERE tutela_id = $1', [id]);
+      if (abogados_ids && abogados_ids.length > 0) {
+        const query = 'INSERT INTO tutela_responsables (tutela_id, abogado_id) VALUES ' + 
+                      abogados_ids.map((_, i) => `($1, $${i + 2})`).join(', ');
+        await client.query(query, [id, ...abogados_ids]);
+      }
+      await client.query('COMMIT');
+      await registrarLog(req.user.id, 'GESTIONAR_RESPONSABLES', 'tutela', id, req, { abogados_ids });
+      res.json({ message: 'Responsables actualizados correctamente.' });
+    } catch (e) {
+      await client.query('ROLLBACK');
+      throw e;
+    } finally {
+      client.release();
+    }
+  } catch (error) {
+    res.status(500).json({ error: 'Error al gestionar responsables.' });
+  }
+};
+
 export const descargarWord = async (req, res) => {
   try {
     const { rows } = await pool.query('SELECT contestacion_generada FROM tutelas WHERE id = $1', [req.params.id]);
@@ -345,4 +459,94 @@ export const entrenarContextoLocal = async (req, res) => {
   } catch (error) {
     res.status(500).json({ error: 'Error al procesar.' });
   }
+};
+
+export const crearRequerimientoInterno = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { area_destino, descripcion } = req.body;
+
+    const { rows: tRows } = await pool.query('SELECT radicado, accionante FROM tutelas WHERE id = $1', [id]);
+    if (tRows.length === 0) return res.status(404).json({ error: 'Tutela no encontrada.' });
+    
+    const { radicado, accionante } = tRows[0];
+
+    const oficioGenerado = `
+OFICIO DE REQUERIMIENTO INTERNO
+FECHA: ${new Date().toLocaleDateString()}
+PARA: Responsable Área ${area_destino}
+DE: Departamento Jurídico - Enel Grids
+
+ASUNTO: Solicitud Urgente de Información - Tutela ${radicado}
+
+Por medio de la presente, se requiere de su área la siguiente información técnica/documental necesaria para la defensa judicial de la compañía en el proceso de tutela instaurado por ${accionante}:
+
+REQUERIMIENTO:
+${descripcion}
+
+Agradecemos enviar la respuesta a más tardar en las próximas 24 horas para cumplir con los términos judiciales.
+
+Atentamente,
+${req.user.nombre}
+Departamento Jurídico
+    `.trim();
+
+    const { rows } = await pool.query(
+      'INSERT INTO requerimientos_internos (tutela_id, area_destino, descripcion, oficio_generado) VALUES ($1, $2, $3, $4) RETURNING *',
+      [id, area_destino, descripcion, oficioGenerado]
+    );
+
+    await registrarLog(req.user.id, 'CREAR_REQUERIMIENTO', 'tutela', id, req, { area_destino });
+    res.status(201).json(rows[0]);
+
+  } catch (error) {
+    console.error('Error creando requerimiento:', error);
+    res.status(500).json({ error: 'Error al crear requerimiento interno.' });
+  }
+};
+
+export const listarRequerimientosInternos = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { rows } = await pool.query(
+      'SELECT * FROM requerimientos_internos WHERE tutela_id = $1 ORDER BY created_at DESC',
+      [id]
+    );
+    res.json(rows);
+  } catch (error) {
+    res.status(500).json({ error: 'Error al listar requerimientos.' });
+  }
+};
+
+export const actualizarEstadoRequerimiento = async (req, res) => {
+    try {
+        const { reqId } = req.params;
+        const { estado, respuesta_texto } = req.body;
+        
+        const { rows: rRows } = await pool.query('SELECT tutela_id, area_destino FROM requerimientos_internos WHERE id = $1', [reqId]);
+        if (rRows.length === 0) return res.status(404).json({ error: 'Requerimiento no encontrado.' });
+        
+        const { tutela_id, area_destino } = rRows[0];
+
+        const nuevaRespuestaFormateada = `\n[${new Date().toLocaleString()}]: ${respuesta_texto}`;
+
+        await pool.query(
+            'UPDATE requerimientos_internos SET estado = $1, fecha_respuesta = $2, respuesta_texto = COALESCE(respuesta_texto, \'\') || $3 WHERE id = $4',
+            [estado, estado === 'Respondido' ? new Date() : null, respuesta_texto ? nuevaRespuestaFormateada : '', reqId]
+        );
+
+        if (estado === 'Respondido' && respuesta_texto) {
+            await registrarLog(req.user.id, 'RECIBIR_RESPUESTA_REQUERIMIENTO', 'tutela', tutela_id, req, { area_destino, respuesta_texto });
+            
+            // También asegurar registro explícito en historial_acciones
+            await pool.query(
+                'INSERT INTO historial_acciones (tutela_id, accion, area_involucrada, responsable_nombre) VALUES ($1, $2, $3, $4)',
+                [tutela_id, `Respuesta recibida de ${area_destino}: ${respuesta_texto.substring(0, 200)}`, area_destino, req.user.nombre]
+            );
+        }
+
+        res.json({ message: 'Estado y respuesta actualizados.' });
+    } catch (error) {
+        res.status(500).json({ error: 'Error al actualizar estado.' });
+    }
 };

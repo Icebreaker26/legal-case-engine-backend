@@ -19,7 +19,13 @@ import {
     listarCategorias,
     listarFestivos,
     obtenerEstadisticas,
-    actualizarDatosTutela
+    actualizarDatosTutela,
+    gestionarResponsablesTutela,
+    generarBorradorContestacion,
+    refinarBorrador,
+    crearRequerimientoInterno,
+    listarRequerimientosInternos,
+    actualizarEstadoRequerimiento
 } from '../controllers/tutelaController.js';
 
 const router = Router();
@@ -34,9 +40,17 @@ router.post('/procesar', upload.single('documento'), procesarTutela);
 router.patch('/:id', actualizarGestionTutela); 
 router.delete('/:id', eliminarTutela);
 router.patch('/:id/datos', actualizarDatosTutela);
+router.patch('/:id/responsables', gestionarResponsablesTutela);
 router.get('/:id/descargar', descargarWord);
+router.post('/:id/generar-borrador', generarBorradorContestacion);
+router.post('/:id/refinar-borrador', refinarBorrador);
 router.get('/:id/sugerencias', obtenerSugerenciasTutela); 
 router.get('/documento-referencia/:documento_id', obtenerContenidoCompletoSugerencia);
+
+// Requerimientos Internos
+router.get('/:id/requerimientos', listarRequerimientosInternos);
+router.post('/:id/requerimientos', crearRequerimientoInterno);
+router.patch('/requerimientos/:reqId', actualizarEstadoRequerimiento);
 
 // Trazabilidad (Log de Acciones)
 router.get('/:id/historial', obtenerHistorialTutela);

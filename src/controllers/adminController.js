@@ -264,3 +264,29 @@ export const eliminarCategoria = async (req, res) => {
     res.status(500).json({ error: 'Error al desactivar categoría.' });
   }
 };
+
+export const obtenerConfiguracion = async (req, res) => {
+  try {
+    const { rows } = await pool.query('SELECT key, value, description FROM system_config');
+    const config = rows.reduce((acc, curr) => {
+      acc[curr.key] = curr.value;
+      return acc;
+    }, {});
+    res.json(config);
+  } catch (error) {
+    res.status(500).json({ error: 'Error al obtener configuración.' });
+  }
+};
+
+export const actualizarConfiguracion = async (req, res) => {
+  try {
+    const { key, value } = req.body;
+    await pool.query(
+      'INSERT INTO system_config (key, value) VALUES ($1, $2) ON CONFLICT (key) DO UPDATE SET value = $2, updated_at = CURRENT_TIMESTAMP',
+      [key, JSON.stringify(value)]
+    );
+    res.json({ message: `Configuración ${key} actualizada.` });
+  } catch (error) {
+    res.status(500).json({ error: 'Error al actualizar configuración.' });
+  }
+};
