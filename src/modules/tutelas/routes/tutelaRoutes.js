@@ -1,3 +1,9 @@
+/**
+ * Módulo de Tutelas
+ * 
+ * Define las rutas relacionadas con la gestión, trazabilidad y memoria legal de las tutelas.
+ * Este router es cargado dinámicamente por el servidor en 'src/index.js'.
+ */
 import { Router } from 'express';
 import multer from 'multer';
 import { authenticateToken } from '../../../middlewares/authMiddleware.js';

@@ -24,15 +24,24 @@ app.use(express.json());
 app.use(cookieParser());
 
 // Cargador dinámico de módulos
+// Escanea la carpeta 'modules' y registra automáticamente las rutas de cada módulo.
 const modulesPath = path.join(__dirname, 'modules');
 const modules = fs.readdirSync(modulesPath);
 
 for (const moduleName of modules) {
-    const routePath = path.join(modulesPath, moduleName, 'routes', `${moduleName}Routes.js`);
-    if (fs.existsSync(routePath)) {
-        const route = await import(`./modules/${moduleName}/routes/${moduleName}Routes.js`);
-        app.use(`/api/${moduleName}`, route.default);
-        console.log(`Módulo registrado: /api/${moduleName}`);
+    const routesDir = path.join(modulesPath, moduleName, 'routes');
+    // Verifica si la carpeta 'routes' existe dentro del módulo
+    if (fs.existsSync(routesDir)) {
+        const routeFiles = fs.readdirSync(routesDir);
+        // Busca cualquier archivo que termine en 'Routes.js' (ej: authRoutes.js, tutelaRoutes.js)
+        const routeFile = routeFiles.find(file => file.endsWith('Routes.js'));
+        
+        if (routeFile) {
+            // Importa dinámicamente y monta el router bajo /api/<moduleName>
+            const route = await import(`./modules/${moduleName}/routes/${routeFile}`);
+            app.use(`/api/${moduleName}`, route.default);
+            console.log(`Módulo registrado: /api/${moduleName} usando ${routeFile}`);
+        }
     }
 }
 
