@@ -1,13 +1,13 @@
-import { extraerTextoPdf } from '../services/pdfService.js';
-import { generarEmbeddingLocal } from '../services/aiService.js';
-import { buscarContextoLegal } from '../services/vectorService.js';
-import { generarDocumentoWord } from '../services/docxService.js';
-import { dividirEnChunks } from '../services/chunkService.js';
-import { extraerDatosTutela } from '../services/extractorService.js';
-import { limpiarTexto } from '../services/cleanerService.js';
-import { registrarLog } from '../services/auditService.js';
-import pool from '../db/database.js';
-import { ESTADOS, PRIORIDADES } from '../constants.js';
+import { extraerTextoPdf } from '../../../services/pdfService.js';
+import { generarEmbeddingLocal } from '../../../services/aiService.js';
+import { buscarContextoLegal } from '../../../services/vectorService.js';
+import { generarDocumentoWord } from '../../../services/docxService.js';
+import { dividirEnChunks } from '../../../services/chunkService.js';
+import { extraerDatosTutela } from '../../../services/extractorService.js';
+import { limpiarTexto } from '../../../services/cleanerService.js';
+import { registrarLog } from '../../../services/auditService.js';
+import pool from '../../../db/database.js';
+import { ESTADOS, PRIORIDADES } from '../../../constants.js';
 import { v4 as uuidv4 } from 'uuid';
 
 const limpiarTextoParaPostgres = (texto) => {

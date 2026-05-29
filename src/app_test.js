@@ -2,9 +2,9 @@ import express from 'express';
 import cookieParser from 'cookie-parser';
 import helmet from 'helmet';
 import { requestIdMiddleware } from './utils/logger.js';
-import tutelaRoutes from './routes/tutelaRoutes.js';
-import authRoutes from './routes/authRoutes.js';
-import adminRoutes from './routes/adminRoutes.js';
+import tutelaRoutes from './modules/tutelas/routes/tutelaRoutes.js';
+import authRoutes from './modules/auth/routes/authRoutes.js';
+import adminRoutes from './modules/admin/routes/adminRoutes.js';
 
 const createApp = () => {
   const app = express();
