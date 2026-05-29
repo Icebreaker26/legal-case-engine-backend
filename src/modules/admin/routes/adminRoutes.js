@@ -1,6 +1,6 @@
 import { Router } from 'express';
-import { authenticateToken } from '../middlewares/authMiddleware.js';
-import { isAdmin } from '../middlewares/adminMiddleware.js';
+import { authenticateToken } from '../../../middlewares/authMiddleware.js';
+import { isAdmin } from '../../../middlewares/adminMiddleware.js';
 import { 
     listarUsuarios, 
     actualizarUsuario, 
@@ -25,8 +25,8 @@ import {
     obtenerLatenciaOperativa,
     obtenerConfiguracion,
     actualizarConfiguracion
-} from '../controllers/adminController.js';
-import { listarLogs } from '../controllers/auditController.js';
+} from '../../../controllers/adminController.js';
+import { listarLogs } from '../../../controllers/auditController.js';
 
 const router = Router();
 

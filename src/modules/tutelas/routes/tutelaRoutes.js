@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import multer from 'multer';
-import { authenticateToken } from '../middlewares/authMiddleware.js';
+import { authenticateToken } from '../../../middlewares/authMiddleware.js';
 import { 
     procesarTutela, 
     descargarWord, 
