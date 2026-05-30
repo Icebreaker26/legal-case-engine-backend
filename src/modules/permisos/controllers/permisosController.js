@@ -30,6 +30,10 @@ export const asignarPermiso = async (req, res) => {
         await pool.query(query, [usuario_id, modulo, accion]);
         res.status(201).json({ message: 'Permiso asignado correctamente.' });
     } catch (error) {
+        // 23505 es el código de error de PostgreSQL para unique_violation
+        if (error.code === '23505') {
+            return res.status(409).json({ error: 'El permiso ya está asignado a este usuario.' });
+        }
         res.status(500).json({ error: 'Error al asignar permiso.' });
     }
 };
