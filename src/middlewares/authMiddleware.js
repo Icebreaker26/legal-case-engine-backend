@@ -1,13 +1,17 @@
 import jwt from 'jsonwebtoken';
+import { env } from '../config/env.js';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'super_secret_key_change_me';
+const JWT_SECRET = env.JWT_SECRET;
 
 export const authenticateToken = (req, res, next) => {
   const token = req.cookies.token;
   if (!token) return res.status(401).json({ error: 'Acceso no autorizado' });
 
   jwt.verify(token, JWT_SECRET, (err, user) => {
-    if (err) return res.status(403).json({ error: 'Token inválido' });
+    if (err) {
+        console.error('Error verificando token:', err);
+        return res.status(403).json({ error: 'Token inválido' });
+    }
     req.user = user;
     next();
   });

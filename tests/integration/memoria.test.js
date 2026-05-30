@@ -17,6 +17,14 @@ beforeAll(async () => {
     email: 'alejandro.marin@enel.com',
     password: '123456'
   });
+  // Conceder permisos necesarios
+  await pool.query(`
+      INSERT INTO permisos (usuario_id, modulo_id, accion_id)
+      SELECT (SELECT id FROM abogados WHERE email = 'alejandro.marin@enel.com'), m.id, a.id
+      FROM modulos m, acciones a
+      WHERE m.nombre = 'tutelas' AND a.nombre IN ('READ', 'WRITE')
+      ON CONFLICT DO NOTHING;
+  `);
 });
 
 afterAll(async () => {
