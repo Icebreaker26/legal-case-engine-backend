@@ -6,6 +6,8 @@ import pool from './db/database.js';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import swaggerUi from 'swagger-ui-express';
+import { swaggerSpec } from './config/swagger.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -22,6 +24,9 @@ app.use(cors({
 // Middlewares
 app.use(express.json()); 
 app.use(cookieParser());
+
+// Documentación
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // Cargador dinámico de módulos
 // Escanea la carpeta 'modules' y registra automáticamente las rutas de cada módulo.
@@ -60,6 +65,12 @@ app.get('/api/health', async (req, res) => {
     res.status(503).send(healthcheck);
   }
 });
+
+import { errorHandler } from './middlewares/errorHandler.js';
+
+// ... (después de la ruta healthcheck)
+
+app.use(errorHandler);
 
 // Iniciar el servidor
 const PORT = process.env.PORT || 4000;
