@@ -13,7 +13,7 @@ export const listarUsuarios = async (req, res) => {
 
 export const listarAbogadosActivos = async (req, res) => {
   try {
-    const query = 'SELECT id, nombre FROM abogados WHERE activo = TRUE AND is_approved = TRUE';
+    const query = 'SELECT id, nombre, equipo_id FROM abogados WHERE activo = TRUE AND is_approved = TRUE';
     const { rows } = await pool.query(query);
     res.json(rows);
   } catch (error) {

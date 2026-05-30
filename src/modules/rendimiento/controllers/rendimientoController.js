@@ -4,7 +4,6 @@ export const registrarAccion = async (req, res) => {
     try {
         const { objetivo_id, comentario, peso } = req.body;
         const usuario_id = req.user.id;
-        // Si no se envía peso, por defecto es 1
         const pesoFinal = peso || 1;
         const query = 'INSERT INTO registro_acciones (usuario_id, objetivo_id, comentario, peso) VALUES ($1, $2, $3, $4) RETURNING id';
         const result = await pool.query(query, [usuario_id, objetivo_id, comentario, pesoFinal]);
@@ -16,7 +15,7 @@ export const obtenerCumplimientoIndividual = async (req, res) => {
     try {
         const { usuario_id } = req.params;
         const query = `
-            SELECT o.id, o.meta_acciones, 
+            SELECT o.id, o.titulo, o.descripcion, o.meta_acciones, o.mes, o.anio,
             COALESCE(SUM(ra.peso), 0)::int as acciones_realizadas,
             (COALESCE(SUM(ra.peso), 0)::float / o.meta_acciones) * 100 as porcentaje_cumplimiento 
             FROM objetivos o 
@@ -26,24 +25,50 @@ export const obtenerCumplimientoIndividual = async (req, res) => {
         `;
         const { rows } = await pool.query(query, [usuario_id]);
         res.json(rows);
-    } catch (error) { res.status(500).json({ error: 'Error al obtener cumplimiento individual.' }); }
+    } catch (error) { 
+        console.error('Error al obtener cumplimiento individual:', error);
+        res.status(500).json({ error: 'Error al obtener cumplimiento individual.' }); 
+    }
 };
 
 export const obtenerCumplimientoEquipo = async (req, res) => {
     try {
         const { equipo_id } = req.params;
         const query = `
-            SELECT ab.nombre as profesional,
-            (COALESCE(SUM(ra.peso), 0)::float / o.meta_acciones) * 100 as cumplimiento 
+            SELECT ab.id as usuario_id, ab.nombre as profesional,
+            (COALESCE(SUM(ra.peso), 0)::float / MAX(o.meta_acciones)) * 100 as cumplimiento 
             FROM abogados ab 
             JOIN objetivos o ON ab.id = o.usuario_id 
             LEFT JOIN registro_acciones ra ON o.id = ra.objetivo_id 
             WHERE ab.equipo_id = $1 AND o.estado = 'active'
-            GROUP BY ab.nombre, o.meta_acciones;
+            GROUP BY ab.id, ab.nombre, o.meta_acciones;
         `;
         const { rows } = await pool.query(query, [equipo_id]);
         res.json(rows);
     } catch (error) { res.status(500).json({ error: 'Error al obtener cumplimiento de equipo.' }); }
+};
+
+export const obtenerHistorialEquipo = async (req, res) => {
+    try {
+        const { equipo_id } = req.params;
+        const query = `
+            SELECT TO_CHAR(ra.fecha_registro, 'YYYY-MM') as mes,
+            ab.id as usuario_id,
+            ab.nombre as profesional,
+            (COALESCE(SUM(ra.peso), 0)::float / MAX(o.meta_acciones)) * 100 as cumplimiento
+            FROM abogados ab
+            JOIN objetivos o ON ab.id = o.usuario_id
+            LEFT JOIN registro_acciones ra ON o.id = ra.objetivo_id
+            WHERE ab.equipo_id = $1 AND o.estado = 'active'
+            GROUP BY TO_CHAR(ra.fecha_registro, 'YYYY-MM'), ab.id, ab.nombre, o.meta_acciones
+            ORDER BY mes ASC;
+        `;
+        const { rows } = await pool.query(query, [equipo_id]);
+        res.json(rows);
+    } catch (error) { 
+        console.error('Error al obtener historial del equipo:', error);
+        res.status(500).json({ error: 'Error al obtener historial de equipo.' }); 
+    }
 };
 
 export const archivarObjetivo = async (req, res) => {
@@ -56,9 +81,9 @@ export const archivarObjetivo = async (req, res) => {
 
 export const crearObjetivo = async (req, res) => {
     try {
-        const { usuario_id, meta_acciones, periodo_inicio, periodo_fin } = req.body;
-        const query = 'INSERT INTO objetivos (usuario_id, meta_acciones, periodo_inicio, periodo_fin) VALUES ($1, $2, $3, $4) RETURNING id';
-        const result = await pool.query(query, [usuario_id, meta_acciones, periodo_inicio, periodo_fin]);
+        const { usuario_id, meta_acciones, mes, anio, titulo, descripcion } = req.body;
+        const query = 'INSERT INTO objetivos (usuario_id, meta_acciones, mes, anio, titulo, descripcion) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id';
+        const result = await pool.query(query, [usuario_id, meta_acciones, mes, anio, titulo, descripcion]);
         res.status(201).json({ id: result.rows[0].id, message: 'Objetivo creado correctamente.' });
     } catch (error) { res.status(500).json({ error: 'Error al crear objetivo.' }); }
 };
@@ -66,32 +91,21 @@ export const crearObjetivo = async (req, res) => {
 export const listarObjetivos = async (req, res) => {
     try {
         const usuario_id = req.user.id;
-        const checkQuery = `
-            SELECT 1 FROM permisos p
-            JOIN modulos m ON p.modulo_id = m.id
-            JOIN acciones a ON p.accion_id = a.id
-            WHERE p.usuario_id = $1 AND m.nombre = 'rendimiento' AND a.nombre = 'READ_ALL';
-        `;
+        const checkQuery = `SELECT 1 FROM permisos p JOIN modulos m ON p.modulo_id = m.id JOIN acciones a ON p.accion_id = a.id WHERE p.usuario_id = $1 AND m.nombre = 'rendimiento' AND a.nombre = 'READ_ALL';`;
         const { rowCount } = await pool.query(checkQuery, [usuario_id]);
         
         let query = 'SELECT * FROM objetivos';
         let params = [];
         
-        if (rowCount === 0) {
-            query += ' WHERE usuario_id = $1';
-            params = [usuario_id];
-        }
+        if (rowCount === 0) { query += ' WHERE usuario_id = $1'; params = [usuario_id]; }
         
         const { rows } = await pool.query(query, params);
         res.json(rows);
-    } catch (error) {
-        console.error('Error al listar objetivos:', error);
-        res.status(500).json({ error: 'Error al listar objetivos.' });
-    }
+    } catch (error) { res.status(500).json({ error: 'Error al listar objetivos.' }); }
 };
 
 export const actualizarObjetivo = async (req, res) => {
-    try { const { id } = req.params; const { meta_acciones, periodo_inicio, periodo_fin } = req.body; await pool.query('UPDATE objetivos SET meta_acciones = $1, periodo_inicio = $2, periodo_fin = $3 WHERE id = $4', [meta_acciones, periodo_inicio, periodo_fin, id]); res.json({ message: 'Objetivo actualizado.' }); } catch (error) { res.status(500).json({ error: 'Error al actualizar.' }); }
+    try { const { id } = req.params; const { meta_acciones, mes, anio } = req.body; await pool.query('UPDATE objetivos SET meta_acciones = $1, mes = $2, anio = $3 WHERE id = $4', [meta_acciones, mes, anio, id]); res.json({ message: 'Objetivo actualizado.' }); } catch (error) { res.status(500).json({ error: 'Error al actualizar.' }); }
 };
 
 export const eliminarObjetivo = async (req, res) => {
@@ -100,15 +114,34 @@ export const eliminarObjetivo = async (req, res) => {
 
 export const crearEquipo = async (req, res) => {
     try {
-        const { nombre, manager_id } = req.body;
+        const { nombre } = req.body;
+        const manager_id = req.user.id;
         const query = 'INSERT INTO equipos (nombre, manager_id) VALUES ($1, $2) RETURNING id';
         const result = await pool.query(query, [nombre, manager_id]);
         res.status(201).json({ id: result.rows[0].id, message: 'Equipo creado correctamente.' });
     } catch (error) { res.status(500).json({ error: 'Error al crear equipo.' }); }
 };
 
+export const listarEquiposEliminados = async (req, res) => {
+    try { const { rows } = await pool.query('SELECT * FROM equipos WHERE is_active = false'); res.json(rows); } catch (error) { res.status(500).json({ error: 'Error al listar equipos eliminados.' }); }
+};
+
+export const restaurarEquipo = async (req, res) => {
+    try { const { id } = req.params; await pool.query('UPDATE equipos SET is_active = true WHERE id = $1', [id]); res.json({ message: 'Equipo restaurado.' }); } catch (error) { res.status(500).json({ error: 'Error al restaurar equipo.' }); }
+};
+
 export const listarEquipos = async (req, res) => {
-    try { const { rows } = await pool.query('SELECT * FROM equipos'); res.json(rows); } catch (error) { res.status(500).json({ error: 'Error al listar equipos.' }); }
+    try { 
+        const query = `
+            SELECT e.*, COUNT(a.id)::int as total_miembros 
+            FROM equipos e 
+            LEFT JOIN abogados a ON e.id = a.equipo_id 
+            WHERE e.is_active = true 
+            GROUP BY e.id
+        `;
+        const { rows } = await pool.query(query); 
+        res.json(rows); 
+    } catch (error) { res.status(500).json({ error: 'Error al listar equipos.' }); }
 };
 
 export const actualizarEquipo = async (req, res) => {
@@ -116,5 +149,53 @@ export const actualizarEquipo = async (req, res) => {
 };
 
 export const eliminarEquipo = async (req, res) => {
-    try { const { id } = req.params; await pool.query('DELETE FROM equipos WHERE id = $1', [id]); res.json({ message: 'Equipo eliminado.' }); } catch (error) { res.status(500).json({ error: 'Error al eliminar.' }); }
+    try { const { id } = req.params; await pool.query('UPDATE equipos SET is_active = false WHERE id = $1', [id]); res.json({ message: 'Equipo eliminado lógicamente.' }); } catch (error) { res.status(500).json({ error: 'Error al eliminar.' }); }
+};
+
+export const asignarUsuarioAEquipo = async (req, res) => {
+    try {
+        const { equipo_id, usuario_id } = req.body;
+        console.log('Intento de asignación:', { equipo_id, usuario_id });
+        
+        // Verificar si el usuario ya tiene equipo
+        const checkQuery = 'SELECT equipo_id FROM abogados WHERE id = $1';
+        const { rows } = await pool.query(checkQuery, [usuario_id]);
+        console.log('Consulta de equipo actual:', rows);
+        
+        if (rows.length > 0 && rows[0].equipo_id !== null && Number(rows[0].equipo_id) !== Number(equipo_id)) {
+            console.log('Rechazado: El usuario ya pertenece a otro equipo.');
+            return res.status(400).json({ error: 'El usuario ya pertenece a otro equipo.' });
+        }
+
+        const query = 'UPDATE abogados SET equipo_id = $1 WHERE id = $2';
+        await pool.query(query, [equipo_id, usuario_id]);
+        res.json({ message: 'Usuario asignado al equipo correctamente.' });
+    } catch (error) { 
+        console.error('Error al asignar usuario:', error);
+        res.status(500).json({ error: 'Error al asignar usuario al equipo.' }); 
+    }
+};
+
+export const removerUsuarioDeEquipo = async (req, res) => {
+    try {
+        const { usuario_id } = req.body;
+        
+        if (!usuario_id) {
+            return res.status(400).json({ error: 'usuario_id es requerido' });
+        }
+        
+        // 1. Archivar objetivos activos del usuario
+        await pool.query(
+            'UPDATE objetivos SET "estado" = $1 WHERE "usuario_id" = $2 AND "estado" = $3', 
+            ['archived', usuario_id, 'active']
+        );
+
+        // 2. Remover usuario del equipo
+        await pool.query('UPDATE abogados SET equipo_id = NULL WHERE id = $1', [usuario_id]);
+        
+        res.json({ message: 'Usuario removido del equipo y objetivos archivados correctamente.' });
+    } catch (error) { 
+        console.error('Error al remover usuario del equipo:', error);
+        res.status(500).json({ error: 'Error al remover usuario del equipo.', details: error.message }); 
+    }
 };
