@@ -1,42 +1,62 @@
 import request from 'supertest';
 import createApp from '../../src/app_test.js';
 import pool from '../../src/db/database.js';
+import bcrypt from 'bcrypt';
 
 const app = createApp();
-const agent = request.agent(app); // Usamos un agente para persistir cookies
-let authToken = '';
-beforeAll(async () => {
-  // Autenticación usando credenciales desde variables de entorno
-  await agent.post('/api/auth/login').send({
-    email: process.env.TEST_USER_EMAIL,
-    password: process.env.TEST_USER_PASS
+const agent = request.agent(app);
+
+describe('Tutela Routes - Integración', () => {
+  let testUserId;
+  const testEmail = 'tutelas-test@icebreaker.com';
+  const testPass = 'testpass123';
+
+  beforeAll(async () => {
+    // 1. Crear usuario de prueba (Idempotente)
+    const hash = await bcrypt.hash(testPass, 10);
+    const userRes = await pool.query(
+      'INSERT INTO abogados (nombre, email, password_hash, especialidad, is_approved) VALUES ($1, $2, $3, $4, $5) ON CONFLICT (email) DO UPDATE SET password_hash = EXCLUDED.password_hash RETURNING id',
+      ['Tutelas Test User', testEmail, hash, 'Testing', true]
+    );
+    testUserId = userRes.rows[0].id;
+
+    // 2. Conceder permisos necesarios
+    await pool.query(`
+      INSERT INTO permisos (usuario_id, modulo_id, accion_id)
+      SELECT $1, m.id, a.id
+      FROM modulos m, acciones a
+      WHERE m.nombre = 'tutelas' AND a.nombre IN ('READ', 'WRITE')
+      ON CONFLICT DO NOTHING;
+    `, [testUserId]);
+
+    // 3. Login
+    await agent.post('/api/auth/login').send({
+      email: testEmail,
+      password: testPass
+    });
   });
-});
 
-afterAll(async () => {
-  await pool.end();
-});
+  afterAll(async () => {
+    if (testUserId) {
+      await pool.query('DELETE FROM logs_sistema WHERE usuario_id = $1', [testUserId]);
+      await pool.query('DELETE FROM permisos WHERE usuario_id = $1', [testUserId]);
+      await pool.query('DELETE FROM abogados WHERE id = $1', [testUserId]);
+    }
+    await pool.end();
+  });
 
-describe('Tutela Routes - Integración (Seguridad)', () => {
   test('GET /api/tutelas debería responder 401 si no hay token', async () => {
-    const res = await request(app).get('/api/tutelas'); // Usamos request directo sin agente
+    const res = await request(app).get('/api/tutelas');
     expect(res.status).toBe(401);
   });
-});
 
-describe('Tutela Routes - Integración (Funcionalidad)', () => {
   test('POST /api/tutelas/procesar debería aceptar un archivo (autenticado)', async () => {
-    // Usamos el agente para que envíe las cookies automáticamente
     const res = await agent
       .post('/api/tutelas/procesar')
       .attach('documento', Buffer.from('Contenido de prueba de documento'), 'test.pdf');
     
-    // Si falla, imprimimos el status para depurar
-    if (![200, 201, 403, 500].includes(res.status)) {
-        console.log('Status recibido:', res.status);
-    }
-    
-    // Aceptamos 200, 201, 403 (en caso de permisos), o 500 (fallo controlado)
-    expect([200, 201, 403, 500]).toContain(res.status);
+    // Debería pasar la autorización (no ser 401 ni 403)
+    expect(res.status).not.toBe(401);
+    expect(res.status).not.toBe(403);
   });
 });

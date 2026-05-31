@@ -1,51 +1,60 @@
 import request from 'supertest';
 import { default as createApp } from '../../src/app_test.js';
 import pool from '../../src/db/database.js';
+import bcrypt from 'bcrypt';
 
 const app = createApp();
 const agent = request.agent(app);
 
 describe('Sistema de Permisos - Integración', () => {
-    const userId = 1;
+    let testUserId;
+    const testEmail = 'perm-test@icebreaker.com';
+    const testPass = 'testpass123';
 
-    let authToken;
-
-    // Autenticar una vez antes de todas las pruebas y reutilizar la cookie
+    // Crear un usuario dedicado para no afectar al usuario real (Idempotente)
     beforeAll(async () => {
-        await pool.query('DELETE FROM permisos WHERE usuario_id = $1', [userId]);
-        
+        const hash = await bcrypt.hash(testPass, 10);
+        const userRes = await pool.query(
+            'INSERT INTO abogados (nombre, email, password_hash, especialidad, is_approved) VALUES ($1, $2, $3, $4, $5) ON CONFLICT (email) DO UPDATE SET password_hash = EXCLUDED.password_hash RETURNING id',
+            ['Perm Test User', testEmail, hash, 'Testing', true]
+        );
+        testUserId = userRes.rows[0].id;
+
         const loginRes = await agent.post('/api/auth/login').send({
-            email: 'alejandro.marin@enel.com',
-            password: '123456'
+            email: testEmail,
+            password: testPass
         });
         
         expect(loginRes.status).toBe(200);
-        // Asumiendo que el login devuelve el token en la cookie, pero para asegurar, usaremos el header si es necesario.
-        // Supertest agent maneja cookies automáticamente si se usan cookies. 
-        // Vamos a verificar si loginRes tiene la cookie.
+    });
+
+    afterAll(async () => {
+        if (testUserId) {
+            await pool.query('DELETE FROM logs_sistema WHERE usuario_id = $1', [testUserId]);
+            await pool.query('DELETE FROM permisos WHERE usuario_id = $1', [testUserId]);
+            await pool.query('DELETE FROM abogados WHERE id = $1', [testUserId]);
+        }
     });
 
     test('POST /api/tutelas/procesar debería bloquear acceso sin permiso WRITE', async () => {
-        // Asegurarse de que no tenemos permiso WRITE
-        await pool.query('DELETE FROM permisos WHERE usuario_id = $1 AND accion_id = (SELECT id FROM acciones WHERE nombre = \'WRITE\')', [userId]);
-        
         const res = await agent.post('/api/tutelas/procesar');
-        // Esperamos 403 por falta de permisos (o 400 si el middleware de autorización pasa pero falta el archivo)
+        // El middleware de permisos debería retornar 403
         expect(res.status).toBe(403);
     });
 
     test('POST /api/tutelas/procesar debería permitir acceso con permiso WRITE', async () => {
-        // Asignar permiso WRITE
+        // Asignar permiso WRITE al usuario de prueba
         await pool.query(`
             INSERT INTO permisos (usuario_id, modulo_id, accion_id)
             SELECT $1, m.id, a.id
             FROM modulos m, acciones a
             WHERE m.nombre = 'tutelas' AND a.nombre = 'WRITE'
             ON CONFLICT DO NOTHING;
-        `, [userId]);
+        `, [testUserId]);
 
         const res = await agent.post('/api/tutelas/procesar');
-        // Debería pasar la autorización, y fallar por falta de archivo (400)
+        // Debería pasar la autorización, y fallar por falta de archivo (400) o dar otro error no relacionado con permisos
         expect(res.status).not.toBe(403);
+        expect(res.status).not.toBe(401);
     });
 });
