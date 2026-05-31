@@ -9,6 +9,10 @@ const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
 });
 
+pool.on('connect', (client) => {
+  client.query("SET timezone = 'America/Bogota'");
+});
+
 // Verificamos que la conexión funcione solo si NO estamos en entorno de pruebas
 // Esto evita el error "Cannot log after tests are done" en Jest
 if (process.env.NODE_ENV !== 'test') {
