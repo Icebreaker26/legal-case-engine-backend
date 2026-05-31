@@ -15,13 +15,13 @@ export const obtenerCumplimientoIndividual = async (req, res) => {
     try {
         const { usuario_id } = req.params;
         const query = `
-            SELECT o.id, o.titulo, o.descripcion, o.meta_acciones, o.mes, o.anio,
+            SELECT o.id, o.titulo, o.descripcion, o.meta_acciones, o.mes, o.anio, o.estado,
             COALESCE(SUM(ra.peso), 0)::int as acciones_realizadas,
-            (COALESCE(SUM(ra.peso), 0)::float / o.meta_acciones) * 100 as porcentaje_cumplimiento 
+            (COALESCE(SUM(ra.peso), 0)::float / NULLIF(o.meta_acciones, 0)) * 100 as porcentaje_cumplimiento 
             FROM objetivos o 
             LEFT JOIN registro_acciones ra ON o.id = ra.objetivo_id 
-            WHERE o.usuario_id = $1 AND o.estado = 'active'
-            GROUP BY o.id;
+            WHERE o.usuario_id = $1
+            GROUP BY o.id, o.titulo, o.descripcion, o.meta_acciones, o.mes, o.anio, o.estado;
         `;
         const { rows } = await pool.query(query, [usuario_id]);
         res.json(rows);
@@ -55,11 +55,11 @@ export const obtenerHistorialEquipo = async (req, res) => {
             SELECT TO_CHAR(ra.fecha_registro, 'YYYY-MM') as mes,
             ab.id as usuario_id,
             ab.nombre as profesional,
-            (COALESCE(SUM(ra.peso), 0)::float / MAX(o.meta_acciones)) * 100 as cumplimiento
+            (COALESCE(SUM(ra.peso), 0)::float / NULLIF(MAX(o.meta_acciones), 0)) * 100 as cumplimiento
             FROM abogados ab
             JOIN objetivos o ON ab.id = o.usuario_id
             LEFT JOIN registro_acciones ra ON o.id = ra.objetivo_id
-            WHERE ab.equipo_id = $1 AND o.estado = 'active'
+            WHERE ab.equipo_id = $1
             GROUP BY TO_CHAR(ra.fecha_registro, 'YYYY-MM'), ab.id, ab.nombre, o.meta_acciones
             ORDER BY mes ASC;
         `;
@@ -197,5 +197,102 @@ export const removerUsuarioDeEquipo = async (req, res) => {
     } catch (error) { 
         console.error('Error al remover usuario del equipo:', error);
         res.status(500).json({ error: 'Error al remover usuario del equipo.', details: error.message }); 
+    }
+};
+
+export const obtenerCumplimientoGlobal = async (req, res) => {
+    try {
+        const query = `
+            SELECT AVG(cumplimiento) as promedio
+            FROM (
+                SELECT (COALESCE(SUM(ra.peso), 0)::float / MAX(o.meta_acciones)) * 100 as cumplimiento 
+                FROM objetivos o 
+                LEFT JOIN registro_acciones ra ON o.id = ra.objetivo_id 
+                WHERE o.estado = 'active'
+                GROUP BY o.id
+            ) as t
+        `;
+        const { rows } = await pool.query(query);
+        const promedio = rows[0].promedio ? Math.round(rows[0].promedio) : 0;
+        res.json({ promedio });
+    } catch (error) { 
+        console.error('Error al obtener cumplimiento global:', error);
+        res.status(500).json({ error: 'Error al obtener cumplimiento global.' }); 
+    }
+};
+
+export const obtenerHistorialAccionesObjetivo = async (req, res) => {
+    try {
+        const { objetivo_id } = req.params;
+        const query = `
+            SELECT ra.id, ra.comentario, ra.peso, ra.fecha_registro, ab.nombre as profesional
+            FROM registro_acciones ra
+            JOIN abogados ab ON ra.usuario_id = ab.id
+            WHERE ra.objetivo_id = $1
+            ORDER BY ra.fecha_registro DESC;
+        `;
+        const { rows } = await pool.query(query, [objetivo_id]);
+        res.json(rows);
+    } catch (error) {
+        console.error('Error al obtener historial de acciones:', error);
+        res.status(500).json({ error: 'Error al obtener historial de acciones.' });
+    }
+};
+
+export const exportarDatosEquipo = async (req, res) => {
+    try {
+        const { equipo_id } = req.params;
+        const query = `
+            SELECT 
+                e.nombre as equipo_nombre,
+                ab.id as abogado_id,
+                ab.nombre as profesional,
+                ab.email,
+                ab.especialidad,
+                ab.rol,
+                o.id as objetivo_id,
+                o.titulo as objetivo_titulo,
+                o.descripcion as objetivo_descripcion,
+                o.meta_acciones,
+                o.estado as estado_objetivo,
+                o.mes,
+                o.anio,
+                ra.id as accion_id,
+                ra.comentario as accion_comentario,
+                ra.peso as accion_peso,
+                ra.fecha_registro as accion_fecha
+            FROM equipos e
+            JOIN abogados ab ON e.id = ab.equipo_id
+            JOIN objetivos o ON ab.id = o.usuario_id
+            LEFT JOIN registro_acciones ra ON o.id = ra.objetivo_id
+            WHERE e.id = $1
+            ORDER BY ab.nombre, o.mes, o.anio, ra.fecha_registro DESC;
+        `;
+        const { rows } = await pool.query(query, [equipo_id]);
+        res.json(rows);
+    } catch (error) {
+        console.error('Error al exportar datos completos del equipo:', error);
+        res.status(500).json({ error: 'Error al exportar datos completos.' });
+    }
+};
+
+export const listarObjetivosPorEquipo = async (req, res) => {
+    try {
+        const { equipo_id } = req.params;
+        const query = `
+            SELECT o.*, 
+            COALESCE(SUM(ra.peso), 0)::int as acciones_realizadas,
+            (COALESCE(SUM(ra.peso), 0)::float / NULLIF(o.meta_acciones, 0)) * 100 as porcentaje_cumplimiento
+            FROM objetivos o
+            JOIN abogados ab ON o.usuario_id = ab.id
+            LEFT JOIN registro_acciones ra ON o.id = ra.objetivo_id
+            WHERE ab.equipo_id = $1
+            GROUP BY o.id, o.titulo, o.descripcion, o.meta_acciones, o.estado, o.mes, o.anio;
+        `;
+        const { rows } = await pool.query(query, [equipo_id]);
+        res.json(rows);
+    } catch (error) { 
+        console.error('Error al listar objetivos del equipo:', error);
+        res.status(500).json({ error: 'Error al listar objetivos del equipo.' }); 
     }
 };

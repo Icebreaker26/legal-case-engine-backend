@@ -7,6 +7,10 @@ import {
     obtenerCumplimientoIndividual, 
     obtenerCumplimientoEquipo,
     obtenerHistorialEquipo,
+    obtenerCumplimientoGlobal,
+    obtenerHistorialAccionesObjetivo,
+    exportarDatosEquipo,
+    listarObjetivosPorEquipo,
     crearObjetivo, 
     listarObjetivos, 
     actualizarObjetivo, 
@@ -28,10 +32,14 @@ const router = Router();
 router.use(authenticateToken);
 
 // Acciones y Cumplimiento
+router.get('/cumplimiento/global', checkPermission('rendimiento', 'READ'), obtenerCumplimientoGlobal);
+router.get('/objetivos/:objetivo_id/acciones', checkPermission('rendimiento', 'READ'), obtenerHistorialAccionesObjetivo);
 router.post('/acciones', checkPermission('rendimiento', 'WRITE'), registrarAccion);
 router.get('/cumplimiento/individual/:usuario_id', checkPermission('rendimiento', 'READ'), obtenerCumplimientoIndividual);
 router.get('/cumplimiento/equipo/:equipo_id', checkPermission('rendimiento', 'READ'), obtenerCumplimientoEquipo);
 router.get('/historial/equipo/:equipo_id', checkPermission('rendimiento', 'READ'), obtenerHistorialEquipo);
+router.get('/objetivos/equipo/:equipo_id', checkPermission('rendimiento', 'READ'), listarObjetivosPorEquipo);
+router.get('/equipos/:equipo_id/exportar-completo', checkPermission('rendimiento', 'MANAGE_TEAMS'), exportarDatosEquipo);
 
 // CRUD Objetivos
 router.post('/objetivos', checkPermission('rendimiento', 'WRITE'), validate(objetivoSchema), crearObjetivo);
