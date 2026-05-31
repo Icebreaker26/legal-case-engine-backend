@@ -20,6 +20,7 @@ export const listarComunicaciones = async (req, res) => {
             LEFT JOIN entidades e ON c.entidad_id = e.id
             LEFT JOIN comunicacion_grupos cg ON c.id = cg.comunicacion_id
             LEFT JOIN grupos g ON cg.grupo_id = g.id
+            WHERE c.is_active = true
             GROUP BY c.id, a.nombre, e.nombre
         `;
         const { rows } = await pool.query(query);
