@@ -34,6 +34,7 @@ describe('Sistema de Permisos - Integración', () => {
             await pool.query('DELETE FROM permisos WHERE usuario_id = $1', [testUserId]);
             await pool.query('DELETE FROM abogados WHERE id = $1', [testUserId]);
         }
+        await pool.end();
     });
 
     test('POST /api/tutelas/procesar debería bloquear acceso sin permiso WRITE', async () => {
