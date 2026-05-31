@@ -55,6 +55,7 @@ describe('Módulo de Rendimiento - Integración', () => {
             await pool.query('DELETE FROM permisos WHERE usuario_id = $1', [testUserId]);
             await pool.query('DELETE FROM abogados WHERE id = $1', [testUserId]);
         }
+        await pool.end();
     });
 
     test('POST /api/rendimiento/acciones debería registrar acción correctamente', async () => {

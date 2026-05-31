@@ -1,7 +1,12 @@
 import request from 'supertest';
 import createApp from '../../src/app_test.js';
+import pool from '../../src/db/database.js';
 
 const app = createApp();
+
+afterAll(async () => {
+    await pool.end();
+});
 
 describe('Security Headers - Integración', () => {
   test('La respuesta debe incluir cabeceras de seguridad de Helmet', async () => {
