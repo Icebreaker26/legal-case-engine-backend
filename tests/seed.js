@@ -5,14 +5,22 @@ async function seed() {
   try {
     console.log('🌱 Iniciando seeding de datos de prueba...');
     
-    // 1. Limpiar datos existentes
-    await pool.query('TRUNCATE abogados RESTART IDENTITY CASCADE;');
+    // VALIDACIÓN DE SEGURIDAD: Solo ejecutar si estamos en entorno de prueba
+    if (process.env.NODE_ENV !== 'test') {
+      console.error('❌ ERROR DE SEGURIDAD: El seeding solo puede ejecutarse en NODE_ENV=test.');
+      process.exit(1);
+    }
 
-    // 2. Crear usuario de prueba
+    // 1. Limpiar datos existentes (Solo si es estrictamente necesario y en DB de pruebas)
+    // await pool.query('TRUNCATE abogados RESTART IDENTITY CASCADE;');
+
+    // 2. Crear usuario de prueba (Uso de ON CONFLICT DO NOTHING para respetar datos reales)
     const password_hash = await bcrypt.hash(process.env.TEST_USER_PASS || '123456', 10);
     const query = `
       INSERT INTO abogados (nombre, email, password_hash, especialidad, is_admin, is_approved)
-      VALUES ($1, $2, $3, $4, $5, $6) RETURNING id;
+      VALUES ($1, $2, $3, $4, $5, $6)
+      ON CONFLICT (email) DO NOTHING
+      RETURNING id;
     `;
     
     await pool.query(query, ['Test Admin', process.env.TEST_USER_EMAIL || 'alejandro@icebreaker.com', password_hash, 'Administración', true, true]);

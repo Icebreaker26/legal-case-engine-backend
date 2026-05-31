@@ -1,34 +1,57 @@
 import request from 'supertest';
-import { jest } from '@jest/globals';
 import createApp from '../../src/app_test.js';
 import pool from '../../src/db/database.js';
+import bcrypt from 'bcrypt';
 
 const app = createApp();
 const agent = request.agent(app);
 
-beforeAll(async () => {
-  // Login con usuario admin (el correo usado anteriormente)
-  await agent.post('/api/auth/login').send({
-    email: process.env.TEST_USER_EMAIL,
-    password: process.env.TEST_USER_PASS
+describe('Admin Routes - Integración', () => {
+  let testUserId;
+  const testEmail = 'admin-test@icebreaker.com';
+  const testPass = 'testpass123';
+
+  beforeAll(async () => {
+    // 1. Crear usuario de prueba (Idempotente)
+    const hash = await bcrypt.hash(testPass, 10);
+    const userRes = await pool.query(
+      'INSERT INTO abogados (nombre, email, password_hash, especialidad, is_approved, is_admin) VALUES ($1, $2, $3, $4, $5, $6) ON CONFLICT (email) DO UPDATE SET password_hash = EXCLUDED.password_hash RETURNING id',
+      ['Admin Test User', testEmail, hash, 'Testing', true, true]
+    );
+    testUserId = userRes.rows[0].id;
+
+    // 2. Conceder permisos necesarios para administración
+    await pool.query(`
+      INSERT INTO permisos (usuario_id, modulo_id, accion_id)
+      SELECT $1, m.id, a.id
+      FROM modulos m, acciones a
+      WHERE m.nombre = 'admin' AND a.nombre IN ('READ', 'WRITE')
+      ON CONFLICT DO NOTHING;
+    `, [testUserId]);
+
+    // 3. Login
+    await agent.post('/api/auth/login').send({
+      email: testEmail,
+      password: testPass
+    });
   });
-});
 
-afterAll(async () => {
-  await pool.end();
-});
+  afterAll(async () => {
+    if (testUserId) {
+      await pool.query('DELETE FROM logs_sistema WHERE usuario_id = $1', [testUserId]);
+      await pool.query('DELETE FROM permisos WHERE usuario_id = $1', [testUserId]);
+      await pool.query('DELETE FROM abogados WHERE id = $1', [testUserId]);
+    }
+    await pool.end();
+  });
 
-describe('Admin Routes - Integración (Seguridad)', () => {
-  test('GET /api/admin/usuarios debería requerir rol de admin', async () => {
-    // Si el usuario alejandro.marin@enel.com es admin, debe tener acceso
-    // Si no lo fuera, debería ser 403
+  test('GET /api/admin/usuarios debería permitir acceso a admin', async () => {
     const res = await agent.get('/api/admin/usuarios');
-    // Si nuestro usuario autenticado es admin, esperamos 200, si no, 403
-    expect([200, 403]).toContain(res.status);
+    expect(res.status).toBe(200);
   });
 
-  test('GET /api/admin/logs debería requerir rol de admin', async () => {
+  test('GET /api/admin/logs debería permitir acceso a admin', async () => {
     const res = await agent.get('/api/admin/logs');
-    expect([200, 403]).toContain(res.status);
+    expect(res.status).toBe(200);
   });
 });
