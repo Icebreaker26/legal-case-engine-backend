@@ -11,6 +11,12 @@ jobs:
     runs-on: ubuntu-latest
     env:
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+      DATABASE_URL: postgresql://postgres:2608@localhost:5432/DBVECTOR
+      JWT_SECRET: super_secret_key_change_me_123456
+      FRONTEND_URL: http://localhost:5173
+      TEST_USER_EMAIL: alejandro.marin@enel.com
+      TEST_USER_PASS: 123456
+      NODE_ENV: test
     
     services:
       postgres:
@@ -51,10 +57,3 @@ jobs:
 
       - name: Run Testing Suite
         run: npm test
-        env:
-          DATABASE_URL: postgresql://postgres:2608@localhost:5432/DBVECTOR
-          JWT_SECRET: super_secret_key_change_me_123456
-          FRONTEND_URL: http://localhost:5173
-          TEST_USER_EMAIL: alejandro.marin@enel.com
-          TEST_USER_PASS: 123456
-          NODE_ENV: test
