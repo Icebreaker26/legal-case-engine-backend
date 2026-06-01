@@ -11,7 +11,7 @@ export const shorthands = undefined;
 export const up = (pgm) => {
     pgm.addColumns('equipos', {
         is_active: { type: 'boolean', default: true, notNull: true }
-    });
+    }, { ifNotExists: true });
 };
 
 /**
