@@ -11,7 +11,13 @@ export const checkPermission = (modulo, accion) => {
             const usuario_id = req.user?.id;
             if (!usuario_id) return res.status(401).json({ error: 'No autenticado.' });
 
-            // Consulta para verificar si existe el permiso
+            // 1. Verificar si el usuario es administrador
+            const adminCheck = await pool.query('SELECT is_admin FROM abogados WHERE id = $1', [usuario_id]);
+            if (adminCheck.rows[0]?.is_admin) {
+                return next();
+            }
+
+            // 2. Consulta para verificar si existe el permiso granular
             console.log('Verificando permiso:', { usuario_id, modulo, accion });
             const query = `
                 SELECT 1 

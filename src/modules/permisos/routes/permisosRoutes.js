@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { authenticateToken } from '../../../middlewares/authMiddleware.js';
-import { listarPermisosUsuario, asignarPermiso, revocarPermiso } from '../controllers/permisosController.js';
+import { listarPermisosUsuario, asignarPermiso, asignarPermisosMasivo, revocarPermiso } from '../controllers/permisosController.js';
 
 const router = Router();
 
@@ -36,6 +36,7 @@ router.get('/usuario/:usuario_id', listarPermisosUsuario);
  *         description: Éxito
  */
 router.post('/asignar', asignarPermiso);
+router.post('/asignar-masivo', asignarPermisosMasivo);
 
 /**
  * @swagger
