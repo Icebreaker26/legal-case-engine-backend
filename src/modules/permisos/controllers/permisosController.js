@@ -25,16 +25,40 @@ export const asignarPermiso = async (req, res) => {
             INSERT INTO permisos (usuario_id, modulo_id, accion_id)
             SELECT $1, m.id, a.id
             FROM modulos m, acciones a
-            WHERE m.nombre = $2 AND a.nombre = $3;
+            WHERE m.nombre = $2 AND a.nombre = $3
+            ON CONFLICT (usuario_id, modulo_id, accion_id) DO NOTHING;
         `;
         await pool.query(query, [usuario_id, modulo, accion]);
-        res.status(201).json({ message: 'Permiso asignado correctamente.' });
+        res.status(201).json({ message: 'Permiso gestionado correctamente.' });
     } catch (error) {
-        // 23505 es el código de error de PostgreSQL para unique_violation
-        if (error.code === '23505') {
-            return res.status(409).json({ error: 'El permiso ya está asignado a este usuario.' });
-        }
+        console.error(error);
         res.status(500).json({ error: 'Error al asignar permiso.' });
+    }
+};
+
+export const asignarPermisosMasivo = async (req, res) => {
+    const { usuario_id, permisos } = req.body;
+    const client = await pool.connect();
+    try {
+        await client.query('BEGIN');
+        for (const p of permisos) {
+            const query = `
+                INSERT INTO permisos (usuario_id, modulo_id, accion_id)
+                SELECT $1, m.id, a.id
+                FROM modulos m, acciones a
+                WHERE m.nombre = $2 AND a.nombre = $3
+                ON CONFLICT (usuario_id, modulo_id, accion_id) DO NOTHING;
+            `;
+            await client.query(query, [usuario_id, p.modulo, p.accion]);
+        }
+        await client.query('COMMIT');
+        res.status(201).json({ message: 'Permisos asignados masivamente.' });
+    } catch (error) {
+        await client.query('ROLLBACK');
+        console.error(error);
+        res.status(500).json({ error: 'Error en asignación masiva.' });
+    } finally {
+        client.release();
     }
 };
 

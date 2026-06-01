@@ -53,7 +53,13 @@ export const login = async (req, res) => {
         maxAge: 8 * 60 * 60 * 1000 // 8 horas
     });
 
-    res.json({ user: { id: abogado.id, nombre: abogado.nombre, email: abogado.email, rol: abogado.rol } });
+    res.json({ user: { 
+        id: abogado.id, 
+        nombre: abogado.nombre, 
+        email: abogado.email, 
+        rol: abogado.rol,
+        mustChangePassword: abogado.must_change_password 
+    } });
   } catch (error) {
     logger.error('Error en login:', { message: error.message, requestId: req.requestId });
     res.status(500).json({ error: 'Error interno en autenticación.' });
@@ -63,4 +69,18 @@ export const login = async (req, res) => {
 export const logout = (req, res) => {
     res.clearCookie('token');
     res.json({ message: 'Sesión cerrada' });
+};
+
+export const changePassword = async (req, res) => {
+    try {
+        const { id } = req.user;
+        const { newPassword } = req.body;
+        const saltRounds = 10;
+        const password_hash = await bcrypt.hash(newPassword, saltRounds);
+        await pool.query('UPDATE abogados SET password_hash = $1, must_change_password = FALSE WHERE id = $2', [password_hash, id]);
+        res.json({ message: 'Contraseña actualizada' });
+    } catch (error) {
+        logger.error('Error cambiando contraseña:', error);
+        res.status(500).json({ error: 'Error al actualizar.' });
+    }
 };

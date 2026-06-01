@@ -1,5 +1,6 @@
 import { Router } from 'express';
-import { login, register, logout } from '../../../controllers/authController.js';
+import { login, register, logout, changePassword } from '../../../controllers/authController.js';
+import { authenticateToken } from '../../../middlewares/authMiddleware.js';
 import { validate } from '../../../middlewares/validateMiddleware.js';
 import { registerSchema } from '../../../schemas/authSchema.js';
 
@@ -40,5 +41,7 @@ router.post('/register', validate(registerSchema), register);
  *         description: Éxito
  */
 router.post('/logout', logout);
+
+router.patch('/change-password', authenticateToken, changePassword);
 
 export default router;

@@ -1,5 +1,6 @@
 import bcrypt from 'bcrypt';
 import pool from '../db/database.js';
+import crypto from 'crypto';
 
 export const listarUsuarios = async (req, res) => {
   try {
@@ -211,15 +212,19 @@ export const actualizarUsuario = async (req, res) => {
 export const resetearPassword = async (req, res) => {
   try {
     const { id } = req.params;
-    const { newPassword } = req.body;
+    let { newPassword } = req.body;
+
+    if (!newPassword) {
+      newPassword = crypto.randomBytes(8).toString('hex');
+    }
     
     const saltRounds = 10;
     const password_hash = await bcrypt.hash(newPassword, saltRounds);
     
-    const query = 'UPDATE abogados SET password_hash = $1 WHERE id = $2';
+    const query = 'UPDATE abogados SET password_hash = $1, must_change_password = TRUE WHERE id = $2';
     await pool.query(query, [password_hash, id]);
     
-    res.json({ message: 'Contraseña actualizada correctamente.' });
+    res.json({ message: 'Contraseña actualizada.', newPassword });
   } catch (error) {
     res.status(500).json({ error: 'Error al resetear contraseña.' });
   }
