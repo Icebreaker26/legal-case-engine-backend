@@ -61,10 +61,13 @@ describe('Módulo Comunicaciones - CRUD e Integración', () => {
     test('Debería realizar borrado lógico', async () => {
         const res = mockRes();
         await eliminarComunicacion({ params: { id: comunicacionId } }, res);
-        // Controlador usa res.json() directamente
         
         const resList = mockRes();
         await listarComunicaciones({}, resList);
-        expect(resList.body.find(c => c.id === comunicacionId)).toBeUndefined();
+        
+        // Verificamos que la comunicación aún existe pero está marcada como inactiva
+        const com = resList.body.find(c => c.id === comunicacionId);
+        expect(com).toBeDefined();
+        expect(com.is_active).toBe(false);
     });
 });
