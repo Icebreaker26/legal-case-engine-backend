@@ -5,6 +5,7 @@ import { validate } from '../../../middlewares/validateMiddleware.js';
 import { 
     crearComunicacion, 
     listarComunicaciones, 
+    listarMisComunicaciones,
     actualizarComunicacion, 
     eliminarComunicacion,
     archivarComunicacion,
@@ -36,6 +37,7 @@ router.use(authenticateToken);
 
 router.post('/', checkPermission('comunicaciones', 'WRITE_COM'), validate(comunicacionSchema), crearComunicacion);
 router.get('/stats', checkPermission('comunicaciones', 'READ_COM'), obtenerEstadisticas);
+router.get('/mis-comunicaciones', checkPermission('comunicaciones', 'READ_COM'), listarMisComunicaciones);
 router.get('/', checkPermission('comunicaciones', 'READ_COM'), listarComunicaciones);
 router.get('/entidades', checkPermission('comunicaciones', 'READ_COM'), listarEntidades);
 router.get('/entidades/inactivas', checkPermission('comunicaciones', 'READ_COM'), listarInactivosEntidades);

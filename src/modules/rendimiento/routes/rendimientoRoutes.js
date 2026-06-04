@@ -3,6 +3,13 @@ import { authenticateToken } from '../../../middlewares/authMiddleware.js';
 import { checkPermission } from '../../../middlewares/permissionMiddleware.js';
 import { validate } from '../../../middlewares/validateMiddleware.js';
 import { 
+    crearObjetivo, 
+    listarObjetivos, 
+    listarMisObjetivos,
+    actualizarObjetivo, 
+    eliminarObjetivo
+} from '../controllers/objetivoController.js';
+import { 
     registrarAccion, 
     obtenerCumplimientoIndividual, 
     obtenerCumplimientoEquipo,
@@ -11,10 +18,6 @@ import {
     obtenerHistorialAccionesObjetivo,
     exportarDatosEquipo,
     listarObjetivosPorEquipo,
-    crearObjetivo, 
-    listarObjetivos, 
-    actualizarObjetivo, 
-    eliminarObjetivo,
     archivarObjetivo,
     crearEquipo,
     listarEquipos,
@@ -43,6 +46,7 @@ router.get('/equipos/:equipo_id/exportar-completo', checkPermission('rendimiento
 
 // CRUD Objetivos
 router.post('/objetivos', checkPermission('rendimiento', 'WRITE'), validate(objetivoSchema), crearObjetivo);
+router.get('/mis-objetivos', checkPermission('rendimiento', 'READ'), listarMisObjetivos);
 router.get('/objetivos', checkPermission('rendimiento', 'READ'), listarObjetivos);
 router.patch('/objetivos/:id', checkPermission('rendimiento', 'WRITE'), validate(objetivoSchema.partial()), actualizarObjetivo);
 router.delete('/objetivos/:id', checkPermission('rendimiento', 'DELETE'), eliminarObjetivo);

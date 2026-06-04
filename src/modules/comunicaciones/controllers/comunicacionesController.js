@@ -27,6 +27,24 @@ export const listarComunicaciones = async (req, res) => {
     } catch (error) { console.error(error); res.status(500).json({ error: 'Error al listar.' }); }
 };
 
+export const listarMisComunicaciones = async (req, res) => {
+    try {
+        const query = `
+            SELECT c.*, a.nombre as responsable_nombre, e.nombre as entidad,
+            ARRAY_AGG(DISTINCT g.nombre) as grupos
+            FROM comunicaciones c
+            LEFT JOIN abogados a ON c.responsable_id = a.id
+            LEFT JOIN entidades e ON c.entidad_id = e.id
+            LEFT JOIN comunicacion_grupos cg ON c.id = cg.comunicacion_id
+            LEFT JOIN grupos g ON cg.grupo_id = g.id
+            WHERE c.responsable_id = $1 AND c.is_active = true
+            GROUP BY c.id, a.nombre, e.nombre
+        `;
+        const { rows } = await pool.query(query, [req.user.id]);
+        res.json(rows);
+    } catch (error) { console.error(error); res.status(500).json({ error: 'Error al listar mis comunicaciones.' }); }
+};
+
 export const listarGrupos = async (req, res) => {
     try { const { rows } = await pool.query('SELECT * FROM grupos WHERE is_active = true ORDER BY nombre ASC'); res.json(rows); } catch (error) { console.error(error); res.status(500).json({ error: 'Error al listar grupos.' }); }
 };
