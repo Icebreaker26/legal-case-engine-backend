@@ -14,13 +14,14 @@ export const listarComunicaciones = async (req, res) => {
     try {
         const query = `
             SELECT c.*, a.nombre as responsable_nombre, e.nombre as entidad,
-            ARRAY_AGG(DISTINCT g.nombre) as grupos
+            ARRAY_AGG(DISTINCT g.nombre) FILTER (WHERE g.nombre IS NOT NULL) as grupos
             FROM comunicaciones c
             LEFT JOIN abogados a ON c.responsable_id = a.id
             LEFT JOIN entidades e ON c.entidad_id = e.id
             LEFT JOIN comunicacion_grupos cg ON c.id = cg.comunicacion_id
             LEFT JOIN grupos g ON cg.grupo_id = g.id
             GROUP BY c.id, a.nombre, e.nombre
+            ORDER BY c.created_at DESC
         `;
         const { rows } = await pool.query(query);
         res.json(rows);
@@ -31,14 +32,15 @@ export const listarMisComunicaciones = async (req, res) => {
     try {
         const query = `
             SELECT c.*, a.nombre as responsable_nombre, e.nombre as entidad,
-            ARRAY_AGG(DISTINCT g.nombre) as grupos
+            ARRAY_AGG(DISTINCT g.nombre) FILTER (WHERE g.nombre IS NOT NULL) as grupos
             FROM comunicaciones c
             LEFT JOIN abogados a ON c.responsable_id = a.id
             LEFT JOIN entidades e ON c.entidad_id = e.id
             LEFT JOIN comunicacion_grupos cg ON c.id = cg.comunicacion_id
             LEFT JOIN grupos g ON cg.grupo_id = g.id
-            WHERE c.responsable_id = $1 AND c.is_active = true
+            WHERE c.responsable_id = $1
             GROUP BY c.id, a.nombre, e.nombre
+            ORDER BY c.created_at DESC
         `;
         const { rows } = await pool.query(query, [req.user.id]);
         res.json(rows);
@@ -107,7 +109,12 @@ export const actualizarComunicacion = async (req, res) => {
         const { estado, responsable_id, asunto, descripcion, link } = req.body;
         const usuario_id = req.user.id;
         const old = await pool.query('SELECT * FROM comunicaciones WHERE id = $1', [id]);
-        await pool.query('UPDATE comunicaciones SET estado = $1, responsable_id = $2, asunto = $3, descripcion = $4, link = $5 WHERE id = $6', [estado, responsable_id, asunto, descripcion, link, id]);
+        
+        // Determinar si queda inactiva
+        const isActive = estado !== 'respondida';
+        
+        await pool.query('UPDATE comunicaciones SET estado = $1, is_active = $2, responsable_id = $3, asunto = $4, descripcion = $5, link = $6 WHERE id = $7', [estado, isActive, responsable_id, asunto, descripcion, link, id]);
+        
         let cambio = `Comunicación actualizada: `;
         if (old.rows[0].estado !== estado) cambio += `Estado de ${old.rows[0].estado} a ${estado}. `;
         if (old.rows[0].responsable_id !== responsable_id) cambio += `Responsable cambiado. `;
@@ -140,6 +147,7 @@ export const marcarComoRespondida = async (req, res) => {
     try {
         const { id } = req.params;
         const usuario_id = req.user.id;
+        // Al responder, pasa a respondida y se desactiva
         await pool.query('UPDATE comunicaciones SET estado = \'respondida\', is_active = false WHERE id = $1', [id]);
         await pool.query('INSERT INTO comunicacion_trazabilidad (comunicacion_id, usuario_id, comentario) VALUES ($1, $2, $3)', [id, usuario_id, 'Comunicación marcada como respondida y archivada automáticamente.']);
         res.json({ message: 'Comunicación marcada como respondida.' });
@@ -197,7 +205,7 @@ export const obtenerEstadisticas = async (req, res) => {
                 COUNT(DISTINCT c.id) as total,
                 SUM(CASE WHEN c.estado = 'pendiente' THEN 1 ELSE 0 END) as pendientes,
                 SUM(CASE WHEN c.estado = 'respondida' THEN 1 ELSE 0 END) as respondidas,
-                SUM(CASE WHEN c.fecha_limite < CURRENT_TIMESTAMP AND c.estado != 'respondida' AND c.is_active = true THEN 1 ELSE 0 END) as vencidas,
+                SUM(CASE WHEN c.fecha_limite < CURRENT_TIMESTAMP AND c.estado != 'respondida' THEN 1 ELSE 0 END) as vencidas,
                 (SELECT e.nombre FROM entidades e JOIN comunicaciones c2 ON e.id = c2.entidad_id WHERE c2.is_active = true GROUP BY e.nombre ORDER BY COUNT(*) DESC LIMIT 1) as entidad_mas_activa
             FROM comunicaciones c ${joinQuery} ${whereSQL};
         `;
