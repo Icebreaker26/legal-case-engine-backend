@@ -14,6 +14,7 @@ import {
     entrenarContextoLocal, 
     actualizarGestionTutela, 
     listarTutelas,
+    listarMisTutelas,
     obtenerSugerenciasTutela,
     obtenerHistorialTutela,
     agregarAccionHistorial,
@@ -52,6 +53,7 @@ router.use(authenticateToken);
  *         description: Lista de tutelas obtenida exitosamente
  */
 // Gestión de Tutelas
+router.get('/mis-tutelas', checkPermission('tutelas', 'READ'), listarMisTutelas);
 router.get('/', checkPermission('tutelas', 'READ'), listarTutelas); 
 /**
  * @swagger

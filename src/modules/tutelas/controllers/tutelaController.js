@@ -236,6 +236,27 @@ export const listarTutelas = async (req, res) => {
   }
 };
 
+export const listarMisTutelas = async (req, res) => {
+  try {
+    const query = `
+      SELECT t.*, 
+             COALESCE(array_agg(a.nombre) FILTER (WHERE a.nombre IS NOT NULL), '{}') as responsables_nombres,
+             COALESCE(array_agg(a.id) FILTER (WHERE a.id IS NOT NULL), '{}') as responsables_ids
+      FROM tutelas t
+      JOIN tutela_responsables tr ON t.id = tr.tutela_id
+      LEFT JOIN abogados a ON tr.abogado_id = a.id
+      WHERE t.is_active = TRUE AND tr.abogado_id = $1
+      GROUP BY t.id
+      ORDER BY t.fecha_vencimiento ASC;
+    `;
+    const { rows } = await pool.query(query, [req.user.id]);
+    res.status(200).json(rows);
+  } catch (error) {
+    console.error('Error al listar mis tutelas:', error);
+    res.status(500).json({ error: 'Error al obtener tus tutelas.' });
+  }
+};
+
 export const eliminarTutela = async (req, res) => {
   try {
     const { id } = req.params;

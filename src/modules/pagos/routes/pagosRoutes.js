@@ -5,6 +5,7 @@ import { validate } from '../../../middlewares/validateMiddleware.js';
 import { 
     crearPago, 
     listarPagos, 
+    listarMisPagos,
     actualizarEstadoPago, 
     obtenerTrazabilidad,
     obtenerEstadisticas,
@@ -21,6 +22,7 @@ router.use(authenticateToken);
 
 router.post('/', checkPermission('pagos', 'WRITE_PAGO'), validate(pagoSchema), crearPago);
 router.get('/stats', checkPermission('pagos', 'READ_PAGO'), obtenerEstadisticas);
+router.get('/mis-pagos', checkPermission('pagos', 'READ_PAGO'), listarMisPagos);
 router.get('/estados', checkPermission('pagos', 'READ_PAGO'), listarEstados);
 router.get('/grupos', checkPermission('pagos', 'READ_PAGO'), listarGrupos);
 router.post('/:id/grupos', checkPermission('pagos', 'WRITE_PAGO'), asignarGrupoAPago);

@@ -27,6 +27,17 @@ export const listarObjetivos = async (req, res) => {
     }
 };
 
+export const listarMisObjetivos = async (req, res) => {
+    try {
+        const query = 'SELECT * FROM objetivos WHERE usuario_id = $1';
+        const { rows } = await pool.query(query, [req.user.id]);
+        res.json(rows);
+    } catch (error) {
+        console.error('Error al listar mis objetivos:', error);
+        res.status(500).json({ error: 'Error al listar mis objetivos.' });
+    }
+};
+
 export const actualizarObjetivo = async (req, res) => {
     try {
         const { id } = req.params;
