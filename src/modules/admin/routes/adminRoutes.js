@@ -54,13 +54,20 @@ router.patch('/roi', actualizarROIConfig);
 router.get('/carga-trabajo', obtenerCargaTrabajo);
 router.get('/latencia', obtenerLatenciaOperativa);
 
-router.use(isAdmin);
+import { checkPermission } from '../../../middlewares/permissionMiddleware.js';
+
+// ... existing code ...
+router.get('/latencia', obtenerLatenciaOperativa);
+
+// Permiso para listar usuarios accesible para cualquier usuario autenticado
 router.get('/usuarios', listarUsuarios);
-router.patch('/usuarios/:id', actualizarUsuario);
-router.patch('/usuarios/:id/rol', cambiarRol);
-router.post('/usuarios/:id/reset-password', resetearPassword);
-router.post('/config', actualizarConfiguracion);
-router.get('/logs', listarLogs);
-router.get('/logs/mis-logs', listarMisLogs);
+
+// Rutas administrativas con control granular utilizando acciones estándar
+router.patch('/usuarios/:id', checkPermission('admin', 'WRITE'), actualizarUsuario);
+router.patch('/usuarios/:id/rol', checkPermission('admin', 'WRITE'), cambiarRol);
+router.post('/usuarios/:id/reset-password', checkPermission('admin', 'WRITE'), resetearPassword);
+router.post('/config', checkPermission('admin', 'WRITE'), actualizarConfiguracion);
+router.get('/logs', checkPermission('admin', 'READ'), listarLogs);
+router.get('/logs/mis-logs', checkPermission('admin', 'READ'), listarMisLogs);
 
 export default router;
