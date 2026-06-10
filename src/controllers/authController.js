@@ -8,6 +8,7 @@ const JWT_SECRET = process.env.JWT_SECRET || 'super_secret_key_change_me';
 export const register = async (req, res) => {
   try {
     const { nombre, email, password, especialidad } = req.body;
+    const normalizedEmail = email.toLowerCase();
     
     // Hashear contraseña
     const saltRounds = 10;
@@ -18,7 +19,7 @@ export const register = async (req, res) => {
       VALUES ($1, $2, $3, $4) RETURNING id, nombre, email;
     `;
     
-    const { rows } = await pool.query(query, [nombre, email, password_hash, especialidad]);
+    const { rows } = await pool.query(query, [nombre, normalizedEmail, password_hash, especialidad]);
     res.status(201).json({ message: 'Usuario registrado', user: rows[0] });
   } catch (error) {
     logger.error('Error en registro:', { message: error.message, requestId: req.requestId });
@@ -29,9 +30,10 @@ export const register = async (req, res) => {
 export const login = async (req, res) => {
   try {
     const { email, password } = req.body;
+    const normalizedEmail = email.toLowerCase();
 
     const query = 'SELECT * FROM abogados WHERE email = $1';
-    const { rows } = await pool.query(query, [email]);
+    const { rows } = await pool.query(query, [normalizedEmail]);
 
     if (rows.length === 0) return res.status(401).json({ error: 'Credenciales inválidas.' });
 

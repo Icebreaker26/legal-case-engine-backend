@@ -29,12 +29,11 @@ export const listarPagos = async (req, res) => {
     try {
         const query = `
             SELECT p.*, a.nombre as solicitante_nombre,
-            ARRAY_AGG(DISTINCT g.nombre) as grupos
+            ARRAY_AGG(DISTINCT g.nombre) FILTER (WHERE g.nombre IS NOT NULL) as grupos
             FROM pagos p
             LEFT JOIN abogados a ON p.solicitante_id = a.id
             LEFT JOIN pago_grupos pg ON p.id = pg.pago_id
             LEFT JOIN grupos g ON pg.grupo_id = g.id
-            WHERE p.is_active = true
             GROUP BY p.id, a.nombre
             ORDER BY p.created_at DESC
         `;
@@ -47,12 +46,12 @@ export const listarMisPagos = async (req, res) => {
     try {
         const query = `
             SELECT p.*, a.nombre as solicitante_nombre,
-            ARRAY_AGG(DISTINCT g.nombre) as grupos
+            ARRAY_AGG(DISTINCT g.nombre) FILTER (WHERE g.nombre IS NOT NULL) as grupos
             FROM pagos p
             LEFT JOIN abogados a ON p.solicitante_id = a.id
             LEFT JOIN pago_grupos pg ON p.id = pg.pago_id
             LEFT JOIN grupos g ON pg.grupo_id = g.id
-            WHERE p.solicitante_id = $1 AND p.is_active = true
+            WHERE p.solicitante_id = $1
             GROUP BY p.id, a.nombre
             ORDER BY p.created_at DESC
         `;
@@ -82,8 +81,11 @@ export const actualizarEstadoPago = async (req, res) => {
 
         const old = await pool.query('SELECT * FROM pagos WHERE id = $1', [id]);
         
-        let updateQuery = 'UPDATE pagos SET estado = $1';
-        let params = [estado, id];
+        // Determinar si el pago debe quedar inactivo: solo si el nuevo estado es 'pagado'
+        const isActive = estado !== 'pagado';
+        
+        let updateQuery = 'UPDATE pagos SET estado = $1, is_active = $2';
+        let params = [estado, isActive, id];
         
         if (pdp_sap_id) { updateQuery += ', pdp_sap_id = $' + (params.length + 1); params.push(pdp_sap_id); }
         if (soportes_link) { updateQuery += ', soportes_link = $' + (params.length + 1); params.push(soportes_link); }
@@ -92,7 +94,7 @@ export const actualizarEstadoPago = async (req, res) => {
         const now = new Date().toISOString().split('T')[0];
         if (estado === 'liberado') { updateQuery += ', fecha_liberacion = $' + (params.length + 1); params.push(now); }
         
-        updateQuery += ' WHERE id = $2';
+        updateQuery += ' WHERE id = $3'; // id es el tercer parametro ahora
         await pool.query(updateQuery, params);
         
         await pool.query('INSERT INTO pago_trazabilidad (pago_id, usuario_id, estado_anterior, estado_nuevo, comentario) VALUES ($1, $2, $3, $4, $5)', 
