@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { authenticateToken } from '../../../middlewares/authMiddleware.js';
-import { isAdmin } from '../../../middlewares/adminMiddleware.js';
+import { checkPermission } from '../../../middlewares/permissionMiddleware.js';
 import { 
     listarUsuarios, 
     actualizarUsuario, 
@@ -32,35 +32,40 @@ const router = Router();
 
 router.use(authenticateToken);
 
-router.get('/config', obtenerConfiguracion);
-router.get('/abogados-activos', listarAbogadosActivos);
-router.get('/areas', listarAreas);
-router.post('/areas', crearArea);
-router.patch('/areas/:id', actualizarArea);
-router.delete('/areas/:id', eliminarArea);
+// --- Rutas accesibles con permisos del módulo Tutelas ---
+router.get('/areas', checkPermission('tutelas', 'READ'), listarAreas);
+router.post('/areas', checkPermission('tutelas', 'WRITE'), crearArea);
+router.patch('/areas/:id', checkPermission('tutelas', 'WRITE'), actualizarArea);
+router.delete('/areas/:id', checkPermission('tutelas', 'WRITE'), eliminarArea);
 
-router.get('/categorias', listarCategorias);
-router.post('/categorias', crearCategoria);
-router.patch('/categorias/:id', actualizarCategoria);
-router.delete('/categorias/:id', eliminarCategoria);
+router.get('/categorias', checkPermission('tutelas', 'READ'), listarCategorias);
+router.post('/categorias', checkPermission('tutelas', 'WRITE'), crearCategoria);
+router.patch('/categorias/:id', checkPermission('tutelas', 'WRITE'), actualizarCategoria);
+router.delete('/categorias/:id', checkPermission('tutelas', 'WRITE'), eliminarCategoria);
 
-router.get('/noise', listarNoisePatterns);
-router.post('/noise', crearNoisePattern);
-router.patch('/noise/:id', actualizarNoisePattern);
-router.delete('/noise/:id', eliminarNoisePattern);
+router.get('/noise', checkPermission('tutelas', 'READ'), listarNoisePatterns);
+router.post('/noise', checkPermission('tutelas', 'WRITE'), crearNoisePattern);
+router.patch('/noise/:id', checkPermission('tutelas', 'WRITE'), actualizarNoisePattern);
+router.delete('/noise/:id', checkPermission('tutelas', 'WRITE'), eliminarNoisePattern);
 
-router.get('/roi', obtenerROI);
-router.patch('/roi', actualizarROIConfig);
-router.get('/carga-trabajo', obtenerCargaTrabajo);
-router.get('/latencia', obtenerLatenciaOperativa);
+// --- Rutas protegidas exclusivamente por ADMIN (Granular) ---
 
-router.use(isAdmin);
-router.get('/usuarios', listarUsuarios);
-router.patch('/usuarios/:id', actualizarUsuario);
-router.patch('/usuarios/:id/rol', cambiarRol);
-router.post('/usuarios/:id/reset-password', resetearPassword);
-router.post('/config', actualizarConfiguracion);
-router.get('/logs', listarLogs);
-router.get('/logs/mis-logs', listarMisLogs);
+router.get('/config', checkPermission('admin', 'READ'), obtenerConfiguracion);
+router.post('/config', checkPermission('admin', 'WRITE'), actualizarConfiguracion);
+
+router.get('/roi', checkPermission('admin', 'READ'), obtenerROI);
+router.patch('/roi', checkPermission('admin', 'WRITE'), actualizarROIConfig);
+router.get('/carga-trabajo', checkPermission('admin', 'READ'), obtenerCargaTrabajo);
+router.get('/latencia', checkPermission('admin', 'READ'), obtenerLatenciaOperativa);
+
+router.get('/usuarios', checkPermission('admin', 'READ'), listarUsuarios);
+router.patch('/usuarios/:id', checkPermission('admin', 'WRITE'), actualizarUsuario);
+router.patch('/usuarios/:id/rol', checkPermission('admin', 'WRITE'), cambiarRol);
+router.post('/usuarios/:id/reset-password', checkPermission('admin', 'WRITE'), resetearPassword);
+
+router.get('/logs', checkPermission('admin', 'READ'), listarLogs);
+router.get('/logs/mis-logs', checkPermission('admin', 'READ'), listarMisLogs);
+
+router.get('/abogados-activos', checkPermission('admin', 'READ'), listarAbogadosActivos);
 
 export default router;
