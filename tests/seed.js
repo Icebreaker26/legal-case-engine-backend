@@ -25,6 +25,10 @@ async function seed() {
     
     await pool.query(query, ['Test Admin', process.env.TEST_USER_EMAIL || 'alejandro@icebreaker.com', password_hash, 'Administración', true, true]);
     
+    // Seed para proyectos y contratos
+    await pool.query('INSERT INTO proyectos (nombre) VALUES ($1) ON CONFLICT (nombre) DO NOTHING', ['Proyecto Test']);
+    await pool.query('INSERT INTO contratos (numero) VALUES ($1) ON CONFLICT (numero) DO NOTHING', ['CONT-2026-001']);
+
     console.log('✅ Datos de prueba insertados correctamente.');
     process.exit(0);
   } catch (err) {
