@@ -12,7 +12,7 @@ const mockRes = () => {
     return res;
 };
 
-const TEST_USER_UUID = 'dbd5da24-d760-4a86-b4f8-dc81f82d9adf';
+const TEST_USER_UUID = '787b8bcf-9555-451e-87de-97dca52bc5a7';
 
 describe('Módulo Conformidades - CRUD e Integración', () => {
     let conformidadId;
