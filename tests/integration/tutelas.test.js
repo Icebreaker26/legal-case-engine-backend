@@ -7,27 +7,27 @@ const app = createApp();
 const agent = request.agent(app);
 
 describe('Tutela Routes - Integración', () => {
-  let testUserId;
+  let testUserUuid; // Cambiado a UUID
   const testEmail = 'tutelas-test@icebreaker.com';
   const testPass = 'testpass123';
 
   beforeAll(async () => {
-    // 1. Crear usuario de prueba (Idempotente)
+    // 1. Crear usuario de prueba en global_usuarios (Idempotente)
     const hash = await bcrypt.hash(testPass, 10);
     const userRes = await pool.query(
-      'INSERT INTO abogados (nombre, email, password_hash, especialidad, is_approved) VALUES ($1, $2, $3, $4, $5) ON CONFLICT (email) DO UPDATE SET password_hash = EXCLUDED.password_hash RETURNING id',
-      ['Tutelas Test User', testEmail, hash, 'Testing', true]
+      'INSERT INTO global_usuarios (nombre, email, password_hash, rol, is_approved) VALUES ($1, $2, $3, $4, $5) ON CONFLICT (email) DO UPDATE SET password_hash = EXCLUDED.password_hash RETURNING id',
+      ['Tutelas Test User', testEmail, hash, 'juridico', true]
     );
-    testUserId = userRes.rows[0].id;
+    testUserUuid = userRes.rows[0].id; // UUID
 
-    // 2. Conceder permisos necesarios
+    // 2. Conceder permisos necesarios (Usando UUID)
     await pool.query(`
-      INSERT INTO permisos (usuario_id, modulo_id, accion_id)
+      INSERT INTO permisos (usuario_uuid, modulo_id, accion_id)
       SELECT $1, m.id, a.id
       FROM modulos m, acciones a
       WHERE m.nombre = 'tutelas' AND a.nombre IN ('READ', 'WRITE')
       ON CONFLICT DO NOTHING;
-    `, [testUserId]);
+    `, [testUserUuid]);
 
     // 3. Login
     await agent.post('/api/auth/login').send({
@@ -37,10 +37,10 @@ describe('Tutela Routes - Integración', () => {
   });
 
   afterAll(async () => {
-    if (testUserId) {
-      await pool.query('DELETE FROM logs_sistema WHERE usuario_id = $1', [testUserId]);
-      await pool.query('DELETE FROM permisos WHERE usuario_id = $1', [testUserId]);
-      await pool.query('DELETE FROM abogados WHERE id = $1', [testUserId]);
+    if (testUserUuid) {
+      await pool.query('DELETE FROM logs_sistema WHERE usuario_uuid = $1', [testUserUuid]);
+      await pool.query('DELETE FROM permisos WHERE usuario_uuid = $1', [testUserUuid]);
+      await pool.query('DELETE FROM global_usuarios WHERE id = $1', [testUserUuid]);
     }
     await pool.end();
   });

@@ -1,12 +1,12 @@
 import pool from '../../../db/database.js';
 
-export const crearNotificacion = async (usuario_id, mensaje, tipo, referencia_id) => {
+export const crearNotificacion = async (usuario_uuid, mensaje, tipo, referencia_id) => {
     try {
         const query = `
-            INSERT INTO notificaciones (usuario_id, mensaje, tipo, referencia_id)
+            INSERT INTO notificaciones (usuario_uuid, mensaje, tipo, referencia_id)
             VALUES ($1, $2, $3, $4)
         `;
-        await pool.query(query, [usuario_id, mensaje, tipo, referencia_id]);
+        await pool.query(query, [usuario_uuid, mensaje, tipo, referencia_id]);
     } catch (error) {
         console.error('Error al crear notificación:', error);
     }

@@ -2,10 +2,15 @@ import pool from '../../../db/database.js';
 
 export const crearComunicacion = async (req, res) => {
     try {
-        const { entidad_id, tipo, asunto, fecha_recepcion, fecha_limite, responsable_id, descripcion, link } = req.body;
+        const { entidad_id, tipo, asunto, fecha_recepcion, fecha_limite, responsable_uuid, descripcion, link } = req.body;
         const fechaLimiteFormateada = fecha_limite && fecha_limite.trim() !== '' ? fecha_limite : null;
-        const query = 'INSERT INTO comunicaciones (entidad_id, tipo, asunto, fecha_recepcion, fecha_limite, responsable_id, estado, descripcion, link) VALUES ($1, $2, $3, $4, $5, $6, \'pendiente\', $7, $8) RETURNING id';
-        const result = await pool.query(query, [entidad_id, tipo, asunto, fecha_recepcion, fechaLimiteFormateada, responsable_id, descripcion, link]);
+        
+        const query = `
+            INSERT INTO comunicaciones (entidad_id, tipo, asunto, fecha_recepcion, fecha_limite, responsable_uuid, estado, descripcion, link) 
+            VALUES ($1, $2, $3, $4, $5, $6, 'pendiente', $7, $8) 
+            RETURNING id
+        `;
+        const result = await pool.query(query, [entidad_id, tipo, asunto, fecha_recepcion, fechaLimiteFormateada, responsable_uuid, descripcion, link]);
         res.status(201).json({ id: result.rows[0].id, message: 'Comunicación creada.' });
     } catch (error) { console.error(error); res.status(500).json({ error: 'Error al crear.' }); }
 };
@@ -13,14 +18,14 @@ export const crearComunicacion = async (req, res) => {
 export const listarComunicaciones = async (req, res) => {
     try {
         const query = `
-            SELECT c.*, a.nombre as responsable_nombre, e.nombre as entidad,
-            ARRAY_AGG(DISTINCT g.nombre) FILTER (WHERE g.nombre IS NOT NULL) as grupos
+            SELECT c.*, gu.nombre as responsable_nombre, ge.nombre as entidad,
+            ARRAY_AGG(DISTINCT gg.nombre) FILTER (WHERE gg.nombre IS NOT NULL) as grupos
             FROM comunicaciones c
-            LEFT JOIN abogados a ON c.responsable_id = a.id
-            LEFT JOIN entidades e ON c.entidad_id = e.id
+            LEFT JOIN global_usuarios gu ON c.responsable_uuid = gu.id
+            LEFT JOIN global_entidades ge ON c.entidad_id = ge.id
             LEFT JOIN comunicacion_grupos cg ON c.id = cg.comunicacion_id
-            LEFT JOIN grupos g ON cg.grupo_id = g.id
-            GROUP BY c.id, a.nombre, e.nombre
+            LEFT JOIN global_grupos gg ON cg.grupo_id = gg.id
+            GROUP BY c.id, gu.nombre, ge.nombre
             ORDER BY c.created_at DESC
         `;
         const { rows } = await pool.query(query);
@@ -31,44 +36,20 @@ export const listarComunicaciones = async (req, res) => {
 export const listarMisComunicaciones = async (req, res) => {
     try {
         const query = `
-            SELECT c.*, a.nombre as responsable_nombre, e.nombre as entidad,
-            ARRAY_AGG(DISTINCT g.nombre) FILTER (WHERE g.nombre IS NOT NULL) as grupos
+            SELECT c.*, gu.nombre as responsable_nombre, ge.nombre as entidad,
+            ARRAY_AGG(DISTINCT gg.nombre) FILTER (WHERE gg.nombre IS NOT NULL) as grupos
             FROM comunicaciones c
-            LEFT JOIN abogados a ON c.responsable_id = a.id
-            LEFT JOIN entidades e ON c.entidad_id = e.id
+            LEFT JOIN global_usuarios gu ON c.responsable_uuid = gu.id
+            LEFT JOIN global_entidades ge ON c.entidad_id = ge.id
             LEFT JOIN comunicacion_grupos cg ON c.id = cg.comunicacion_id
-            LEFT JOIN grupos g ON cg.grupo_id = g.id
-            WHERE c.responsable_id = $1
-            GROUP BY c.id, a.nombre, e.nombre
+            LEFT JOIN global_grupos gg ON cg.grupo_id = gg.id
+            WHERE c.responsable_uuid = $1
+            GROUP BY c.id, gu.nombre, ge.nombre
             ORDER BY c.created_at DESC
         `;
         const { rows } = await pool.query(query, [req.user.id]);
         res.json(rows);
     } catch (error) { console.error(error); res.status(500).json({ error: 'Error al listar mis comunicaciones.' }); }
-};
-
-export const listarGrupos = async (req, res) => {
-    try { const { rows } = await pool.query('SELECT * FROM grupos WHERE is_active = true ORDER BY nombre ASC'); res.json(rows); } catch (error) { console.error(error); res.status(500).json({ error: 'Error al listar grupos.' }); }
-};
-
-export const listarInactivosGrupos = async (req, res) => {
-    try { const { rows } = await pool.query('SELECT * FROM grupos WHERE is_active = false ORDER BY nombre ASC'); res.json(rows); } catch (error) { console.error(error); res.status(500).json({ error: 'Error al listar grupos inactivos.' }); }
-};
-
-export const crearGrupo = async (req, res) => {
-    try { const { nombre } = req.body; const result = await pool.query('INSERT INTO grupos (nombre) VALUES ($1) RETURNING id', [nombre]); res.status(201).json({ id: result.rows[0].id, nombre }); } catch (error) { console.error(error); res.status(500).json({ error: 'Error al crear grupo.' }); }
-};
-
-export const actualizarGrupo = async (req, res) => {
-    try { const { id } = req.params; const { nombre } = req.body; await pool.query('UPDATE grupos SET nombre = $1 WHERE id = $2', [nombre, id]); res.json({ message: 'Grupo actualizado.' }); } catch (error) { console.error(error); res.status(500).json({ error: 'Error al actualizar grupo.' }); }
-};
-
-export const eliminarGrupo = async (req, res) => {
-    try { const { id } = req.params; await pool.query('UPDATE grupos SET is_active = false WHERE id = $1', [id]); res.json({ message: 'Grupo eliminado.' }); } catch (error) { console.error(error); res.status(500).json({ error: 'Error al eliminar grupo.' }); }
-};
-
-export const recuperarGrupo = async (req, res) => {
-    try { const { id } = req.params; await pool.query('UPDATE grupos SET is_active = true WHERE id = $1', [id]); res.json({ message: 'Grupo recuperado.' }); } catch (error) { console.error(error); res.status(500).json({ error: 'Error al recuperar grupo.' }); }
 };
 
 export const asignarGrupoAComunicacion = async (req, res) => {
@@ -79,46 +60,29 @@ export const eliminarGrupoDeComunicacion = async (req, res) => {
     try { const { id, grupo_id } = req.params; await pool.query('DELETE FROM comunicacion_grupos WHERE comunicacion_id = $1 AND grupo_id = $2', [id, grupo_id]); res.json({ message: 'Grupo removido.' }); } catch (error) { console.error(error); res.status(500).json({ error: 'Error al remover grupo.' }); }
 };
 
+export const listarGrupos = async (req, res) => {
+    try { const { rows } = await pool.query('SELECT * FROM global_grupos WHERE is_active = true ORDER BY nombre ASC'); res.json(rows); } catch (error) { console.error(error); res.status(500).json({ error: 'Error al listar grupos.' }); }
+};
+
 export const listarEntidades = async (req, res) => {
-    try { const { rows } = await pool.query('SELECT * FROM entidades WHERE is_active = true ORDER BY nombre ASC'); res.json(rows); } catch (error) { console.error(error); res.status(500).json({ error: 'Error al listar entidades.' }); }
-};
-
-export const listarInactivosEntidades = async (req, res) => {
-    try { const { rows } = await pool.query('SELECT * FROM entidades WHERE is_active = false ORDER BY nombre ASC'); res.json(rows); } catch (error) { console.error(error); res.status(500).json({ error: 'Error al listar entidades inactivas.' }); }
-};
-
-export const crearEntidad = async (req, res) => {
-    try { const { nombre } = req.body; const result = await pool.query('INSERT INTO entidades (nombre) VALUES ($1) RETURNING id', [nombre]); res.status(201).json({ id: result.rows[0].id, nombre }); } catch (error) { console.error(error); res.status(500).json({ error: 'Error al crear entidad.' }); }
-};
-
-export const actualizarEntidad = async (req, res) => {
-    try { const { id } = req.params; const { nombre } = req.body; await pool.query('UPDATE entidades SET nombre = $1 WHERE id = $2', [nombre, id]); res.json({ message: 'Entidad actualizada.' }); } catch (error) { console.error(error); res.status(500).json({ error: 'Error al actualizar entidad.' }); }
-};
-
-export const eliminarEntidad = async (req, res) => {
-    try { const { id } = req.params; await pool.query('UPDATE entidades SET is_active = false WHERE id = $1', [id]); res.json({ message: 'Entidad eliminada.' }); } catch (error) { console.error(error); res.status(500).json({ error: 'Error al eliminar entidad.' }); }
-};
-
-export const recuperarEntidad = async (req, res) => {
-    try { const { id } = req.params; await pool.query('UPDATE entidades SET is_active = true WHERE id = $1', [id]); res.json({ message: 'Entidad recuperada.' }); } catch (error) { console.error(error); res.status(500).json({ error: 'Error al recuperar entidad.' }); }
+    try { const { rows } = await pool.query('SELECT * FROM global_entidades WHERE is_active = true ORDER BY nombre ASC'); res.json(rows); } catch (error) { console.error(error); res.status(500).json({ error: 'Error al listar entidades.' }); }
 };
 
 export const actualizarComunicacion = async (req, res) => {
     try {
         const { id } = req.params;
-        const { estado, responsable_id, asunto, descripcion, link } = req.body;
-        const usuario_id = req.user.id;
+        const { estado, responsable_uuid, asunto, descripcion, link } = req.body;
+        const usuario_uuid = req.user.id;
         const old = await pool.query('SELECT * FROM comunicaciones WHERE id = $1', [id]);
         
-        // Determinar si queda inactiva
         const isActive = estado !== 'respondida';
         
-        await pool.query('UPDATE comunicaciones SET estado = $1, is_active = $2, responsable_id = $3, asunto = $4, descripcion = $5, link = $6 WHERE id = $7', [estado, isActive, responsable_id, asunto, descripcion, link, id]);
+        await pool.query('UPDATE comunicaciones SET estado = $1, is_active = $2, responsable_uuid = $3, asunto = $4, descripcion = $5, link = $6 WHERE id = $7', [estado, isActive, responsable_uuid, asunto, descripcion, link, id]);
         
         let cambio = `Comunicación actualizada: `;
         if (old.rows[0].estado !== estado) cambio += `Estado de ${old.rows[0].estado} a ${estado}. `;
-        if (old.rows[0].responsable_id !== responsable_id) cambio += `Responsable cambiado. `;
-        await pool.query('INSERT INTO comunicacion_trazabilidad (comunicacion_id, usuario_id, comentario) VALUES ($1, $2, $3)', [id, usuario_id, cambio]);
+        if (old.rows[0].responsable_uuid !== responsable_uuid) cambio += `Responsable cambiado. `;
+        await pool.query('INSERT INTO comunicacion_trazabilidad (comunicacion_id, usuario_uuid, comentario) VALUES ($1, $2, $3)', [id, usuario_uuid, cambio]);
         res.json({ message: 'Comunicación actualizada.' });
     } catch (error) { console.error(error); res.status(500).json({ error: 'Error al actualizar.' }); }
 };
@@ -126,9 +90,9 @@ export const actualizarComunicacion = async (req, res) => {
 export const archivarComunicacion = async (req, res) => {
     try {
         const { id } = req.params;
-        const usuario_id = req.user.id;
+        const usuario_uuid = req.user.id;
         await pool.query('UPDATE comunicaciones SET is_active = false WHERE id = $1', [id]);
-        await pool.query('INSERT INTO comunicacion_trazabilidad (comunicacion_id, usuario_id, comentario) VALUES ($1, $2, $3)', [id, usuario_id, 'Comunicación archivada.']);
+        await pool.query('INSERT INTO comunicacion_trazabilidad (comunicacion_id, usuario_uuid, comentario) VALUES ($1, $2, $3)', [id, usuario_uuid, 'Comunicación archivada.']);
         res.json({ message: 'Comunicación archivada.' });
     } catch (error) { console.error(error); res.status(500).json({ error: 'Error al archivar.' }); }
 };
@@ -136,9 +100,9 @@ export const archivarComunicacion = async (req, res) => {
 export const recuperarComunicacion = async (req, res) => {
     try {
         const { id } = req.params;
-        const usuario_id = req.user.id;
+        const usuario_uuid = req.user.id;
         await pool.query('UPDATE comunicaciones SET is_active = true, estado = \'pendiente\' WHERE id = $1', [id]);
-        await pool.query('INSERT INTO comunicacion_trazabilidad (comunicacion_id, usuario_id, comentario) VALUES ($1, $2, $3)', [id, usuario_id, 'Comunicación recuperada y marcada como pendiente.']);
+        await pool.query('INSERT INTO comunicacion_trazabilidad (comunicacion_id, usuario_uuid, comentario) VALUES ($1, $2, $3)', [id, usuario_uuid, 'Comunicación recuperada y marcada como pendiente.']);
         res.json({ message: 'Comunicación recuperada.' });
     } catch (error) { console.error(error); res.status(500).json({ error: 'Error al recuperar.' }); }
 };
@@ -146,10 +110,9 @@ export const recuperarComunicacion = async (req, res) => {
 export const marcarComoRespondida = async (req, res) => {
     try {
         const { id } = req.params;
-        const usuario_id = req.user.id;
-        // Al responder, pasa a respondida y se desactiva
+        const usuario_uuid = req.user.id;
         await pool.query('UPDATE comunicaciones SET estado = \'respondida\', is_active = false WHERE id = $1', [id]);
-        await pool.query('INSERT INTO comunicacion_trazabilidad (comunicacion_id, usuario_id, comentario) VALUES ($1, $2, $3)', [id, usuario_id, 'Comunicación marcada como respondida y archivada automáticamente.']);
+        await pool.query('INSERT INTO comunicacion_trazabilidad (comunicacion_id, usuario_uuid, comentario) VALUES ($1, $2, $3)', [id, usuario_uuid, 'Comunicación marcada como respondida y archivada automáticamente.']);
         res.json({ message: 'Comunicación marcada como respondida.' });
     } catch (error) { console.error(error); res.status(500).json({ error: 'Error al marcar como respondida.' }); }
 };
@@ -166,8 +129,8 @@ export const agregarComentario = async (req, res) => {
     try {
         const { id } = req.params;
         const { comentario } = req.body;
-        const usuario_id = req.user.id;
-        await pool.query('INSERT INTO comunicacion_trazabilidad (comunicacion_id, usuario_id, comentario) VALUES ($1, $2, $3)', [id, usuario_id, comentario]);
+        const usuario_uuid = req.user.id;
+        await pool.query('INSERT INTO comunicacion_trazabilidad (comunicacion_id, usuario_uuid, comentario) VALUES ($1, $2, $3)', [id, usuario_uuid, comentario]);
         res.status(201).json({ message: 'Comentario añadido.' });
     } catch (error) { console.error(error); res.status(500).json({ error: 'Error al añadir comentario.' }); }
 };
@@ -175,7 +138,7 @@ export const agregarComentario = async (req, res) => {
 export const listarComentarios = async (req, res) => {
     try {
         const { id } = req.params;
-        const query = 'SELECT t.*, a.nombre as autor FROM comunicacion_trazabilidad t JOIN abogados a ON t.usuario_id = a.id WHERE t.comunicacion_id = $1 ORDER BY t.fecha DESC';
+        const query = 'SELECT t.*, gu.nombre as autor FROM comunicacion_trazabilidad t JOIN global_usuarios gu ON t.usuario_uuid = gu.id WHERE t.comunicacion_id = $1 ORDER BY t.fecha DESC';
         const { rows } = await pool.query(query, [id]);
         res.json(rows);
     } catch (error) { console.error(error); res.status(500).json({ error: 'Error al listar comentarios.' }); }
@@ -183,7 +146,7 @@ export const listarComentarios = async (req, res) => {
 
 export const obtenerEstadisticas = async (req, res) => {
     try {
-        const { fecha_inicio, fecha_fin, entidad_id, grupo_id, responsable_id } = req.query;
+        const { fecha_inicio, fecha_fin, entidad_id, grupo_id, responsable_uuid } = req.query;
         let whereClauses = ["1=1"];
         let params = [];
         let joinQuery = "";
@@ -196,7 +159,7 @@ export const obtenerEstadisticas = async (req, res) => {
             joinQuery = `JOIN comunicacion_grupos cg ON c.id = cg.comunicacion_id`;
             whereClauses.push(`cg.grupo_id = $${params.length}`); 
         }
-        if (responsable_id) { params.push(responsable_id); whereClauses.push(`c.responsable_id = $${params.length}`); }
+        if (responsable_uuid) { params.push(responsable_uuid); whereClauses.push(`c.responsable_uuid = $${params.length}`); }
 
         const whereSQL = whereClauses.length > 0 ? `WHERE ${whereClauses.join(' AND ')}` : '';
 
@@ -206,15 +169,15 @@ export const obtenerEstadisticas = async (req, res) => {
                 SUM(CASE WHEN c.estado = 'pendiente' THEN 1 ELSE 0 END) as pendientes,
                 SUM(CASE WHEN c.estado = 'respondida' THEN 1 ELSE 0 END) as respondidas,
                 SUM(CASE WHEN c.fecha_limite < CURRENT_TIMESTAMP AND c.estado != 'respondida' THEN 1 ELSE 0 END) as vencidas,
-                (SELECT e.nombre FROM entidades e JOIN comunicaciones c2 ON e.id = c2.entidad_id WHERE c2.is_active = true GROUP BY e.nombre ORDER BY COUNT(*) DESC LIMIT 1) as entidad_mas_activa
+                (SELECT ge.nombre FROM global_entidades ge JOIN comunicaciones c2 ON ge.id = c2.entidad_id WHERE c2.is_active = true GROUP BY ge.nombre ORDER BY COUNT(*) DESC LIMIT 1) as entidad_mas_activa
             FROM comunicaciones c ${joinQuery} ${whereSQL};
         `;
         const volumenEntidadQuery = `
-            SELECT e.nombre, COUNT(c.id) as total
+            SELECT ge.nombre, COUNT(c.id) as total
             FROM comunicaciones c
-            JOIN entidades e ON c.entidad_id = e.id ${joinQuery}
+            JOIN global_entidades ge ON c.entidad_id = ge.id ${joinQuery}
             ${whereSQL}
-            GROUP BY e.nombre
+            GROUP BY ge.nombre
             ORDER BY total DESC
             LIMIT 5;
         `;

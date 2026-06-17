@@ -10,6 +10,8 @@ import {
     obtenerTrazabilidad,
     obtenerEstadisticas,
     listarEstados,
+    listarEstadosInactivos,
+    recuperarEstado,
     listarGrupos,
     asignarGrupoAPago,
     eliminarGrupoDePago
@@ -24,6 +26,8 @@ router.post('/', checkPermission('pagos', 'WRITE_PAGO'), validate(pagoSchema), c
 router.get('/stats', checkPermission('pagos', 'READ_PAGO'), obtenerEstadisticas);
 router.get('/mis-pagos', checkPermission('pagos', 'READ_PAGO'), listarMisPagos);
 router.get('/estados', checkPermission('pagos', 'READ_PAGO'), listarEstados);
+router.get('/estados/inactivas', checkPermission('pagos', 'READ_PAGO'), listarEstadosInactivos);
+router.patch('/estados/:id/recuperar', checkPermission('pagos', 'WRITE_PAGO'), recuperarEstado);
 router.get('/grupos', checkPermission('pagos', 'READ_PAGO'), listarGrupos);
 router.post('/:id/grupos', checkPermission('pagos', 'WRITE_PAGO'), asignarGrupoAPago);
 router.delete('/:id/grupos/:grupo_id', checkPermission('pagos', 'WRITE_PAGO'), eliminarGrupoDePago);

@@ -7,53 +7,53 @@ const app = createApp();
 const agent = request.agent(app);
 
 describe('Módulo de Rendimiento - Integración', () => {
-    let testUserId;
+    let testUserUuid; // Cambiado a UUID
     let testObjetivoId;
     const testEmail = 'rend-test@icebreaker.com';
     const testPass = 'testpass123';
 
     beforeAll(async () => {
-        // 1. Crear usuario de prueba dedicado (Idempotente)
+        // 1. Crear usuario de prueba dedicado en global_usuarios (Idempotente)
         const hash = await bcrypt.hash(testPass, 10);
         const userRes = await pool.query(
-            'INSERT INTO abogados (nombre, email, password_hash, especialidad, is_approved) VALUES ($1, $2, $3, $4, $5) ON CONFLICT (email) DO UPDATE SET password_hash = EXCLUDED.password_hash RETURNING id',
-            ['Rendimiento Test User', testEmail, hash, 'Testing', true]
+            'INSERT INTO global_usuarios (nombre, email, password_hash, rol, is_approved) VALUES ($1, $2, $3, $4, $5) ON CONFLICT (email) DO UPDATE SET password_hash = EXCLUDED.password_hash RETURNING id',
+            ['Rendimiento Test User', testEmail, hash, 'juridico', true]
         );
-        testUserId = userRes.rows[0].id;
+        testUserUuid = userRes.rows[0].id; // Esto es ahora un UUID
 
-        // 2. Autenticar
-        await agent.post('/api/auth/login').send({
+        // 2. Autenticar (Asumiendo que el login usa global_usuarios)
+        const loginRes = await agent.post('/api/auth/login').send({
             email: testEmail,
             password: testPass
         });
+        console.log('Login response status:', loginRes.status);
+        console.log('Login response body:', loginRes.body);
 
-        // 3. Asegurar que el módulo 'rendimiento' existe y conceder permisos al usuario de prueba
+        // 3. Conceder permisos (Actualizado para usar UUID)
         await pool.query("INSERT INTO modulos (nombre) VALUES ('rendimiento') ON CONFLICT (nombre) DO NOTHING");
         
         await pool.query(`
-            INSERT INTO permisos (usuario_id, modulo_id, accion_id)
+            INSERT INTO permisos (usuario_uuid, modulo_id, accion_id)
             SELECT $1, m.id, a.id
             FROM modulos m, acciones a
             WHERE m.nombre = 'rendimiento' AND a.nombre IN ('READ', 'WRITE', 'DELETE', 'MANAGE_TEAMS')
             ON CONFLICT DO NOTHING;
-        `, [testUserId]);
+        `, [testUserUuid]);
 
-        // 4. Crear objetivo de prueba con el esquema real (mes, anio, titulo)
+        // 4. Crear objetivo de prueba
         const objRes = await pool.query(
-            'INSERT INTO objetivos (usuario_id, meta_acciones, mes, anio, titulo, descripcion, estado) VALUES ($1, 10, 5, 2026, \'Objetivo Test\', \'Descripción de prueba\', \'active\') RETURNING id',
-            [testUserId]
+            'INSERT INTO objetivos (usuario_uuid, meta_acciones, mes, anio, titulo, descripcion, estado) VALUES ($1, 10, 5, 2026, \'Objetivo Test\', \'Descripción de prueba\', \'active\') RETURNING id',
+            [testUserUuid]
         );
         testObjetivoId = objRes.rows[0].id;
     });
 
     afterAll(async () => {
-        // Limpieza quirúrgica de datos de prueba
-        if (testUserId) {
-            await pool.query('DELETE FROM logs_sistema WHERE usuario_id = $1', [testUserId]);
-            await pool.query('DELETE FROM registro_acciones WHERE usuario_id = $1', [testUserId]);
-            await pool.query('DELETE FROM objetivos WHERE usuario_id = $1', [testUserId]);
-            await pool.query('DELETE FROM permisos WHERE usuario_id = $1', [testUserId]);
-            await pool.query('DELETE FROM abogados WHERE id = $1', [testUserId]);
+        if (testUserUuid) {
+            await pool.query('DELETE FROM registro_acciones WHERE usuario_uuid = $1', [testUserUuid]);
+            await pool.query('DELETE FROM objetivos WHERE usuario_uuid = $1', [testUserUuid]);
+            await pool.query('DELETE FROM permisos WHERE usuario_uuid = $1', [testUserUuid]);
+            await pool.query('DELETE FROM global_usuarios WHERE id = $1', [testUserUuid]);
         }
         await pool.end();
     });
@@ -68,8 +68,8 @@ describe('Módulo de Rendimiento - Integración', () => {
         expect(res.body).toHaveProperty('id');
     });
 
-    test('GET /api/rendimiento/cumplimiento/individual/:usuario_id debería calcular porcentaje', async () => {
-        const res = await agent.get(`/api/rendimiento/cumplimiento/individual/${testUserId}`);
+    test('GET /api/rendimiento/cumplimiento/individual/:usuario_uuid debería calcular porcentaje', async () => {
+        const res = await agent.get(`/api/rendimiento/cumplimiento/individual/${testUserUuid}`);
         expect(res.status).toBe(200);
         expect(Array.isArray(res.body)).toBe(true);
         

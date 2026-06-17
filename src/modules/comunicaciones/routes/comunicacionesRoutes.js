@@ -15,17 +15,7 @@ import {
     listarComentarios,
     obtenerEstadisticas,
     listarEntidades,
-    crearEntidad,
-    actualizarEntidad,
-    eliminarEntidad,
-    recuperarEntidad,
-    listarInactivosEntidades,
     listarGrupos,
-    crearGrupo,
-    actualizarGrupo,
-    eliminarGrupo,
-    recuperarGrupo,
-    listarInactivosGrupos,
     asignarGrupoAComunicacion,
     eliminarGrupoDeComunicacion
 } from '../controllers/comunicacionesController.js';
@@ -39,19 +29,11 @@ router.post('/', checkPermission('comunicaciones', 'WRITE_COM'), validate(comuni
 router.get('/stats', checkPermission('comunicaciones', 'READ_COM'), obtenerEstadisticas);
 router.get('/mis-comunicaciones', checkPermission('comunicaciones', 'READ_COM'), listarMisComunicaciones);
 router.get('/', checkPermission('comunicaciones', 'READ_COM'), listarComunicaciones);
-router.get('/entidades', checkPermission('comunicaciones', 'READ_COM'), listarEntidades);
-router.get('/entidades/inactivas', checkPermission('comunicaciones', 'READ_COM'), listarInactivosEntidades);
-router.post('/entidades', checkPermission('comunicaciones', 'MANAGE_COM'), crearEntidad);
-router.patch('/entidades/:id', checkPermission('comunicaciones', 'MANAGE_COM'), actualizarEntidad);
-router.patch('/entidades/:id/recuperar', checkPermission('comunicaciones', 'MANAGE_COM'), recuperarEntidad);
-router.delete('/entidades/:id', checkPermission('comunicaciones', 'MANAGE_COM'), eliminarEntidad);
 
+// Las rutas de Entidades y Grupos ahora deben apuntar a /api/core/
+router.get('/entidades', checkPermission('comunicaciones', 'READ_COM'), listarEntidades);
 router.get('/grupos', checkPermission('comunicaciones', 'READ_COM'), listarGrupos);
-router.get('/grupos/inactivos', checkPermission('comunicaciones', 'READ_COM'), listarInactivosGrupos);
-router.post('/grupos', checkPermission('comunicaciones', 'MANAGE_COM'), crearGrupo);
-router.patch('/grupos/:id', checkPermission('comunicaciones', 'MANAGE_COM'), actualizarGrupo);
-router.patch('/grupos/:id/recuperar', checkPermission('comunicaciones', 'MANAGE_COM'), recuperarGrupo);
-router.delete('/grupos/:id', checkPermission('comunicaciones', 'MANAGE_COM'), eliminarGrupo);
+
 router.post('/:id/grupos', checkPermission('comunicaciones', 'WRITE_COM'), asignarGrupoAComunicacion);
 router.delete('/:id/grupos/:grupo_id', checkPermission('comunicaciones', 'WRITE_COM'), eliminarGrupoDeComunicacion);
 router.patch('/:id', checkPermission('comunicaciones', 'WRITE_COM'), actualizarComunicacion);

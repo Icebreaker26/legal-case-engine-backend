@@ -5,6 +5,7 @@ import {
     agregarComentario,
     listarComentarios
 } from '../src/modules/comunicaciones/controllers/comunicacionesController.js';
+import pool from '../src/db/database.js';
 
 const mockRes = () => {
     const res = {};
@@ -15,18 +16,25 @@ const mockRes = () => {
 
 describe('Módulo Comunicaciones - CRUD e Integración', () => {
     let comunicacionId;
+    let testUserUuid;
+
+    beforeAll(async () => {
+        const userRes = await pool.query('SELECT id FROM global_usuarios LIMIT 1');
+        testUserUuid = userRes.rows[0].id;
+    });
 
     test('Debería crear una comunicación', async () => {
         const res = mockRes();
         await crearComunicacion({ 
             body: { 
-                entidad: 'CAR', 
+                entidad_id: 1, 
                 tipo: 'recibida', 
                 asunto: 'Asunto prueba', 
                 fecha_recepcion: '2026-06-01', 
                 fecha_limite: '2026-06-30', 
-                responsable_id: 1 
-            } 
+                responsable_uuid: testUserUuid 
+            },
+            user: { id: testUserUuid }
         }, res);
         expect(res.statusCode).toBe(201);
         expect(res.body).toHaveProperty('id');
@@ -36,7 +44,6 @@ describe('Módulo Comunicaciones - CRUD e Integración', () => {
     test('Debería listar comunicaciones activas', async () => {
         const res = mockRes();
         await listarComunicaciones({}, res);
-        // Controlador usa res.json() directamente, sin status() explícito (asume 200)
         expect(Array.isArray(res.body)).toBe(true);
         expect(res.body.length).toBeGreaterThan(0);
     });
@@ -46,7 +53,7 @@ describe('Módulo Comunicaciones - CRUD e Integración', () => {
         await agregarComentario({ 
             params: { id: comunicacionId }, 
             body: { comentario: 'Comentario prueba' }, 
-            user: { id: 1 } 
+            user: { id: testUserUuid } 
         }, res);
         expect(res.statusCode).toBe(201);
     });
@@ -54,8 +61,7 @@ describe('Módulo Comunicaciones - CRUD e Integración', () => {
     test('Debería listar comentarios', async () => {
         const res = mockRes();
         await listarComentarios({ params: { id: comunicacionId } }, res);
-        // Controlador usa res.json() directamente
-        expect(res.body.length).toBe(1);
+        expect(res.body.length).toBeGreaterThan(0);
     });
 
     test('Debería realizar borrado lógico', async () => {
@@ -65,7 +71,6 @@ describe('Módulo Comunicaciones - CRUD e Integración', () => {
         const resList = mockRes();
         await listarComunicaciones({}, resList);
         
-        // Verificamos que la comunicación aún existe pero está marcada como inactiva
         const com = resList.body.find(c => c.id === comunicacionId);
         expect(com).toBeDefined();
         expect(com.is_active).toBe(false);

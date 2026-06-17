@@ -32,7 +32,7 @@ export const listarBaseConocimiento = async (req, res) => {
 
 export const listarCategorias = async (req, res) => {
   try {
-    const { rows } = await pool.query('SELECT id, nombre FROM categorias_juridicas WHERE activo = TRUE ORDER BY nombre ASC');
+    const { rows } = await pool.query('SELECT id, nombre FROM global_categorias WHERE is_active = TRUE ORDER BY nombre ASC');
     res.status(200).json(rows);
   } catch (error) {
     res.status(500).json({ error: 'Error al listar categorías.' });
@@ -138,16 +138,17 @@ export const obtenerEstadisticas = async (req, res) => {
 export const actualizarDatosTutela = async (req, res) => {
   try {
     const { id } = req.params;
-    const { radicado, accionante, sharepoint_link } = req.body;
+    const { radicado, accionante, sharepoint_link, derecho_vulnerado, grupo_id, responsable_uuid } = req.body;
     
     await pool.query(
-      'UPDATE tutelas SET radicado = $1, accionante = $2, sharepoint_link = COALESCE($3, sharepoint_link) WHERE id = $4', 
-      [radicado, accionante, sharepoint_link, id]
+      'UPDATE tutelas SET radicado = $1, accionante = $2, sharepoint_link = COALESCE($3, sharepoint_link), derecho_vulnerado = COALESCE($4, derecho_vulnerado), grupo_id = COALESCE($5, grupo_id), responsable_uuid = COALESCE($6, responsable_uuid) WHERE id = $7', 
+      [radicado, accionante, sharepoint_link, derecho_vulnerado, grupo_id, responsable_uuid, id]
     );
-    await registrarLog(req.user.id, 'ACTUALIZAR_DATOS_TUTELA', 'tutela', id, req, { radicado, accionante, sharepoint_link });
+    await registrarLog(req.user.id, 'ACTUALIZAR_DATOS_TUTELA', 'tutela', id, req, { radicado, accionante, sharepoint_link, derecho_vulnerado, grupo_id, responsable_uuid });
     
     res.status(200).json({ message: 'Datos actualizados correctamente.' });
   } catch (error) {
+    console.error('Error al actualizar datos:', error);
     res.status(500).json({ error: 'Error al actualizar datos.' });
   }
 };
@@ -156,7 +157,7 @@ export const procesarTutela = async (req, res) => {
   try {
     if (!req.file) return res.status(400).json({ error: 'Debes subir un archivo PDF.' });
 
-    const { responsable_id, prioridad = PRIORIDADES.MEDIA, area_responsable, dias_termino = 2 } = req.body;
+    const { responsable_uuid, prioridad = PRIORIDADES.MEDIA, grupo_id, dias_termino = 2 } = req.body;
     const textoPdfRaw = await extraerTextoPdf(req.file.buffer);
     const textoPdfLimpio = await limpiarTexto(textoPdfRaw);
     const textoPdf = limpiarTextoParaPostgres(textoPdfLimpio);
@@ -172,17 +173,17 @@ export const procesarTutela = async (req, res) => {
     const datosExtraidos = await extraerDatosTutela(textoPdf);
 
     const queryInsert = `
-      INSERT INTO tutelas (radicado, accionante, juzgado, derecho_vulnerado, responsable_id, fecha_recepcion, fecha_vencimiento, prioridad, area_responsable, dias_termino, estado, contenido_original)
+      INSERT INTO tutelas (radicado, accionante, juzgado, derecho_vulnerado, responsable_uuid, fecha_recepcion, fecha_vencimiento, prioridad, grupo_id, dias_termino, estado, contenido_original)
       VALUES ($1, $2, $3, $4, $5, CURRENT_DATE, $6, $7, $8, $9, $10, $11)
-      ON CONFLICT (radicado) DO UPDATE SET responsable_id = EXCLUDED.responsable_id, prioridad = EXCLUDED.prioridad, updated_at = NOW()
+      ON CONFLICT (radicado) DO UPDATE SET responsable_uuid = EXCLUDED.responsable_uuid, prioridad = EXCLUDED.prioridad, updated_at = NOW()
       RETURNING id;
     `;
 
     const values = [
       datosExtraidos.radicado !== 'POR DEFINIR' ? datosExtraidos.radicado : 'REF_' + Date.now(), 
       datosExtraidos.accionante, datosExtraidos.juzgado, datosExtraidos.derecho_vulnerado,
-      responsable_id && responsable_id !== '' ? parseInt(responsable_id) : null,
-      fechaVencimiento, prioridad, area_responsable || 'General', parseInt(dias_termino) || 2, ESTADOS.PENDIENTE, textoPdf
+      responsable_uuid && responsable_uuid !== '' ? responsable_uuid : null,
+      fechaVencimiento, prioridad, grupo_id && grupo_id !== '' ? parseInt(grupo_id) : null, parseInt(dias_termino) || 2, ESTADOS.PENDIENTE, textoPdf
     ];
     
     const dbResult = await pool.query(queryInsert, values);
@@ -190,42 +191,62 @@ export const procesarTutela = async (req, res) => {
 
     res.status(200).json({ mensaje: 'Tutela registrada', id_tutela: dbResult.rows[0].id, sugerencias: precedentesExitosos });
   } catch (error) {
-    res.status(500).json({ error: 'Error al procesar tutela.' });
+    console.error('Error detallado al procesar tutela:', error);
+    res.status(500).json({ error: 'Error al procesar tutela.', details: error.message });
   }
 };
 
 export const actualizarGestionTutela = async (req, res) => {
   try {
     const { id } = req.params;
-    const { responsable_id, estado, prioridad, resultado_fallo } = req.body;
+    console.log('DEBUG: Datos recibidos para actualizar tutela', id, req.body);
+    
+    const { responsable_uuid, estado, prioridad, resultado_fallo } = req.body;
 
     const { rows } = await pool.query('SELECT estado FROM tutelas WHERE id = $1', [id]);
     const estadoAnterior = rows[0]?.estado;
 
-    const query = 'UPDATE tutelas SET responsable_id = COALESCE($1, responsable_id), estado = COALESCE($2, estado), prioridad = COALESCE($3, prioridad), resultado_fallo = COALESCE($4, resultado_fallo), updated_at = NOW() WHERE id = $5 RETURNING id;';
-    const { rowCount } = await pool.query(query, [responsable_id, estado, prioridad, resultado_fallo, id]);
+    const query = 'UPDATE tutelas SET responsable_uuid = COALESCE($1, responsable_uuid), estado = COALESCE($2, estado), prioridad = COALESCE($3, prioridad), resultado_fallo = COALESCE($4, resultado_fallo), updated_at = NOW() WHERE id = $5 RETURNING id;';
+    
+    console.log('DEBUG: Ejecutando query SQL:', query, 'con valores:', [responsable_uuid || null, estado, prioridad || null, resultado_fallo || null, id]);
+    
+    const { rowCount } = await pool.query(query, [responsable_uuid || null, estado, prioridad || null, resultado_fallo || null, id]);
 
     if (rowCount === 0) return res.status(404).json({ error: 'Tutela no encontrada.' });
 
     const desc = (estado && estado !== estadoAnterior) ? `Cambio de estado: ${estadoAnterior} -> ${estado}` : 'Actualización de gestión';
-    await registrarLog(req.user.id, desc, 'tutela', id, req, { estado, prioridad });
-    res.status(200).json({ mensaje: 'Gestión actualizada correctamente.' });
+    const usuarioId = req.user ? req.user.id : null;
+    
+    // Ejecución segura de registrarLog
+    await registrarLog(usuarioId, desc, 'tutela', id, req, { estado, prioridad }).catch(err => 
+        console.error('ERROR en registrarLog (no bloqueante):', err)
+    );
+    
+    console.log('DEBUG: Finalizando actualizarGestionTutela exitosamente');
+    return res.status(200).json({ mensaje: 'Gestión actualizada correctamente.' });
   } catch (error) {
-    res.status(500).json({ error: 'Error al actualizar.' });
+    console.error('ERROR CRÍTICO en actualizarGestionTutela:', error);
+    // Verificar si ya se envió respuesta
+    if (!res.headersSent) {
+        res.status(500).json({ error: 'Error al actualizar.', details: error.message });
+    }
   }
 };
 
 export const listarTutelas = async (req, res) => {
   try {
     const query = `
-      SELECT t.*, 
-             COALESCE(array_agg(a.nombre) FILTER (WHERE a.nombre IS NOT NULL), '{}') as responsables_nombres,
-             COALESCE(array_agg(a.id) FILTER (WHERE a.id IS NOT NULL), '{}') as responsables_ids
+      SELECT t.*,
+             t.responsable_uuid,
+             COALESCE(array_agg(gu.nombre) FILTER (WHERE gu.nombre IS NOT NULL), '{}') as responsables_nombres,
+             COALESCE(array_agg(gu.id) FILTER (WHERE gu.id IS NOT NULL), '{}') as responsables_ids,
+             g.nombre as grupo_nombre
       FROM tutelas t
       LEFT JOIN tutela_responsables tr ON t.id = tr.tutela_id
-      LEFT JOIN abogados a ON tr.abogado_id = a.id
+      LEFT JOIN global_usuarios gu ON tr.usuario_uuid = gu.id
+      LEFT JOIN global_grupos g ON t.grupo_id = g.id
       WHERE t.is_active = TRUE
-      GROUP BY t.id
+      GROUP BY t.id, g.nombre
       ORDER BY t.fecha_vencimiento ASC;
     `;
     const { rows } = await pool.query(query);
@@ -239,14 +260,17 @@ export const listarTutelas = async (req, res) => {
 export const listarMisTutelas = async (req, res) => {
   try {
     const query = `
-      SELECT t.*, 
-             COALESCE(array_agg(a.nombre) FILTER (WHERE a.nombre IS NOT NULL), '{}') as responsables_nombres,
-             COALESCE(array_agg(a.id) FILTER (WHERE a.id IS NOT NULL), '{}') as responsables_ids
+      SELECT t.*,
+             t.responsable_uuid,
+             COALESCE(array_agg(gu.nombre) FILTER (WHERE gu.nombre IS NOT NULL), '{}') as responsables_nombres,
+             COALESCE(array_agg(gu.id) FILTER (WHERE gu.id IS NOT NULL), '{}') as responsables_ids,
+             g.nombre as grupo_nombre
       FROM tutelas t
       JOIN tutela_responsables tr ON t.id = tr.tutela_id
-      LEFT JOIN abogados a ON tr.abogado_id = a.id
-      WHERE t.is_active = TRUE AND tr.abogado_id = $1
-      GROUP BY t.id
+      LEFT JOIN global_usuarios gu ON tr.usuario_uuid = gu.id
+      LEFT JOIN global_grupos g ON t.grupo_id = g.id
+      WHERE t.is_active = TRUE AND tr.usuario_uuid = $1
+      GROUP BY t.id, g.nombre
       ORDER BY t.fecha_vencimiento ASC;
     `;
     const { rows } = await pool.query(query, [req.user.id]);
@@ -389,17 +413,18 @@ export const obtenerContenidoCompletoSugerencia = async (req, res) => {
 export const obtenerHistorialTutela = async (req, res) => {
   try {
     const { id } = req.params;
-    // Regex simple para validar formato UUID
-    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-    
-    if (!uuidRegex.test(id)) {
-        return res.status(400).json({ error: 'Formato de ID de tutela no válido.' });
-    }
+    console.log('DEBUG: Solicitando historial para ID:', id);
+
+    // Eliminamos la validación de regex estricta temporalmente para ver si el ID recibido es válido
+    // const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    // if (!uuidRegex.test(id)) {
+    //     return res.status(400).json({ error: 'Formato de ID de tutela no válido.' });
+    // }
 
     const { rows } = await pool.query('SELECT * FROM historial_acciones WHERE tutela_id = $1 ORDER BY created_at DESC', [id]);
     res.status(200).json(rows);
   } catch (error) {
-    console.error('Error al cargar la trazabilidad:', error);
+    console.error('Error al cargar la trazabilidad para el ID:', id, 'Error:', error);
     res.status(500).json({ error: 'Error al cargar la trazabilidad.' });
   }
 };
@@ -407,35 +432,39 @@ export const obtenerHistorialTutela = async (req, res) => {
 export const agregarAccionHistorial = async (req, res) => {
   try {
     const { id } = req.params;
-    const { accion, area_involucrada, responsable_nombre, fecha_seguimiento } = req.body;
+    const { accion, area_involucrada, responsable_uuid, fecha_seguimiento } = req.body;
+    console.log('DEBUG: Datos recibidos para agregar acción:', { id, accion, area_involucrada, responsable_uuid, fecha_seguimiento });
+    
     if (!accion) return res.status(400).json({ error: 'La acción es obligatoria.' });
 
-    await pool.query('INSERT INTO historial_acciones (tutela_id, accion, area_involucrada, responsable_nombre, fecha_seguimiento) VALUES ($1, $2, $3, $4, $5)', 
-      [id, accion, area_involucrada, responsable_nombre, fecha_seguimiento || null]);
+    // Corrección: Insertar responsable_uuid en lugar de responsable_nombre
+    await pool.query('INSERT INTO historial_acciones (tutela_id, accion, area_involucrada, responsable_uuid, fecha_seguimiento) VALUES ($1, $2, $3, $4, $5)', 
+      [id, accion, area_involucrada, responsable_uuid || null, fecha_seguimiento || null]);
     
     await registrarLog(req.user.id, 'REGISTRAR_ACCION', 'tutela', id, req, { accion });
     res.status(201).json({ message: 'Acción registrada' });
   } catch (error) {
-    res.status(500).json({ error: 'Error al registrar la acción.' });
+    console.error('ERROR CRÍTICO al registrar acción en historial:', error);
+    res.status(500).json({ error: 'Error al registrar la acción.', details: error.message });
   }
 };
 
 export const gestionarResponsablesTutela = async (req, res) => {
   try {
     const { id } = req.params;
-    const { abogados_ids } = req.body; 
+    const { usuarios_uuids } = req.body; 
 
     const client = await pool.connect();
     try {
       await client.query('BEGIN');
       await client.query('DELETE FROM tutela_responsables WHERE tutela_id = $1', [id]);
-      if (abogados_ids && abogados_ids.length > 0) {
-        const query = 'INSERT INTO tutela_responsables (tutela_id, abogado_id) VALUES ' + 
-                      abogados_ids.map((_, i) => `($1, $${i + 2})`).join(', ');
-        await client.query(query, [id, ...abogados_ids]);
+      if (usuarios_uuids && usuarios_uuids.length > 0) {
+        const query = 'INSERT INTO tutela_responsables (tutela_id, usuario_uuid) VALUES ' + 
+                      usuarios_uuids.map((_, i) => `($1, $${i + 2})`).join(', ');
+        await client.query(query, [id, ...usuarios_uuids]);
       }
       await client.query('COMMIT');
-      await registrarLog(req.user.id, 'GESTIONAR_RESPONSABLES', 'tutela', id, req, { abogados_ids });
+      await registrarLog(req.user.id, 'GESTIONAR_RESPONSABLES', 'tutela', id, req, { usuarios_uuids });
       res.json({ message: 'Responsables actualizados correctamente.' });
     } catch (e) {
       await client.query('ROLLBACK');
@@ -485,22 +514,25 @@ export const entrenarContextoLocal = async (req, res) => {
 export const crearRequerimientoInterno = async (req, res) => {
   try {
     const { id } = req.params;
-    const { area_destino, descripcion } = req.body;
+    const { grupo_id, descripcion } = req.body;
+    console.log('DEBUG: Datos para crear requerimiento:', { id, grupo_id, descripcion });
 
     const { rows: tRows } = await pool.query('SELECT radicado, accionante FROM tutelas WHERE id = $1', [id]);
     if (tRows.length === 0) return res.status(404).json({ error: 'Tutela no encontrada.' });
     
     const { radicado, accionante } = tRows[0];
+    const { rows: gRows } = await pool.query('SELECT nombre FROM global_grupos WHERE id = $1', [grupo_id]);
+    const nombreGrupo = gRows.length > 0 ? gRows[0].nombre : 'Desconocido';
 
     const oficioGenerado = `
 OFICIO DE REQUERIMIENTO INTERNO
 FECHA: ${new Date().toLocaleDateString()}
-PARA: Responsable Área ${area_destino}
+PARA: Responsable Grupo ${nombreGrupo}
 DE: Departamento Jurídico - Enel Grids
 
 ASUNTO: Solicitud Urgente de Información - Tutela ${radicado}
 
-Por medio de la presente, se requiere de su área la siguiente información técnica/documental necesaria para la defensa judicial de la compañía en el proceso de tutela instaurado por ${accionante}:
+Por medio de la presente, se requiere de su grupo la siguiente información técnica/documental necesaria para la defensa judicial de la compañía en el proceso de tutela instaurado por ${accionante}:
 
 REQUERIMIENTO:
 ${descripcion}
@@ -508,21 +540,27 @@ ${descripcion}
 Agradecemos enviar la respuesta a más tardar en las próximas 24 horas para cumplir con los términos judiciales.
 
 Atentamente,
-${req.user.nombre}
+${req.user ? req.user.nombre : 'Sistema'}
 Departamento Jurídico
     `.trim();
 
+    console.log('DEBUG: Insertando requerimiento...');
+    // Corrección: Usar area_destino en lugar de grupo_id
     const { rows } = await pool.query(
       'INSERT INTO requerimientos_internos (tutela_id, area_destino, descripcion, oficio_generado) VALUES ($1, $2, $3, $4) RETURNING *',
-      [id, area_destino, descripcion, oficioGenerado]
+      [id, nombreGrupo, descripcion, oficioGenerado]
     );
 
-    await registrarLog(req.user.id, 'CREAR_REQUERIMIENTO', 'tutela', id, req, { area_destino });
+    console.log('DEBUG: Requerimiento insertado:', rows[0].id);
+    const usuarioId = req.user ? req.user.id : null;
+    await registrarLog(usuarioId, 'CREAR_REQUERIMIENTO', 'tutela', id, req, { area_destino: nombreGrupo }).catch(err => 
+        console.error('ERROR en registrarLog (no bloqueante):', err)
+    );
     res.status(201).json(rows[0]);
 
   } catch (error) {
-    console.error('Error creando requerimiento:', error);
-    res.status(500).json({ error: 'Error al crear requerimiento interno.' });
+    console.error('ERROR CRÍTICO creando requerimiento:', error);
+    res.status(500).json({ error: 'Error al crear requerimiento interno.', details: error.message });
   }
 };
 
@@ -544,10 +582,12 @@ export const actualizarEstadoRequerimiento = async (req, res) => {
         const { reqId } = req.params;
         const { estado, respuesta_texto } = req.body;
         
-        const { rows: rRows } = await pool.query('SELECT tutela_id, area_destino FROM requerimientos_internos WHERE id = $1', [reqId]);
+        const { rows: rRows } = await pool.query('SELECT tutela_id, grupo_id FROM requerimientos_internos WHERE id = $1', [reqId]);
         if (rRows.length === 0) return res.status(404).json({ error: 'Requerimiento no encontrado.' });
         
-        const { tutela_id, area_destino } = rRows[0];
+        const { tutela_id, grupo_id } = rRows[0];
+        const { rows: gRows } = await pool.query('SELECT nombre FROM global_grupos WHERE id = $1', [grupo_id]);
+        const nombreGrupo = gRows.length > 0 ? gRows[0].nombre : 'Desconocido';
 
         const nuevaRespuestaFormateada = `\n[${new Date().toLocaleString()}]: ${respuesta_texto}`;
 
@@ -557,12 +597,12 @@ export const actualizarEstadoRequerimiento = async (req, res) => {
         );
 
         if (estado === 'Respondido' && respuesta_texto) {
-            await registrarLog(req.user.id, 'RECIBIR_RESPUESTA_REQUERIMIENTO', 'tutela', tutela_id, req, { area_destino, respuesta_texto });
+            await registrarLog(req.user.id, 'RECIBIR_RESPUESTA_REQUERIMIENTO', 'tutela', tutela_id, req, { nombreGrupo, respuesta_texto });
             
             // También asegurar registro explícito en historial_acciones
             await pool.query(
-                'INSERT INTO historial_acciones (tutela_id, accion, area_involucrada, responsable_nombre) VALUES ($1, $2, $3, $4)',
-                [tutela_id, `Respuesta recibida de ${area_destino}: ${respuesta_texto.substring(0, 200)}`, area_destino, req.user.nombre]
+                'INSERT INTO historial_acciones (tutela_id, accion, responsable_nombre) VALUES ($1, $2, $3)',
+                [tutela_id, `Respuesta recibida de ${nombreGrupo}: ${respuesta_texto.substring(0, 200)}`, req.user.nombre]
             );
         }
 

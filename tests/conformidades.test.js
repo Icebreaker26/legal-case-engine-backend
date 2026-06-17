@@ -12,6 +12,20 @@ const mockRes = () => {
     return res;
 };
 
+import pool from '../src/db/database.js'; // Necesario para la consulta dinámica
+
+// ... (mockRes)
+
+let TEST_USER_UUID;
+
+beforeAll(async () => {
+    const { rows } = await pool.query('SELECT id FROM global_usuarios LIMIT 1');
+    if (rows.length === 0) {
+        throw new Error('No se encontraron usuarios en la base de datos de pruebas.');
+    }
+    TEST_USER_UUID = rows[0].id;
+});
+
 describe('Módulo Conformidades - CRUD e Integración', () => {
     let conformidadId;
 
@@ -23,8 +37,8 @@ describe('Módulo Conformidades - CRUD e Integración', () => {
                 entidad_id: 1,
                 proyecto_id: 1,
                 contrato_id: 1,
-                responsable_id: 1,
-                solicitante_id: 1, 
+                responsable_uuid: TEST_USER_UUID,
+                solicitante_uuid: TEST_USER_UUID, 
                 fecha_recepcion: '2026-06-11',
                 fecha_solicitud: '2026-06-11',
                 ot: 'OT123',
@@ -33,7 +47,7 @@ describe('Módulo Conformidades - CRUD e Integración', () => {
                 link_acta: 'http://acta.com',
                 soportes_link: 'http://test.com'
             },
-            user: { id: 1 }
+            user: { id: TEST_USER_UUID }
         }, res);
         expect(res.statusCode).toBe(201);
         expect(res.body).toHaveProperty('id');
@@ -58,7 +72,7 @@ describe('Módulo Conformidades - CRUD e Integración', () => {
                 hoja_contable_reembolsable: 'HCR456',
                 numero_conformidad: 'CONF001'
             },
-            user: { id: 1 } 
+            user: { id: TEST_USER_UUID } 
         }, res);
         expect(res.body.message).toBe('Estado actualizado.');
     });

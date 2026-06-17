@@ -8,27 +8,25 @@ import pool from '../db/database.js';
 export const checkPermission = (modulo, accion) => {
     return async (req, res, next) => {
         try {
-            const usuario_id = req.user?.id;
-            if (!usuario_id) return res.status(401).json({ error: 'No autenticado.' });
+            const usuario_uuid = req.user?.id;
+            if (!usuario_uuid) return res.status(401).json({ error: 'No autenticado.' });
 
             // 1. Verificar si el usuario es administrador
-            const adminCheck = await pool.query('SELECT is_admin FROM abogados WHERE id = $1', [usuario_id]);
+            const adminCheck = await pool.query('SELECT is_admin FROM global_usuarios WHERE id = $1', [usuario_uuid]);
             if (adminCheck.rows[0]?.is_admin) {
                 return next();
             }
 
             // 2. Consulta para verificar si existe el permiso granular
-            console.log('Verificando permiso:', { usuario_id, modulo, accion });
             const query = `
                 SELECT 1 
                 FROM permisos p
                 JOIN modulos m ON p.modulo_id = m.id
                 JOIN acciones a ON p.accion_id = a.id
-                WHERE p.usuario_id = $1 AND m.nombre = $2 AND a.nombre = $3;
+                WHERE p.usuario_uuid = $1 AND m.nombre = $2 AND a.nombre = $3;
             `;
             
-            const result = await pool.query(query, [usuario_id, modulo, accion]);
-            console.log('Resultado de consulta de permisos:', result.rowCount);
+            const result = await pool.query(query, [usuario_uuid, modulo, accion]);
 
             if (result.rowCount === 0) {
                 return res.status(403).json({ error: `Acceso denegado: requieres permiso ${accion} en módulo ${modulo}.` });

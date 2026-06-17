@@ -38,7 +38,13 @@ export const extraerDatosTutela = async (texto) => {
 
     // 4. Identificar Derecho Vulnerado (Dinámico desde DB)
     try {
-        const { rows } = await pool.query('SELECT nombre, palabras_clave FROM categorias_juridicas WHERE activo = TRUE');
+        const { rows } = await pool.query('SELECT nombre, palabras_clave FROM global_categorias WHERE is_active = TRUE');
+        
+        // Mapear el resultado para que coincida con la estructura esperada si es necesario
+        // O simplemente usar rows directamente si el código consume esos campos.
+        const categorias = rows;
+
+        // ... (resto del código usa 'categorias')
         const textoLower = texto.toLowerCase();
 
         for (const cat of rows) {

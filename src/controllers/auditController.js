@@ -3,9 +3,9 @@ import pool from '../db/database.js';
 export const listarLogs = async (req, res) => {
   try {
     const query = `
-      SELECT l.*, a.nombre as usuario_nombre, t.radicado 
+      SELECT l.*, gu.nombre as usuario_nombre, t.radicado 
       FROM logs_sistema l 
-      LEFT JOIN abogados a ON l.usuario_id = a.id 
+      LEFT JOIN global_usuarios gu ON l.usuario_uuid = gu.id 
       LEFT JOIN tutelas t ON (l.entidad_afectada = 'tutela' AND l.entidad_id::text = t.id::text)
       ORDER BY l.created_at DESC 
       LIMIT 100
@@ -24,7 +24,7 @@ export const listarMisLogs = async (req, res) => {
       SELECT l.*, t.radicado 
       FROM logs_sistema l 
       LEFT JOIN tutelas t ON (l.entidad_afectada = 'tutela' AND l.entidad_id::text = t.id::text)
-      WHERE l.usuario_id = $1
+      WHERE l.usuario_uuid = $1
       ORDER BY l.created_at DESC 
       LIMIT 10
     `;
