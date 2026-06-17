@@ -23,7 +23,7 @@ router.use(authenticateToken);
  *       200:
  *         description: Éxito
  */
-router.get('/usuario/:usuario_id', listarPermisosUsuario);
+router.get('/usuario/:usuario_uuid', listarPermisosUsuario);
 
 /**
  * @swagger

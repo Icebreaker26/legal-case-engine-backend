@@ -7,18 +7,20 @@ const app = createApp();
 const agent = request.agent(app);
 
 describe('Historial Routes - Integración', () => {
-  let testUserId;
+  let testUserUuid; // Cambiado a UUID
   const testEmail = 'hist-test@icebreaker.com';
   const testPass = 'testpass123';
 
   beforeAll(async () => {
+    // 1. Crear usuario de prueba en global_usuarios (Idempotente)
     const hash = await bcrypt.hash(testPass, 10);
     const userRes = await pool.query(
-      'INSERT INTO abogados (nombre, email, password_hash, especialidad, is_approved) VALUES ($1, $2, $3, $4, $5) ON CONFLICT (email) DO UPDATE SET password_hash = EXCLUDED.password_hash RETURNING id',
-      ['Historial Test User', testEmail, hash, 'Testing', true]
+      'INSERT INTO global_usuarios (nombre, email, password_hash, rol, is_approved) VALUES ($1, $2, $3, $4, $5) ON CONFLICT (email) DO UPDATE SET password_hash = EXCLUDED.password_hash RETURNING id',
+      ['Historial Test User', testEmail, hash, 'juridico', true]
     );
-    testUserId = userRes.rows[0].id;
+    testUserUuid = userRes.rows[0].id; // UUID
 
+    // 2. Login
     await agent.post('/api/auth/login').send({
       email: testEmail,
       password: testPass
@@ -26,9 +28,9 @@ describe('Historial Routes - Integración', () => {
   });
 
   afterAll(async () => {
-    if (testUserId) {
-      await pool.query('DELETE FROM logs_sistema WHERE usuario_id = $1', [testUserId]);
-      await pool.query('DELETE FROM abogados WHERE id = $1', [testUserId]);
+    if (testUserUuid) {
+      await pool.query('DELETE FROM logs_sistema WHERE usuario_uuid = $1', [testUserUuid]);
+      await pool.query('DELETE FROM global_usuarios WHERE id = $1', [testUserUuid]);
     }
     await pool.end();
   });

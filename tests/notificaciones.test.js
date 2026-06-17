@@ -14,18 +14,23 @@ const mockRes = () => {
 
 describe('Módulo Notificaciones - Integración', () => {
     let notificacionId;
-    const userId = 1;
+    let testUserUuid;
+
+    beforeAll(async () => {
+        const userRes = await pool.query('SELECT id FROM global_usuarios LIMIT 1');
+        testUserUuid = userRes.rows[0].id;
+    });
 
     test('Debería crear una notificación vía servicio', async () => {
-        await crearNotificacion(userId, 'Test notificación', 'test', 1);
-        const { rows } = await pool.query('SELECT id FROM notificaciones WHERE usuario_id = $1 ORDER BY created_at DESC LIMIT 1', [userId]);
+        await crearNotificacion(testUserUuid, 'Test notificación', 'test', 1);
+        const { rows } = await pool.query('SELECT id FROM notificaciones WHERE usuario_uuid = $1 ORDER BY created_at DESC LIMIT 1', [testUserUuid]);
         expect(rows.length).toBe(1);
         notificacionId = rows[0].id;
     });
 
     test('Debería listar notificaciones del usuario', async () => {
         const res = mockRes();
-        await listarNotificaciones({ user: { id: userId } }, res);
+        await listarNotificaciones({ user: { id: testUserUuid } }, res);
         expect(Array.isArray(res.body)).toBe(true);
         expect(res.body.length).toBeGreaterThan(0);
     });
@@ -34,10 +39,10 @@ describe('Módulo Notificaciones - Integración', () => {
         const res = mockRes();
         await marcarComoLeida({ 
             params: { id: notificacionId }, 
-            user: { id: userId } 
+            user: { id: testUserUuid } 
         }, res);
         expect(res.statusCode).toBe(200);
-        
+
         const { rows } = await pool.query('SELECT leida FROM notificaciones WHERE id = $1', [notificacionId]);
         expect(rows[0].leida).toBe(true);
     });

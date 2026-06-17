@@ -14,20 +14,22 @@ async function seed() {
     // 1. Limpiar datos existentes (Solo si es estrictamente necesario y en DB de pruebas)
     // await pool.query('TRUNCATE abogados RESTART IDENTITY CASCADE;');
 
-    // 2. Crear usuario de prueba (Uso de ON CONFLICT DO NOTHING para respetar datos reales)
+    // 2. Crear usuario de prueba en global_usuarios
     const password_hash = await bcrypt.hash(process.env.TEST_USER_PASS || '123456', 10);
     const query = `
-      INSERT INTO abogados (nombre, email, password_hash, especialidad, is_admin, is_approved)
+      INSERT INTO global_usuarios (nombre, email, password_hash, rol, is_admin, is_approved)
       VALUES ($1, $2, $3, $4, $5, $6)
-      ON CONFLICT (email) DO NOTHING
+      ON CONFLICT (email) DO UPDATE SET password_hash = EXCLUDED.password_hash
       RETURNING id;
     `;
     
-    await pool.query(query, ['Test Admin', process.env.TEST_USER_EMAIL || 'alejandro@icebreaker.com', password_hash, 'Administración', true, true]);
+    await pool.query(query, ['Test Admin', process.env.TEST_USER_EMAIL || 'alejandro@icebreaker.com', password_hash, 'admin', true, true]);
     
-    // Seed para proyectos y contratos
-    await pool.query('INSERT INTO proyectos (nombre) VALUES ($1) ON CONFLICT (nombre) DO NOTHING', ['Proyecto Test']);
-    await pool.query('INSERT INTO contratos (numero) VALUES ($1) ON CONFLICT (numero) DO NOTHING', ['CONT-2026-001']);
+    // Seed para catálogos globales
+    await pool.query('INSERT INTO global_entidades (nombre) VALUES ($1) ON CONFLICT (nombre) DO NOTHING', ['Entidad Test']);
+    await pool.query('INSERT INTO global_proyectos (nombre) VALUES ($1) ON CONFLICT (nombre) DO NOTHING', ['Proyecto Test']);
+    await pool.query('INSERT INTO global_contratos (numero) VALUES ($1) ON CONFLICT (numero) DO NOTHING', ['CONT-2026-001']);
+    await pool.query('INSERT INTO global_grupos (nombre) VALUES ($1) ON CONFLICT (nombre) DO NOTHING', ['Grupo Test']);
 
     console.log('✅ Datos de prueba insertados correctamente.');
     process.exit(0);

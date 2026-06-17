@@ -6,7 +6,7 @@ export const comunicacionSchema = z.object({
     asunto: z.string().min(1, "El asunto es obligatorio"),
     fecha_recepcion: z.string().min(1, "La fecha de recepción es obligatoria"),
     fecha_limite: z.string().optional().or(z.literal('')),
-    responsable_id: z.preprocess((val) => val ? Number(val) : null, z.number().int().nullable().optional()),
+    responsable_uuid: z.string().uuid().nullable().optional().or(z.literal('')),
     descripcion: z.string().optional(),
     link: z.string().optional().or(z.literal('')),
 });
