@@ -1,18 +1,18 @@
 export async function up(pgm) {
+    // 1. Estandarizar 'comunicacion_grupos'
+    await pgm.sql(`ALTER TABLE comunicacion_grupos DROP CONSTRAINT IF EXISTS comunicacion_grupos_grupo_id_fkey;`);
+    await pgm.sql(`ALTER TABLE comunicacion_grupos ADD CONSTRAINT comunicacion_grupos_grupo_id_fkey FOREIGN KEY (grupo_id) REFERENCES global_grupos(id) ON DELETE CASCADE;`);
+
+    // 2. Estandarizar 'conformidad_grupos'
+    await pgm.sql(`ALTER TABLE conformidad_grupos DROP CONSTRAINT IF EXISTS conformidad_grupos_grupo_id_fkey;`);
+    await pgm.sql(`ALTER TABLE conformidad_grupos ADD CONSTRAINT conformidad_grupos_grupo_id_fkey FOREIGN KEY (grupo_id) REFERENCES global_grupos(id) ON DELETE CASCADE;`);
+
+    // 3. Estandarizar 'pago_grupos'
+    await pgm.sql(`ALTER TABLE pago_grupos DROP CONSTRAINT IF EXISTS pago_grupos_grupo_id_fkey;`);
+    await pgm.sql(`ALTER TABLE pago_grupos ADD CONSTRAINT pago_grupos_grupo_id_fkey FOREIGN KEY (grupo_id) REFERENCES global_grupos(id) ON DELETE CASCADE;`);
+
+    // 4. Estandarizar 'tutela_grupos'
     await pgm.sql(`
-        -- 1. Estandarizar 'comunicacion_grupos'
-        ALTER TABLE comunicacion_grupos DROP CONSTRAINT IF EXISTS comunicacion_grupos_grupo_id_fkey;
-        ALTER TABLE comunicacion_grupos ADD CONSTRAINT comunicacion_grupos_grupo_id_fkey FOREIGN KEY (grupo_id) REFERENCES global_grupos(id) ON DELETE CASCADE;
-
-        -- 2. Estandarizar 'conformidad_grupos'
-        ALTER TABLE conformidad_grupos DROP CONSTRAINT IF EXISTS conformidad_grupos_grupo_id_fkey;
-        ALTER TABLE conformidad_grupos ADD CONSTRAINT conformidad_grupos_grupo_id_fkey FOREIGN KEY (grupo_id) REFERENCES global_grupos(id) ON DELETE CASCADE;
-
-        -- 3. Estandarizar 'pago_grupos'
-        ALTER TABLE pago_grupos DROP CONSTRAINT IF EXISTS pago_grupos_grupo_id_fkey;
-        ALTER TABLE pago_grupos ADD CONSTRAINT pago_grupos_grupo_id_fkey FOREIGN KEY (grupo_id) REFERENCES global_grupos(id) ON DELETE CASCADE;
-
-        -- 4. Estandarizar 'tutela_grupos'
         DO $$ 
         BEGIN
             IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'tutela_grupos') THEN
