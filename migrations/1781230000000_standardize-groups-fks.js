@@ -8,9 +8,7 @@ export async function up(pgm) {
 
         -- 2. Estandarizar 'conformidad_grupos'
         ALTER TABLE conformidad_grupos DROP CONSTRAINT IF EXISTS conformidad_grupos_grupo_id_fkey;
-        ALTER TABLE conformidad_grupos 
-            ADD CONSTRAINT conformidad_grupos_grupo_id_fkey 
-            FOREIGN KEY (grupo_id) REFERENCES global_grupos(id) ON DELETE CASCADE;
+        ALTER TABLE conformidad_grupos ADD CONSTRAINT conformidad_grupos_grupo_id_fkey FOREIGN KEY (grupo_id) REFERENCES global_grupos(id) ON DELETE CASCADE;
 
         -- 3. Estandarizar 'pago_grupos'
         ALTER TABLE pago_grupos DROP CONSTRAINT IF EXISTS pago_grupos_grupo_id_fkey;
