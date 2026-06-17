@@ -616,6 +616,28 @@ export const actualizarEstadoRequerimiento = async (req, res) => {
     }
 };
 
+export const actualizarBorrador = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { contestacion_generada } = req.body;
+        const userId = req.user.id;
+
+        // Verificar bloqueo antes de actualizar
+        const { rows } = await pool.query(
+            'UPDATE tutelas SET contestacion_generada = $1, updated_at = NOW() WHERE id = $2 AND lock_owner_id = $3 RETURNING *',
+            [contestacion_generada, id, userId]
+        );
+
+        if (rows.length === 0) return res.status(403).json({ error: 'No tienes el borrador bloqueado para edición.' });
+
+        await registrarLog(userId, 'ACTUALIZAR_BORRADOR', 'tutela', id, req, {});
+        res.json({ message: 'Borrador actualizado correctamente.' });
+    } catch (error) {
+        console.error('Error al actualizar borrador:', error);
+        res.status(500).json({ error: 'Error al actualizar borrador.' });
+    }
+};
+
 export const obtenerEstadoBloqueo = async (req, res) => {
     try {
         const { id } = req.params;
@@ -659,5 +681,77 @@ export const desbloquearBorrador = async (req, res) => {
         res.json({ message: 'Borrador desbloqueado.' });
     } catch (error) {
         res.status(500).json({ error: 'Error al desbloquear borrador.' });
+    }
+};
+
+export const listarArgumentos = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { rows } = await pool.query(
+            'SELECT * FROM tutela_argumentos WHERE tutela_id = $1 ORDER BY created_at DESC',
+            [id]
+        );
+        res.json(rows);
+    } catch (error) {
+        res.status(500).json({ error: 'Error al listar argumentos.' });
+    }
+};
+
+export const crearArgumento = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { titulo, contenido } = req.body;
+        const userId = req.user.id;
+
+        const { rows } = await pool.query(
+            'INSERT INTO tutela_argumentos (tutela_id, titulo, contenido, creado_por) VALUES ($1, $2, $3, $4) RETURNING *',
+            [id, titulo, contenido, userId]
+        );
+
+        await registrarLog(userId, 'CREAR_ARGUMENTO', 'tutela', id, req, { titulo });
+        res.status(201).json(rows[0]);
+    } catch (error) {
+        res.status(500).json({ error: 'Error al crear argumento.' });
+    }
+};
+
+export const actualizarArgumento = async (req, res) => {
+    try {
+        const { id, argId } = req.params;
+        const { titulo, contenido } = req.body;
+        const userId = req.user.id;
+
+        const { rows } = await pool.query(
+            'UPDATE tutela_argumentos SET titulo = $1, contenido = $2 WHERE id = $3 AND tutela_id = $4 AND creado_por = $5 RETURNING *',
+            [titulo, contenido, argId, id, userId]
+        );
+
+        if (rows.length === 0) return res.status(403).json({ error: 'No tienes permiso para actualizar este argumento.' });
+
+        await registrarLog(userId, 'ACTUALIZAR_ARGUMENTO', 'tutela', id, req, { argId, titulo });
+        res.json(rows[0]);
+    } catch (error) {
+        console.error('Error al actualizar argumento:', error);
+        res.status(500).json({ error: 'Error al actualizar argumento.' });
+    }
+};
+
+export const eliminarArgumento = async (req, res) => {
+    try {
+        const { id, argId } = req.params;
+        const userId = req.user.id;
+
+        const { rowCount } = await pool.query(
+            'DELETE FROM tutela_argumentos WHERE id = $1 AND tutela_id = $2 AND creado_por = $3',
+            [argId, id, userId]
+        );
+
+        if (rowCount === 0) return res.status(403).json({ error: 'No tienes permiso para eliminar este argumento.' });
+
+        await registrarLog(userId, 'ELIMINAR_ARGUMENTO', 'tutela', id, req, { argId });
+        res.json({ message: 'Argumento eliminado correctamente.' });
+    } catch (error) {
+        console.error('Error al eliminar argumento:', error);
+        res.status(500).json({ error: 'Error al eliminar argumento.' });
     }
 };

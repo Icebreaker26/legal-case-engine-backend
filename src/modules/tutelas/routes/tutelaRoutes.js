@@ -36,7 +36,12 @@ import {
     actualizarEstadoRequerimiento,
     obtenerEstadoBloqueo,
     bloquearBorrador,
-    desbloquearBorrador
+    desbloquearBorrador,
+    actualizarBorrador,
+    listarArgumentos,
+    crearArgumento,
+    actualizarArgumento,
+    eliminarArgumento
 } from '../controllers/tutelaController.js';
 
 const router = Router();
@@ -413,5 +418,11 @@ router.get('/:id/lock-status', checkPermission('tutelas', 'READ'), obtenerEstado
 router.post('/:id/lock', checkPermission('tutelas', 'WRITE'), bloquearBorrador);
 router.post('/:id/unlock', checkPermission('tutelas', 'WRITE'), desbloquearBorrador);
 router.patch('/:id/borrador', checkPermission('tutelas', 'WRITE'), actualizarBorrador);
+
+// Argumentos Personalizados
+router.get('/:id/argumentos', checkPermission('tutelas', 'READ'), listarArgumentos);
+router.post('/:id/argumentos', checkPermission('tutelas', 'WRITE'), crearArgumento);
+router.patch('/:id/argumentos/:argId', checkPermission('tutelas', 'WRITE'), actualizarArgumento);
+router.delete('/:id/argumentos/:argId', checkPermission('tutelas', 'DELETE'), eliminarArgumento);
 
 export default router;
