@@ -19,10 +19,15 @@ export async function up(pgm) {
             FOREIGN KEY (grupo_id) REFERENCES global_grupos(id) ON DELETE CASCADE;
 
         -- 4. Estandarizar 'tutela_grupos'
-        ALTER TABLE tutela_grupos DROP CONSTRAINT IF EXISTS tutela_grupos_grupo_id_fkey;
-        ALTER TABLE tutela_grupos 
-            ADD CONSTRAINT tutela_grupos_grupo_id_fkey 
-            FOREIGN KEY (grupo_id) REFERENCES global_grupos(id) ON DELETE CASCADE;
+        DO $$ 
+        BEGIN
+            IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'tutela_grupos') THEN
+                ALTER TABLE tutela_grupos DROP CONSTRAINT IF EXISTS tutela_grupos_grupo_id_fkey;
+                ALTER TABLE tutela_grupos 
+                    ADD CONSTRAINT tutela_grupos_grupo_id_fkey 
+                    FOREIGN KEY (grupo_id) REFERENCES global_grupos(id) ON DELETE CASCADE;
+            END IF;
+        END $$;
     `);
 }
 
