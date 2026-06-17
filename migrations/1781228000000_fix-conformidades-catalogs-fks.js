@@ -18,6 +18,8 @@ export async function up(pgm) {
             ADD CONSTRAINT conformidad_grupos_grupo_id_fkey FOREIGN KEY (grupo_id) REFERENCES global_grupos(id) ON DELETE CASCADE;
 
         -- 3. Arreglar 'comunicaciones'
+        UPDATE comunicaciones SET entidad_id = NULL WHERE entidad_id NOT IN (SELECT id FROM global_entidades);
+        
         ALTER TABLE comunicaciones DROP CONSTRAINT IF EXISTS comunicaciones_entidad_id_fkey;
         ALTER TABLE comunicaciones 
             ADD CONSTRAINT comunicaciones_entidad_id_fkey FOREIGN KEY (entidad_id) REFERENCES global_entidades(id) ON DELETE SET NULL;
