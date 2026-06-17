@@ -140,11 +140,15 @@ export const actualizarDatosTutela = async (req, res) => {
     const { id } = req.params;
     const { radicado, accionante, sharepoint_link, derecho_vulnerado, grupo_id, responsable_uuid } = req.body;
     
+    // Convertir cadena vacía a NULL para grupo_id (entero)
+    const sanitizedGrupoId = (grupo_id === '' || grupo_id === undefined) ? null : parseInt(grupo_id);
+    const sanitizedResponsableUuid = (responsable_uuid === '' || responsable_uuid === undefined) ? null : responsable_uuid;
+
     await pool.query(
-      'UPDATE tutelas SET radicado = $1, accionante = $2, sharepoint_link = COALESCE($3, sharepoint_link), derecho_vulnerado = COALESCE($4, derecho_vulnerado), grupo_id = COALESCE($5, grupo_id), responsable_uuid = COALESCE($6, responsable_uuid) WHERE id = $7', 
-      [radicado, accionante, sharepoint_link, derecho_vulnerado, grupo_id, responsable_uuid, id]
+      'UPDATE tutelas SET radicado = $1, accionante = $2, sharepoint_link = COALESCE($3, sharepoint_link), derecho_vulnerado = COALESCE($4, derecho_vulnerado), grupo_id = $5, responsable_uuid = $6 WHERE id = $7', 
+      [radicado, accionante, sharepoint_link, derecho_vulnerado, sanitizedGrupoId, sanitizedResponsableUuid, id]
     );
-    await registrarLog(req.user.id, 'ACTUALIZAR_DATOS_TUTELA', 'tutela', id, req, { radicado, accionante, sharepoint_link, derecho_vulnerado, grupo_id, responsable_uuid });
+    await registrarLog(req.user.id, 'ACTUALIZAR_DATOS_TUTELA', 'tutela', id, req, { radicado, accionante, sharepoint_link, derecho_vulnerado, grupo_id: sanitizedGrupoId, responsable_uuid: sanitizedResponsableUuid });
     
     res.status(200).json({ message: 'Datos actualizados correctamente.' });
   } catch (error) {
@@ -609,5 +613,51 @@ export const actualizarEstadoRequerimiento = async (req, res) => {
         res.json({ message: 'Estado y respuesta actualizados.' });
     } catch (error) {
         res.status(500).json({ error: 'Error al actualizar estado.' });
+    }
+};
+
+export const obtenerEstadoBloqueo = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { rows } = await pool.query(
+            'SELECT lock_owner_id, lock_expires_at, gu.nombre as lock_owner_nombre FROM tutelas t LEFT JOIN global_usuarios gu ON t.lock_owner_id = gu.id WHERE t.id = $1',
+            [id]
+        );
+        if (rows.length === 0) return res.status(404).json({ error: 'Tutela no encontrada.' });
+        res.json(rows[0]);
+    } catch (error) {
+        res.status(500).json({ error: 'Error al obtener estado de bloqueo.' });
+    }
+};
+
+export const bloquearBorrador = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const userId = req.user.id;
+        
+        const { rows } = await pool.query(
+            'UPDATE tutelas SET lock_owner_id = $1, lock_expires_at = NOW() + INTERVAL \'10 minutes\' WHERE id = $2 AND (lock_owner_id IS NULL OR lock_expires_at < NOW()) RETURNING *',
+            [userId, id]
+        );
+        
+        if (rows.length === 0) return res.status(409).json({ error: 'El borrador ya está bloqueado por otro usuario.' });
+        res.json({ message: 'Borrador bloqueado exitosamente.' });
+    } catch (error) {
+        res.status(500).json({ error: 'Error al bloquear borrador.' });
+    }
+};
+
+export const desbloquearBorrador = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const userId = req.user.id;
+        
+        await pool.query(
+            'UPDATE tutelas SET lock_owner_id = NULL, lock_expires_at = NULL WHERE id = $1 AND lock_owner_id = $2',
+            [id, userId]
+        );
+        res.json({ message: 'Borrador desbloqueado.' });
+    } catch (error) {
+        res.status(500).json({ error: 'Error al desbloquear borrador.' });
     }
 };

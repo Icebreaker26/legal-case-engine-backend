@@ -33,7 +33,10 @@ import {
     refinarBorrador,
     crearRequerimientoInterno,
     listarRequerimientosInternos,
-    actualizarEstadoRequerimiento
+    actualizarEstadoRequerimiento,
+    obtenerEstadoBloqueo,
+    bloquearBorrador,
+    desbloquearBorrador
 } from '../controllers/tutelaController.js';
 
 const router = Router();
@@ -404,5 +407,11 @@ router.post('/restaurar', checkPermission('tutelas', 'WRITE'), restaurarRegistro
  *         description: Éxito
  */
 router.delete('/memoria/:documento_id', checkPermission('tutelas', 'DELETE'), eliminarBaseConocimiento);
+
+// Bloqueo Optimista para Borradores
+router.get('/:id/lock-status', checkPermission('tutelas', 'READ'), obtenerEstadoBloqueo);
+router.post('/:id/lock', checkPermission('tutelas', 'WRITE'), bloquearBorrador);
+router.post('/:id/unlock', checkPermission('tutelas', 'WRITE'), desbloquearBorrador);
+router.patch('/:id/borrador', checkPermission('tutelas', 'WRITE'), actualizarBorrador);
 
 export default router;
