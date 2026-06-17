@@ -12,7 +12,19 @@ const mockRes = () => {
     return res;
 };
 
-const TEST_USER_UUID = '787b8bcf-9555-451e-87de-97dca52bc5a7';
+import pool from '../src/db/database.js'; // Necesario para la consulta dinámica
+
+// ... (mockRes)
+
+let TEST_USER_UUID;
+
+beforeAll(async () => {
+    const { rows } = await pool.query('SELECT id FROM global_usuarios LIMIT 1');
+    if (rows.length === 0) {
+        throw new Error('No se encontraron usuarios en la base de datos de pruebas.');
+    }
+    TEST_USER_UUID = rows[0].id;
+});
 
 describe('Módulo Conformidades - CRUD e Integración', () => {
     let conformidadId;
