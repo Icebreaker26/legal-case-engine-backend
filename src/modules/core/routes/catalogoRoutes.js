@@ -8,11 +8,11 @@ const router = Router();
 router.use(authenticateToken);
 
 // Rutas genéricas para cualquier catálogo
-router.get('/:tipo', checkPermission('admin', 'READ'), listar);
-router.get('/:tipo/inactivas', checkPermission('admin', 'READ'), listarInactivos);
-router.patch('/:tipo/:id/recuperar', checkPermission('admin', 'WRITE'), recuperar);
-router.post('/:tipo', checkPermission('admin', 'WRITE'), crear);
-router.patch('/:tipo/:id', checkPermission('admin', 'WRITE'), actualizar);
-router.delete('/:tipo/:id', checkPermission('admin', 'DELETE', 'admin'), eliminar);
+router.get('/:tipo', checkPermission('perfil', 'READ'), listar);
+router.get('/:tipo/inactivas', checkPermission('perfil', 'READ'), listarInactivos);
+router.patch('/:tipo/:id/recuperar', checkPermission('perfil', 'WRITE'), recuperar);
+router.post('/:tipo', checkPermission('perfil', 'WRITE'), crear);
+router.patch('/:tipo/:id', checkPermission('perfil', 'WRITE'), actualizar);
+router.delete('/:tipo/:id', checkPermission('perfil', 'DELETE', 'admin'), eliminar);
 
 export default router;
