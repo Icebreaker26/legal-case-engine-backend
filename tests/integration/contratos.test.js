@@ -10,7 +10,6 @@ describe('Módulo Contratos - Pruebas de Integración', () => {
     let testUserUuid;
     const testEmail = 'contratos-test@icebreaker.com';
     const testPass = 'testpass123';
-    const MODULO_CONTRATOS_ID = 96;
 
     beforeAll(async () => {
         const hash = await bcrypt.hash(testPass, 10);
@@ -20,12 +19,18 @@ describe('Módulo Contratos - Pruebas de Integración', () => {
         );
         testUserUuid = userRes.rows[0].id;
 
+        // Obtener el ID del módulo dinámicamente (evita hardcodear IDs que varían por entorno)
+        const moduloRes = await pool.query(
+            `INSERT INTO modulos (nombre) VALUES ('contratos') ON CONFLICT (nombre) DO UPDATE SET nombre = EXCLUDED.nombre RETURNING id`
+        );
+        const moduloId = moduloRes.rows[0].id;
+
         // Conceder permisos READ/WRITE
         await pool.query(`
             INSERT INTO permisos (usuario_uuid, modulo_id, accion_id)
             SELECT $1, $2, id FROM acciones WHERE nombre IN ('READ', 'WRITE')
             ON CONFLICT DO NOTHING;
-        `, [testUserUuid, MODULO_CONTRATOS_ID]);
+        `, [testUserUuid, moduloId]);
 
         // Login
         await agent.post('/api/auth/login').send({ email: testEmail, password: testPass });
