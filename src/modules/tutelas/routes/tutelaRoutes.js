@@ -33,8 +33,19 @@ import {
     refinarBorrador,
     crearRequerimientoInterno,
     listarRequerimientosInternos,
-    actualizarEstadoRequerimiento
+    actualizarEstadoRequerimiento,
+    obtenerEstadoBloqueo,
+    bloquearBorrador,
+    desbloquearBorrador,
+    actualizarBorrador,
+    listarArgumentos,
+    crearArgumento,
+    actualizarArgumento,
+    eliminarArgumento
 } from '../controllers/tutelaController.js';
+
+import { listarRequerimientosPorArea as listarReqArea } from '../controllers/requerimientoController.js';
+
 
 const router = Router();
 const upload = multer({ storage: multer.memoryStorage() });
@@ -240,6 +251,23 @@ router.get('/documento-referencia/:documento_id', checkPermission('tutelas', 'RE
 router.get('/:id/requerimientos', checkPermission('tutelas', 'READ'), listarRequerimientosInternos);
 /**
  * @swagger
+ * /api/tutelas/requerimientos/area/{area}:
+ *   get:
+ *     summary: Listar requerimientos internos por área
+ *     tags: [Tutelas]
+ *     parameters:
+ *       - in: path
+ *         name: area
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Éxito
+ */
+router.get('/requerimientos/area/:area', checkPermission('tutelas', 'READ'), listarReqArea);
+/**
+ * @swagger
  * /api/tutelas/{id}/requerimientos:
  *   post:
  *     summary: Crear requerimiento interno
@@ -404,5 +432,17 @@ router.post('/restaurar', checkPermission('tutelas', 'WRITE'), restaurarRegistro
  *         description: Éxito
  */
 router.delete('/memoria/:documento_id', checkPermission('tutelas', 'DELETE'), eliminarBaseConocimiento);
+
+// Bloqueo Optimista para Borradores
+router.get('/:id/lock-status', checkPermission('tutelas', 'READ'), obtenerEstadoBloqueo);
+router.post('/:id/lock', checkPermission('tutelas', 'WRITE'), bloquearBorrador);
+router.post('/:id/unlock', checkPermission('tutelas', 'WRITE'), desbloquearBorrador);
+router.patch('/:id/borrador', checkPermission('tutelas', 'WRITE'), actualizarBorrador);
+
+// Argumentos Personalizados
+router.get('/:id/argumentos', checkPermission('tutelas', 'READ'), listarArgumentos);
+router.post('/:id/argumentos', checkPermission('tutelas', 'WRITE'), crearArgumento);
+router.patch('/:id/argumentos/:argId', checkPermission('tutelas', 'WRITE'), actualizarArgumento);
+router.delete('/:id/argumentos/:argId', checkPermission('tutelas', 'DELETE'), eliminarArgumento);
 
 export default router;

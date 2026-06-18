@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { login, register, logout, changePassword } from '../../../controllers/authController.js';
 import { authenticateToken } from '../../../middlewares/authMiddleware.js';
 import { validate } from '../../../middlewares/validateMiddleware.js';
-import { registerSchema } from '../../../schemas/authSchema.js';
+import { registerSchema, loginSchema } from '../../../schemas/authSchema.js';
 
 const router = Router();
 
@@ -16,7 +16,7 @@ const router = Router();
  *       200:
  *         description: Éxito
  */
-router.post('/login', login);
+router.post('/login', validate(loginSchema), login);
 
 /**
  * @swagger

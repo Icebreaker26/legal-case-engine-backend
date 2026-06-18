@@ -140,11 +140,15 @@ export const actualizarDatosTutela = async (req, res) => {
     const { id } = req.params;
     const { radicado, accionante, sharepoint_link, derecho_vulnerado, grupo_id, responsable_uuid } = req.body;
     
+    // Convertir cadena vacía a NULL para grupo_id (entero)
+    const sanitizedGrupoId = (grupo_id === '' || grupo_id === undefined) ? null : parseInt(grupo_id);
+    const sanitizedResponsableUuid = (responsable_uuid === '' || responsable_uuid === undefined) ? null : responsable_uuid;
+
     await pool.query(
-      'UPDATE tutelas SET radicado = $1, accionante = $2, sharepoint_link = COALESCE($3, sharepoint_link), derecho_vulnerado = COALESCE($4, derecho_vulnerado), grupo_id = COALESCE($5, grupo_id), responsable_uuid = COALESCE($6, responsable_uuid) WHERE id = $7', 
-      [radicado, accionante, sharepoint_link, derecho_vulnerado, grupo_id, responsable_uuid, id]
+      'UPDATE tutelas SET radicado = $1, accionante = $2, sharepoint_link = COALESCE($3, sharepoint_link), derecho_vulnerado = COALESCE($4, derecho_vulnerado), grupo_id = $5, responsable_uuid = $6 WHERE id = $7', 
+      [radicado, accionante, sharepoint_link, derecho_vulnerado, sanitizedGrupoId, sanitizedResponsableUuid, id]
     );
-    await registrarLog(req.user.id, 'ACTUALIZAR_DATOS_TUTELA', 'tutela', id, req, { radicado, accionante, sharepoint_link, derecho_vulnerado, grupo_id, responsable_uuid });
+    await registrarLog(req.user.id, 'ACTUALIZAR_DATOS_TUTELA', 'tutela', id, req, { radicado, accionante, sharepoint_link, derecho_vulnerado, grupo_id: sanitizedGrupoId, responsable_uuid: sanitizedResponsableUuid });
     
     res.status(200).json({ message: 'Datos actualizados correctamente.' });
   } catch (error) {
@@ -545,15 +549,15 @@ Departamento Jurídico
     `.trim();
 
     console.log('DEBUG: Insertando requerimiento...');
-    // Corrección: Usar area_destino en lugar de grupo_id
+    // Corrección: Usar grupo_id ahora que es FK
     const { rows } = await pool.query(
-      'INSERT INTO requerimientos_internos (tutela_id, area_destino, descripcion, oficio_generado) VALUES ($1, $2, $3, $4) RETURNING *',
-      [id, nombreGrupo, descripcion, oficioGenerado]
+      'INSERT INTO requerimientos_internos (tutela_id, grupo_id, descripcion, oficio_generado) VALUES ($1, $2, $3, $4) RETURNING *',
+      [id, grupo_id, descripcion, oficioGenerado]
     );
 
     console.log('DEBUG: Requerimiento insertado:', rows[0].id);
     const usuarioId = req.user ? req.user.id : null;
-    await registrarLog(usuarioId, 'CREAR_REQUERIMIENTO', 'tutela', id, req, { area_destino: nombreGrupo }).catch(err => 
+    await registrarLog(usuarioId, 'CREAR_REQUERIMIENTO', 'tutela', id, req, { grupo_id }).catch(err => 
         console.error('ERROR en registrarLog (no bloqueante):', err)
     );
     res.status(201).json(rows[0]);
@@ -568,7 +572,10 @@ export const listarRequerimientosInternos = async (req, res) => {
   try {
     const { id } = req.params;
     const { rows } = await pool.query(
-      'SELECT * FROM requerimientos_internos WHERE tutela_id = $1 ORDER BY created_at DESC',
+      `SELECT r.*, g.nombre as area_nombre 
+       FROM requerimientos_internos r 
+       LEFT JOIN global_grupos g ON r.grupo_id = g.id
+       WHERE r.tutela_id = $1 ORDER BY r.created_at DESC`,
       [id]
     );
     res.json(rows);
@@ -609,5 +616,148 @@ export const actualizarEstadoRequerimiento = async (req, res) => {
         res.json({ message: 'Estado y respuesta actualizados.' });
     } catch (error) {
         res.status(500).json({ error: 'Error al actualizar estado.' });
+    }
+};
+
+export const actualizarBorrador = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { contestacion_generada } = req.body;
+        const userId = req.user.id;
+
+        // Verificar bloqueo antes de actualizar
+        const { rows } = await pool.query(
+            'UPDATE tutelas SET contestacion_generada = $1, updated_at = NOW() WHERE id = $2 AND lock_owner_id = $3 RETURNING *',
+            [contestacion_generada, id, userId]
+        );
+
+        if (rows.length === 0) return res.status(403).json({ error: 'No tienes el borrador bloqueado para edición.' });
+
+        await registrarLog(userId, 'ACTUALIZAR_BORRADOR', 'tutela', id, req, {});
+        res.json({ message: 'Borrador actualizado correctamente.' });
+    } catch (error) {
+        console.error('Error al actualizar borrador:', error);
+        res.status(500).json({ error: 'Error al actualizar borrador.' });
+    }
+};
+
+export const obtenerEstadoBloqueo = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { rows } = await pool.query(
+            'SELECT lock_owner_id, lock_expires_at, gu.nombre as lock_owner_nombre FROM tutelas t LEFT JOIN global_usuarios gu ON t.lock_owner_id = gu.id WHERE t.id = $1',
+            [id]
+        );
+        if (rows.length === 0) return res.status(404).json({ error: 'Tutela no encontrada.' });
+        res.json(rows[0]);
+    } catch (error) {
+        res.status(500).json({ error: 'Error al obtener estado de bloqueo.' });
+    }
+};
+
+export const bloquearBorrador = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const userId = req.user.id;
+        
+        const { rows } = await pool.query(
+            'UPDATE tutelas SET lock_owner_id = $1, lock_expires_at = NOW() + INTERVAL \'10 minutes\' WHERE id = $2 AND (lock_owner_id IS NULL OR lock_expires_at < NOW()) RETURNING *',
+            [userId, id]
+        );
+        
+        if (rows.length === 0) return res.status(409).json({ error: 'El borrador ya está bloqueado por otro usuario.' });
+        res.json({ message: 'Borrador bloqueado exitosamente.' });
+    } catch (error) {
+        res.status(500).json({ error: 'Error al bloquear borrador.' });
+    }
+};
+
+export const desbloquearBorrador = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const userId = req.user.id;
+        
+        await pool.query(
+            'UPDATE tutelas SET lock_owner_id = NULL, lock_expires_at = NULL WHERE id = $1 AND lock_owner_id = $2',
+            [id, userId]
+        );
+        res.json({ message: 'Borrador desbloqueado.' });
+    } catch (error) {
+        res.status(500).json({ error: 'Error al desbloquear borrador.' });
+    }
+};
+
+export const listarArgumentos = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { rows } = await pool.query(
+            `SELECT ta.*, gu.nombre as creado_por_nombre 
+             FROM tutela_argumentos ta 
+             LEFT JOIN global_usuarios gu ON ta.creado_por = gu.id 
+             WHERE ta.tutela_id = $1 ORDER BY ta.created_at DESC`,
+            [id]
+        );
+        res.json(rows);
+    } catch (error) {
+        res.status(500).json({ error: 'Error al listar argumentos.' });
+    }
+};
+
+export const crearArgumento = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { titulo, contenido } = req.body;
+        const userId = req.user.id;
+
+        const { rows } = await pool.query(
+            'INSERT INTO tutela_argumentos (tutela_id, titulo, contenido, creado_por) VALUES ($1, $2, $3, $4) RETURNING *',
+            [id, titulo, contenido, userId]
+        );
+
+        await registrarLog(userId, 'CREAR_ARGUMENTO', 'tutela', id, req, { titulo });
+        res.status(201).json(rows[0]);
+    } catch (error) {
+        res.status(500).json({ error: 'Error al crear argumento.' });
+    }
+};
+
+export const actualizarArgumento = async (req, res) => {
+    try {
+        const { id, argId } = req.params;
+        const { titulo, contenido } = req.body;
+        const userId = req.user.id;
+
+        const { rows } = await pool.query(
+            'UPDATE tutela_argumentos SET titulo = $1, contenido = $2 WHERE id = $3 AND tutela_id = $4 AND creado_por = $5 RETURNING *',
+            [titulo, contenido, argId, id, userId]
+        );
+
+        if (rows.length === 0) return res.status(403).json({ error: 'No tienes permiso para actualizar este argumento.' });
+
+        await registrarLog(userId, 'ACTUALIZAR_ARGUMENTO', 'tutela', id, req, { argId, titulo });
+        res.json(rows[0]);
+    } catch (error) {
+        console.error('Error al actualizar argumento:', error);
+        res.status(500).json({ error: 'Error al actualizar argumento.' });
+    }
+};
+
+export const eliminarArgumento = async (req, res) => {
+    try {
+        const { id, argId } = req.params;
+        const userId = req.user.id;
+
+        const { rowCount } = await pool.query(
+            'DELETE FROM tutela_argumentos WHERE id = $1 AND tutela_id = $2 AND creado_por = $3',
+            [argId, id, userId]
+        );
+
+        if (rowCount === 0) return res.status(403).json({ error: 'No tienes permiso para eliminar este argumento.' });
+
+        await registrarLog(userId, 'ELIMINAR_ARGUMENTO', 'tutela', id, req, { argId });
+        res.json({ message: 'Argumento eliminado correctamente.' });
+    } catch (error) {
+        console.error('Error al eliminar argumento:', error);
+        res.status(500).json({ error: 'Error al eliminar argumento.' });
     }
 };
