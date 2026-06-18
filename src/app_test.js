@@ -6,6 +6,7 @@ import tutelaRoutes from './modules/tutelas/routes/tutelaRoutes.js';
 import authRoutes from './modules/auth/routes/authRoutes.js';
 import adminRoutes from './modules/admin/routes/adminRoutes.js';
 import rendimientoRoutes from './modules/rendimiento/routes/rendimientoRoutes.js';
+import contratoRoutes from './modules/contratos/routes/contratoRoutes.js';
 
 const createApp = () => {
   const app = express();
@@ -18,6 +19,7 @@ const createApp = () => {
   app.use('/api/auth', authRoutes);
   app.use('/api/admin', adminRoutes);
   app.use('/api/rendimiento', rendimientoRoutes);
+  app.use('/api/contratos', contratoRoutes);
 
   return app;
 };
