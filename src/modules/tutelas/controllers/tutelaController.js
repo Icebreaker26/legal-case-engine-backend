@@ -549,15 +549,15 @@ Departamento Jurídico
     `.trim();
 
     console.log('DEBUG: Insertando requerimiento...');
-    // Corrección: Usar area_destino en lugar de grupo_id
+    // Corrección: Usar grupo_id ahora que es FK
     const { rows } = await pool.query(
-      'INSERT INTO requerimientos_internos (tutela_id, area_destino, descripcion, oficio_generado) VALUES ($1, $2, $3, $4) RETURNING *',
-      [id, nombreGrupo, descripcion, oficioGenerado]
+      'INSERT INTO requerimientos_internos (tutela_id, grupo_id, descripcion, oficio_generado) VALUES ($1, $2, $3, $4) RETURNING *',
+      [id, grupo_id, descripcion, oficioGenerado]
     );
 
     console.log('DEBUG: Requerimiento insertado:', rows[0].id);
     const usuarioId = req.user ? req.user.id : null;
-    await registrarLog(usuarioId, 'CREAR_REQUERIMIENTO', 'tutela', id, req, { area_destino: nombreGrupo }).catch(err => 
+    await registrarLog(usuarioId, 'CREAR_REQUERIMIENTO', 'tutela', id, req, { grupo_id }).catch(err => 
         console.error('ERROR en registrarLog (no bloqueante):', err)
     );
     res.status(201).json(rows[0]);
@@ -572,7 +572,10 @@ export const listarRequerimientosInternos = async (req, res) => {
   try {
     const { id } = req.params;
     const { rows } = await pool.query(
-      'SELECT * FROM requerimientos_internos WHERE tutela_id = $1 ORDER BY created_at DESC',
+      `SELECT r.*, g.nombre as area_nombre 
+       FROM requerimientos_internos r 
+       LEFT JOIN global_grupos g ON r.grupo_id = g.id
+       WHERE r.tutela_id = $1 ORDER BY r.created_at DESC`,
       [id]
     );
     res.json(rows);
@@ -688,7 +691,10 @@ export const listarArgumentos = async (req, res) => {
     try {
         const { id } = req.params;
         const { rows } = await pool.query(
-            'SELECT * FROM tutela_argumentos WHERE tutela_id = $1 ORDER BY created_at DESC',
+            `SELECT ta.*, gu.nombre as creado_por_nombre 
+             FROM tutela_argumentos ta 
+             LEFT JOIN global_usuarios gu ON ta.creado_por = gu.id 
+             WHERE ta.tutela_id = $1 ORDER BY ta.created_at DESC`,
             [id]
         );
         res.json(rows);

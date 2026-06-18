@@ -44,6 +44,9 @@ import {
     eliminarArgumento
 } from '../controllers/tutelaController.js';
 
+import { listarRequerimientosPorArea as listarReqArea } from '../controllers/requerimientoController.js';
+
+
 const router = Router();
 const upload = multer({ storage: multer.memoryStorage() });
 
@@ -246,6 +249,23 @@ router.get('/documento-referencia/:documento_id', checkPermission('tutelas', 'RE
  *         description: Éxito
  */
 router.get('/:id/requerimientos', checkPermission('tutelas', 'READ'), listarRequerimientosInternos);
+/**
+ * @swagger
+ * /api/tutelas/requerimientos/area/{area}:
+ *   get:
+ *     summary: Listar requerimientos internos por área
+ *     tags: [Tutelas]
+ *     parameters:
+ *       - in: path
+ *         name: area
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Éxito
+ */
+router.get('/requerimientos/area/:area', checkPermission('tutelas', 'READ'), listarReqArea);
 /**
  * @swagger
  * /api/tutelas/{id}/requerimientos:

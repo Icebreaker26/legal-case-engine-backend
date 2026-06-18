@@ -74,7 +74,9 @@ docker-compose up --build -d
 ---
 
 ## 📚 Documentación Técnica
-Para una revisión detallada de la metodología, incidentes superados y resultados empíricos, consulte nuestro [Dossier de Ingeniería de Calidad](docs/QUALITY_DOSSIER.md).
+*   **Directorio de Módulos:** Para conocer a detalle la arquitectura y endpoints de cada módulo, consulte el [Directorio de Módulos](docs/DOCUMENTACION_MODULOS.md).
+*   **Guía para Agentes de IA:** Si eres un agente de desarrollo de IA trabajando en este proyecto, consulta las [Instrucciones de Contexto de IA](AI_INSTRUCTIONS.md).
+*   **Ingeniería de Calidad:** Para una revisión detallada de la metodología, incidentes superados y resultados empíricos, consulte nuestro [Dossier de Ingeniería de Calidad](docs/QUALITY_DOSSIER.md).
 
 ---
 *Desarrollado como Proyecto de Ingeniería de Calidad (Mayo 2026).*
