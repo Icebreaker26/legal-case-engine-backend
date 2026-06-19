@@ -47,8 +47,14 @@ export const actualizarMinuta = async (req, res) => {
         const { id } = req.params;
         const { titulo, descripcion, tipo_contrato, contenido_texto } = req.body;
         const { rows } = await pool.query(
-            'UPDATE minutas_estandar SET titulo=$1, descripcion=$2, tipo_contrato=$3, contenido_texto=$4, updated_at=NOW() WHERE id=$5 RETURNING *',
-            [titulo, descripcion, tipo_contrato, contenido_texto, id]
+            `UPDATE minutas_estandar
+             SET titulo          = COALESCE($1, titulo),
+                 descripcion     = COALESCE($2, descripcion),
+                 tipo_contrato   = COALESCE($3, tipo_contrato),
+                 contenido_texto = COALESCE($4, contenido_texto),
+                 updated_at      = NOW()
+             WHERE id = $5 RETURNING *`,
+            [titulo ?? null, descripcion ?? null, tipo_contrato ?? null, contenido_texto ?? null, id]
         );
         if (rows.length === 0) return res.status(404).json({ error: 'Minuta no encontrada' });
         res.json(rows[0]);

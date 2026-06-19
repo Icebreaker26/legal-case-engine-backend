@@ -19,7 +19,7 @@ import {
     asignarGrupoAComunicacion,
     eliminarGrupoDeComunicacion
 } from '../controllers/comunicacionesController.js';
-import { comunicacionSchema, comentarioSchema } from '../schemas/comunicacionSchema.js';
+import { comunicacionSchema, actualizarComunicacionSchema, grupoSchema, comentarioSchema } from '../schemas/comunicacionSchema.js';
 
 const router = Router();
 
@@ -34,9 +34,9 @@ router.get('/', checkPermission('comunicaciones', 'READ_COM'), listarComunicacio
 router.get('/entidades', checkPermission('comunicaciones', 'READ_COM'), listarEntidades);
 router.get('/grupos', checkPermission('comunicaciones', 'READ_COM'), listarGrupos);
 
-router.post('/:id/grupos', checkPermission('comunicaciones', 'WRITE_COM'), asignarGrupoAComunicacion);
+router.post('/:id/grupos', checkPermission('comunicaciones', 'WRITE_COM'), validate(grupoSchema), asignarGrupoAComunicacion);
 router.delete('/:id/grupos/:grupo_id', checkPermission('comunicaciones', 'WRITE_COM'), eliminarGrupoDeComunicacion);
-router.patch('/:id', checkPermission('comunicaciones', 'WRITE_COM'), actualizarComunicacion);
+router.patch('/:id', checkPermission('comunicaciones', 'WRITE_COM'), validate(actualizarComunicacionSchema), actualizarComunicacion);
 router.patch('/:id/archivar', checkPermission('comunicaciones', 'WRITE_COM'), archivarComunicacion);
 router.patch('/:id/recuperar', checkPermission('comunicaciones', 'WRITE_COM'), recuperarComunicacion);
 router.patch('/:id/respondida', checkPermission('comunicaciones', 'WRITE_COM'), marcarComoRespondida);

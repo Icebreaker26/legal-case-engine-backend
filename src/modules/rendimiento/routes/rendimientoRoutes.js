@@ -22,7 +22,7 @@ import {
     asignarUsuarioAEquipo,
     removerUsuarioDeEquipo
 } from '../controllers/rendimientoController.js';
-import { objetivoSchema } from '../schemas/objetivoSchema.js';
+import { objetivoSchema, accionSchema, asignarEquipoSchema, removerEquipoSchema } from '../schemas/objetivoSchema.js';
 
 const router = Router();
 
@@ -31,14 +31,14 @@ router.use(authenticateToken);
 // Acciones y Cumplimiento
 router.get('/cumplimiento/global', checkPermission('rendimiento', 'READ'), obtenerCumplimientoGlobal);
 router.get('/objetivos/:objetivo_id/acciones', checkPermission('rendimiento', 'READ'), obtenerHistorialAccionesObjetivo);
-router.post('/acciones', checkPermission('rendimiento', 'WRITE'), registrarAccion);
+router.post('/acciones', checkPermission('rendimiento', 'WRITE'), validate(accionSchema), registrarAccion);
 router.get('/cumplimiento/individual/:usuario_uuid', checkPermission('rendimiento', 'READ'), obtenerCumplimientoIndividual);
 router.get('/cumplimiento/equipo/:equipo_id', checkPermission('rendimiento', 'READ'), obtenerCumplimientoEquipo);
 router.get('/historial/equipo/:equipo_id', checkPermission('rendimiento', 'READ'), obtenerHistorialEquipo);
 router.get('/objetivos/equipo/:equipo_id', checkPermission('rendimiento', 'READ'), listarObjetivosPorEquipo);
 router.get('/equipos/:equipo_id/exportar-completo', checkPermission('rendimiento', 'MANAGE_TEAMS'), exportarDatosEquipo);
-router.post('/equipos/asignar', checkPermission('rendimiento', 'MANAGE_TEAMS'), asignarUsuarioAEquipo);
-router.patch('/equipos/remover-usuario', checkPermission('rendimiento', 'MANAGE_TEAMS'), removerUsuarioDeEquipo);
+router.post('/equipos/asignar', checkPermission('rendimiento', 'MANAGE_TEAMS'), validate(asignarEquipoSchema), asignarUsuarioAEquipo);
+router.patch('/equipos/remover-usuario', checkPermission('rendimiento', 'MANAGE_TEAMS'), validate(removerEquipoSchema), removerUsuarioDeEquipo);
 
 // CRUD Objetivos
 router.post('/objetivos', checkPermission('rendimiento', 'WRITE'), validate(objetivoSchema), crearObjetivo);

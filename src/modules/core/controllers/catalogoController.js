@@ -158,12 +158,24 @@ export const recuperar = async (req, res) => {
     const { tipo, id } = req.params;
     const config = tablas[tipo];
     if (!config) return res.status(404).json({ error: 'Catálogo no encontrado' });
-    
+
     try {
         await pool.query(`UPDATE ${config.tabla} SET is_active = true WHERE id = $1`, [id]);
         res.json({ message: 'Recuperado.' });
-    } catch (error) { 
+    } catch (error) {
         console.error(`Error en recuperar ${tipo}:`, error);
-        res.status(500).json({ error: `Error al recuperar ${tipo}.`, details: error.message }); 
+        res.status(500).json({ error: `Error al recuperar ${tipo}.`, details: error.message });
+    }
+};
+
+export const listarUsuariosActivos = async (req, res) => {
+    try {
+        const { rows } = await pool.query(
+            'SELECT id, nombre, equipo_id FROM global_usuarios WHERE is_active = TRUE AND is_approved = TRUE ORDER BY nombre ASC'
+        );
+        res.json(rows);
+    } catch (error) {
+        console.error('Error al listar abogados activos:', error);
+        res.status(500).json({ error: 'Error al listar abogados.' });
     }
 };

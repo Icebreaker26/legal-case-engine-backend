@@ -1,4 +1,4 @@
-import pool from '../db/database.js';
+import pool from '../../../db/database.js';
 
 /**
  * Servicio de limpieza de texto.

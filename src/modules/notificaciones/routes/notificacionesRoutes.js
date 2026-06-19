@@ -6,6 +6,7 @@ const router = Router();
 
 router.use(authenticateToken);
 
+// Sin checkPermission: cada query filtra por req.user.id — un usuario solo accede a sus propias notificaciones
 router.get('/',                    listarNotificaciones);
 router.patch('/:id/leida',         marcarComoLeida);
 router.patch('/todas/leidas',      marcarTodasLeidas);

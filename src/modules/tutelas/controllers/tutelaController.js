@@ -1,14 +1,14 @@
 import { extraerTextoPdf } from '../../../services/pdfService.js';
-import { generarEmbeddingLocal } from '../../../services/aiService.js';
-import { buscarContextoLegal } from '../../../services/vectorService.js';
-import { generarDocumentoWord } from '../../../services/docxService.js';
-import { dividirEnChunks } from '../../../services/chunkService.js';
-import { extraerDatosTutela } from '../../../services/extractorService.js';
-import { limpiarTexto } from '../../../services/cleanerService.js';
+import { generarEmbeddingLocal } from '../services/aiService.js';
+import { buscarContextoLegal } from '../services/vectorService.js';
+import { generarDocumentoWord } from '../services/docxService.js';
+import { dividirEnChunks } from '../services/chunkService.js';
+import { extraerDatosTutela } from '../services/extractorService.js';
+import { limpiarTexto } from '../services/cleanerService.js';
 import { registrarLog } from '../../../services/auditService.js';
 import { crearNotificacion } from '../../notificaciones/services/notificationService.js';
 import pool from '../../../db/database.js';
-import { ESTADOS, PRIORIDADES } from '../../../constants.js';
+import { ESTADOS, PRIORIDADES } from '../constants.js';
 import { v4 as uuidv4 } from 'uuid';
 
 const limpiarTextoParaPostgres = (texto) => {
@@ -729,8 +729,7 @@ export const actualizarEstadoRequerimiento = async (req, res) => {
 
             // Notificar al responsable de la tutela
             const { rows: tResp } = await pool.query(
-                `SELECT t.radicado, t.responsable_id,
-                        (SELECT new_uuid FROM id_mapping WHERE old_id = t.responsable_id LIMIT 1) AS responsable_uuid
+                `SELECT t.radicado, t.responsable_uuid
                  FROM tutelas t
                  WHERE t.id = $1`,
                 [tutela_id]

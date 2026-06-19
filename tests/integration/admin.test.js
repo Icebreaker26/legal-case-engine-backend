@@ -50,8 +50,8 @@ describe('Admin Routes - Integración', () => {
     expect(res.status).toBe(200);
   });
 
-  test('GET /api/admin/logs debería permitir acceso a admin', async () => {
-    const res = await agent.get('/api/admin/logs');
+  test('GET /api/tutelas/logs debería permitir acceso a admin', async () => {
+    const res = await agent.get('/api/tutelas/logs');
     expect(res.status).toBe(200);
   });
 });

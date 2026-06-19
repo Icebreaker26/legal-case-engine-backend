@@ -1,9 +1,10 @@
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
-import pool from '../db/database.js';
-import logger from '../utils/logger.js';
+import pool from '../../../db/database.js';
+import logger from '../../../utils/logger.js';
+import { env } from '../../../config/env.js';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'super_secret_key_change_me';
+const JWT_SECRET = env.JWT_SECRET;
 
 export const register = async (req, res) => {
   try {
@@ -46,12 +47,12 @@ export const login = async (req, res) => {
         return res.status(403).json({ error: 'Cuenta pendiente de aprobación por un administrador.' });
     }
 
-    const token = jwt.sign({ id: user.id, email: user.email, rol: user.rol }, JWT_SECRET, { expiresIn: '8h' });
+    const token = jwt.sign({ id: user.id, email: user.email, rol: user.rol, nombre: user.nombre }, JWT_SECRET, { expiresIn: '8h' });
 
     res.cookie('token', token, {
         httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+        secure: env.NODE_ENV === 'production',
+        sameSite: env.NODE_ENV === 'production' ? 'none' : 'lax',
         maxAge: 8 * 60 * 60 * 1000 // 8 horas
     });
 

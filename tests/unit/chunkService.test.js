@@ -1,4 +1,4 @@
-import { dividirEnChunks } from '../../src/services/chunkService.js';
+import { dividirEnChunks } from '../../src/modules/tutelas/services/chunkService.js';
 
 describe('chunkService', () => {
   test('debería dividir un texto pequeño en un solo chunk', () => {

@@ -16,7 +16,7 @@ import {
     asignarGrupoAPago,
     eliminarGrupoDePago
 } from '../controllers/pagosController.js';
-import { pagoSchema, pagoTrazabilidadSchema } from '../schemas/pagoSchema.js';
+import { pagoSchema, pagoTrazabilidadSchema, grupoPagoSchema } from '../schemas/pagoSchema.js';
 
 const router = Router();
 
@@ -29,7 +29,7 @@ router.get('/estados', checkPermission('pagos', 'READ_PAGO'), listarEstados);
 router.get('/estados/inactivas', checkPermission('pagos', 'READ_PAGO'), listarEstadosInactivos);
 router.patch('/estados/:id/recuperar', checkPermission('pagos', 'WRITE_PAGO'), recuperarEstado);
 router.get('/grupos', checkPermission('pagos', 'READ_PAGO'), listarGrupos);
-router.post('/:id/grupos', checkPermission('pagos', 'WRITE_PAGO'), asignarGrupoAPago);
+router.post('/:id/grupos', checkPermission('pagos', 'WRITE_PAGO'), validate(grupoPagoSchema), asignarGrupoAPago);
 router.delete('/:id/grupos/:grupo_id', checkPermission('pagos', 'WRITE_PAGO'), eliminarGrupoDePago);
 router.get('/', checkPermission('pagos', 'READ_PAGO'), listarPagos);
 router.patch('/:id/estado', checkPermission('pagos', 'WRITE_PAGO'), validate(pagoTrazabilidadSchema), actualizarEstadoPago);

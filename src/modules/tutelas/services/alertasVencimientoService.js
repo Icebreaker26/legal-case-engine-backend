@@ -1,6 +1,6 @@
 import cron from 'node-cron';
-import pool from '../db/database.js';
-import { crearNotificacion } from '../modules/notificaciones/services/notificationService.js';
+import pool from '../../../db/database.js';
+import { crearNotificacion } from '../../notificaciones/services/notificationService.js';
 
 const UMBRALES = [
   { dias: 0, mensaje: (r, d) => `🚨 VENCIDA: La tutela ${r} venció hoy. Requiere atención inmediata.` },
