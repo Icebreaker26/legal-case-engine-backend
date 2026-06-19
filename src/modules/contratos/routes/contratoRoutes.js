@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import multer from 'multer';
-import { listarMinutas, obtenerMinuta, crearMinuta, actualizarMinuta, eliminarMinuta, listarPapelera, restaurarMinuta, eliminarDefinitivamenteMinuta, compararContrato, crearAuditoria, actualizarAuditoria, listarAuditorias, obtenerAuditoria, regenerarPrompt, obtenerDiff } from '../controllers/contratoController.js';
+import { listarMinutas, obtenerMinuta, crearMinuta, actualizarMinuta, eliminarMinuta, listarPapelera, restaurarMinuta, eliminarDefinitivamenteMinuta, compararContrato, crearAuditoria, actualizarAuditoria, listarAuditorias, listarMisAuditorias, obtenerAuditoria, regenerarPrompt, obtenerDiff } from '../controllers/contratoController.js';
 import { authenticateToken } from '../../../middlewares/authMiddleware.js';
 import { checkPermission } from '../../../middlewares/permissionMiddleware.js';
 import { validate } from '../../../middlewares/validateMiddleware.js';
@@ -23,6 +23,7 @@ router.post('/auditorias/:id/regenerar-prompt', authenticateToken, checkPermissi
 router.get('/auditorias/:id/diff',              authenticateToken, checkPermission('contratos', 'READ'),  obtenerDiff);
 router.patch('/auditorias/:id',                 authenticateToken, checkPermission('contratos', 'WRITE'), validate(actualizarAuditoriaSchema), actualizarAuditoria);
 router.get('/auditorias/:id', authenticateToken, checkPermission('contratos', 'READ'), obtenerAuditoria);
+router.get('/auditorias/mis-auditorias', authenticateToken, checkPermission('contratos', 'READ'), listarMisAuditorias);
 router.get('/auditorias', authenticateToken, checkPermission('contratos', 'READ'), listarAuditorias);
 
 export default router;

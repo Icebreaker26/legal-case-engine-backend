@@ -248,6 +248,22 @@ export const regenerarPrompt = async (req, res) => {
     }
 };
 
+export const listarMisAuditorias = async (req, res) => {
+    try {
+        const { rows } = await pool.query(`
+            SELECT ra.id, ra.estado, ra.created_at, me.titulo as minuta_titulo, ge.nombre as tercero_nombre
+            FROM registros_auditoria ra
+            JOIN minutas_estandar me ON ra.minuta_estandar_id = me.id
+            JOIN global_entidades ge ON ra.tercero_id = ge.id
+            WHERE ra.creado_por = $1
+            ORDER BY ra.created_at DESC
+        `, [req.user.id]);
+        res.json(rows);
+    } catch (error) {
+        res.status(500).json({ error: 'Error al listar mis auditorías.' });
+    }
+};
+
 export const listarAuditorias = async (req, res) => {
     try {
         const { rows } = await pool.query(`

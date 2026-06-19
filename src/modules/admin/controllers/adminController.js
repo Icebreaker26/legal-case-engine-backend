@@ -20,8 +20,8 @@ export const actualizarUsuario = async (req, res) => {
     const { id } = req.params;
     const { activo, is_approved } = req.body;
     await pool.query(
-      'UPDATE global_usuarios SET activo = COALESCE($1, activo), is_approved = COALESCE($2, is_approved) WHERE id = $3',
-      [activo, is_approved, id]
+      'UPDATE global_usuarios SET is_active = COALESCE($1, is_active), is_approved = COALESCE($2, is_approved) WHERE id = $3',
+      [activo ?? null, is_approved ?? null, id]
     );
     res.json({ message: 'Usuario actualizado.' });
   } catch (error) {

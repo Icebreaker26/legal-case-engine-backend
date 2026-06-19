@@ -25,10 +25,10 @@ const router = Router();
 router.use(authenticateToken);
 
 // ── Áreas / equipos ───────────────────────────────────────────────────────────
-router.get('/areas',        checkPermission('admin', 'READ'),  listarAreas);
-router.post('/areas',       checkPermission('admin', 'WRITE'), validate(crearAreaSchema),       crearArea);
-router.patch('/areas/:id',  checkPermission('admin', 'WRITE'), validate(actualizarAreaSchema),  actualizarArea);
-router.delete('/areas/:id', checkPermission('admin', 'WRITE'), eliminarArea);
+router.get('/areas',        listarAreas); // lectura libre para todos los autenticados
+router.post('/areas',       checkPermission('supervisor', 'WRITE'),  validate(crearAreaSchema),       crearArea);
+router.patch('/areas/:id',  checkPermission('supervisor', 'WRITE'),  validate(actualizarAreaSchema),  actualizarArea);
+router.delete('/areas/:id', checkPermission('supervisor', 'DELETE'), eliminarArea);
 
 // ── Usuarios ──────────────────────────────────────────────────────────────────
 router.get('/usuarios',                     checkPermission('admin', 'READ'),  listarUsuarios);
