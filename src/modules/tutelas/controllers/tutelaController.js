@@ -6,6 +6,7 @@ import { dividirEnChunks } from '../../../services/chunkService.js';
 import { extraerDatosTutela } from '../../../services/extractorService.js';
 import { limpiarTexto } from '../../../services/cleanerService.js';
 import { registrarLog } from '../../../services/auditService.js';
+import { crearNotificacion } from '../../notificaciones/services/notificationService.js';
 import pool from '../../../db/database.js';
 import { ESTADOS, PRIORIDADES } from '../../../constants.js';
 import { v4 as uuidv4 } from 'uuid';
@@ -138,18 +139,70 @@ export const obtenerEstadisticas = async (req, res) => {
 export const actualizarDatosTutela = async (req, res) => {
   try {
     const { id } = req.params;
-    const { radicado, accionante, sharepoint_link, derecho_vulnerado, grupo_id, responsable_uuid } = req.body;
-    
-    // Convertir cadena vacía a NULL para grupo_id (entero)
+    const { radicado, accionante, sharepoint_link, derecho_vulnerado, resultado_fallo, grupo_id, responsable_uuid } = req.body;
+
     const sanitizedGrupoId = (grupo_id === '' || grupo_id === undefined) ? null : parseInt(grupo_id);
     const sanitizedResponsableUuid = (responsable_uuid === '' || responsable_uuid === undefined) ? null : responsable_uuid;
+    const sanitizedResultado = (resultado_fallo === '' || resultado_fallo === undefined) ? null : resultado_fallo;
 
     await pool.query(
-      'UPDATE tutelas SET radicado = $1, accionante = $2, sharepoint_link = COALESCE($3, sharepoint_link), derecho_vulnerado = COALESCE($4, derecho_vulnerado), grupo_id = $5, responsable_uuid = $6 WHERE id = $7', 
-      [radicado, accionante, sharepoint_link, derecho_vulnerado, sanitizedGrupoId, sanitizedResponsableUuid, id]
+      `UPDATE tutelas
+       SET radicado = $1, accionante = $2,
+           sharepoint_link = COALESCE($3, sharepoint_link),
+           derecho_vulnerado = $4,
+           resultado_fallo = $5,
+           grupo_id = $6, responsable_uuid = $7
+       WHERE id = $8`,
+      [radicado, accionante, sharepoint_link, derecho_vulnerado || null, sanitizedResultado, sanitizedGrupoId, sanitizedResponsableUuid, id]
     );
-    await registrarLog(req.user.id, 'ACTUALIZAR_DATOS_TUTELA', 'tutela', id, req, { radicado, accionante, sharepoint_link, derecho_vulnerado, grupo_id: sanitizedGrupoId, responsable_uuid: sanitizedResponsableUuid });
-    
+    await registrarLog(req.user.id, 'ACTUALIZAR_DATOS_TUTELA', 'tutela', id, req, { radicado, accionante, derecho_vulnerado, resultado_fallo: sanitizedResultado, grupo_id: sanitizedGrupoId, responsable_uuid: sanitizedResponsableUuid });
+
+    // Promoción automática a memoria legal cuando el fallo es Favorable
+    if (sanitizedResultado === 'Favorable') {
+      const { rows: tutelaRows } = await pool.query(
+        `SELECT contestacion_generada, derecho_vulnerado, radicado, respuesta_promovida FROM tutelas WHERE id = $1`,
+        [id]
+      );
+      const tutela = tutelaRows[0];
+      if (tutela && tutela.contestacion_generada && !tutela.respuesta_promovida) {
+        try {
+          const documentoId = uuidv4();
+          const chunks  = dividirEnChunks(tutela.contestacion_generada, 1500, 300);
+          const vectores = await Promise.all(chunks.map(c => generarEmbeddingLocal(c)));
+          const client  = await pool.connect();
+          try {
+            await client.query('BEGIN');
+            for (let i = 0; i < chunks.length; i++) {
+              await client.query(
+                `INSERT INTO base_conocimiento_enel
+                   (categoria, titulo_referencia, contenido_legal, embedding_local, es_exitosa, documento_id)
+                 VALUES ($1, $2, $3, $4, TRUE, $5)`,
+                [
+                  tutela.derecho_vulnerado || 'General',
+                  `Respuesta exitosa — ${tutela.radicado} (${i + 1}/${chunks.length})`,
+                  chunks[i],
+                  JSON.stringify(vectores[i]),
+                  documentoId,
+                ]
+              );
+            }
+            await client.query(
+              `UPDATE tutelas SET respuesta_promovida = TRUE WHERE id = $1`, [id]
+            );
+            await client.query('COMMIT');
+            await registrarLog(req.user.id, 'PROMOVER_RESPUESTA_EXITOSA', 'tutela', id, req, { radicado: tutela.radicado });
+          } catch (innerErr) {
+            await client.query('ROLLBACK');
+            console.error('Error al promover respuesta exitosa:', innerErr);
+          } finally {
+            client.release();
+          }
+        } catch (embedErr) {
+          console.error('Error al generar embedding para promoción:', embedErr);
+        }
+      }
+    }
+
     res.status(200).json({ message: 'Datos actualizados correctamente.' });
   } catch (error) {
     console.error('Error al actualizar datos:', error);
@@ -161,7 +214,7 @@ export const procesarTutela = async (req, res) => {
   try {
     if (!req.file) return res.status(400).json({ error: 'Debes subir un archivo PDF.' });
 
-    const { responsable_uuid, prioridad = PRIORIDADES.MEDIA, grupo_id, dias_termino = 2 } = req.body;
+    const { responsable_uuid, prioridad = PRIORIDADES.MEDIA, grupo_id, dias_termino = 2, derecho_vulnerado: derechoManual } = req.body;
     const textoPdfRaw = await extraerTextoPdf(req.file.buffer);
     const textoPdfLimpio = await limpiarTexto(textoPdfRaw);
     const textoPdf = limpiarTextoParaPostgres(textoPdfLimpio);
@@ -170,11 +223,10 @@ export const procesarTutela = async (req, res) => {
 
     const fechaVencimiento = sumarDiasHabiles(new Date(), parseInt(dias_termino) || 2);
 
-    const textoParaVector = textoPdf.substring(0, 1500); 
-    const vectorLocal = await generarEmbeddingLocal(textoParaVector);
-    const precedentesExitosos = await buscarContextoLegal(vectorLocal);
-
+    const textoParaVector = textoPdf.substring(0, 1500);
     const datosExtraidos = await extraerDatosTutela(textoPdf);
+    const vectorLocal = await generarEmbeddingLocal(textoParaVector);
+    const precedentesExitosos = await buscarContextoLegal(vectorLocal, textoParaVector, 5, datosExtraidos.derecho_vulnerado);
 
     const queryInsert = `
       INSERT INTO tutelas (radicado, accionante, juzgado, derecho_vulnerado, responsable_uuid, fecha_recepcion, fecha_vencimiento, prioridad, grupo_id, dias_termino, estado, contenido_original)
@@ -185,7 +237,7 @@ export const procesarTutela = async (req, res) => {
 
     const values = [
       datosExtraidos.radicado !== 'POR DEFINIR' ? datosExtraidos.radicado : 'REF_' + Date.now(), 
-      datosExtraidos.accionante, datosExtraidos.juzgado, datosExtraidos.derecho_vulnerado,
+      datosExtraidos.accionante, datosExtraidos.juzgado, derechoManual || datosExtraidos.derecho_vulnerado,
       responsable_uuid && responsable_uuid !== '' ? responsable_uuid : null,
       fechaVencimiento, prioridad, grupo_id && grupo_id !== '' ? parseInt(grupo_id) : null, parseInt(dias_termino) || 2, ESTADOS.PENDIENTE, textoPdf
     ];
@@ -203,8 +255,6 @@ export const procesarTutela = async (req, res) => {
 export const actualizarGestionTutela = async (req, res) => {
   try {
     const { id } = req.params;
-    console.log('DEBUG: Datos recibidos para actualizar tutela', id, req.body);
-    
     const { responsable_uuid, estado, prioridad, resultado_fallo } = req.body;
 
     const { rows } = await pool.query('SELECT estado FROM tutelas WHERE id = $1', [id]);
@@ -212,21 +262,26 @@ export const actualizarGestionTutela = async (req, res) => {
 
     const query = 'UPDATE tutelas SET responsable_uuid = COALESCE($1, responsable_uuid), estado = COALESCE($2, estado), prioridad = COALESCE($3, prioridad), resultado_fallo = COALESCE($4, resultado_fallo), updated_at = NOW() WHERE id = $5 RETURNING id;';
     
-    console.log('DEBUG: Ejecutando query SQL:', query, 'con valores:', [responsable_uuid || null, estado, prioridad || null, resultado_fallo || null, id]);
-    
     const { rowCount } = await pool.query(query, [responsable_uuid || null, estado, prioridad || null, resultado_fallo || null, id]);
 
     if (rowCount === 0) return res.status(404).json({ error: 'Tutela no encontrada.' });
 
     const desc = (estado && estado !== estadoAnterior) ? `Cambio de estado: ${estadoAnterior} -> ${estado}` : 'Actualización de gestión';
     const usuarioId = req.user ? req.user.id : null;
-    
+
     // Ejecución segura de registrarLog
-    await registrarLog(usuarioId, desc, 'tutela', id, req, { estado, prioridad }).catch(err => 
+    await registrarLog(usuarioId, desc, 'tutela', id, req, { estado, prioridad }).catch(err =>
         console.error('ERROR en registrarLog (no bloqueante):', err)
     );
+
+    // Registrar cambio de estado en trazabilidad visible
+    if (estado && estado !== estadoAnterior) {
+      await pool.query(
+        `INSERT INTO historial_acciones (tutela_id, accion, responsable_uuid) VALUES ($1, $2, $3)`,
+        [id, `Estado cambiado de "${estadoAnterior}" a "${estado}"`, usuarioId]
+      ).catch(err => console.error('Error al registrar historial de estado:', err));
+    }
     
-    console.log('DEBUG: Finalizando actualizarGestionTutela exitosamente');
     return res.status(200).json({ mensaje: 'Gestión actualizada correctamente.' });
   } catch (error) {
     console.error('ERROR CRÍTICO en actualizarGestionTutela:', error);
@@ -242,15 +297,19 @@ export const listarTutelas = async (req, res) => {
     const query = `
       SELECT t.*,
              t.responsable_uuid,
-             COALESCE(array_agg(gu.nombre) FILTER (WHERE gu.nombre IS NOT NULL), '{}') as responsables_nombres,
+             COALESCE(
+               NULLIF(array_agg(gu.nombre) FILTER (WHERE gu.nombre IS NOT NULL), '{}'),
+               CASE WHEN ur.nombre IS NOT NULL THEN ARRAY[ur.nombre] ELSE '{}' END
+             ) as responsables_nombres,
              COALESCE(array_agg(gu.id) FILTER (WHERE gu.id IS NOT NULL), '{}') as responsables_ids,
              g.nombre as grupo_nombre
       FROM tutelas t
       LEFT JOIN tutela_responsables tr ON t.id = tr.tutela_id
       LEFT JOIN global_usuarios gu ON tr.usuario_uuid = gu.id
+      LEFT JOIN global_usuarios ur ON ur.id = t.responsable_uuid
       LEFT JOIN global_grupos g ON t.grupo_id = g.id
       WHERE t.is_active = TRUE
-      GROUP BY t.id, g.nombre
+      GROUP BY t.id, g.nombre, ur.nombre
       ORDER BY t.fecha_vencimiento ASC;
     `;
     const { rows } = await pool.query(query);
@@ -298,12 +357,13 @@ export const eliminarTutela = async (req, res) => {
 
 export const obtenerSugerenciasTutela = async (req, res) => {
   try {
-    const { rows } = await pool.query('SELECT contenido_original FROM tutelas WHERE id = $1', [req.params.id]);
+    const { rows } = await pool.query('SELECT contenido_original, derecho_vulnerado FROM tutelas WHERE id = $1', [req.params.id]);
     if (rows.length === 0) return res.status(404).json({ error: 'Tutela no encontrada.' });
-    
-    const textoOriginal = rows[0].contenido_original || '';
+
+    const { contenido_original, derecho_vulnerado } = rows[0];
+    const textoOriginal = contenido_original || '';
     const vectorLocal = await generarEmbeddingLocal(textoOriginal.substring(0, 1500));
-    res.status(200).json(await buscarContextoLegal(vectorLocal, textoOriginal));
+    res.status(200).json(await buscarContextoLegal(vectorLocal, textoOriginal, 5, derecho_vulnerado));
   } catch (error) {
     res.status(500).json({ error: 'Error al generar sugerencias.' });
   }
@@ -312,120 +372,142 @@ export const obtenerSugerenciasTutela = async (req, res) => {
 export const generarBorradorContestacion = async (req, res) => {
   try {
     const { id } = req.params;
-    const { rows } = await pool.query('SELECT contenido_original, contestacion_generada FROM tutelas WHERE id = $1', [id]);
+    const { rows } = await pool.query('SELECT contenido_original, contestacion_generada, derecho_vulnerado FROM tutelas WHERE id = $1', [id]);
     if (rows.length === 0) return res.status(404).json({ error: 'Tutela no encontrada.' });
 
-    const { contenido_original, contestacion_generada } = rows[0];
-
-    // Si ya existe un borrador, lo devolvemos para no gastar API de OpenAI
-    if (contestacion_generada) {
-      return res.status(200).json({ 
-        borrador_completo: contestacion_generada, 
-        status: 'cached' 
+    // Si ya existe un borrador guardado, lo devuelve directamente
+    if (rows[0].contestacion_generada) {
+      return res.status(200).json({
+        borrador_completo: rows[0].contestacion_generada,
+        status: 'cached'
       });
     }
 
-    const textoOriginal = contenido_original || '';
-    
-    // 1. Obtener contexto legal (sugerencias)
+    // Sin IA externa: devuelve sugerencias del RAG local para que el abogado redacte manualmente
+    const textoOriginal = rows[0].contenido_original || '';
     const vectorLocal = await generarEmbeddingLocal(textoOriginal.substring(0, 1500));
-    const sugerencias = await buscarContextoLegal(vectorLocal, textoOriginal);
+    const sugerencias = await buscarContextoLegal(vectorLocal, textoOriginal, 5, rows[0].derecho_vulnerado);
 
-    // 2. Llamar al servicio de IA
-    const { redactarContestacion } = await import('../services/aiService.js');
-    const resultado = await redactarContestacion(textoOriginal, sugerencias);
-
-    if (resultado.status === 'disabled') {
-      return res.status(403).json({ error: resultado.borrador_completo });
-    }
-
-    // 3. Persistir el borrador generado
-    await pool.query('UPDATE tutelas SET contestacion_generada = $1 WHERE id = $2', [resultado.borrador_completo, id]);
-
-    await registrarLog(req.user.id, 'GENERAR_BORRADOR_IA', 'tutela', id, req);
-    res.status(200).json(resultado);
+    res.status(200).json({ sugerencias, status: 'suggestions_only' });
 
   } catch (error) {
-    console.error('Error generando borrador:', error);
-    res.status(500).json({ error: 'Error al generar borrador por IA.' });
+    console.error('Error obteniendo sugerencias:', error);
+    res.status(500).json({ error: 'Error al obtener sugerencias para el borrador.' });
   }
 };
 
-export const refinarBorrador = async (req, res) => {
+export const guardarBorrador = async (req, res) => {
   try {
     const { id } = req.params;
-    const { instrucciones, borradorManual } = req.body;
+    const { borrador } = req.body;
 
-    // Si el usuario solo quiere guardar su edición manual sin IA
-    if (borradorManual && !instrucciones) {
-      await pool.query('UPDATE tutelas SET contestacion_generada = $1 WHERE id = $2', [borradorManual, id]);
-      return res.json({ message: 'Borrador guardado correctamente.', status: 'saved' });
-    }
+    if (!borrador?.trim()) return res.status(400).json({ error: 'El borrador no puede estar vacío.' });
 
-    // Si el usuario quiere refinamiento por IA
-    const { rows } = await pool.query('SELECT contestacion_generada FROM tutelas WHERE id = $1', [id]);
-    const borradorActual = borradorManual || rows[0]?.contestacion_generada;
+    await pool.query('UPDATE tutelas SET contestacion_generada = $1 WHERE id = $2', [borrador, id]);
+    await registrarLog(req.user.id, 'GUARDAR_BORRADOR', 'tutela', id, req);
 
-    const { refinarContestacion } = await import('../services/aiService.js');
-    const nuevoBorrador = await refinarContestacion(borradorActual, instrucciones);
-
-    await pool.query('UPDATE tutelas SET contestacion_generada = $1 WHERE id = $2', [nuevoBorrador, id]);
-    await registrarLog(req.user.id, 'REFINAR_BORRADOR_IA', 'tutela', id, req, { instrucciones });
-
-    res.json({ borrador_completo: nuevoBorrador, status: 'refined' });
+    res.json({ message: 'Borrador guardado correctamente.', status: 'saved' });
 
   } catch (error) {
-    console.error('Error refinando borrador:', error);
-    res.status(500).json({ error: 'Error al refinar el borrador.' });
+    console.error('Error guardando borrador:', error);
+    res.status(500).json({ error: 'Error al guardar el borrador.' });
+  }
+};
+
+export const registrarFeedbackMemoria = async (req, res) => {
+  try {
+    const { documento_id } = req.params;
+    const { util } = req.body; // true = útil, false = no útil
+
+    if (typeof util !== 'boolean') {
+      return res.status(400).json({ error: 'El campo "util" debe ser true o false.' });
+    }
+
+    const delta = util ? 1 : -1;
+
+    // Actualiza todos los chunks del documento a la vez
+    const { rowCount } = await pool.query(
+      `UPDATE base_conocimiento_enel
+       SET relevancia_score = relevancia_score + $1
+       WHERE documento_id = $2`,
+      [delta, documento_id]
+    );
+
+    if (rowCount === 0) return res.status(404).json({ error: 'Documento no encontrado.' });
+
+    // Si el score acumulado cae por debajo de -5, se marca como no exitoso
+    // para que deje de aparecer en búsquedas futuras
+    await pool.query(
+      `UPDATE base_conocimiento_enel
+       SET es_exitosa = false
+       WHERE documento_id = $1
+         AND relevancia_score <= -5`,
+      [documento_id]
+    );
+
+    await registrarLog(req.user.id, util ? 'FEEDBACK_UTIL' : 'FEEDBACK_NO_UTIL', 'memoria', documento_id, req);
+    res.json({ mensaje: 'Feedback registrado.', delta });
+
+  } catch (error) {
+    console.error('Error registrando feedback:', error);
+    res.status(500).json({ error: 'Error al registrar feedback.' });
   }
 };
 
 export const obtenerContenidoCompletoSugerencia = async (req, res) => {
   try {
     const { documento_id } = req.params;
+    const { chunk_match } = req.query; // contenido del chunk que hizo match, para resaltarlo
+
     if (!documento_id || documento_id === 'null' || documento_id === 'undefined') {
-        return res.status(400).json({ error: 'ID de documento no válido.' });
+      return res.status(400).json({ error: 'ID de documento no válido.' });
     }
 
-    const query = `
-      SELECT contenido_legal 
-      FROM base_conocimiento_enel 
-      WHERE documento_id = $1 
-      ORDER BY id ASC;
-    `;
-    const { rows } = await pool.query(query, [documento_id]);
-    
-    if (rows.length === 0) return res.status(404).json({ error: 'Documento no encontrado o no tiene referencia completa.' });
-    
-    // Merge logic: Take the first chunk, then for each subsequent chunk, 
-    // remove the overlap (the last 150 characters from the previous chunk).
-    let textoCompleto = rows[0].contenido_legal;
-    for (let i = 1; i < rows.length; i++) {
-        const overlap = 150;
-        const nuevoFragmento = rows[i].contenido_legal;
-        // Solo agregar la parte del nuevo fragmento que no es el solapamiento inicial
-        // Asumiendo que el solapamiento configurado en dividirEnChunks es de 150 caracteres
-        textoCompleto += nuevoFragmento.substring(overlap);
-    }
+    const { rows } = await pool.query(
+      `SELECT id, titulo_referencia, categoria, contenido_legal, relevancia_score
+       FROM base_conocimiento_enel
+       WHERE documento_id = $1
+       ORDER BY id ASC`,
+      [documento_id]
+    );
 
-    res.status(200).json({ texto_completo: textoCompleto });
+    if (rows.length === 0) return res.status(404).json({ error: 'Documento no encontrado.' });
+
+    // Identificar el índice del chunk que hizo match
+    const idxMatch = chunk_match
+      ? rows.findIndex(r => r.contenido_legal.trim().startsWith(chunk_match.trim().substring(0, 80)))
+      : -1;
+
+    // Devolver chunks individuales con flag de cuál fue el match
+    const chunks = rows.map((r, i) => ({
+      contenido: r.contenido_legal,
+      es_match:  i === idxMatch,
+    }));
+
+    res.status(200).json({
+      titulo:           rows[0].titulo_referencia.replace(/ \(\d+\/\d+\)$/, ''),
+      categoria:        rows[0].categoria,
+      relevancia_score: rows[0].relevancia_score,
+      chunks,
+      total_chunks:     rows.length,
+    });
   } catch (error) {
+    console.error('Error recuperando documento:', error);
     res.status(500).json({ error: 'Error al recuperar el documento completo.' });
   }
 };
 
 export const obtenerHistorialTutela = async (req, res) => {
+  const { id } = req.params;
   try {
-    const { id } = req.params;
-    console.log('DEBUG: Solicitando historial para ID:', id);
-
-    // Eliminamos la validación de regex estricta temporalmente para ver si el ID recibido es válido
-    // const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-    // if (!uuidRegex.test(id)) {
-    //     return res.status(400).json({ error: 'Formato de ID de tutela no válido.' });
-    // }
-
-    const { rows } = await pool.query('SELECT * FROM historial_acciones WHERE tutela_id = $1 ORDER BY created_at DESC', [id]);
+    const { rows } = await pool.query(
+      `SELECT ha.*, u.nombre AS responsable_nombre
+       FROM historial_acciones ha
+       LEFT JOIN global_usuarios u ON u.id = ha.responsable_uuid
+       WHERE ha.tutela_id = $1
+       ORDER BY ha.created_at DESC`,
+      [id]
+    );
     res.status(200).json(rows);
   } catch (error) {
     console.error('Error al cargar la trazabilidad para el ID:', id, 'Error:', error);
@@ -437,8 +519,6 @@ export const agregarAccionHistorial = async (req, res) => {
   try {
     const { id } = req.params;
     const { accion, area_involucrada, responsable_uuid, fecha_seguimiento } = req.body;
-    console.log('DEBUG: Datos recibidos para agregar acción:', { id, accion, area_involucrada, responsable_uuid, fecha_seguimiento });
-    
     if (!accion) return res.status(400).json({ error: 'La acción es obligatoria.' });
 
     // Corrección: Insertar responsable_uuid en lugar de responsable_nombre
@@ -497,68 +577,101 @@ export const descargarWord = async (req, res) => {
 export const entrenarContextoLocal = async (req, res) => {
   try {
     const { categoria, contenido_legal, titulo_referencia, es_exitosa = true } = req.body;
+
+    if (!titulo_referencia?.trim()) return res.status(400).json({ error: 'titulo_referencia es requerido.' });
+    if (!categoria?.trim())         return res.status(400).json({ error: 'categoria es requerida.' });
+
     const textoCompletoRaw = req.file ? await extraerTextoPdf(req.file.buffer) : contenido_legal;
+    if (!textoCompletoRaw?.trim())  return res.status(400).json({ error: 'No se recibió contenido para entrenar.' });
+
     const textoCompleto = await limpiarTexto(textoCompletoRaw);
-    const documentoId = uuidv4();
-    
-    const chunks = dividirEnChunks(textoCompleto, 1500, 300);
-    for (let i = 0; i < chunks.length; i++) {
-      const vector = await generarEmbeddingLocal(chunks[i]);
-      await pool.query('INSERT INTO base_conocimiento_enel (categoria, titulo_referencia, contenido_legal, embedding_local, es_exitosa, documento_id) VALUES ($1, $2, $3, $4, $5, $6)', 
-        [categoria, `${titulo_referencia} (Parte ${i + 1})`, chunks[i], JSON.stringify(vector), es_exitosa, documentoId]);
+    const documentoId   = uuidv4();
+    const chunks        = dividirEnChunks(textoCompleto, 1500, 300);
+
+    // Generar todos los embeddings en paralelo (el modelo Xenova es local, sin rate limit)
+    const vectores = await Promise.all(chunks.map(chunk => generarEmbeddingLocal(chunk)));
+
+    // Bulk insert — una sola transacción para todos los chunks
+    const client = await pool.connect();
+    try {
+      await client.query('BEGIN');
+      for (let i = 0; i < chunks.length; i++) {
+        await client.query(
+          `INSERT INTO base_conocimiento_enel
+            (categoria, titulo_referencia, contenido_legal, embedding_local, es_exitosa, documento_id)
+           VALUES ($1, $2, $3, $4, $5, $6)`,
+          [categoria, `${titulo_referencia} (${i + 1}/${chunks.length})`, chunks[i], JSON.stringify(vectores[i]), es_exitosa, documentoId]
+        );
+      }
+      await client.query('COMMIT');
+    } catch (err) {
+      await client.query('ROLLBACK');
+      throw err;
+    } finally {
+      client.release();
     }
-    
-    await registrarLog(req.user.id, 'ENTRENAR_MEMORIA', 'memoria', 0, req, { titulo_referencia });
-    res.status(200).json({ mensaje: 'Conocimiento guardado' });
+
+    await registrarLog(req.user.id, 'ENTRENAR_MEMORIA', 'memoria', documentoId, req, { titulo_referencia, chunks: chunks.length });
+    res.status(200).json({ mensaje: 'Conocimiento guardado', documento_id: documentoId, chunks: chunks.length });
+
   } catch (error) {
-    res.status(500).json({ error: 'Error al procesar.' });
+    console.error('Error en entrenarContextoLocal:', error);
+    res.status(500).json({ error: 'Error al procesar el documento de entrenamiento.' });
   }
 };
 
 export const crearRequerimientoInterno = async (req, res) => {
   try {
     const { id } = req.params;
-    const { grupo_id, descripcion } = req.body;
-    console.log('DEBUG: Datos para crear requerimiento:', { id, grupo_id, descripcion });
+    const { grupo_id, descripcion, prioridad = 'Media', fecha_limite } = req.body;
 
-    const { rows: tRows } = await pool.query('SELECT radicado, accionante FROM tutelas WHERE id = $1', [id]);
+    const { rows: tRows } = await pool.query('SELECT radicado, accionante, fecha_vencimiento FROM tutelas WHERE id = $1', [id]);
     if (tRows.length === 0) return res.status(404).json({ error: 'Tutela no encontrada.' });
-    
-    const { radicado, accionante } = tRows[0];
+
+    const { radicado, accionante, fecha_vencimiento } = tRows[0];
     const { rows: gRows } = await pool.query('SELECT nombre FROM global_grupos WHERE id = $1', [grupo_id]);
     const nombreGrupo = gRows.length > 0 ? gRows[0].nombre : 'Desconocido';
 
+    const vencimientoStr = fecha_vencimiento
+      ? new Date(fecha_vencimiento).toLocaleDateString('es-CO', { day: '2-digit', month: 'long', year: 'numeric' })
+      : 'No definida';
+    const limiteSolicitudStr = fecha_limite
+      ? new Date(fecha_limite).toLocaleDateString('es-CO', { day: '2-digit', month: 'long', year: 'numeric' })
+      : 'A la brevedad posible';
+    const urgencia = prioridad === 'Alta' ? 'URGENTE — ' : '';
+
     const oficioGenerado = `
 OFICIO DE REQUERIMIENTO INTERNO
-FECHA: ${new Date().toLocaleDateString()}
+${urgencia}FECHA: ${new Date().toLocaleDateString('es-CO')}
 PARA: Responsable Grupo ${nombreGrupo}
-DE: Departamento Jurídico - Enel Grids
+DE: Departamento Jurídico
+PRIORIDAD: ${prioridad.toUpperCase()}
 
-ASUNTO: Solicitud Urgente de Información - Tutela ${radicado}
+ASUNTO: Solicitud de Información — Tutela Radicado ${radicado}
 
-Por medio de la presente, se requiere de su grupo la siguiente información técnica/documental necesaria para la defensa judicial de la compañía en el proceso de tutela instaurado por ${accionante}:
+Por medio de la presente, se requiere de su grupo la siguiente información técnica o documental, necesaria para la defensa judicial de la compañía en el proceso de tutela instaurado por ${accionante}.
+
+VENCIMIENTO JUDICIAL DEL CASO: ${vencimientoStr}
+RESPUESTA REQUERIDA ANTES DE: ${limiteSolicitudStr}
 
 REQUERIMIENTO:
 ${descripcion}
 
-Agradecemos enviar la respuesta a más tardar en las próximas 24 horas para cumplir con los términos judiciales.
+Agradecemos dar trámite prioritario a esta solicitud dado el término judicial vigente.
 
 Atentamente,
-${req.user ? req.user.nombre : 'Sistema'}
+${req.user ? (req.user.nombre || req.user.email) : 'Sistema'}
 Departamento Jurídico
     `.trim();
 
-    console.log('DEBUG: Insertando requerimiento...');
-    // Corrección: Usar grupo_id ahora que es FK
     const { rows } = await pool.query(
-      'INSERT INTO requerimientos_internos (tutela_id, grupo_id, descripcion, oficio_generado) VALUES ($1, $2, $3, $4) RETURNING *',
-      [id, grupo_id, descripcion, oficioGenerado]
+      `INSERT INTO requerimientos_internos (tutela_id, grupo_id, descripcion, oficio_generado, prioridad, fecha_limite)
+       VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
+      [id, grupo_id, descripcion, oficioGenerado, prioridad, fecha_limite || null]
     );
 
-    console.log('DEBUG: Requerimiento insertado:', rows[0].id);
-    const usuarioId = req.user ? req.user.id : null;
-    await registrarLog(usuarioId, 'CREAR_REQUERIMIENTO', 'tutela', id, req, { grupo_id }).catch(err => 
-        console.error('ERROR en registrarLog (no bloqueante):', err)
+    await registrarLog(req.user?.id, 'CREAR_REQUERIMIENTO', 'tutela', id, req, { grupo_id, prioridad }).catch(err =>
+      console.error('ERROR en registrarLog (no bloqueante):', err)
     );
     res.status(201).json(rows[0]);
 
@@ -598,6 +711,9 @@ export const actualizarEstadoRequerimiento = async (req, res) => {
 
         const nuevaRespuestaFormateada = `\n[${new Date().toLocaleString()}]: ${respuesta_texto}`;
 
+        const ESTADOS_VALIDOS = ['Pendiente', 'En Gestión', 'Respondido', 'Vencido'];
+        if (!ESTADOS_VALIDOS.includes(estado)) return res.status(400).json({ error: 'Estado no válido.' });
+
         await pool.query(
             'UPDATE requerimientos_internos SET estado = $1, fecha_respuesta = $2, respuesta_texto = COALESCE(respuesta_texto, \'\') || $3 WHERE id = $4',
             [estado, estado === 'Respondido' ? new Date() : null, respuesta_texto ? nuevaRespuestaFormateada : '', reqId]
@@ -605,12 +721,28 @@ export const actualizarEstadoRequerimiento = async (req, res) => {
 
         if (estado === 'Respondido' && respuesta_texto) {
             await registrarLog(req.user.id, 'RECIBIR_RESPUESTA_REQUERIMIENTO', 'tutela', tutela_id, req, { nombreGrupo, respuesta_texto });
-            
-            // También asegurar registro explícito en historial_acciones
+
             await pool.query(
-                'INSERT INTO historial_acciones (tutela_id, accion, responsable_nombre) VALUES ($1, $2, $3)',
-                [tutela_id, `Respuesta recibida de ${nombreGrupo}: ${respuesta_texto.substring(0, 200)}`, req.user.nombre]
+                'INSERT INTO historial_acciones (tutela_id, accion, responsable_uuid) VALUES ($1, $2, $3)',
+                [tutela_id, `Respuesta recibida de ${nombreGrupo}: ${respuesta_texto.substring(0, 200)}`, req.user?.id || null]
             );
+
+            // Notificar al responsable de la tutela
+            const { rows: tResp } = await pool.query(
+                `SELECT t.radicado, t.responsable_id,
+                        (SELECT new_uuid FROM id_mapping WHERE old_id = t.responsable_id LIMIT 1) AS responsable_uuid
+                 FROM tutelas t
+                 WHERE t.id = $1`,
+                [tutela_id]
+            );
+            if (tResp.length > 0 && tResp[0].responsable_uuid) {
+                await crearNotificacion(
+                    tResp[0].responsable_uuid,
+                    `El área ${nombreGrupo} respondió el requerimiento de la tutela ${tResp[0].radicado}`,
+                    'requerimiento_respondido',
+                    tutela_id
+                );
+            }
         }
 
         res.json({ message: 'Estado y respuesta actualizados.' });
@@ -740,6 +872,72 @@ export const actualizarArgumento = async (req, res) => {
         console.error('Error al actualizar argumento:', error);
         res.status(500).json({ error: 'Error al actualizar argumento.' });
     }
+};
+
+export const promoverArgumento = async (req, res) => {
+  try {
+    const { id, argId } = req.params;
+
+    // Traer el argumento y el derecho vulnerado de la tutela en una sola query
+    const { rows } = await pool.query(
+      `SELECT ta.titulo, ta.contenido, ta.promovido_a_memoria,
+              t.derecho_vulnerado, t.radicado
+       FROM tutela_argumentos ta
+       JOIN tutelas t ON t.id = ta.tutela_id
+       WHERE ta.id = $1 AND ta.tutela_id = $2`,
+      [argId, id]
+    );
+
+    if (rows.length === 0) return res.status(404).json({ error: 'Argumento no encontrado.' });
+
+    const { titulo, contenido, promovido_a_memoria, derecho_vulnerado, radicado } = rows[0];
+
+    if (promovido_a_memoria) {
+      return res.status(409).json({ error: 'Este argumento ya fue promovido a la memoria legal.' });
+    }
+
+    // Vectorizar y registrar en base_conocimiento_enel
+    const documentoId = uuidv4();
+    const chunks      = dividirEnChunks(contenido, 1500, 300);
+    const vectores    = await Promise.all(chunks.map(c => generarEmbeddingLocal(c)));
+
+    const client = await pool.connect();
+    try {
+      await client.query('BEGIN');
+      for (let i = 0; i < chunks.length; i++) {
+        await client.query(
+          `INSERT INTO base_conocimiento_enel
+             (categoria, titulo_referencia, contenido_legal, embedding_local, es_exitosa, documento_id)
+           VALUES ($1, $2, $3, $4, TRUE, $5)`,
+          [
+            derecho_vulnerado || 'General',
+            `${titulo} — Arg. promovido de tutela ${radicado} (${i + 1}/${chunks.length})`,
+            chunks[i],
+            JSON.stringify(vectores[i]),
+            documentoId,
+          ]
+        );
+      }
+      // Marcar el argumento como promovido para evitar duplicados
+      await client.query(
+        `UPDATE tutela_argumentos SET promovido_a_memoria = TRUE, documento_id_memoria = $1 WHERE id = $2`,
+        [documentoId, argId]
+      );
+      await client.query('COMMIT');
+    } catch (err) {
+      await client.query('ROLLBACK');
+      throw err;
+    } finally {
+      client.release();
+    }
+
+    await registrarLog(req.user.id, 'PROMOVER_ARGUMENTO', 'tutela', id, req, { argId, titulo, documentoId });
+    res.status(200).json({ mensaje: 'Argumento promovido a la memoria legal.', documento_id: documentoId, chunks: chunks.length });
+
+  } catch (error) {
+    console.error('Error promoviendo argumento:', error);
+    res.status(500).json({ error: 'Error al promover el argumento.' });
+  }
 };
 
 export const eliminarArgumento = async (req, res) => {
