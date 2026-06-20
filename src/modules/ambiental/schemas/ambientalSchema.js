@@ -19,8 +19,11 @@ export const actualizarExpedienteSchema = z.object({
   entidad_id:       z.preprocess(v => v !== undefined ? Number(v) : undefined, z.number().int().positive()).optional(),
   responsable_uuid: z.string().uuid().optional(),
   grupo_id:         z.preprocess(v => v !== undefined ? Number(v) : undefined, z.number().int().positive()).optional(),
-  fecha_documento:  z.string().optional(),
-  estado:           z.enum(['Pendiente', 'Analizado', 'Revisado', 'Archivado']).optional(),
+  fecha_documento:    z.string().optional(),
+  fecha_vencimiento:  z.string().optional().nullable(),
+  estado:             z.enum(['Pendiente', 'Analizado', 'Revisado', 'Archivado']).optional(),
+  contenido_texto:    z.string().optional(),
+  prompt_generado:    z.string().optional(),
 }).refine(d => Object.keys(d).length > 0, { message: 'Se requiere al menos un campo.' });
 
 const hallazgoSchema = z.object({
@@ -40,14 +43,27 @@ const normaCitadaSchema = z.object({
 
 export const guardarAnalisisSchema = z.object({
   resultado_llm_json: z.string().min(1, 'La respuesta del LLM es obligatoria.'),
+  modo: z.enum(['reemplazar', 'acumular']).default('reemplazar'),
+  seccion_index: z.preprocess(v => v !== undefined ? Number(v) : undefined, z.number().int().min(0)).optional(),
+});
+
+const pagoSchema = z.object({
+  descripcion:       z.string().optional(),
+  valor:             z.string().min(1),
+  plazo:             z.string().optional(),
+  fecha_vencimiento: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional().nullable(),
+  estado:            z.enum(['Pendiente', 'Pagado']).default('Pendiente'),
+  nota:              z.string().optional(),
 });
 
 export const analisisLlmSchema = z.object({
-  que_ordena:     z.string().min(1),
-  admite_recurso: z.enum(['Sí', 'No', 'Depende']),
-  plazo_respuesta: z.string().min(1),
-  nivel_riesgo:   z.enum(['Bajo', 'Medio', 'Alto', 'Crítico']),
-  resumen:        z.string().min(1),
-  hallazgos:      z.array(hallazgoSchema).min(1),
-  normas_citadas: z.array(normaCitadaSchema),
+  que_ordena:           z.string().min(1),
+  admite_recurso:       z.enum(['Sí', 'No', 'Depende']),
+  plazo_respuesta:      z.string().min(1),
+  fecha_vencimiento:    z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional().nullable(),
+  pagos:                z.array(pagoSchema).optional().default([]),
+  nivel_riesgo:         z.enum(['Bajo', 'Medio', 'Alto', 'Crítico']),
+  resumen:              z.string().min(1),
+  hallazgos:            z.array(hallazgoSchema).min(1),
+  normas_citadas:       z.array(normaCitadaSchema),
 });

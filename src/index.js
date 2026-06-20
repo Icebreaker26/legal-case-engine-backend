@@ -71,6 +71,7 @@ app.get('/api/health', async (req, res) => {
 
 import { errorHandler } from './middlewares/errorHandler.js';
 import { iniciarCronAlertas } from './modules/tutelas/services/alertasVencimientoService.js';
+import { iniciarCronAlertasAmbiental } from './modules/ambiental/services/alertasAmbientalService.js';
 
 // ... (después de la ruta healthcheck)
 
@@ -81,4 +82,5 @@ const PORT = env.PORT;
 app.listen(PORT, '0.0.0.0', () => {
   logger.info(`Servidor corriendo en el puerto ${PORT}`);
   iniciarCronAlertas();
+  iniciarCronAlertasAmbiental();
 });
