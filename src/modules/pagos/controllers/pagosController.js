@@ -1,5 +1,6 @@
 import pool from '../../../db/database.js';
 import logger from '../../../utils/logger.js';
+import { crearNotificacion } from '../../notificaciones/services/notificationService.js';
 
 export const listarEstados = async (req, res) => {
     try {
@@ -175,6 +176,20 @@ export const actualizarEstadoPago = async (req, res) => {
             'INSERT INTO pago_trazabilidad (pago_id, usuario_uuid, estado_anterior, estado_nuevo, comentario) VALUES ($1, $2, $3, $4, $5)',
             [id, usuario_uuid, estadoAnterior, estado, comentario]
         );
+
+        const pagoRow = await pool.query('SELECT solicitante_uuid, concepto FROM pagos WHERE id = $1', [id]);
+        if (pagoRow.rows.length) {
+            const { solicitante_uuid, concepto } = pagoRow.rows[0];
+            const MENSAJES = {
+                liberado: `Tu pago "${concepto}" fue liberado.`,
+                rechazado: `Tu pago "${concepto}" fue rechazado.`,
+                pagado:    `Tu pago "${concepto}" fue marcado como pagado.`,
+            };
+            const tipo = estado === 'rechazado' ? 'alerta' : 'info';
+            if (MENSAJES[estado] && solicitante_uuid !== usuario_uuid) {
+                await crearNotificacion(solicitante_uuid, MENSAJES[estado], tipo, id, 'pagos').catch(() => {});
+            }
+        }
 
         res.json({ message: 'Estado de pago actualizado.' });
     } catch (error) {

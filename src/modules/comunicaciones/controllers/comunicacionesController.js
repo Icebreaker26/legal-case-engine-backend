@@ -1,5 +1,6 @@
 import pool from '../../../db/database.js';
 import logger from '../../../utils/logger.js';
+import { crearNotificacion } from '../../notificaciones/services/notificationService.js';
 
 export const crearComunicacion = async (req, res) => {
     try {
@@ -13,6 +14,11 @@ export const crearComunicacion = async (req, res) => {
             RETURNING id
         `;
         const result = await pool.query(query, [entidad_id, tipo, asunto, fecha_recepcion, fechaLimiteFormateada, responsableVal, descripcion, link]);
+
+        if (responsableVal && responsableVal !== req.user?.id) {
+            await crearNotificacion(responsableVal, `Se te asignó la comunicación: "${asunto}".`, 'info', result.rows[0].id, 'comunicaciones').catch(() => {});
+        }
+
         res.status(201).json({ id: result.rows[0].id, message: 'Comunicación creada.' });
     } catch (error) {
         logger.error('crearComunicacion error', { error: error.message });
@@ -132,7 +138,12 @@ export const actualizarComunicacion = async (req, res) => {
 
         let cambio = 'Comunicación actualizada: ';
         if (prev.estado !== nuevoEstado) cambio += `Estado de ${prev.estado} a ${nuevoEstado}. `;
-        if (responsable_uuid !== undefined && prev.responsable_uuid !== responsable_uuid) cambio += 'Responsable cambiado. ';
+        if (responsable_uuid !== undefined && prev.responsable_uuid !== responsable_uuid) {
+            cambio += 'Responsable cambiado. ';
+            if (responsable_uuid && responsable_uuid !== usuario_uuid) {
+                await crearNotificacion(responsable_uuid, `Se te asignó la comunicación: "${prev.asunto}".`, 'info', id, 'comunicaciones').catch(() => {});
+            }
+        }
         await pool.query(
             'INSERT INTO comunicacion_trazabilidad (comunicacion_id, usuario_uuid, comentario) VALUES ($1, $2, $3)',
             [id, usuario_uuid, cambio]

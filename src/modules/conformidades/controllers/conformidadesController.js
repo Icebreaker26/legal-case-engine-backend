@@ -1,5 +1,6 @@
 import pool from '../../../db/database.js';
 import logger from '../../../utils/logger.js';
+import { crearNotificacion } from '../../notificaciones/services/notificationService.js';
 
 export const listarProyectos = async (req, res) => {
     try {
@@ -224,6 +225,10 @@ export const crearConformidad = async (req, res) => {
             [result.rows[0].id, req.user.id, 'SOLICITADO', 'Conformidad creada.']
         );
 
+        if (responsable_uuid && responsable_uuid !== req.user.id) {
+            await crearNotificacion(responsable_uuid, `Se te asignó una conformidad: "${concepto}".`, 'info', result.rows[0].id, 'conformidades').catch(() => {});
+        }
+
         res.status(201).json({ id: result.rows[0].id, message: 'Conformidad creada.' });
     } catch (error) {
         logger.error('crearConformidad error', { error: error.message });
@@ -344,6 +349,17 @@ export const actualizarEstadoConformidad = async (req, res) => {
             'INSERT INTO conformidad_trazabilidad (conformidad_id, usuario_uuid, estado_anterior, estado_nuevo, comentario) VALUES ($1, $2, $3, $4, $5)',
             [id, usuario_uuid, estado_anterior ?? null, estado, comentario]
         );
+
+        const confRow = await pool.query('SELECT solicitante_uuid, responsable_uuid, concepto FROM conformidades WHERE id = $1', [id]);
+        if (confRow.rows.length) {
+            const { solicitante_uuid, responsable_uuid, concepto } = confRow.rows[0];
+            const notifyTo = solicitante_uuid && solicitante_uuid !== usuario_uuid ? solicitante_uuid
+                           : responsable_uuid && responsable_uuid !== usuario_uuid ? responsable_uuid : null;
+            if (notifyTo) {
+                const tipo = estado === 'RECHAZADO' ? 'alerta' : 'info';
+                await crearNotificacion(notifyTo, `La conformidad "${concepto}" cambió a estado ${estado}.`, tipo, id, 'conformidades').catch(() => {});
+            }
+        }
 
         res.json({ message: 'Estado actualizado.' });
     } catch (error) {
