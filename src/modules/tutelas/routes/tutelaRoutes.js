@@ -44,6 +44,10 @@ import {
     eliminarArgumento,
     promoverArgumento,
     registrarFeedbackMemoria,
+    generarPromptsPeticion,
+    guardarRespuestaPeticion,
+    obtenerRespuestaPeticion,
+    limpiarRespuestaPeticion,
 } from '../controllers/tutelaController.js';
 
 import { listarRequerimientosPorArea as listarReqArea, responderRequerimientoPorArea as responderReqArea } from '../controllers/requerimientoController.js';
@@ -74,6 +78,7 @@ import {
     actualizarNoiseSchema,
     actualizarROISchema,
     actualizarConfigSchema,
+    guardarRespuestaPeticionSchema,
 } from '../schemas/tutelaSchema.js';
 
 
@@ -294,5 +299,11 @@ router.post('/:id/argumentos', checkPermission('tutelas', 'WRITE'), validate(cre
 router.patch('/:id/argumentos/:argId', checkPermission('tutelas', 'WRITE'), validate(actualizarArgumentoSchema), actualizarArgumento);
 router.delete('/:id/argumentos/:argId', checkPermission('tutelas', 'DELETE'), eliminarArgumento);
 router.post('/:id/argumentos/:argId/promover', checkPermission('tutelas', 'WRITE'), promoverArgumento);
+
+// Generación de prompts y respuestas de petición
+router.post('/:id/generar-prompts-peticion',  checkPermission('tutelas', 'WRITE'), generarPromptsPeticion);
+router.get('/:id/respuesta-peticion',          checkPermission('tutelas', 'READ'),  obtenerRespuestaPeticion);
+router.post('/:id/respuesta-peticion',         checkPermission('tutelas', 'WRITE'), validate(guardarRespuestaPeticionSchema), guardarRespuestaPeticion);
+router.delete('/:id/respuesta-peticion',       checkPermission('tutelas', 'DELETE'), limpiarRespuestaPeticion);
 
 export default router;

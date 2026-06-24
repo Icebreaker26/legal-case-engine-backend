@@ -1,4 +1,6 @@
 import { z } from 'zod';
+// ── Validación en routes ───────────────────────────────────────────────────────
+// guardarRespuestaPeticionSchema se importa también en routes para validate()
 
 // ── Tutela principal ──────────────────────────────────────────────────────────
 
@@ -121,4 +123,38 @@ export const actualizarROISchema = z.object({
 export const actualizarConfigSchema = z.object({
   key:   z.string().min(1, 'La clave es obligatoria.'),
   value: z.any(),
+});
+
+// ── Respuestas de petición (JSON del LLM) ─────────────────────────────────────
+
+export const respuestaItemLlmSchema = z.object({
+  numero:         z.number().int().positive(),
+  solicitud:      z.string().min(1),
+  respuesta:      z.string().min(1),
+  normas_citadas: z.array(z.string()).default([]),
+});
+
+export const prescripcionLlmSchema = z.object({
+  aplica:      z.boolean(),
+  fundamento:  z.string().nullable().optional(),
+  norma:       z.string().nullable().optional(),
+});
+
+export const respuestaLlmSchema = z.object({
+  encabezado: z.object({
+    ciudad_fecha:      z.string(),
+    para:              z.string(),
+    radicado_peticion: z.string(),
+    asunto:            z.string(),
+  }).optional(),
+  introduccion: z.string().optional(),
+  respuestas:   z.array(respuestaItemLlmSchema).min(1, 'Se requiere al menos una respuesta.'),
+  prescripcion: prescripcionLlmSchema.nullable().optional(),
+  cierre:       z.string().optional(),
+});
+
+export const guardarRespuestaPeticionSchema = z.object({
+  resultado_llm_json: z.string().min(1, 'El JSON del LLM es obligatorio.'),
+  modo:               z.enum(['reemplazar', 'acumular']).default('acumular'),
+  parte_index:        z.number().int().min(0).optional(),
 });

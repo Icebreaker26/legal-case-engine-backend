@@ -34,11 +34,17 @@ describe('Pagos — Integración', () => {
       ON CONFLICT DO NOTHING
     `, [testUserUuid]);
 
-    // Tomar acreedor y proyecto existentes
-    const { rows: acRows } = await pool.query('SELECT id FROM global_acreedores LIMIT 1');
+    // Crear acreedor y proyecto de prueba
+    const { rows: acRows } = await pool.query(
+      `INSERT INTO global_acreedores (nombre, nit) VALUES ('Acreedor CI Test', '900000000-CI')
+       ON CONFLICT (nit) DO UPDATE SET nombre = EXCLUDED.nombre RETURNING id`
+    );
     acreedorId = acRows[0].id;
 
-    const { rows: pRows } = await pool.query('SELECT id FROM global_proyectos LIMIT 1');
+    const { rows: pRows } = await pool.query(
+      `INSERT INTO global_proyectos (nombre) VALUES ('Proyecto CI Test Pagos')
+       ON CONFLICT (nombre) DO UPDATE SET nombre = EXCLUDED.nombre RETURNING id`
+    );
     proyectoId = pRows[0].id;
 
     await agent.post('/api/auth/login').send({ email: testEmail, password: testPass });
@@ -56,6 +62,8 @@ describe('Pagos — Integración', () => {
     await pool.query('DELETE FROM logs_sistema WHERE usuario_uuid = $1', [testUserUuid]);
     await pool.query('DELETE FROM permisos WHERE usuario_uuid = $1', [testUserUuid]);
     await pool.query('DELETE FROM global_usuarios WHERE id = $1', [testUserUuid]);
+    if (acreedorId) await pool.query('DELETE FROM global_acreedores WHERE id = $1', [acreedorId]);
+    if (proyectoId) await pool.query('DELETE FROM global_proyectos WHERE id = $1', [proyectoId]);
     await pool.end();
   });
 

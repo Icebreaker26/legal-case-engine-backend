@@ -9,6 +9,8 @@ import { registrarLog } from '../../../services/auditService.js';
 import { crearNotificacion } from '../../notificaciones/services/notificationService.js';
 import pool from '../../../db/database.js';
 import { ESTADOS, PRIORIDADES } from '../constants.js';
+import { extraerSolicitudes, agruparEnLotes, construirPromptLote } from '../services/peticionService.js';
+import { respuestaLlmSchema } from '../schemas/tutelaSchema.js';
 import { v4 as uuidv4 } from 'uuid';
 
 const limpiarTextoParaPostgres = (texto) => {
@@ -936,6 +938,149 @@ export const promoverArgumento = async (req, res) => {
   } catch (error) {
     console.error('Error promoviendo argumento:', error);
     res.status(500).json({ error: 'Error al promover el argumento.' });
+  }
+};
+
+export const guardarRespuestaPeticion = async (req, res) => {
+  const { id } = req.params;
+  const { resultado_llm_json, modo = 'acumular', parte_index } = req.body;
+
+  let parsed;
+  try {
+    parsed = JSON.parse(resultado_llm_json);
+  } catch {
+    return res.status(400).json({ error: 'La respuesta del LLM no es un JSON válido.' });
+  }
+
+  const validation = respuestaLlmSchema.safeParse(parsed);
+  if (!validation.success) {
+    return res.status(400).json({ error: 'Estructura del JSON inválida.', details: validation.error.issues });
+  }
+
+  const { encabezado, introduccion, respuestas, prescripcion, cierre } = validation.data;
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+
+    const { rows: existing } = await client.query(
+      'SELECT id FROM respuestas_peticion WHERE tutela_id = $1', [id]
+    );
+
+    let respuestaId;
+
+    if (modo === 'reemplazar' || existing.length === 0) {
+      if (existing.length > 0) {
+        await client.query('DELETE FROM respuestas_peticion WHERE tutela_id = $1', [id]);
+      }
+      const { rows } = await client.query(
+        `INSERT INTO respuestas_peticion (tutela_id, encabezado, introduccion, cierre, prescripcion, partes_procesadas)
+         VALUES ($1, $2, $3, $4, $5, $6) RETURNING id`,
+        [id, encabezado ? JSON.stringify(encabezado) : null, introduccion || null, cierre || null,
+         prescripcion ? JSON.stringify(prescripcion) : null,
+         parte_index !== undefined ? [parte_index] : []]
+      );
+      respuestaId = rows[0].id;
+    } else {
+      respuestaId = existing[0].id;
+      await client.query(
+        `UPDATE respuestas_peticion SET
+           encabezado   = COALESCE($1, encabezado),
+           introduccion = COALESCE($2, introduccion),
+           cierre       = COALESCE($3, cierre),
+           prescripcion = COALESCE($4, prescripcion),
+           partes_procesadas = array_append(array_remove(partes_procesadas, $5::integer), $5::integer),
+           updated_at   = NOW()
+         WHERE id = $6`,
+        [encabezado ? JSON.stringify(encabezado) : null,
+         introduccion || null, cierre || null,
+         prescripcion?.aplica ? JSON.stringify(prescripcion) : null,
+         parte_index ?? null, respuestaId]
+      );
+    }
+
+    for (const r of respuestas) {
+      await client.query(
+        `INSERT INTO respuesta_peticion_items (respuesta_id, numero, solicitud, respuesta, normas_citadas, parte)
+         VALUES ($1, $2, $3, $4, $5, $6)
+         ON CONFLICT DO NOTHING`,
+        [respuestaId, r.numero, r.solicitud, r.respuesta,
+         r.normas_citadas?.length ? r.normas_citadas : [], parte_index ?? null]
+      );
+    }
+
+    await client.query('COMMIT');
+    await registrarLog(req.user.id, 'GUARDAR_RESPUESTA_PETICION', 'tutela', id, req, { parte_index, modo });
+    res.json({ message: 'Respuesta guardada correctamente.', respuesta_id: respuestaId });
+  } catch (err) {
+    await client.query('ROLLBACK');
+    console.error('Error guardando respuesta petición:', err);
+    res.status(500).json({ error: 'Error al guardar la respuesta.', details: err.message });
+  } finally {
+    client.release();
+  }
+};
+
+export const obtenerRespuestaPeticion = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const { rows: [respuesta] } = await pool.query(
+      'SELECT * FROM respuestas_peticion WHERE tutela_id = $1', [id]
+    );
+    if (!respuesta) return res.json(null);
+
+    const { rows: items } = await pool.query(
+      'SELECT * FROM respuesta_peticion_items WHERE respuesta_id = $1 ORDER BY numero ASC', [respuesta.id]
+    );
+    res.json({ ...respuesta, items });
+  } catch (err) {
+    res.status(500).json({ error: 'Error al obtener la respuesta.' });
+  }
+};
+
+export const limpiarRespuestaPeticion = async (req, res) => {
+  const { id } = req.params;
+  try {
+    await pool.query('DELETE FROM respuestas_peticion WHERE tutela_id = $1', [id]);
+    res.json({ message: 'Respuesta eliminada.' });
+  } catch (err) {
+    res.status(500).json({ error: 'Error al eliminar la respuesta.' });
+  }
+};
+
+export const generarPromptsPeticion = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const [tutelaRes, configRes, argumentosRes] = await Promise.all([
+      pool.query('SELECT radicado, accionante, derecho_vulnerado, contenido_original FROM tutelas WHERE id = $1', [id]),
+      pool.query('SELECT key, value FROM system_config'),
+      pool.query('SELECT titulo, contenido FROM tutela_argumentos WHERE tutela_id = $1 ORDER BY created_at ASC', [id]),
+    ]);
+
+    if (tutelaRes.rows.length === 0) return res.status(404).json({ error: 'Tutela no encontrada.' });
+
+    const tutela = tutelaRes.rows[0];
+    const config = configRes.rows.reduce((acc, r) => { acc[r.key] = r.value; return acc; }, {});
+    const legalNotes = config.legal_notes || [];
+    const argumentos = argumentosRes.rows;
+
+    const vectorLocal = await generarEmbeddingLocal((tutela.contenido_original || '').substring(0, 1500));
+    const sugerencias = await buscarContextoLegal(vectorLocal, tutela.contenido_original || '', 5, tutela.derecho_vulnerado);
+
+    const solicitudes = extraerSolicitudes(tutela.contenido_original || '');
+    const lotes = agruparEnLotes(solicitudes);
+
+    const prompts = lotes.map((lote, i) => ({
+      parte: i + 1,
+      total: lotes.length,
+      solicitudes: lote.map(s => s.etiqueta),
+      prompt: construirPromptLote({ lote, loteIndex: i, totalLotes: lotes.length, tutela, legalNotes, sugerencias, argumentos }),
+    }));
+
+    res.json({ prompts, total_solicitudes: solicitudes.length, total_partes: lotes.length });
+  } catch (error) {
+    console.error('Error generando prompts de petición:', error);
+    res.status(500).json({ error: 'Error al generar los prompts.', details: error.message });
   }
 };
 
