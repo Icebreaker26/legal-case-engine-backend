@@ -1,5 +1,6 @@
 import pool from '../../../db/database.js';
 import logger from '../../../utils/logger.js';
+import { crearNotificacion } from '../../notificaciones/services/notificationService.js';
 
 export const crearObjetivo = async (req, res) => {
     try {
@@ -8,6 +9,17 @@ export const crearObjetivo = async (req, res) => {
             'INSERT INTO objetivos (usuario_uuid, meta_acciones, mes, anio, titulo, descripcion) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id',
             [usuario_uuid, meta_acciones, mes, anio, titulo, descripcion ?? null]
         );
+
+        if (usuario_uuid !== req.user.id) {
+            await crearNotificacion(
+                usuario_uuid,
+                `Se te asignó un nuevo objetivo: "${titulo}".`,
+                'info',
+                result.rows[0].id,
+                'rendimiento'
+            ).catch(() => {});
+        }
+
         res.status(201).json({ id: result.rows[0].id, message: 'Objetivo creado correctamente.' });
     } catch (error) {
         logger.error('crearObjetivo error', { error: error.message });

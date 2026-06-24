@@ -1,6 +1,7 @@
 import pool from '../../../db/database.js';
 import { extractTextFromFile, generateDiffPrompt, computeDiff } from '../services/contratoService.js';
 import { registrarLog } from '../../../services/auditService.js';
+import { crearNotificacion } from '../../notificaciones/services/notificationService.js';
 
 export const listarMinutas = async (req, res) => {
   try {
@@ -128,6 +129,17 @@ export const actualizarAuditoria = async (req, res) => {
             valores
         );
         if (rows.length === 0) return res.status(404).json({ error: 'Auditoría no encontrada' });
+
+        if (req.body.estado_seguimiento && rows[0].creado_por && rows[0].creado_por !== req.user.id) {
+            await crearNotificacion(
+                rows[0].creado_por,
+                `Tu auditoría cambió a estado: "${req.body.estado_seguimiento}".`,
+                'info',
+                rows[0].id,
+                'contratos'
+            ).catch(() => {});
+        }
+
         res.json(rows[0]);
     } catch (error) {
         res.status(500).json({ error: 'Error al actualizar auditoría.' });

@@ -1,82 +1,135 @@
-# Legal Case Engine Backend ⚖️🤖
-
-[![Quality Assurance Pipeline](https://github.com/Icebreaker26/legal-case-engine-backend/actions/workflows/quality-assurance.yml/badge.svg?branch=main)](https://github.com/Icebreaker26/legal-case-engine-backend/actions/workflows/quality-assurance.yml)
-![License: ISC](https://img.shields.io/badge/License-ISC-blue.svg)
-![Node.js](https://img.shields.io/badge/Node.js-20.x-green.svg)
-![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15-blue.svg)
-
----
-
-## 🏛️ Descripción del Proyecto
-**Legal Case Engine** es un motor backend de grado industrial diseñado para la gestión y automatización del ciclo de vida de acciones legales. Desarrollado con un enfoque en **resiliencia, seguridad y observabilidad**, este sistema transforma la gestión administrativa en un ecosistema inteligente, seguro y auditable.
-
-## 🛠️ Arquitectura Técnica de Alto Nivel
-Este sistema no es solo una API; es una arquitectura blindada diseñada para escalabilidad:
-*   **Core:** Node.js (ESM) + Express.
-*   **Persistencia:** PostgreSQL con `pgvector` para búsqueda semántica (RAG).
-*   **Inteligencia Artificial:** Procesamiento local con `@xenova/transformers` (Privacidad absoluta: los datos no salen del servidor).
-*   **Orquestación:** Despliegue portable mediante **Docker** y `docker-compose` con inicialización automática.
-
----
-
-## 🛡️ Pilares de Ingeniería y Calidad (QA)
-
-### 1. Blindaje de Seguridad
-*   **Validación de Frontera:** Implementación de **Zod** para validación declarativa de contratos de datos.
-*   **Inmunidad ante Inyecciones:** Fuzz Testing (via `fast-check`) para asegurar resiliencia ante entradas inesperadas.
-*   **Seguridad HTTP:** Middleware `Helmet` para mitigación de ataques XSS, Clickjacking y MIME-sniffing.
-*   **Auditoría SCA:** Análisis continuo de vulnerabilidades en la cadena de suministro (0 CVEs).
-
-### 2. Observabilidad de Grado Industrial
-*   **Trazabilidad:** Inyección de `X-Request-Id` único en cada petición.
-*   **Logging Estructurado:** Migración a `Winston` (formato JSON) para auditoría legible por máquinas.
-
-### 3. Resiliencia Operativa
-*   **Arranque Seguro:** Patrón *Fail-Fast* en validación de variables de entorno.
-*   **Sincronización:** Uso de `wait-for-it` para asegurar la conectividad con PostgreSQL antes de la inicialización del backend en entornos contenerizados.
-
----
-
-## 🛠️ Configuración de Entorno (.env)
-Para ejecutar el proyecto, asegúrate de tener un archivo `.env` en la raíz con las siguientes variables:
-
-```env
-PORT=4000
-DATABASE_URL=postgresql://[usuario]:[pass]@localhost:[puerto]/[db]
-JWT_SECRET=[secreto_de_al_menos_16_caracteres]
-NODE_ENV=development
-TEST_USER_EMAIL=[email_para_testing]
-TEST_USER_PASS=[password_para_testing]
-OPENAI_API_KEY=[tu_api_key]
-FRONTEND_URL=http://localhost:5173
 ```
-> **Nota:** Estas variables son validadas al arranque mediante un esquema de `Zod` (Fail-Fast), asegurando que el sistema no inicie si falta alguna configuración crítica.
+╔══════════════════════════════════════════════════════════════════╗
+║              CORE OPERATING SYSTEM — BACKEND ENGINE             ║
+║                     ICEBREAKER // BUILD 2026                    ║
+╚══════════════════════════════════════════════════════════════════╝
+```
+
+[![Quality Assurance](https://github.com/Icebreaker26/legal-case-engine-backend/actions/workflows/quality-assurance.yml/badge.svg?branch=main)](https://github.com/Icebreaker26/legal-case-engine-backend/actions/workflows/quality-assurance.yml)
+![Node.js](https://img.shields.io/badge/Node.js-20.x-339933?style=flat-square&logo=node.js&logoColor=white)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15-4169E1?style=flat-square&logo=postgresql&logoColor=white)
+![Express](https://img.shields.io/badge/Express-ESM-000000?style=flat-square&logo=express&logoColor=white)
+![License](https://img.shields.io/badge/License-ISC-slate?style=flat-square)
 
 ---
 
-## 🧪 Estrategia de Testing Automatizado
-El sistema cuenta con una **Quality Gate** automatizada mediante GitHub Actions que garantiza la integridad antes de cada despliegue.
+## `> DESCRIPCIÓN`
 
-*   **Total Tests:** 25+ suites (Unitarias e Integración).
-*   **Cobertura:** Auth, Tutelas, Historial, Rendimiento, Seguridad.
-*   **Automatización:** Pipeline CI/CD que ejecuta auditoría SCA, tests funcionales y Fuzz Testing.
+API REST del **Core Operating System** — plataforma transversal de gestión operativa desarrollada para Enel Colombia. Centraliza procesos legales, ambientales, contractuales y administrativos bajo una sola arquitectura modular, con trazabilidad completa y permisos granulares por usuario.
+
+> Desarrollado por **Alejandro M. Torres** — Ingeniero de Sistemas y Telecomunicaciones  
+> Universidad Católica de Pereira · Internship Permitting & Detailed Design HV · Enel Colombia 2026-1
 
 ---
 
-## 🚀 Despliegue y Portabilidad
-La infraestructura es **código puro**. Despliega todo el ecosistema con un comando:
+## `> STACK TECNOLÓGICO`
+
+| Capa | Tecnología |
+|------|-----------|
+| Runtime | Node.js 20.x (ESM `import/export`) |
+| Framework | Express.js |
+| Base de datos | PostgreSQL 15 + `pgvector` |
+| Autenticación | JWT en cookies HttpOnly |
+| Validación | Zod (schemas por módulo) |
+| Migraciones | `node-pg-migrate` |
+| Logging | Winston |
+| Tests | Jest + Supertest (integración) |
+
+---
+
+## `> MÓDULOS OPERATIVOS`
+
+```
+/api/tutelas          ⚖️  Derechos de petición — RAG con pgvector, borradores Word
+/api/contratos        📄  Auditoría contractual — diff de minutas, análisis LLM
+/api/comunicaciones   ✉️  Correspondencia externa — entrada/salida, trazabilidad
+/api/conformidades    📋  Trazabilidad operativa — historial de estados
+/api/pagos            💰  Pagos judiciales — flujo de aprobación, KPIs financieros
+/api/rendimiento      📊  Objetivos por equipo — cumplimiento y dashboards
+/api/ambiental        🌿  Derecho ambiental — Ley 99/93, alertas, calendario
+/api/reportes         📈  Reportería cross-módulo — queries paralelas, exportación
+/api/core             🗃️  Catálogos genéricos — entidades, grupos, contratos
+/api/auth             🔑  Autenticación — login, registro, JWT
+/api/admin            ⚙️  Usuarios, roles, auditoría
+/api/permisos         🔐  Control de acceso granular por módulo y acción
+/api/notificaciones   🔔  Bandeja de alertas del sistema
+```
+
+---
+
+## `> ARQUITECTURA`
+
+```
+tutelas_backend/
+├── src/
+│   ├── modules/          ← Un directorio por módulo
+│   │   └── <nombre>/
+│   │       ├── controllers/
+│   │       ├── routes/<nombre>Routes.js   ← Loader dinámico
+│   │       ├── schemas/                   ← Validación Zod
+│   │       └── services/
+│   ├── middlewares/
+│   │   ├── auth.js               ← Verificación JWT
+│   │   ├── checkPermission.js    ← ACL granular
+│   │   └── errorHandler.js       ← Manejo centralizado
+│   ├── services/
+│   │   ├── notificationService.js  ← Compartido entre módulos
+│   │   └── pdfService.js           ← Extracción PDF/DOCX
+│   └── config/env.js               ← Schema Zod de variables de entorno
+├── migrations/           ← node-pg-migrate (.cjs / .js)
+└── tests/
+    └── integration/      ← Jest + Supertest por módulo
+```
+
+**Loader dinámico:** `src/index.js` escanea `src/modules/*/routes/*Routes.js` y monta cada módulo en `/api/<nombre>` automáticamente.
+
+---
+
+## `> SEGURIDAD`
+
+- Todos los endpoints requieren JWT válido en cookie HttpOnly
+- Permisos granulares: `checkPermission('<modulo>', 'READ|WRITE|DELETE')`
+- PKs en UUID (`uuid_generate_v4()`), borrado lógico con `is_active = false`
+- **Restricción LLM:** el backend no se conecta a APIs de IA — genera prompts estructurados para uso humano
+
+---
+
+## `> TESTS`
 
 ```bash
-docker-compose up --build -d
+npm test                        # Suite completa (119+ tests de integración)
+npm test -- --testPathPatterns=<modulo>   # Módulo específico
 ```
-*Esto orquesta el backend junto a PostgreSQL, inicializando automáticamente el esquema de base de datos.*
+
+Cada módulo tiene su propio archivo en `tests/integration/` cubriendo: auth, validación Zod, operaciones CRUD y casos de borde.
 
 ---
 
-## 📚 Documentación Técnica
-*   **Directorio de Módulos:** Para conocer a detalle la arquitectura y endpoints de cada módulo, consulte el [Directorio de Módulos](docs/DOCUMENTACION_MODULOS.md).
-*   **Guía para Agentes de IA:** Si eres un agente de desarrollo de IA trabajando en este proyecto, consulta las [Instrucciones de Contexto de IA](AI_INSTRUCTIONS.md).
-*   **Ingeniería de Calidad:** Para una revisión detallada de la metodología, incidentes superados y resultados empíricos, consulte nuestro [Dossier de Ingeniería de Calidad](docs/QUALITY_DOSSIER.md).
+## `> COMANDOS`
+
+```bash
+npm run dev              # Servidor de desarrollo (puerto 4000)
+npm run migrate:up       # Ejecutar migraciones pendientes
+npm run migrate:down     # Revertir última migración
+npm run migrate:create -- nombre   # Crear migración
+npm run generate:module nombre     # Scaffolding de nuevo módulo
+```
 
 ---
-*Desarrollado como Proyecto de Ingeniería de Calidad (Mayo 2026).*
+
+## `> VARIABLES DE ENTORNO`
+
+Definidas y validadas con Zod en `src/config/env.js`. Copiar `.env.example` y completar:
+
+```
+DATABASE_URL=
+JWT_SECRET=
+PORT=4000
+NODE_ENV=development
+```
+
+---
+
+```
+// SECURE_ENTERPRISE_ENVIRONMENT // ENEL COLOMBIA // 2026
+```

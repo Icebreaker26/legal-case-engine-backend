@@ -1,5 +1,6 @@
 import pool from '../../../db/database.js';
 import logger from '../../../utils/logger.js';
+import { crearNotificacion } from '../../notificaciones/services/notificationService.js';
 
 export const registrarAccion = async (req, res) => {
     try {
@@ -109,6 +110,17 @@ export const asignarUsuarioAEquipo = async (req, res) => {
         }
 
         await pool.query('UPDATE global_usuarios SET equipo_id = $1 WHERE id = $2', [equipo_id, usuario_uuid]);
+
+        const equipoRes = await pool.query('SELECT nombre FROM global_areas_equipos WHERE id = $1', [equipo_id]);
+        const nombreEquipo = equipoRes.rows[0]?.nombre || 'un equipo';
+        await crearNotificacion(
+            usuario_uuid,
+            `Fuiste agregado al equipo "${nombreEquipo}".`,
+            'info',
+            null,
+            'rendimiento'
+        ).catch(() => {});
+
         res.json({ message: 'Usuario asignado al equipo correctamente.' });
     } catch (error) {
         logger.error('asignarUsuarioAEquipo error', { error: error.message });
@@ -125,6 +137,14 @@ export const removerUsuarioDeEquipo = async (req, res) => {
             [usuario_uuid]
         );
         await pool.query('UPDATE global_usuarios SET equipo_id = NULL WHERE id = $1', [usuario_uuid]);
+
+        await crearNotificacion(
+            usuario_uuid,
+            'Fuiste removido de tu equipo de rendimiento.',
+            'alerta',
+            null,
+            'rendimiento'
+        ).catch(() => {});
 
         res.json({ message: 'Usuario removido del equipo y objetivos archivados correctamente.' });
     } catch (error) {
