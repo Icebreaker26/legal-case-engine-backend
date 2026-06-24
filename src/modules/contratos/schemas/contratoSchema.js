@@ -27,6 +27,7 @@ export const crearAuditoriaSchema = z.object({
 
 export const actualizarAuditoriaSchema = z.object({
   resultado_llm_texto: z.string().optional(),
+  resultado_llm_json:  z.record(z.unknown()).optional(),
   estado_seguimiento:  z.string().optional(),
   fecha_seguimiento:   z.string().optional(),
   prompt_generado:     z.string().optional(),
