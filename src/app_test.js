@@ -15,6 +15,7 @@ import analyticsRoutes from './modules/analytics/routes/analyticsRoutes.js';
 import permisosRoutes from './modules/permisos/routes/permisosRoutes.js';
 import coreRoutes from './modules/core/routes/catalogoRoutes.js';
 import ambientalRoutes from './modules/ambiental/routes/ambientalRoutes.js';
+import reportesRoutes from './modules/reportes/routes/reportesRoutes.js';
 
 const createApp = () => {
   const app = express();
@@ -36,6 +37,7 @@ const createApp = () => {
   app.use('/api/permisos', permisosRoutes);
   app.use('/api/core', coreRoutes);
   app.use('/api/ambiental', ambientalRoutes);
+  app.use('/api/reportes', reportesRoutes);
 
   return app;
 };
