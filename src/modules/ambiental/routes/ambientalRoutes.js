@@ -1,0 +1,43 @@
+import { Router } from 'express';
+import multer from 'multer';
+import { authenticateToken } from '../../../middlewares/authMiddleware.js';
+import { checkPermission } from '../../../middlewares/permissionMiddleware.js';
+import { validate } from '../../../middlewares/validateMiddleware.js';
+import { crearExpedienteSchema, actualizarExpedienteSchema, guardarAnalisisSchema } from '../schemas/ambientalSchema.js';
+import {
+  procesarDocumento,
+  crearExpediente,
+  listarExpedientes,
+  obtenerExpediente,
+  actualizarExpediente,
+  eliminarExpediente,
+  guardarAnalisis,
+  consolidarResumen,
+  actualizarEstadoPago,
+  obtenerAnalisis,
+  obtenerDatosInforme,
+  obtenerCalendario,
+  obtenerDashboard,
+} from '../controllers/ambientalController.js';
+
+const router = Router();
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 60 * 1024 * 1024 }, // 60 MB
+});
+
+router.post('/expedientes/procesar', authenticateToken, checkPermission('ambiental', 'WRITE'), upload.single('file'), procesarDocumento);
+router.post('/expedientes',          authenticateToken, checkPermission('ambiental', 'WRITE'), validate(crearExpedienteSchema), crearExpediente);
+router.get('/expedientes',           authenticateToken, checkPermission('ambiental', 'READ'),  listarExpedientes);
+router.get('/expedientes/:id',       authenticateToken, checkPermission('ambiental', 'READ'),  obtenerExpediente);
+router.patch('/expedientes/:id',     authenticateToken, checkPermission('ambiental', 'WRITE'), validate(actualizarExpedienteSchema), actualizarExpediente);
+router.delete('/expedientes/:id',    authenticateToken, checkPermission('ambiental', 'DELETE'), eliminarExpediente);
+router.post('/expedientes/:id/analisis',          authenticateToken, checkPermission('ambiental', 'WRITE'), validate(guardarAnalisisSchema), guardarAnalisis);
+router.patch('/expedientes/:id/analisis/resumen',    authenticateToken, checkPermission('ambiental', 'WRITE'), consolidarResumen);
+router.patch('/expedientes/:id/pagos/:pagoId',        authenticateToken, checkPermission('ambiental', 'WRITE'), actualizarEstadoPago);
+router.get('/expedientes/:id/analisis',           authenticateToken, checkPermission('ambiental', 'READ'),  obtenerAnalisis);
+router.get('/expedientes/:id/informe',   authenticateToken, checkPermission('ambiental', 'READ'),  obtenerDatosInforme);
+router.get('/calendario',                authenticateToken, checkPermission('ambiental', 'READ'),  obtenerCalendario);
+router.get('/dashboard',                 authenticateToken, checkPermission('ambiental', 'READ'),  obtenerDashboard);
+
+export default router;

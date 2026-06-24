@@ -1,0 +1,19 @@
+/**
+ * @type {import('node-pg-migrate').ColumnDefinitions | undefined}
+ */
+export const shorthands = undefined;
+
+/**
+ * @param pgm {import('node-pg-migrate').MigrationBuilder}
+ * @param run {() => void | undefined}
+ * @returns {Promise<void> | void}
+ */
+export const up = (pgm) => {
+  pgm.addColumn('tutelas', {
+    ultima_notif_vencimiento: { type: 'date', notNull: false, default: null },
+  });
+};
+
+export const down = (pgm) => {
+  pgm.dropColumn('tutelas', 'ultima_notif_vencimiento');
+};

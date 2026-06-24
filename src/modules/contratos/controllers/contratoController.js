@@ -47,8 +47,14 @@ export const actualizarMinuta = async (req, res) => {
         const { id } = req.params;
         const { titulo, descripcion, tipo_contrato, contenido_texto } = req.body;
         const { rows } = await pool.query(
-            'UPDATE minutas_estandar SET titulo=$1, descripcion=$2, tipo_contrato=$3, contenido_texto=$4, updated_at=NOW() WHERE id=$5 RETURNING *',
-            [titulo, descripcion, tipo_contrato, contenido_texto, id]
+            `UPDATE minutas_estandar
+             SET titulo          = COALESCE($1, titulo),
+                 descripcion     = COALESCE($2, descripcion),
+                 tipo_contrato   = COALESCE($3, tipo_contrato),
+                 contenido_texto = COALESCE($4, contenido_texto),
+                 updated_at      = NOW()
+             WHERE id = $5 RETURNING *`,
+            [titulo ?? null, descripcion ?? null, tipo_contrato ?? null, contenido_texto ?? null, id]
         );
         if (rows.length === 0) return res.status(404).json({ error: 'Minuta no encontrada' });
         res.json(rows[0]);
@@ -239,6 +245,22 @@ export const regenerarPrompt = async (req, res) => {
         res.json({ success: true, prompt });
     } catch (error) {
         res.status(500).json({ error: 'Error al regenerar prompt.', details: error.message });
+    }
+};
+
+export const listarMisAuditorias = async (req, res) => {
+    try {
+        const { rows } = await pool.query(`
+            SELECT ra.id, ra.estado, ra.created_at, me.titulo as minuta_titulo, ge.nombre as tercero_nombre
+            FROM registros_auditoria ra
+            JOIN minutas_estandar me ON ra.minuta_estandar_id = me.id
+            JOIN global_entidades ge ON ra.tercero_id = ge.id
+            WHERE ra.creado_por = $1
+            ORDER BY ra.created_at DESC
+        `, [req.user.id]);
+        res.json(rows);
+    } catch (error) {
+        res.status(500).json({ error: 'Error al listar mis auditorías.' });
     }
 };
 

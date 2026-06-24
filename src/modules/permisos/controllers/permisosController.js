@@ -1,5 +1,20 @@
 import pool from '../../../db/database.js';
 
+export const listarMisPermisos = async (req, res) => {
+    try {
+        const { rows } = await pool.query(`
+            SELECT m.nombre as modulo, a.nombre as accion
+            FROM permisos p
+            JOIN modulos m ON p.modulo_id = m.id
+            JOIN acciones a ON p.accion_id = a.id
+            WHERE p.usuario_uuid = $1
+        `, [req.user.id]);
+        res.json(rows);
+    } catch (error) {
+        res.status(500).json({ error: 'Error al obtener permisos.' });
+    }
+};
+
 export const listarPermisosUsuario = async (req, res) => {
     try {
         const { usuario_uuid } = req.params;

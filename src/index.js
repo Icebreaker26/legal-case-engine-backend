@@ -8,6 +8,8 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import swaggerUi from 'swagger-ui-express';
 import { swaggerSpec } from './config/swagger.js';
+import { requestIdMiddleware } from './utils/logger.js';
+import logger from './utils/logger.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -15,14 +17,15 @@ const __dirname = path.dirname(__filename);
 const app = express();
 
 app.use(cors({
-    origin: process.env.FRONTEND_URL,
+    origin: env.FRONTEND_URL,
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
 // Middlewares
-app.use(express.json()); 
+app.use(requestIdMiddleware);
+app.use(express.json());
 app.use(cookieParser());
 
 // Documentación
@@ -45,7 +48,7 @@ for (const moduleName of modules) {
             // Importa dinámicamente y monta el router bajo /api/<moduleName>
             const route = await import(`./modules/${moduleName}/routes/${routeFile}`);
             app.use(`/api/${moduleName}`, route.default);
-            console.log(`Módulo registrado: /api/${moduleName} usando ${routeFile}`);
+            logger.info(`Módulo registrado: /api/${moduleName} usando ${routeFile}`);
         }
     }
 }
@@ -60,20 +63,24 @@ app.get('/api/health', async (req, res) => {
     healthcheck.db = 'UP';
     res.status(200).send(healthcheck);
   } catch (error) {
-    console.error('Healthcheck failed:', error);
+    logger.error('Healthcheck failed', { error: error.message });
     healthcheck.message = 'DB_ERROR';
     res.status(503).send(healthcheck);
   }
 });
 
 import { errorHandler } from './middlewares/errorHandler.js';
+import { iniciarCronAlertas } from './modules/tutelas/services/alertasVencimientoService.js';
+import { iniciarCronAlertasAmbiental } from './modules/ambiental/services/alertasAmbientalService.js';
 
 // ... (después de la ruta healthcheck)
 
 app.use(errorHandler);
 
 // Iniciar el servidor
-const PORT = process.env.PORT || 4000;
+const PORT = env.PORT;
 app.listen(PORT, '0.0.0.0', () => {
-  console.log(`Servidor corriendo en el puerto ${PORT}`);
+  logger.info(`Servidor corriendo en el puerto ${PORT}`);
+  iniciarCronAlertas();
+  iniciarCronAlertasAmbiental();
 });

@@ -22,12 +22,10 @@ describe('Módulo de Rendimiento - Integración', () => {
         testUserUuid = userRes.rows[0].id; // Esto es ahora un UUID
 
         // 2. Autenticar (Asumiendo que el login usa global_usuarios)
-        const loginRes = await agent.post('/api/auth/login').send({
+        await agent.post('/api/auth/login').send({
             email: testEmail,
             password: testPass
         });
-        console.log('Login response status:', loginRes.status);
-        console.log('Login response body:', loginRes.body);
 
         // 3. Conceder permisos (Actualizado para usar UUID)
         await pool.query("INSERT INTO modulos (nombre) VALUES ('rendimiento') ON CONFLICT (nombre) DO NOTHING");
@@ -52,6 +50,11 @@ describe('Módulo de Rendimiento - Integración', () => {
         if (testUserUuid) {
             await pool.query('DELETE FROM registro_acciones WHERE usuario_uuid = $1', [testUserUuid]);
             await pool.query('DELETE FROM objetivos WHERE usuario_uuid = $1', [testUserUuid]);
+            await pool.query('DELETE FROM comunicaciones WHERE responsable_uuid = $1', [testUserUuid]);
+            await pool.query('DELETE FROM conformidad_trazabilidad WHERE conformidad_id IN (SELECT id FROM conformidades WHERE responsable_uuid = $1 OR solicitante_uuid = $1)', [testUserUuid]);
+            await pool.query('DELETE FROM conformidad_grupos WHERE conformidad_id IN (SELECT id FROM conformidades WHERE responsable_uuid = $1 OR solicitante_uuid = $1)', [testUserUuid]);
+            await pool.query('DELETE FROM conformidades WHERE responsable_uuid = $1 OR solicitante_uuid = $1', [testUserUuid]);
+            await pool.query('DELETE FROM logs_sistema WHERE usuario_uuid = $1', [testUserUuid]);
             await pool.query('DELETE FROM permisos WHERE usuario_uuid = $1', [testUserUuid]);
             await pool.query('DELETE FROM global_usuarios WHERE id = $1', [testUserUuid]);
         }

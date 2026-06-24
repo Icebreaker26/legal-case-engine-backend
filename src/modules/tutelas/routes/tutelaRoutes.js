@@ -30,7 +30,7 @@ import {
     actualizarDatosTutela,
     gestionarResponsablesTutela,
     generarBorradorContestacion,
-    refinarBorrador,
+    guardarBorrador,
     crearRequerimientoInterno,
     listarRequerimientosInternos,
     actualizarEstadoRequerimiento,
@@ -41,10 +41,45 @@ import {
     listarArgumentos,
     crearArgumento,
     actualizarArgumento,
-    eliminarArgumento
+    eliminarArgumento,
+    promoverArgumento,
+    registrarFeedbackMemoria,
+    generarPromptsPeticion,
+    guardarRespuestaPeticion,
+    obtenerRespuestaPeticion,
+    limpiarRespuestaPeticion,
 } from '../controllers/tutelaController.js';
 
-import { listarRequerimientosPorArea as listarReqArea } from '../controllers/requerimientoController.js';
+import { listarRequerimientosPorArea as listarReqArea, responderRequerimientoPorArea as responderReqArea } from '../controllers/requerimientoController.js';
+import {
+    listarNoisePatterns, crearNoisePattern, actualizarNoisePattern, eliminarNoisePattern,
+    obtenerConfiguracion, actualizarConfiguracion,
+    obtenerROI, actualizarROIConfig,
+    obtenerCargaTrabajo, obtenerLatenciaOperativa,
+} from '../controllers/tutelaAdminController.js';
+import { listarLogs, listarMisLogs } from '../controllers/auditController.js';
+import { validate } from '../../../middlewares/validateMiddleware.js';
+import {
+    actualizarGestionSchema,
+    actualizarDatosSchema,
+    gestionarResponsablesSchema,
+    restaurarSchema,
+    agregarHistorialSchema,
+    guardarBorradorSchema,
+    actualizarBorradorSchema,
+    feedbackMemoriaSchema,
+    crearRequerimientoSchema,
+    actualizarRequerimientoSchema,
+    responderRequerimientoSchema,
+    crearArgumentoSchema,
+    actualizarArgumentoSchema,
+    asignarUsuariosSchema,
+    crearNoiseSchema,
+    actualizarNoiseSchema,
+    actualizarROISchema,
+    actualizarConfigSchema,
+    guardarRespuestaPeticionSchema,
+} from '../schemas/tutelaSchema.js';
 
 
 const router = Router();
@@ -63,7 +98,34 @@ router.use(authenticateToken);
  *       200:
  *         description: Lista de tutelas obtenida exitosamente
  */
-// Gestión de Tutelas
+// ── Rutas fijas — deben ir ANTES de /:id para que Express no las capture como parámetro ──
+router.get('/estadisticas',    checkPermission('tutelas', 'READ'),  obtenerEstadisticas);
+router.get('/categorias',      checkPermission('tutelas', 'READ'),  listarCategorias);
+router.get('/festivos',        checkPermission('tutelas', 'READ'),  listarFestivos);
+router.get('/papelera',        checkPermission('tutelas', 'READ'),  listarPapelera);
+router.post('/restaurar',      checkPermission('tutelas', 'WRITE'), validate(restaurarSchema),  restaurarRegistro);
+router.get('/memoria',         checkPermission('tutelas', 'READ'),  listarBaseConocimiento);
+router.post('/entrenar-local', checkPermission('tutelas', 'WRITE'), upload.single('documento'), entrenarContextoLocal);
+router.get('/config',          checkPermission('tutelas', 'READ'),  obtenerConfiguracion);
+router.post('/config',         checkPermission('tutelas', 'WRITE'), validate(actualizarConfigSchema), actualizarConfiguracion);
+router.get('/noise',           checkPermission('tutelas', 'READ'),  listarNoisePatterns);
+router.post('/noise',          checkPermission('tutelas', 'WRITE'), validate(crearNoiseSchema),        crearNoisePattern);
+router.patch('/noise/:id',     checkPermission('tutelas', 'WRITE'), validate(actualizarNoiseSchema),   actualizarNoisePattern);
+router.delete('/noise/:id',    checkPermission('tutelas', 'WRITE'), eliminarNoisePattern);
+router.get('/roi',             checkPermission('tutelas', 'READ'),  obtenerROI);
+router.patch('/roi',           checkPermission('tutelas', 'WRITE'), validate(actualizarROISchema),     actualizarROIConfig);
+router.get('/carga-trabajo',   checkPermission('tutelas', 'READ'),  obtenerCargaTrabajo);
+router.get('/latencia',        checkPermission('tutelas', 'READ'),  obtenerLatenciaOperativa);
+router.get('/logs',            checkPermission('tutelas', 'READ'),  listarLogs);
+router.get('/logs/mis-logs',   checkPermission('tutelas', 'READ'),  listarMisLogs);
+router.get('/requerimientos/area/:area',              checkPermission('tutelas', 'READ'),  listarReqArea);
+router.patch('/requerimientos/:reqId/responder-area', checkPermission('tutelas', 'WRITE'), validate(responderRequerimientoSchema), responderReqArea);
+router.patch('/requerimientos/:reqId',                checkPermission('tutelas', 'WRITE'), validate(actualizarRequerimientoSchema), actualizarEstadoRequerimiento);
+router.get('/documento-referencia/:documento_id',     checkPermission('tutelas', 'READ'),  obtenerContenidoCompletoSugerencia);
+router.post('/memoria/:documento_id/feedback',        checkPermission('tutelas', 'WRITE'), validate(feedbackMemoriaSchema), registrarFeedbackMemoria);
+router.delete('/memoria/:documento_id',               checkPermission('tutelas', 'DELETE'), eliminarBaseConocimiento);
+
+// ── Gestión de Tutelas ────────────────────────────────────────────────────────
 router.get('/mis-tutelas', checkPermission('tutelas', 'READ'), listarMisTutelas);
 router.get('/', checkPermission('tutelas', 'READ'), listarTutelas); 
 /**
@@ -93,7 +155,7 @@ router.post('/procesar', checkPermission('tutelas', 'WRITE'), upload.single('doc
  *       200:
  *         description: Éxito
  */
-router.patch('/:id', checkPermission('tutelas', 'WRITE'), actualizarGestionTutela); 
+router.patch('/:id', checkPermission('tutelas', 'WRITE'), validate(actualizarGestionSchema), actualizarGestionTutela);
 /**
  * @swagger
  * /api/tutelas/{id}:
@@ -127,7 +189,7 @@ router.delete('/:id', checkPermission('tutelas', 'DELETE'), eliminarTutela);
  *       200:
  *         description: Éxito
  */
-router.patch('/:id/datos', checkPermission('tutelas', 'WRITE'), actualizarDatosTutela);
+router.patch('/:id/datos', checkPermission('tutelas', 'WRITE'), validate(actualizarDatosSchema), actualizarDatosTutela);
 /**
  * @swagger
  * /api/tutelas/{id}/responsables:
@@ -144,7 +206,7 @@ router.patch('/:id/datos', checkPermission('tutelas', 'WRITE'), actualizarDatosT
  *       200:
  *         description: Éxito
  */
-router.patch('/:id/responsables', checkPermission('tutelas', 'WRITE'), gestionarResponsablesTutela);
+router.patch('/:id/responsables', checkPermission('tutelas', 'WRITE'), validate(gestionarResponsablesSchema), gestionarResponsablesTutela);
 /**
  * @swagger
  * /api/tutelas/{id}/descargar:
@@ -195,7 +257,7 @@ router.post('/:id/generar-borrador', checkPermission('tutelas', 'WRITE'), genera
  *       200:
  *         description: Éxito
  */
-router.post('/:id/refinar-borrador', checkPermission('tutelas', 'WRITE'), refinarBorrador);
+router.post('/:id/guardar-borrador', checkPermission('tutelas', 'WRITE'), validate(guardarBorradorSchema), guardarBorrador);
 /**
  * @swagger
  * /api/tutelas/{id}/sugerencias:
@@ -212,237 +274,36 @@ router.post('/:id/refinar-borrador', checkPermission('tutelas', 'WRITE'), refina
  *       200:
  *         description: Éxito
  */
-router.get('/:id/sugerencias', checkPermission('tutelas', 'READ'), obtenerSugerenciasTutela); 
-/**
- * @swagger
- * /api/tutelas/documento-referencia/{documento_id}:
- *   get:
- *     summary: Obtener contenido de sugerencia
- *     tags: [Tutelas]
- *     parameters:
- *       - in: path
- *         name: documento_id
- *         required: true
- *         schema:
- *           type: string
- *     responses:
- *       200:
- *         description: Éxito
- */
-router.get('/documento-referencia/:documento_id', checkPermission('tutelas', 'READ'), obtenerContenidoCompletoSugerencia);
+// ── Rutas con parámetro /:id — van después de las rutas fijas ────────────────
 
-// Requerimientos Internos
-/**
- * @swagger
- * /api/tutelas/{id}/requerimientos:
- *   get:
- *     summary: Listar requerimientos internos
- *     tags: [Tutelas]
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *     responses:
- *       200:
- *         description: Éxito
- */
-router.get('/:id/requerimientos', checkPermission('tutelas', 'READ'), listarRequerimientosInternos);
-/**
- * @swagger
- * /api/tutelas/requerimientos/area/{area}:
- *   get:
- *     summary: Listar requerimientos internos por área
- *     tags: [Tutelas]
- *     parameters:
- *       - in: path
- *         name: area
- *         required: true
- *         schema:
- *           type: string
- *     responses:
- *       200:
- *         description: Éxito
- */
-router.get('/requerimientos/area/:area', checkPermission('tutelas', 'READ'), listarReqArea);
-/**
- * @swagger
- * /api/tutelas/{id}/requerimientos:
- *   post:
- *     summary: Crear requerimiento interno
- *     tags: [Tutelas]
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *     responses:
- *       200:
- *         description: Éxito
- */
-router.post('/:id/requerimientos', checkPermission('tutelas', 'WRITE'), crearRequerimientoInterno);
-/**
- * @swagger
- * /api/tutelas/requerimientos/{reqId}:
- *   patch:
- *     summary: Actualizar estado de requerimiento
- *     tags: [Tutelas]
- *     parameters:
- *       - in: path
- *         name: reqId
- *         required: true
- *         schema:
- *           type: string
- *     responses:
- *       200:
- *         description: Éxito
- */
-router.patch('/requerimientos/:reqId', checkPermission('tutelas', 'WRITE'), actualizarEstadoRequerimiento);
+// Requerimientos por tutela
+router.get('/:id/requerimientos',  checkPermission('tutelas', 'READ'),  listarRequerimientosInternos);
+router.post('/:id/requerimientos', checkPermission('tutelas', 'WRITE'), validate(crearRequerimientoSchema), crearRequerimientoInterno);
 
-// Trazabilidad (Log de Acciones)
-/**
- * @swagger
- * /api/tutelas/{id}/historial:
- *   get:
- *     summary: Obtener historial de tutela
- *     tags: [Tutelas]
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *     responses:
- *       200:
- *         description: Éxito
- */
-router.get('/:id/historial', checkPermission('tutelas', 'READ'), obtenerHistorialTutela);
-/**
- * @swagger
- * /api/tutelas/{id}/historial:
- *   post:
- *     summary: Agregar acción al historial
- *     tags: [Tutelas]
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *     responses:
- *       200:
- *         description: Éxito
- */
-router.post('/:id/historial', checkPermission('tutelas', 'WRITE'), agregarAccionHistorial);
+// Historial
+router.get('/:id/historial',  checkPermission('tutelas', 'READ'),  obtenerHistorialTutela);
+router.post('/:id/historial', checkPermission('tutelas', 'WRITE'), validate(agregarHistorialSchema), agregarAccionHistorial);
 
-// Memoria Legal (Búsqueda Semántica)
-/**
- * @swagger
- * /api/tutelas/entrenar-local:
- *   post:
- *     summary: Entrenar contexto local
- *     tags: [Tutelas]
- *     responses:
- *       200:
- *         description: Éxito
- */
-router.post('/entrenar-local', checkPermission('tutelas', 'WRITE'), upload.single('documento'), entrenarContextoLocal);
-/**
- * @swagger
- * /api/tutelas/memoria:
- *   get:
- *     summary: Listar base de conocimiento
- *     tags: [Tutelas]
- *     responses:
- *       200:
- *         description: Éxito
- */
-router.get('/memoria', checkPermission('tutelas', 'READ'), listarBaseConocimiento);
-/**
- * @swagger
- * /api/tutelas/estadisticas:
- *   get:
- *     summary: Obtener estadísticas
- *     tags: [Tutelas]
- *     responses:
- *       200:
- *         description: Éxito
- */
-router.get('/estadisticas', checkPermission('tutelas', 'READ'), obtenerEstadisticas);
-/**
- * @swagger
- * /api/tutelas/categorias:
- *   get:
- *     summary: Listar categorías
- *     tags: [Tutelas]
- *     responses:
- *       200:
- *         description: Éxito
- */
-router.get('/categorias', checkPermission('tutelas', 'READ'), listarCategorias);
-/**
- * @swagger
- * /api/tutelas/festivos:
- *   get:
- *     summary: Listar festivos
- *     tags: [Tutelas]
- *     responses:
- *       200:
- *         description: Éxito
- */
-router.get('/festivos', checkPermission('tutelas', 'READ'), listarFestivos);
-/**
- * @swagger
- * /api/tutelas/papelera:
- *   get:
- *     summary: Listar papelera
- *     tags: [Tutelas]
- *     responses:
- *       200:
- *         description: Éxito
- */
-router.get('/papelera', checkPermission('tutelas', 'READ'), listarPapelera);
-/**
- * @swagger
- * /api/tutelas/restaurar:
- *   post:
- *     summary: Restaurar registro
- *     tags: [Tutelas]
- *     responses:
- *       200:
- *         description: Éxito
- */
-router.post('/restaurar', checkPermission('tutelas', 'WRITE'), restaurarRegistro);
-/**
- * @swagger
- * /api/tutelas/memoria/{documento_id}:
- *   delete:
- *     summary: Eliminar base de conocimiento
- *     tags: [Tutelas]
- *     parameters:
- *       - in: path
- *         name: documento_id
- *         required: true
- *         schema:
- *           type: string
- *     responses:
- *       200:
- *         description: Éxito
- */
-router.delete('/memoria/:documento_id', checkPermission('tutelas', 'DELETE'), eliminarBaseConocimiento);
+// Sugerencias RAG
+router.get('/:id/sugerencias', checkPermission('tutelas', 'READ'), obtenerSugerenciasTutela);
 
 // Bloqueo Optimista para Borradores
 router.get('/:id/lock-status', checkPermission('tutelas', 'READ'), obtenerEstadoBloqueo);
 router.post('/:id/lock', checkPermission('tutelas', 'WRITE'), bloquearBorrador);
 router.post('/:id/unlock', checkPermission('tutelas', 'WRITE'), desbloquearBorrador);
-router.patch('/:id/borrador', checkPermission('tutelas', 'WRITE'), actualizarBorrador);
+router.patch('/:id/borrador', checkPermission('tutelas', 'WRITE'), validate(actualizarBorradorSchema), actualizarBorrador);
 
 // Argumentos Personalizados
 router.get('/:id/argumentos', checkPermission('tutelas', 'READ'), listarArgumentos);
-router.post('/:id/argumentos', checkPermission('tutelas', 'WRITE'), crearArgumento);
-router.patch('/:id/argumentos/:argId', checkPermission('tutelas', 'WRITE'), actualizarArgumento);
+router.post('/:id/argumentos', checkPermission('tutelas', 'WRITE'), validate(crearArgumentoSchema), crearArgumento);
+router.patch('/:id/argumentos/:argId', checkPermission('tutelas', 'WRITE'), validate(actualizarArgumentoSchema), actualizarArgumento);
 router.delete('/:id/argumentos/:argId', checkPermission('tutelas', 'DELETE'), eliminarArgumento);
+router.post('/:id/argumentos/:argId/promover', checkPermission('tutelas', 'WRITE'), promoverArgumento);
+
+// Generación de prompts y respuestas de petición
+router.post('/:id/generar-prompts-peticion',  checkPermission('tutelas', 'WRITE'), generarPromptsPeticion);
+router.get('/:id/respuesta-peticion',          checkPermission('tutelas', 'READ'),  obtenerRespuestaPeticion);
+router.post('/:id/respuesta-peticion',         checkPermission('tutelas', 'WRITE'), validate(guardarRespuestaPeticionSchema), guardarRespuestaPeticion);
+router.delete('/:id/respuesta-peticion',       checkPermission('tutelas', 'DELETE'), limpiarRespuestaPeticion);
 
 export default router;

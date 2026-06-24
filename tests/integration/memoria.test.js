@@ -4,7 +4,7 @@ import pool from '../../src/db/database.js';
 import bcrypt from 'bcrypt';
 
 // Mockeamos aiService antes de cualquier otra importación de rutas
-jest.unstable_mockModule('../../src/services/aiService.js', () => ({
+jest.unstable_mockModule('../../src/modules/tutelas/services/aiService.js', () => ({
   generarEmbeddingLocal: jest.fn().mockResolvedValue(new Array(384).fill(0.1))
 }));
 
