@@ -161,6 +161,22 @@ export const generateDiffPrompt = (original, incoming) => {
 Tu tarea es analizar las alteraciones que un tercero realizó sobre nuestra Minuta Estándar de contrato.
 A continuación se listan ÚNICAMENTE los bloques que difieren entre ambos documentos, presentados como pares [ESTÁNDAR vs. TERCERO] para facilitar la comparación.
 
+Responde ÚNICAMENTE con un objeto JSON válido, sin texto adicional antes ni después. Estructura exacta:
+
+{
+  "nivel_riesgo": "Bajo" | "Medio" | "Alto",
+  "justificacion_riesgo": "Texto ejecutivo de máximo dos oraciones explicando el nivel de riesgo general.",
+  "cambios": [
+    {
+      "numero": 1,
+      "clausula": "Nombre o descripción breve de la cláusula o sección afectada",
+      "tipo": "Modificación" | "Adición" | "Eliminación",
+      "impacto": "Descripción del impacto y riesgo legal de este cambio.",
+      "recomendacion": "Aceptar" | "Rechazar" | "Negociar"
+    }
+  ]
+}
+
 ${'='.repeat(70)}
 DIFERENCIAS DETECTADAS (${cambios.length} cambio${cambios.length !== 1 ? 's' : ''})
 ${'='.repeat(70)}
@@ -169,13 +185,5 @@ ${extracto}
 
 ${'='.repeat(70)}
 
-Con base exclusivamente en los cambios anteriores, genera un informe de auditoría contractual con la siguiente estructura:
-
-1. TABLA DE ANÁLISIS (una fila por cada cambio numerado arriba):
-   | # | Cláusula / Sección | Tipo de Cambio | Impacto y Riesgo Legal | Recomendación |
-   Las columnas "Tipo de Cambio" deben usar: [Modificación], [Adición] o [Eliminación].
-   Las columnas "Recomendación" deben usar: [Aceptar], [Rechazar] o [Negociar].
-
-2. NIVEL DE RIESGO GENERAL: Bajo / Medio / Alto, con una justificación ejecutiva de máximo dos oraciones.
-`;
+Recuerda: responde SOLO con el JSON, sin explicaciones ni texto adicional.`;
 };

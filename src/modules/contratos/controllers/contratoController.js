@@ -113,7 +113,7 @@ export const actualizarAuditoria = async (req, res) => {
         const valores = [];
         let idx = 1;
 
-        const permitidos = ['resultado_llm_texto', 'estado_seguimiento', 'fecha_seguimiento', 'prompt_generado'];
+        const permitidos = ['resultado_llm_texto', 'resultado_llm_json', 'estado_seguimiento', 'fecha_seguimiento', 'prompt_generado'];
         for (const campo of permitidos) {
             if (req.body[campo] !== undefined) {
                 campos.push(`${campo}=$${idx++}`);
