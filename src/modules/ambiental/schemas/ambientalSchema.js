@@ -30,6 +30,7 @@ export const actualizarExpedienteSchema = z.object({
   recurso_llm_json:         z.string().optional().nullable(),
   respuesta_entidad_texto:  z.string().optional().nullable(),
   fecha_respuesta:          z.string().optional().nullable(),
+  respuesta_llm_json:       z.string().optional().nullable(),
 }).refine(d => Object.keys(d).length > 0, { message: 'Se requiere al menos un campo.' });
 
 const hallazgoSchema = z.object({
