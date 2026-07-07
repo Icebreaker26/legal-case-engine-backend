@@ -296,6 +296,77 @@ describe('Ambiental — Integración', () => {
     });
   });
 
+  // ── Recurso — argumentos, selección de hallazgos y fecha_documento ────────
+  describe('PATCH /expedientes/:id — campos de recurso y fecha_documento', () => {
+    test('guardar argumentos_recurso → 200 y persiste', async () => {
+      if (!expedienteId) return;
+      const res = await agent
+        .patch(`/api/ambiental/expedientes/${expedienteId}`)
+        .send({ argumentos_recurso: 'La entidad cumplió parcialmente el PMA en el plazo otorgado.' });
+      expect(res.status).toBe(200);
+
+      const get = await agent.get(`/api/ambiental/expedientes/${expedienteId}`);
+      expect(get.body.argumentos_recurso).toBe('La entidad cumplió parcialmente el PMA en el plazo otorgado.');
+    });
+
+    test('guardar argumentos_recurso vacío (borrar) → 200', async () => {
+      if (!expedienteId) return;
+      const res = await agent
+        .patch(`/api/ambiental/expedientes/${expedienteId}`)
+        .send({ argumentos_recurso: '' });
+      expect(res.status).toBe(200);
+    });
+
+    test('guardar hallazgos_recurso_ids → 200 y persiste como array', async () => {
+      if (!expedienteId || !analisisId) return;
+      const { rows } = await pool.query(
+        'SELECT id FROM hallazgos_ambientales WHERE analisis_id = $1 LIMIT 2',
+        [analisisId]
+      );
+      const ids = rows.map(r => r.id);
+      expect(ids.length).toBeGreaterThan(0);
+
+      const res = await agent
+        .patch(`/api/ambiental/expedientes/${expedienteId}`)
+        .send({ hallazgos_recurso_ids: ids });
+      expect(res.status).toBe(200);
+
+      const get = await agent.get(`/api/ambiental/expedientes/${expedienteId}`);
+      expect(Array.isArray(get.body.hallazgos_recurso_ids)).toBe(true);
+      expect(get.body.hallazgos_recurso_ids).toEqual(expect.arrayContaining(ids));
+    });
+
+    test('hallazgos_recurso_ids con UUID inválido → 400', async () => {
+      if (!expedienteId) return;
+      const res = await agent
+        .patch(`/api/ambiental/expedientes/${expedienteId}`)
+        .send({ hallazgos_recurso_ids: ['no-es-uuid'] });
+      expect(res.status).toBe(400);
+    });
+
+    test('limpiar selección → 200 y array vacío', async () => {
+      if (!expedienteId) return;
+      const res = await agent
+        .patch(`/api/ambiental/expedientes/${expedienteId}`)
+        .send({ hallazgos_recurso_ids: [] });
+      expect(res.status).toBe(200);
+
+      const get = await agent.get(`/api/ambiental/expedientes/${expedienteId}`);
+      expect(get.body.hallazgos_recurso_ids).toEqual([]);
+    });
+
+    test('actualizar fecha_documento → 200 y persiste', async () => {
+      if (!expedienteId) return;
+      const res = await agent
+        .patch(`/api/ambiental/expedientes/${expedienteId}`)
+        .send({ fecha_documento: '2025-03-10' });
+      expect(res.status).toBe(200);
+
+      const get = await agent.get(`/api/ambiental/expedientes/${expedienteId}`);
+      expect(get.body.fecha_documento).toMatch(/2025-03-10/);
+    });
+  });
+
   // ── Borrado lógico ────────────────────────────────────────────────────────
   describe('DELETE /expedientes/:id', () => {
     test('→ 200 y expediente no aparece en listado', async () => {
