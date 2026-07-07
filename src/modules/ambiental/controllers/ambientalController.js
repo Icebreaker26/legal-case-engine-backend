@@ -566,12 +566,11 @@ export const procesarRespuestaEntidad = async (req, res) => {
 
   try {
     const { rows: expRows } = await pool.query(
-      `SELECT e.titulo, ent.nombre AS entidad_nombre, a.que_ordena
+      `SELECT e.titulo, e.que_ordena, ent.nombre AS entidad_nombre
        FROM expedientes_ambientales e
        LEFT JOIN global_entidades ent ON ent.id = e.entidad_id
-       LEFT JOIN analisis_ambiental a ON a.expediente_id = e.id
        WHERE e.id = $1 AND e.is_active = true
-       ORDER BY a.created_at DESC NULLS LAST LIMIT 1`,
+       LIMIT 1`,
       [id]
     );
     if (!expRows.length) return res.status(404).json({ error: 'Expediente no encontrado.' });
