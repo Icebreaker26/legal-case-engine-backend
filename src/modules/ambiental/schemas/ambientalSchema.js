@@ -26,6 +26,7 @@ export const actualizarExpedienteSchema = z.object({
   prompt_generado:       z.string().optional(),
   argumentos_recurso:    z.string().optional().nullable(),
   hallazgos_recurso_ids: z.array(z.string().uuid()).optional(),
+  recurso_llm_json:      z.string().optional().nullable(),
 }).refine(d => Object.keys(d).length > 0, { message: 'Se requiere al menos un campo.' });
 
 const hallazgoSchema = z.object({
