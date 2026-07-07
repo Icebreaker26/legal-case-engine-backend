@@ -78,10 +78,13 @@ export const listarExpedientes = async (req, res) => {
     const where = conditions.join(' AND ');
     const { rows } = await pool.query(
       `SELECT DISTINCT ON (e.id) e.*, ent.nombre AS entidad_nombre, g.nombre AS grupo_nombre,
+              p.nombre AS proyecto_nombre, u.nombre AS responsable_nombre,
               a.nivel_riesgo, a.id AS analisis_id
        FROM expedientes_ambientales e
        LEFT JOIN global_entidades ent ON ent.id = e.entidad_id
        LEFT JOIN global_grupos g ON g.id = e.grupo_id
+       LEFT JOIN global_proyectos p ON p.id = e.proyecto_id
+       LEFT JOIN global_usuarios u ON u.id = e.responsable_uuid
        LEFT JOIN analisis_ambiental a ON a.expediente_id = e.id
        WHERE ${where}
        ORDER BY e.id, a.created_at DESC NULLS LAST, e.created_at DESC`,
@@ -98,10 +101,13 @@ export const listarExpedientes = async (req, res) => {
 export const obtenerExpediente = async (req, res) => {
   try {
     const { rows } = await pool.query(
-      `SELECT e.*, ent.nombre AS entidad_nombre, g.nombre AS grupo_nombre
+      `SELECT e.*, ent.nombre AS entidad_nombre, g.nombre AS grupo_nombre,
+              p.nombre AS proyecto_nombre, u.nombre AS responsable_nombre
        FROM expedientes_ambientales e
        LEFT JOIN global_entidades ent ON ent.id = e.entidad_id
        LEFT JOIN global_grupos g ON g.id = e.grupo_id
+       LEFT JOIN global_proyectos p ON p.id = e.proyecto_id
+       LEFT JOIN global_usuarios u ON u.id = e.responsable_uuid
        WHERE e.id = $1 AND e.is_active = true`,
       [req.params.id]
     );
@@ -118,7 +124,7 @@ export const actualizarExpediente = async (req, res) => {
   const campos = [];
   const valores = [];
   let idx = 1;
-  const permitidos = ['titulo', 'tipo_instrumento', 'numero_expediente', 'entidad_id', 'responsable_uuid', 'grupo_id', 'fecha_documento', 'fecha_vencimiento', 'estado', 'contenido_texto', 'prompt_generado', 'argumentos_recurso', 'hallazgos_recurso_ids', 'recurso_llm_json'];
+  const permitidos = ['titulo', 'tipo_instrumento', 'numero_expediente', 'entidad_id', 'responsable_uuid', 'grupo_id', 'proyecto_id', 'fecha_documento', 'fecha_vencimiento', 'estado', 'contenido_texto', 'prompt_generado', 'argumentos_recurso', 'hallazgos_recurso_ids', 'recurso_llm_json'];
   for (const campo of permitidos) {
     if (req.body[campo] !== undefined) {
       campos.push(`${campo}=$${idx++}`);
