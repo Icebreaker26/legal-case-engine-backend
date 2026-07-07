@@ -118,7 +118,7 @@ export const actualizarExpediente = async (req, res) => {
   const campos = [];
   const valores = [];
   let idx = 1;
-  const permitidos = ['titulo', 'tipo_instrumento', 'numero_expediente', 'entidad_id', 'responsable_uuid', 'grupo_id', 'fecha_documento', 'fecha_vencimiento', 'estado', 'contenido_texto', 'prompt_generado', 'argumentos_recurso', 'hallazgos_recurso_ids'];
+  const permitidos = ['titulo', 'tipo_instrumento', 'numero_expediente', 'entidad_id', 'responsable_uuid', 'grupo_id', 'fecha_documento', 'fecha_vencimiento', 'estado', 'contenido_texto', 'prompt_generado', 'argumentos_recurso', 'hallazgos_recurso_ids', 'recurso_llm_json'];
   for (const campo of permitidos) {
     if (req.body[campo] !== undefined) {
       campos.push(`${campo}=$${idx++}`);
