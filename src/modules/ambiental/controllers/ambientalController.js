@@ -1,6 +1,6 @@
 import pool from '../../../db/database.js';
 import { registrarLog } from '../../../services/auditService.js';
-import { extractTextFromFile, generarPromptAmbiental } from '../services/ambientalService.js';
+import { extractTextFromFile, generarPromptAmbiental, generarPromptRespuesta } from '../services/ambientalService.js';
 import { analisisLlmSchema } from '../schemas/ambientalSchema.js';
 import logger from '../../../utils/logger.js';
 
@@ -124,7 +124,7 @@ export const actualizarExpediente = async (req, res) => {
   const campos = [];
   const valores = [];
   let idx = 1;
-  const permitidos = ['titulo', 'tipo_instrumento', 'numero_expediente', 'entidad_id', 'responsable_uuid', 'grupo_id', 'proyecto_id', 'fecha_documento', 'fecha_vencimiento', 'estado', 'contenido_texto', 'prompt_generado', 'argumentos_recurso', 'hallazgos_recurso_ids', 'recurso_llm_json'];
+  const permitidos = ['titulo', 'tipo_instrumento', 'numero_expediente', 'entidad_id', 'responsable_uuid', 'grupo_id', 'proyecto_id', 'fecha_documento', 'fecha_vencimiento', 'estado', 'contenido_texto', 'prompt_generado', 'argumentos_recurso', 'hallazgos_recurso_ids', 'recurso_llm_json', 'respuesta_entidad_texto', 'fecha_respuesta'];
   for (const campo of permitidos) {
     if (req.body[campo] !== undefined) {
       campos.push(`${campo}=$${idx++}`);
@@ -556,5 +556,56 @@ export const obtenerDashboard = async (req, res) => {
   } catch (error) {
     logger.error('obtenerDashboard error', { error: error.message });
     res.status(500).json({ error: 'Error al obtener el dashboard.' });
+  }
+};
+
+// POST /expedientes/:id/respuesta — extrae texto del archivo de respuesta y genera prompt LLM
+export const procesarRespuestaEntidad = async (req, res) => {
+  const { id } = req.params;
+  const { fecha_respuesta, texto } = req.body;
+
+  try {
+    const { rows: expRows } = await pool.query(
+      `SELECT e.titulo, ent.nombre AS entidad_nombre, a.que_ordena
+       FROM expedientes_ambientales e
+       LEFT JOIN global_entidades ent ON ent.id = e.entidad_id
+       LEFT JOIN analisis_ambiental a ON a.expediente_id = e.id
+       WHERE e.id = $1 AND e.is_active = true
+       ORDER BY a.created_at DESC NULLS LAST LIMIT 1`,
+      [id]
+    );
+    if (!expRows.length) return res.status(404).json({ error: 'Expediente no encontrado.' });
+    const exp = expRows[0];
+
+    let respuesta_entidad_texto;
+    if (req.file) {
+      respuesta_entidad_texto = await extractTextFromFile(req.file.buffer, req.file.mimetype);
+    } else if (texto) {
+      respuesta_entidad_texto = texto;
+    } else {
+      return res.status(400).json({ error: 'Se requiere un archivo o texto.' });
+    }
+
+    await pool.query(
+      `UPDATE expedientes_ambientales SET respuesta_entidad_texto=$1, fecha_respuesta=$2, updated_at=NOW() WHERE id=$3`,
+      [respuesta_entidad_texto, fecha_respuesta || null, id]
+    );
+
+    const prompt = generarPromptRespuesta(respuesta_entidad_texto, {
+      entidadNombre: exp.entidad_nombre,
+      tituloExpediente: exp.titulo,
+      queOrdena: exp.que_ordena,
+    });
+
+    await registrarLog(req.user.id, 'REGISTRAR_RESPUESTA_AMBIENTAL', 'ambiental', id, req);
+
+    res.json({
+      respuesta_entidad_texto,
+      prompt_respuesta: prompt,
+      meta: { caracteres: respuesta_entidad_texto.length },
+    });
+  } catch (error) {
+    logger.error('procesarRespuestaEntidad error', { error: error.message });
+    res.status(500).json({ error: 'Error al procesar la respuesta.' });
   }
 };

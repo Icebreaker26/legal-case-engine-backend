@@ -22,12 +22,14 @@ export const actualizarExpedienteSchema = z.object({
   proyecto_id:      z.preprocess(v => (v !== undefined && v !== null) ? Number(v) : v, z.number().int().positive().nullable()).optional(),
   fecha_documento:    z.string().optional(),
   fecha_vencimiento:  z.string().optional().nullable(),
-  estado:             z.enum(['Pendiente', 'Analizado', 'Revisado', 'Archivado']).optional(),
+  estado:             z.enum(['Pendiente', 'Analizado', 'Revisado', 'Archivado', 'Cerrado']).optional(),
   contenido_texto:       z.string().optional(),
   prompt_generado:       z.string().optional(),
   argumentos_recurso:    z.string().optional().nullable(),
   hallazgos_recurso_ids: z.array(z.string().uuid()).optional(),
-  recurso_llm_json:      z.string().optional().nullable(),
+  recurso_llm_json:         z.string().optional().nullable(),
+  respuesta_entidad_texto:  z.string().optional().nullable(),
+  fecha_respuesta:          z.string().optional().nullable(),
 }).refine(d => Object.keys(d).length > 0, { message: 'Se requiere al menos un campo.' });
 
 const hallazgoSchema = z.object({

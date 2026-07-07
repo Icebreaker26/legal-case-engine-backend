@@ -48,6 +48,45 @@ export const extractTextFromFile = async (buffer, mimetype) => {
   throw new Error(`Formato no soportado: ${mimetype}`);
 };
 
+export const generarPromptRespuesta = (textoRespuesta, { entidadNombre, tituloExpediente, queOrdena } = {}) => {
+  const contexto = [
+    tituloExpediente ? `- Expediente: ${tituloExpediente}` : null,
+    entidadNombre    ? `- Entidad que responde: ${entidadNombre}` : null,
+    queOrdena        ? `- Lo que ordenaba el instrumento original: ${queOrdena}` : null,
+  ].filter(Boolean).join('\n');
+
+  return `Actúa como un experto en derecho ambiental colombiano. Se te entrega la respuesta que una empresa emitió ante una autoridad ambiental o un instrumento ambiental (auto, resolución, expediente).
+
+CONTEXTO:
+${contexto}
+
+Analiza la siguiente respuesta y determina:
+1. Si la respuesta es FAVORABLE, DESFAVORABLE o PARCIAL para la empresa.
+2. Si la empresa cumplió todos los requerimientos del instrumento original.
+3. Si procede interponer un Recurso de Reposición y/o Apelación, con fundamentos legales concretos.
+4. Recomendaciones de acciones inmediatas.
+
+Responde ÚNICAMENTE con un objeto JSON válido, sin texto adicional, sin markdown, sin bloques de código:
+
+{
+  "valoracion": "Favorable|Desfavorable|Parcial",
+  "cumplimiento": "Total|Parcial|Incumplimiento",
+  "resumen": "Resumen de 2-3 oraciones de la respuesta de la entidad",
+  "procede_recurso": "Sí|No|Evaluar",
+  "tipo_recurso": "Reposición|Apelación|Reposición y Apelación|No aplica",
+  "fundamentos_recurso": "Fundamentos legales para el recurso (arts. concretos de la Ley 99/93, Dec. 1076/2015, CPA). Vacío si no procede.",
+  "plazo_recurso": "Plazo legal para interponer el recurso según normativa colombiana. Vacío si no procede.",
+  "recomendaciones": [
+    "Acción concreta 1",
+    "Acción concreta 2"
+  ],
+  "observaciones": "Cualquier aspecto relevante no cubierto arriba"
+}
+
+RESPUESTA DE LA ENTIDAD A ANALIZAR:
+${textoRespuesta}`;
+};
+
 export const generarPromptAmbiental = (textoInstrumento, { entidadNombre, fechaBase } = {}) => {
   const fragmento = textoInstrumento;
   const hoy = fechaBase
