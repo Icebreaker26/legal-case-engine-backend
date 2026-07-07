@@ -562,7 +562,7 @@ export const obtenerDashboard = async (req, res) => {
 // POST /expedientes/:id/respuesta — extrae texto del archivo de respuesta y genera prompt LLM
 export const procesarRespuestaEntidad = async (req, res) => {
   const { id } = req.params;
-  const { fecha_respuesta, texto } = req.body;
+  const { fecha_respuesta, texto } = req.body || {};
 
   try {
     const { rows: expRows } = await pool.query(

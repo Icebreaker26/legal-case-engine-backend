@@ -367,6 +367,124 @@ describe('Ambiental — Integración', () => {
     });
   });
 
+  // ── Respuesta de entidad ──────────────────────────────────────────────────
+  describe('POST /expedientes/:id/respuesta', () => {
+    const textoRespuesta = 'En respuesta al Auto 001-2026, la empresa certifica haber presentado el Plan de Manejo Ambiental dentro del plazo estipulado. Se adjuntan los soportes correspondientes.';
+
+    test('sin archivo ni texto → 400', async () => {
+      if (!expedienteId) return;
+      const res = await agent.post(`/api/ambiental/expedientes/${expedienteId}/respuesta`);
+      expect(res.status).toBe(400);
+    });
+
+    test('id inexistente → 404', async () => {
+      const res = await agent
+        .post('/api/ambiental/expedientes/00000000-0000-0000-0000-000000000000/respuesta')
+        .field('texto', textoRespuesta);
+      expect(res.status).toBe(404);
+    });
+
+    test('con texto → 200, guarda texto en DB y retorna prompt', async () => {
+      if (!expedienteId) return;
+      const res = await agent
+        .post(`/api/ambiental/expedientes/${expedienteId}/respuesta`)
+        .field('texto', textoRespuesta);
+      expect(res.status).toBe(200);
+      expect(res.body).toHaveProperty('respuesta_entidad_texto');
+      expect(res.body).toHaveProperty('prompt_respuesta');
+      expect(res.body.respuesta_entidad_texto).toBe(textoRespuesta);
+      expect(res.body.prompt_respuesta).toMatch(/Actúa como un experto/);
+    });
+
+    test('texto persiste en DB tras POST', async () => {
+      if (!expedienteId) return;
+      const res = await agent.get(`/api/ambiental/expedientes/${expedienteId}`);
+      expect(res.status).toBe(200);
+      expect(res.body.respuesta_entidad_texto).toBe(textoRespuesta);
+    });
+
+    test('con archivo TXT → 200 y extrae texto', async () => {
+      if (!expedienteId) return;
+      const res = await agent
+        .post(`/api/ambiental/expedientes/${expedienteId}/respuesta`)
+        .attach('file', Buffer.from(textoRespuesta), 'respuesta.txt');
+      expect(res.status).toBe(200);
+      expect(res.body.respuesta_entidad_texto).toContain('Plan de Manejo');
+      expect(res.body.prompt_respuesta).toBeTruthy();
+    });
+
+    test('regenerar prompt con texto ya guardado → 200', async () => {
+      if (!expedienteId) return;
+      const get = await agent.get(`/api/ambiental/expedientes/${expedienteId}`);
+      const textoGuardado = get.body.respuesta_entidad_texto;
+
+      const res = await agent
+        .post(`/api/ambiental/expedientes/${expedienteId}/respuesta`)
+        .field('texto', textoGuardado);
+      expect(res.status).toBe(200);
+      expect(res.body).toHaveProperty('prompt_respuesta');
+    });
+  });
+
+  // ── respuesta_llm_json y cierre de trámite ────────────────────────────────
+  describe('PATCH /expedientes/:id — respuesta_llm_json y estado Cerrado', () => {
+    const jsonEvaluacion = JSON.stringify({
+      valoracion: 'Favorable',
+      cumplimiento: 'Total',
+      resumen: 'La empresa demostró cumplimiento total del requerimiento ambiental.',
+      procede_recurso: 'No',
+      tipo_recurso: 'No aplica',
+      fundamentos_recurso: '',
+      plazo_recurso: '',
+      recomendaciones: ['Archivar el expediente', 'Mantener los soportes por 5 años'],
+      observaciones: 'Sin observaciones adicionales.',
+    });
+
+    test('guardar respuesta_llm_json → 200 y persiste', async () => {
+      if (!expedienteId) return;
+      const res = await agent
+        .patch(`/api/ambiental/expedientes/${expedienteId}`)
+        .send({ respuesta_llm_json: jsonEvaluacion });
+      expect(res.status).toBe(200);
+
+      const get = await agent.get(`/api/ambiental/expedientes/${expedienteId}`);
+      expect(get.body.respuesta_llm_json).toBe(jsonEvaluacion);
+    });
+
+    test('borrar respuesta_llm_json con null → 200', async () => {
+      if (!expedienteId) return;
+      const res = await agent
+        .patch(`/api/ambiental/expedientes/${expedienteId}`)
+        .send({ respuesta_llm_json: null });
+      expect(res.status).toBe(200);
+    });
+
+    test('cerrar trámite con estado Cerrado → 200', async () => {
+      if (!expedienteId) return;
+      const res = await agent
+        .patch(`/api/ambiental/expedientes/${expedienteId}`)
+        .send({ estado: 'Cerrado' });
+      expect(res.status).toBe(200);
+      expect(res.body.estado).toBe('Cerrado');
+    });
+
+    test('estado Cerrado persiste en GET', async () => {
+      if (!expedienteId) return;
+      const res = await agent.get(`/api/ambiental/expedientes/${expedienteId}`);
+      expect(res.status).toBe(200);
+      expect(res.body.estado).toBe('Cerrado');
+    });
+
+    test('reabrir expediente cambiando estado → 200', async () => {
+      if (!expedienteId) return;
+      const res = await agent
+        .patch(`/api/ambiental/expedientes/${expedienteId}`)
+        .send({ estado: 'Revisado' });
+      expect(res.status).toBe(200);
+      expect(res.body.estado).toBe('Revisado');
+    });
+  });
+
   // ── Borrado lógico ────────────────────────────────────────────────────────
   describe('DELETE /expedientes/:id', () => {
     test('→ 200 y expediente no aparece en listado', async () => {
