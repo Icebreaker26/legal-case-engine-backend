@@ -1068,7 +1068,7 @@ export const generarPromptsPeticion = async (req, res) => {
     const sugerencias = await buscarContextoLegal(vectorLocal, tutela.contenido_original || '', 5, tutela.derecho_vulnerado);
 
     const solicitudes = extraerSolicitudes(tutela.contenido_original || '');
-    const lotes = agruparEnLotes(solicitudes);
+    const lotes = agruparEnLotes(solicitudes, { tutela, legalNotes, sugerencias, argumentos });
 
     const prompts = lotes.map((lote, i) => ({
       parte: i + 1,
