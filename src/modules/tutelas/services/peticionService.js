@@ -33,11 +33,43 @@ export const extraerSolicitudes = (texto) => {
   return [{ numero: 1, etiqueta: '1.', texto: texto.trim() }];
 };
 
-export const agruparEnLotes = (solicitudes) => {
-  const lotes = [];
-  for (let i = 0; i < solicitudes.length; i += TAMANO_LOTE) {
-    lotes.push(solicitudes.slice(i, i + TAMANO_LOTE));
+const LIMITE_COPILOT = 128000;
+
+// Wrapper size probe: build a prompt with empty solicitudes to measure fixed overhead
+const medirWrapper = (opts) =>
+  construirPromptLote({ lote: [], loteIndex: 1, totalLotes: 99, ...opts }).length;
+
+// Groups solicitudes greedily so each resulting prompt stays under LIMITE_COPILOT.
+// Falls back to one solicitud per lote if a single item already exceeds the limit.
+export const agruparEnLotes = (solicitudes, opts = null) => {
+  if (!opts) {
+    // No context provided — legacy fixed-size grouping (tests / callers without context)
+    const lotes = [];
+    for (let i = 0; i < solicitudes.length; i += TAMANO_LOTE) {
+      lotes.push(solicitudes.slice(i, i + TAMANO_LOTE));
+    }
+    return lotes;
   }
+
+  const wrapperSize = medirWrapper(opts);
+  const budget = LIMITE_COPILOT - wrapperSize - 200; // 200-char safety margin
+
+  const lotes = [];
+  let loteActual = [];
+  let tamanoActual = 0;
+
+  for (const s of solicitudes) {
+    const textoSolicitud = `${s.etiqueta} ${s.texto}\n\n`.length;
+    if (loteActual.length > 0 && tamanoActual + textoSolicitud > budget) {
+      lotes.push(loteActual);
+      loteActual = [s];
+      tamanoActual = textoSolicitud;
+    } else {
+      loteActual.push(s);
+      tamanoActual += textoSolicitud;
+    }
+  }
+  if (loteActual.length > 0) lotes.push(loteActual);
   return lotes;
 };
 
