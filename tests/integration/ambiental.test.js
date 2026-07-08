@@ -245,6 +245,75 @@ describe('Ambiental — Integración', () => {
       expect(res.body.que_ordena).toBeTruthy();
       expect(res.body.plazo_respuesta).toBeTruthy();
     });
+
+    test('modo acumular — agrega hallazgos y registra seccion_index', async () => {
+      if (!expedienteId) return;
+      const seccionJson = JSON.stringify({
+        que_ordena: null,
+        admite_recurso: 'No',
+        plazo_respuesta: null,
+        fecha_vencimiento: '2026-10-01',
+        nivel_riesgo: 'Medio',
+        resumen: 'Sección adicional sin nuevos incumplimientos.',
+        pagos: [],
+        hallazgos: [
+          {
+            numero: 1,
+            tipo: 'Observación',
+            descripcion: 'Hallazgo de la sección 2.',
+            norma_infringida: null,
+            recomendacion: null,
+            prioridad: 'Baja',
+          },
+        ],
+        normas_citadas: [],
+      });
+
+      const res = await agent
+        .post(`/api/ambiental/expedientes/${expedienteId}/analisis`)
+        .send({ resultado_llm_json: seccionJson, modo: 'acumular', seccion_index: 2 });
+      expect(res.status).toBe(201);
+
+      // Hallazgos acumulados (2 del reemplazar inicial + 1 de esta sección)
+      const analisis = await agent.get(`/api/ambiental/expedientes/${expedienteId}/analisis`);
+      expect(analisis.body.hallazgos.length).toBe(3);
+
+      // seccion_index registrado y smart merge aplicado
+      const exp = await agent.get(`/api/ambiental/expedientes/${expedienteId}`);
+      expect(exp.body.secciones_analizadas).toContain(2);
+      expect(exp.body.fecha_vencimiento?.slice(0, 10)).toBe('2026-10-01');
+      // admite_recurso original era 'Sí' → no debe sobreescribirse con 'No'
+      expect(exp.body.admite_recurso).toBe('Sí');
+    });
+
+    test('modo acumular — smart merge actualiza admite_recurso si era Depende', async () => {
+      if (!expedienteId) return;
+      // Forzar admite_recurso a 'Depende' directamente en BD
+      await pool.query(
+        `UPDATE expedientes_ambientales SET admite_recurso = 'Depende' WHERE id = $1`,
+        [expedienteId]
+      );
+      const seccionJson = JSON.stringify({
+        que_ordena: null,
+        admite_recurso: 'No',
+        plazo_respuesta: null,
+        fecha_vencimiento: null,
+        nivel_riesgo: 'Bajo',
+        resumen: 'Sin hallazgos.',
+        pagos: [],
+        hallazgos: [],
+        normas_citadas: [],
+      });
+
+      const res = await agent
+        .post(`/api/ambiental/expedientes/${expedienteId}/analisis`)
+        .send({ resultado_llm_json: seccionJson, modo: 'acumular', seccion_index: 3 });
+      expect(res.status).toBe(201);
+
+      const exp = await agent.get(`/api/ambiental/expedientes/${expedienteId}`);
+      expect(exp.body.admite_recurso).toBe('No');
+      expect(exp.body.secciones_analizadas).toContain(3);
+    });
   });
 
   // ── Análisis — obtener ────────────────────────────────────────────────────
@@ -256,9 +325,9 @@ describe('Ambiental — Integración', () => {
       expect(res.body).toHaveProperty('nivel_riesgo');
       expect(res.body).toHaveProperty('resumen');
       expect(Array.isArray(res.body.hallazgos)).toBe(true);
-      expect(res.body.hallazgos.length).toBe(2);
+      expect(res.body.hallazgos.length).toBeGreaterThanOrEqual(2);
       expect(Array.isArray(res.body.normas_citadas)).toBe(true);
-      expect(res.body.normas_citadas.length).toBe(2);
+      expect(res.body.normas_citadas.length).toBeGreaterThanOrEqual(2);
     });
 
     test('hallazgos tienen campos requeridos', async () => {

@@ -1,6 +1,6 @@
 import pool from '../../../db/database.js';
 import { registrarLog } from '../../../services/auditService.js';
-import { extractTextFromFile, generarPromptAmbiental, generarPromptRespuesta } from '../services/ambientalService.js';
+import { extractTextFromFile, generarPromptsAmbientales, generarPromptRespuesta } from '../services/ambientalService.js';
 import { analisisLlmSchema } from '../schemas/ambientalSchema.js';
 import logger from '../../../utils/logger.js';
 
@@ -24,18 +24,21 @@ export const procesarDocumento = async (req, res) => {
       entidadNombre = rows[0]?.nombre;
     }
 
-    const prompt_generado = generarPromptAmbiental(contenido_texto, {
+    const prompts = generarPromptsAmbientales(contenido_texto, {
       entidadNombre,
       fechaBase: fecha_documento || null,
     });
 
+    // Si es una sola parte, prompt_generado es el texto directo.
+    // Si son varias partes, se serializa como JSON array para que el frontend lo detecte.
+    const prompt_generado = prompts.length === 1
+      ? prompts[0].prompt
+      : JSON.stringify(prompts);
+
     res.json({
       contenido_texto: req.file ? contenido_texto : undefined,
       prompt_generado,
-      meta: {
-        caracteres_seccion: contenido_texto.length,
-        caracteres_totales: req.file ? contenido_texto.length : undefined,
-      },
+      total_partes: prompts.length,
     });
   } catch (error) {
     logger.error('procesarDocumento error', { error: error.message });
@@ -243,6 +246,28 @@ export const guardarAnalisis = async (req, res) => {
           );
         }
 
+        // Actualizar campos del expediente con datos de esta sección (solo si mejoran lo existente)
+        await client.query(
+          `UPDATE expedientes_ambientales SET
+             fecha_vencimiento = COALESCE(fecha_vencimiento, $1),
+             plazo_respuesta   = COALESCE(NULLIF(plazo_respuesta,''), $2),
+             que_ordena        = COALESCE(NULLIF(que_ordena,''), $3),
+             admite_recurso    = CASE
+               WHEN admite_recurso IS NULL OR admite_recurso = 'Depende'
+                 THEN COALESCE($4, admite_recurso)
+               ELSE admite_recurso
+             END,
+             updated_at = NOW()
+           WHERE id = $5`,
+          [
+            fecha_vencimiento || null,
+            plazo_respuesta   || null,
+            que_ordena        || null,
+            (admite_recurso && admite_recurso !== 'Depende') ? admite_recurso : null,
+            id,
+          ]
+        );
+
         // Registrar sección analizada en el expediente
         if (seccion_index !== undefined) {
           await client.query(
@@ -342,6 +367,52 @@ export const actualizarEstadoPago = async (req, res) => {
   }
 };
 
+// DELETE /expedientes/:id/pagos/:pagoId — borrado lógico
+export const desactivarPago = async (req, res) => {
+  const { id, pagoId } = req.params;
+  try {
+    const { rows } = await pool.query(
+      `UPDATE pagos_ambientales SET is_active=false WHERE id=$1 AND expediente_id=$2 RETURNING *`,
+      [pagoId, id]
+    );
+    if (!rows.length) return res.status(404).json({ error: 'Pago no encontrado.' });
+    res.json({ ok: true });
+  } catch (error) {
+    logger.error('desactivarPago error', { error: error.message });
+    res.status(500).json({ error: 'Error al desactivar el pago.' });
+  }
+};
+
+// GET /expedientes/:id/pagos/inactivos — lista pagos desactivados
+export const listarPagosInactivos = async (req, res) => {
+  try {
+    const { rows } = await pool.query(
+      `SELECT * FROM pagos_ambientales WHERE expediente_id=$1 AND is_active=false ORDER BY created_at`,
+      [req.params.id]
+    );
+    res.json(rows);
+  } catch (error) {
+    logger.error('listarPagosInactivos error', { error: error.message });
+    res.status(500).json({ error: 'Error al obtener pagos inactivos.' });
+  }
+};
+
+// PATCH /expedientes/:id/pagos/:pagoId/reactivar — restaura un pago
+export const reactivarPago = async (req, res) => {
+  const { id, pagoId } = req.params;
+  try {
+    const { rows } = await pool.query(
+      `UPDATE pagos_ambientales SET is_active=true WHERE id=$1 AND expediente_id=$2 RETURNING *`,
+      [pagoId, id]
+    );
+    if (!rows.length) return res.status(404).json({ error: 'Pago no encontrado.' });
+    res.json(rows[0]);
+  } catch (error) {
+    logger.error('reactivarPago error', { error: error.message });
+    res.status(500).json({ error: 'Error al reactivar el pago.' });
+  }
+};
+
 // PATCH /expedientes/:id/analisis/resumen — reemplaza el resumen con uno consolidado
 export const consolidarResumen = async (req, res) => {
   const { id } = req.params;
@@ -372,7 +443,7 @@ export const obtenerAnalisis = async (req, res) => {
     const [{ rows: hallazgos }, { rows: normas }, { rows: pagos }] = await Promise.all([
       pool.query('SELECT * FROM hallazgos_ambientales WHERE analisis_id=$1 ORDER BY numero_hallazgo', [analisis.id]),
       pool.query('SELECT * FROM normas_citadas_ambiental WHERE analisis_id=$1', [analisis.id]),
-      pool.query('SELECT * FROM pagos_ambientales WHERE expediente_id=$1 ORDER BY created_at', [req.params.id]),
+      pool.query('SELECT * FROM pagos_ambientales WHERE expediente_id=$1 AND is_active=true ORDER BY created_at', [req.params.id]),
     ]);
 
     res.json({ ...analisis, hallazgos, normas_citadas: normas, pagos });
@@ -408,7 +479,7 @@ export const obtenerDatosInforme = async (req, res) => {
       ]);
     }
     ({ rows: pagos } = await pool.query(
-      'SELECT * FROM pagos_ambientales WHERE expediente_id=$1 ORDER BY created_at',
+      'SELECT * FROM pagos_ambientales WHERE expediente_id=$1 AND is_active=true ORDER BY created_at',
       [req.params.id]
     ));
 
