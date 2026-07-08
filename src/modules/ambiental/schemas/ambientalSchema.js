@@ -31,6 +31,7 @@ export const actualizarExpedienteSchema = z.object({
   respuesta_entidad_texto:  z.string().optional().nullable(),
   fecha_respuesta:          z.string().optional().nullable(),
   respuesta_llm_json:       z.string().optional().nullable(),
+  enlace_pdf:               z.string().url('URL inválida').optional().nullable().or(z.literal('')),
 }).refine(d => Object.keys(d).length > 0, { message: 'Se requiere al menos un campo.' });
 
 const normalizar = (v) => typeof v === 'string' ? v.normalize('NFC').trim() : v;
