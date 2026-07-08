@@ -37,7 +37,7 @@ export const buscarSimilares = async (expedienteId, limite = 5) => {
        ROUND(CAST((1 - (ea.embedding <=> $1)) AS NUMERIC), 4) AS similitud
      FROM embeddings_ambiental ea
      JOIN expedientes_ambientales e ON e.id = ea.expediente_id
-     LEFT JOIN entidades ent ON ent.id = e.entidad_id
+     LEFT JOIN global_entidades ent ON ent.id = e.entidad_id
      LEFT JOIN analisis_ambiental a ON a.expediente_id = e.id
      WHERE ea.expediente_id <> $2
        AND e.is_active = true
