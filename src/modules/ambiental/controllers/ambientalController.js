@@ -1,6 +1,7 @@
 import pool from '../../../db/database.js';
 import { registrarLog } from '../../../services/auditService.js';
 import { extractTextFromFile, generarPromptsAmbientales, generarPromptRespuesta } from '../services/ambientalService.js';
+import { guardarEmbedding, buscarSimilares } from '../services/ambientalEmbeddingService.js';
 import { analisisLlmSchema } from '../schemas/ambientalSchema.js';
 import logger from '../../../utils/logger.js';
 
@@ -58,6 +59,9 @@ export const crearExpediente = async (req, res) => {
       [titulo, tipo_instrumento, numero_expediente || null, entidad_id || null, responsable_uuid || null, grupo_id || null, fecha_documento || null, contenido_texto || null, prompt_generado || null, creado_por]
     );
     await registrarLog(creado_por, 'CREAR_EXPEDIENTE_AMBIENTAL', 'ambiental', rows[0].id, req);
+    if (contenido_texto) {
+      setImmediate(() => guardarEmbedding(rows[0].id, contenido_texto, 'contenido'));
+    }
     res.status(201).json(rows[0]);
   } catch (error) {
     logger.error('crearExpediente error', { error: error.message });
@@ -82,7 +86,7 @@ export const listarExpedientes = async (req, res) => {
     const { rows } = await pool.query(
       `SELECT DISTINCT ON (e.id) e.*, ent.nombre AS entidad_nombre, g.nombre AS grupo_nombre,
               p.nombre AS proyecto_nombre, u.nombre AS responsable_nombre,
-              a.nivel_riesgo, a.id AS analisis_id
+              a.nivel_riesgo, a.id AS analisis_id, a.resumen AS resumen_analisis
        FROM expedientes_ambientales e
        LEFT JOIN global_entidades ent ON ent.id = e.entidad_id
        LEFT JOIN global_grupos g ON g.id = e.grupo_id
@@ -127,7 +131,7 @@ export const actualizarExpediente = async (req, res) => {
   const campos = [];
   const valores = [];
   let idx = 1;
-  const permitidos = ['titulo', 'tipo_instrumento', 'numero_expediente', 'entidad_id', 'responsable_uuid', 'grupo_id', 'proyecto_id', 'fecha_documento', 'fecha_vencimiento', 'estado', 'contenido_texto', 'prompt_generado', 'argumentos_recurso', 'hallazgos_recurso_ids', 'recurso_llm_json', 'respuesta_entidad_texto', 'fecha_respuesta', 'respuesta_llm_json'];
+  const permitidos = ['titulo', 'tipo_instrumento', 'numero_expediente', 'entidad_id', 'responsable_uuid', 'grupo_id', 'proyecto_id', 'fecha_documento', 'fecha_vencimiento', 'estado', 'contenido_texto', 'prompt_generado', 'argumentos_recurso', 'hallazgos_recurso_ids', 'recurso_llm_json', 'enlace_pdf'];
   for (const campo of permitidos) {
     if (req.body[campo] !== undefined) {
       campos.push(`${campo}=$${idx++}`);
@@ -337,6 +341,10 @@ export const guardarAnalisis = async (req, res) => {
 
     await client.query('COMMIT');
     await registrarLog(req.user.id, `${modo === 'acumular' ? 'ACUMULAR' : 'GUARDAR'}_ANALISIS_AMBIENTAL`, 'ambiental', id, req);
+    if (resumen) {
+      const textoEmb = [resumen, que_ordena].filter(Boolean).join(' ');
+      setImmediate(() => guardarEmbedding(id, textoEmb, 'analisis'));
+    }
     res.status(201).json({ analisis_id: analisisId, modo, message: modo === 'acumular' ? 'Hallazgos acumulados correctamente.' : 'Análisis guardado correctamente.' });
   } catch (error) {
     await client.query('ROLLBACK');
@@ -631,54 +639,6 @@ export const obtenerDashboard = async (req, res) => {
 };
 
 // POST /expedientes/:id/respuesta — extrae texto del archivo de respuesta y genera prompt LLM
-export const procesarRespuestaEntidad = async (req, res) => {
-  const { id } = req.params;
-  const { fecha_respuesta, texto } = req.body || {};
-
-  try {
-    const { rows: expRows } = await pool.query(
-      `SELECT e.titulo, e.que_ordena, ent.nombre AS entidad_nombre
-       FROM expedientes_ambientales e
-       LEFT JOIN global_entidades ent ON ent.id = e.entidad_id
-       WHERE e.id = $1 AND e.is_active = true
-       LIMIT 1`,
-      [id]
-    );
-    if (!expRows.length) return res.status(404).json({ error: 'Expediente no encontrado.' });
-    const exp = expRows[0];
-
-    let respuesta_entidad_texto;
-    if (req.file) {
-      respuesta_entidad_texto = await extractTextFromFile(req.file.buffer, req.file.mimetype);
-    } else if (texto) {
-      respuesta_entidad_texto = texto;
-    } else {
-      return res.status(400).json({ error: 'Se requiere un archivo o texto.' });
-    }
-
-    await pool.query(
-      `UPDATE expedientes_ambientales SET respuesta_entidad_texto=$1, fecha_respuesta=$2, updated_at=NOW() WHERE id=$3`,
-      [respuesta_entidad_texto, fecha_respuesta || null, id]
-    );
-
-    const prompt = generarPromptRespuesta(respuesta_entidad_texto, {
-      entidadNombre: exp.entidad_nombre,
-      tituloExpediente: exp.titulo,
-      queOrdena: exp.que_ordena,
-    });
-
-    await registrarLog(req.user.id, 'REGISTRAR_RESPUESTA_AMBIENTAL', 'ambiental', id, req);
-
-    res.json({
-      respuesta_entidad_texto,
-      prompt_respuesta: prompt,
-      meta: { caracteres: respuesta_entidad_texto.length },
-    });
-  } catch (error) {
-    logger.error('procesarRespuestaEntidad error', { error: error.message });
-    res.status(500).json({ error: 'Error al procesar la respuesta.' });
-  }
-};
 
 // ── Comunicaciones del expediente ─────────────────────────────────────────────
 
@@ -688,7 +648,8 @@ export const listarComunicaciones = async (req, res) => {
   try {
     const { rows } = await pool.query(
       `SELECT c.id, c.direccion, c.asunto, c.fecha, c.descripcion,
-              c.texto_extraido, c.nombre_archivo, c.created_at,
+              c.texto_extraido, c.nombre_archivo, c.enlace,
+              c.resultado_llm, c.prompt_generado, c.created_at,
               u.nombre AS creado_por_nombre
          FROM comunicaciones_expediente c
          LEFT JOIN global_usuarios u ON u.id = c.creado_por
@@ -706,7 +667,7 @@ export const listarComunicaciones = async (req, res) => {
 // POST /expedientes/:id/comunicaciones
 export const crearComunicacion = async (req, res) => {
   const { id } = req.params;
-  const { direccion, asunto, fecha, descripcion } = req.body;
+  const { direccion, asunto, fecha, descripcion, enlace } = req.body;
 
   if (!['entrante', 'saliente'].includes(direccion))
     return res.status(400).json({ error: 'dirección debe ser entrante o saliente.' });
@@ -722,13 +683,15 @@ export const crearComunicacion = async (req, res) => {
       nombre_archivo = req.file.originalname;
     }
 
+    const enlaceVal = enlace?.trim() || null;
+
     const { rows } = await pool.query(
       `INSERT INTO comunicaciones_expediente
-         (expediente_id, direccion, asunto, fecha, descripcion, texto_extraido, nombre_archivo, creado_por)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-       RETURNING id, direccion, asunto, fecha, descripcion, texto_extraido, nombre_archivo, created_at`,
+         (expediente_id, direccion, asunto, fecha, descripcion, texto_extraido, nombre_archivo, enlace, creado_por)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+       RETURNING id, direccion, asunto, fecha, descripcion, texto_extraido, nombre_archivo, enlace, created_at`,
       [id, direccion, asunto.trim(), fecha, descripcion?.trim() || null,
-       texto_extraido, nombre_archivo, req.user.id]
+       texto_extraido, nombre_archivo, enlaceVal, req.user.id]
     );
 
     await registrarLog(req.user.id, 'CREAR_COMUNICACION', 'ambiental', id, req, { asunto, direccion });
@@ -777,6 +740,25 @@ export const listarComunicacionesInactivas = async (req, res) => {
   }
 };
 
+// PATCH /expedientes/:id/comunicaciones/:cId/enlace
+export const actualizarEnlaceComunicacion = async (req, res) => {
+  const { id, cId } = req.params;
+  const { enlace } = req.body;
+  const enlaceVal = enlace?.trim() || null;
+  try {
+    const { rowCount } = await pool.query(
+      `UPDATE comunicaciones_expediente SET enlace = $1
+        WHERE id = $2 AND expediente_id = $3 AND is_active = true`,
+      [enlaceVal, cId, id]
+    );
+    if (rowCount === 0) return res.status(404).json({ error: 'Comunicación no encontrada.' });
+    res.json({ enlace: enlaceVal });
+  } catch (error) {
+    logger.error('actualizarEnlaceComunicacion error', { error: error.message });
+    res.status(500).json({ error: 'Error al actualizar el enlace.' });
+  }
+};
+
 // PATCH /expedientes/:id/comunicaciones/:cId/reactivar
 export const reactivarComunicacion = async (req, res) => {
   const { id, cId } = req.params;
@@ -792,5 +774,152 @@ export const reactivarComunicacion = async (req, res) => {
   } catch (error) {
     logger.error('reactivarComunicacion error', { error: error.message });
     res.status(500).json({ error: 'Error al restaurar la comunicación.' });
+  }
+};
+
+// POST /expedientes/:id/comunicaciones/:cId/prompt-analisis
+export const generarPromptAnalisisComunicacion = async (req, res) => {
+  const { id, cId } = req.params;
+  try {
+    const { rows: [com] } = await pool.query(
+      `SELECT c.texto_extraido, c.asunto, c.direccion,
+              e.titulo, e.que_ordena, ent.nombre AS entidad_nombre
+         FROM comunicaciones_expediente c
+         JOIN expedientes_ambientales e ON e.id = c.expediente_id
+         LEFT JOIN global_entidades ent ON ent.id = e.entidad_id
+        WHERE c.id = $1 AND c.expediente_id = $2 AND c.is_active = true`,
+      [cId, id]
+    );
+    if (!com) return res.status(404).json({ error: 'Comunicación no encontrada.' });
+    if (!com.texto_extraido) return res.status(422).json({ error: 'Esta comunicación no tiene texto extraído para analizar.' });
+
+    const prompt = generarPromptRespuesta(com.texto_extraido, {
+      entidadNombre: com.entidad_nombre,
+      tituloExpediente: com.titulo,
+      queOrdena: com.que_ordena,
+    });
+
+    await pool.query(
+      `UPDATE comunicaciones_expediente SET prompt_generado = $1 WHERE id = $2`,
+      [prompt, cId]
+    );
+
+    res.json({ prompt });
+  } catch (error) {
+    logger.error('generarPromptAnalisisComunicacion error', { error: error.message });
+    res.status(500).json({ error: 'Error al generar el prompt.' });
+  }
+};
+
+// PATCH /expedientes/:id/comunicaciones/:cId/resultado-llm
+export const guardarResultadoLlmComunicacion = async (req, res) => {
+  const { id, cId } = req.params;
+  const { resultado_llm } = req.body;
+  if (!resultado_llm?.trim()) return res.status(400).json({ error: 'El resultado es obligatorio.' });
+  try {
+    const { rowCount } = await pool.query(
+      `UPDATE comunicaciones_expediente SET resultado_llm = $1
+        WHERE id = $2 AND expediente_id = $3 AND is_active = true`,
+      [resultado_llm, cId, id]
+    );
+    if (rowCount === 0) return res.status(404).json({ error: 'Comunicación no encontrada.' });
+    res.json({ ok: true });
+  } catch (error) {
+    logger.error('guardarResultadoLlmComunicacion error', { error: error.message });
+    res.status(500).json({ error: 'Error al guardar el resultado.' });
+  }
+};
+
+// POST /expedientes/:id/prompt-comparativo
+export const generarPromptComparativo = async (req, res) => {
+  const { id } = req.params;
+  const { precedentes_ids = [] } = req.body;
+  if (!precedentes_ids.length) return res.status(400).json({ error: 'Se requieren al menos un precedente.' });
+  try {
+    const { rows: [exp] } = await pool.query(
+      `SELECT e.*, ent.nombre AS entidad_nombre FROM expedientes_ambientales e
+       LEFT JOIN global_entidades ent ON ent.id = e.entidad_id
+       WHERE e.id = $1 AND e.is_active = true`,
+      [id]
+    );
+    if (!exp) return res.status(404).json({ error: 'Expediente no encontrado.' });
+
+    const { rows: [analisis] } = await pool.query(
+      `SELECT nivel_riesgo, resumen FROM analisis_ambiental WHERE expediente_id = $1 ORDER BY created_at DESC LIMIT 1`,
+      [id]
+    );
+    const { rows: hallazgos } = await pool.query(
+      `SELECT h.tipo, h.descripcion, h.prioridad, h.norma_infringida
+       FROM hallazgos_ambientales h
+       JOIN analisis_ambiental a ON a.id = h.analisis_id
+       WHERE a.expediente_id = $1 ORDER BY h.numero_hallazgo`,
+      [id]
+    );
+
+    const { rows: precedentes } = await pool.query(
+      `SELECT e.id, e.titulo, e.numero_expediente, e.tipo_instrumento, e.estado,
+              ent.nombre AS entidad_nombre, a.nivel_riesgo, a.resumen,
+              ROUND(CAST((1 - (ea.embedding <=> (SELECT embedding FROM embeddings_ambiental WHERE expediente_id = $2))) AS NUMERIC), 4) AS similitud
+       FROM expedientes_ambientales e
+       LEFT JOIN global_entidades ent ON ent.id = e.entidad_id
+       LEFT JOIN analisis_ambiental a ON a.expediente_id = e.id
+       LEFT JOIN embeddings_ambiental ea ON ea.expediente_id = e.id
+       WHERE e.id = ANY($1::uuid[]) AND e.is_active = true`,
+      [precedentes_ids, id]
+    );
+
+    const { buildPromptComparativo } = await import('../services/ambientalService.js');
+    const prompt = buildPromptComparativo(exp, analisis, hallazgos, precedentes);
+    res.json({ prompt });
+  } catch (error) {
+    logger.error('generarPromptComparativo error', { error: error.message });
+    res.status(500).json({ error: 'Error al generar el prompt comparativo.' });
+  }
+};
+
+// POST /expedientes/:id/generar-embedding
+export const generarEmbeddingExpediente = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const { rows: [exp] } = await pool.query(
+      `SELECT e.contenido_texto, a.resumen, a.nivel_riesgo, e.que_ordena, e.tipo_instrumento
+       FROM expedientes_ambientales e
+       LEFT JOIN analisis_ambiental a ON a.expediente_id = e.id
+       WHERE e.id = $1 AND e.is_active = true
+       ORDER BY a.created_at DESC LIMIT 1`,
+      [id]
+    );
+    if (!exp) return res.status(404).json({ error: 'Expediente no encontrado.' });
+
+    let texto, fuente;
+    if (exp.resumen) {
+      texto = [exp.resumen, exp.que_ordena].filter(Boolean).join(' ');
+      fuente = 'analisis';
+    } else if (exp.contenido_texto) {
+      texto = exp.contenido_texto.slice(0, 1500);
+      fuente = 'contenido';
+    } else {
+      return res.status(422).json({ error: 'El expediente no tiene texto ni análisis para generar el embedding.' });
+    }
+
+    await guardarEmbedding(id, texto, fuente);
+    res.json({ ok: true, fuente });
+  } catch (error) {
+    logger.error('generarEmbeddingExpediente error', { error: error.message });
+    res.status(500).json({ error: 'Error al generar el embedding.' });
+  }
+};
+
+// GET /expedientes/:id/similares
+export const obtenerSimilares = async (req, res) => {
+  const { id } = req.params;
+  const limite = Math.min(parseInt(req.query.limite) || 5, 10);
+  try {
+    const similares = await buscarSimilares(id, limite);
+    if (similares === null) return res.status(404).json({ error: 'Este expediente aún no tiene embedding generado.' });
+    res.json(similares);
+  } catch (error) {
+    logger.error('obtenerSimilares error', { error: error.message });
+    res.status(500).json({ error: 'Error al buscar precedentes.' });
   }
 };
