@@ -720,19 +720,77 @@ describe('Ambiental — Integración', () => {
     });
   });
 
-  // ── Precedentes — embeddings ──────────────────────────────────────────────
+  // ── Precedentes — embeddings y búsqueda híbrida ──────────────────────────
   describe('Precedentes — embeddings y similares', () => {
+    // Vector 384 dims normalizado (todos iguales → similitud 1.0 entre sí)
+    const vectorFake = `[${Array(384).fill((1 / Math.sqrt(384)).toFixed(8)).join(',')}]`;
+
+    let expedienteConEmb;  // expediente fuente con embedding
+    let expedientePar;     // segundo expediente con contenido similar para RRF
+
+    beforeAll(async () => {
+      // Expediente fuente con texto rico para full-text
+      const { rows: r1 } = await pool.query(
+        `INSERT INTO expedientes_ambientales
+           (titulo, tipo_instrumento, contenido_texto, que_ordena, creado_por)
+         VALUES ($1, $2, $3, $4, $5) RETURNING id`,
+        [
+          'Resolución Plan de Manejo Ambiental Ley 99',
+          'Resolución Sancionatoria',
+          'Se ordena la presentación del Plan de Manejo Ambiental. Incumplimiento Ley 99/93 artículo 49.',
+          'Presentar Plan de Manejo Ambiental en 30 días.',
+          testUserUuid,
+        ]
+      );
+      expedienteConEmb = r1[0].id;
+
+      // Expediente par con contenido similar
+      const { rows: r2 } = await pool.query(
+        `INSERT INTO expedientes_ambientales
+           (titulo, tipo_instrumento, contenido_texto, que_ordena, creado_por)
+         VALUES ($1, $2, $3, $4, $5) RETURNING id`,
+        [
+          'Auto sancionatorio Plan de Manejo Ambiental',
+          'Auto',
+          'Incumplimiento de la presentación del Plan de Manejo Ambiental conforme Ley 99/93.',
+          'Subsanar incumplimiento Ley 99/93 en 15 días.',
+          testUserUuid,
+        ]
+      );
+      expedientePar = r2[0].id;
+
+      // Insertar embeddings fake directamente (bypassa el modelo Xenova que falla en Jest)
+      await pool.query(
+        `INSERT INTO embeddings_ambiental (expediente_id, embedding, fuente)
+         VALUES ($1, $2, 'contenido'), ($3, $2, 'contenido')`,
+        [expedienteConEmb, vectorFake, expedientePar]
+      );
+    });
+
+    afterAll(async () => {
+      await pool.query(
+        'DELETE FROM expedientes_ambientales WHERE id = ANY($1::uuid[])',
+        [[expedienteConEmb, expedientePar].filter(Boolean)]
+      );
+    });
+
     test('GET /similares sin embedding → 404', async () => {
-      if (!expedienteId) return;
-      // El expediente de test puede o no tener embedding; si no tiene, espera 404
-      const res = await agent.get(`/api/ambiental/expedientes/${expedienteId}/similares`);
-      expect([200, 404]).toContain(res.status);
-      if (res.status === 200) expect(Array.isArray(res.body)).toBe(true);
+      const { rows } = await pool.query(
+        `INSERT INTO expedientes_ambientales (titulo, tipo_instrumento, creado_por)
+         VALUES ('Sin Embedding', 'Concepto', $1) RETURNING id`,
+        [testUserUuid]
+      );
+      const sinEmbId = rows[0].id;
+      const res = await agent.get(`/api/ambiental/expedientes/${sinEmbId}/similares`);
+      expect(res.status).toBe(404);
+      await pool.query('DELETE FROM expedientes_ambientales WHERE id = $1', [sinEmbId]);
     });
 
     test('POST /generar-embedding → 200 con fuente', async () => {
-      if (!expedienteId) return;
-      const res = await agent.post(`/api/ambiental/expedientes/${expedienteId}/generar-embedding`);
+      if (!expedienteConEmb) return;
+      // El modelo Xenova falla en Jest — guardarEmbedding swallows el error y retorna
+      // El controller igual responde 200 con la fuente calculada
+      const res = await agent.post(`/api/ambiental/expedientes/${expedienteConEmb}/generar-embedding`);
       expect(res.status).toBe(200);
       expect(res.body).toHaveProperty('fuente');
     });
@@ -742,10 +800,53 @@ describe('Ambiental — Integración', () => {
       expect(res.status).toBe(404);
     });
 
+    test('GET /similares con embedding → 200 con campos RRF', async () => {
+      if (!expedienteConEmb) return;
+      const res = await agent.get(`/api/ambiental/expedientes/${expedienteConEmb}/similares`);
+      expect(res.status).toBe(200);
+      expect(Array.isArray(res.body)).toBe(true);
+      // expedientePar tiene embedding y contenido similar → debe aparecer
+      expect(res.body.length).toBeGreaterThan(0);
+      const primero = res.body[0];
+      expect(primero).toHaveProperty('id');
+      expect(primero).toHaveProperty('titulo');
+      expect(primero).toHaveProperty('similitud');
+      expect(primero).toHaveProperty('rrf_score');
+    });
+
+    test('GET /similares respeta el parámetro limite', async () => {
+      if (!expedienteConEmb) return;
+      const res = await agent.get(`/api/ambiental/expedientes/${expedienteConEmb}/similares?limite=1`);
+      expect(res.status).toBe(200);
+      expect(res.body.length).toBeLessThanOrEqual(1);
+    });
+
+    test('GET /similares — fallback a vectorial cuando expediente no tiene texto', async () => {
+      // Expediente sin titulo útil ni contenido — textoFT quedará vacío → fallback vectorial
+      const { rows } = await pool.query(
+        `INSERT INTO expedientes_ambientales (titulo, tipo_instrumento, creado_por)
+         VALUES ('X', 'Concepto', $1) RETURNING id`,
+        [testUserUuid]
+      );
+      const sinTextoId = rows[0].id;
+
+      await pool.query(
+        `INSERT INTO embeddings_ambiental (expediente_id, embedding, fuente) VALUES ($1, $2, 'contenido')`,
+        [sinTextoId, vectorFake]
+      );
+
+      // Sin texto útil → plainto_tsquery no se invoca → no lanza error
+      const res = await agent.get(`/api/ambiental/expedientes/${sinTextoId}/similares`);
+      expect(res.status).toBe(200);
+      expect(Array.isArray(res.body)).toBe(true);
+
+      await pool.query('DELETE FROM expedientes_ambientales WHERE id = $1', [sinTextoId]);
+    });
+
     test('POST /prompt-comparativo sin precedentes_ids → 400', async () => {
-      if (!expedienteId) return;
+      if (!expedienteConEmb) return;
       const res = await agent
-        .post(`/api/ambiental/expedientes/${expedienteId}/prompt-comparativo`)
+        .post(`/api/ambiental/expedientes/${expedienteConEmb}/prompt-comparativo`)
         .send({ precedentes_ids: [] });
       expect(res.status).toBe(400);
     });
