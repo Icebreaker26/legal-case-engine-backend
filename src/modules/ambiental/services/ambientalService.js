@@ -248,3 +248,68 @@ Reglas estrictas para el array "pagos":
 INSTRUMENTO AMBIENTAL A ANALIZAR:
 ${texto}`;
 };
+
+export const buildPromptComparativo = (expediente, analisis, hallazgos, precedentes) => {
+  const resumenActual = analisis?.resumen || '(sin resumen disponible)';
+  const nivelRiesgo = analisis?.nivel_riesgo || '(no determinado)';
+  const queOrdena = expediente.que_ordena || '(no registrado)';
+
+  const hallazgosTexto = hallazgos?.length
+    ? hallazgos.map((h, i) => `  ${i + 1}. [${h.tipo} - ${h.prioridad}] ${h.descripcion}${h.norma_infringida ? ` (${h.norma_infringida})` : ''}`).join('\n')
+    : '  (sin hallazgos registrados)';
+
+  const precedentesTexto = precedentes.map((p, i) => `
+PRECEDENTE ${i + 1}: ${p.titulo || 'Sin título'} | ${p.tipo_instrumento || ''} | ${p.entidad_nombre || 'Sin entidad'}
+  Estado final: ${p.estado || 'desconocido'} | Nivel de riesgo: ${p.nivel_riesgo || 'no determinado'} | Similitud: ${Math.round(p.similitud * 100)}%
+  Resumen: ${p.resumen || '(sin resumen)'}
+`).join('\n');
+
+  return `Actúa como un abogado ambiental experto con acceso al historial de expedientes de la empresa.
+
+A continuación se te presenta el expediente ACTUAL junto con precedentes históricos similares encontrados en el sistema. Tu tarea es realizar un análisis comparativo profundo.
+
+════════════════════════════════════════════════════
+EXPEDIENTE ACTUAL
+════════════════════════════════════════════════════
+Título: ${expediente.titulo || ''}
+Tipo: ${expediente.tipo_instrumento || ''} | Entidad: ${expediente.entidad_nombre || 'No registrada'}
+Qué ordena: ${queOrdena}
+Nivel de riesgo: ${nivelRiesgo}
+Resumen del análisis:
+${resumenActual}
+
+Hallazgos identificados:
+${hallazgosTexto}
+
+════════════════════════════════════════════════════
+PRECEDENTES HISTÓRICOS SIMILARES (${precedentes.length})
+════════════════════════════════════════════════════
+${precedentesTexto}
+
+════════════════════════════════════════════════════
+INSTRUCCIONES DE ANÁLISIS
+════════════════════════════════════════════════════
+Realiza un análisis comparativo estructurado que incluya:
+
+1. PATRONES IDENTIFICADOS
+   - ¿Qué tipo de incumplimientos o requerimientos se repiten entre el expediente actual y los precedentes?
+   - ¿Hay un patrón de comportamiento de esta entidad con la empresa?
+
+2. COMPARACIÓN DE RIESGO
+   - ¿El nivel de riesgo del expediente actual es coherente con los precedentes similares?
+   - ¿Hay algún precedente con mayor o menor riesgo que justifique revisar la clasificación actual?
+
+3. ARGUMENTOS QUE HAN FUNCIONADO
+   - Basándote en los precedentes que terminaron favorablemente (estado Cerrado o Revisado), ¿qué tipo de argumentos o acciones fueron más efectivos?
+   - ¿Algún precedente es especialmente relevante para el recurso o respuesta de este expediente?
+
+4. RECOMENDACIONES ESTRATÉGICAS
+   - ¿Qué acciones prioritarias recomiendas para el expediente actual, considerando el historial?
+   - ¿Hay riesgos específicos que los precedentes sugieren anticipar?
+
+5. DIFERENCIAS CLAVE
+   - ¿En qué aspectos el expediente actual difiere significativamente de los precedentes?
+   - ¿Esas diferencias cambian la estrategia recomendada?
+
+Responde en español, con estructura clara por secciones. Sé preciso y accionable.`;
+};

@@ -1,6 +1,7 @@
 import pool from '../../../db/database.js';
 import { registrarLog } from '../../../services/auditService.js';
 import { extractTextFromFile, generarPromptsAmbientales, generarPromptRespuesta } from '../services/ambientalService.js';
+import { guardarEmbedding, buscarSimilares } from '../services/ambientalEmbeddingService.js';
 import { analisisLlmSchema } from '../schemas/ambientalSchema.js';
 import logger from '../../../utils/logger.js';
 
@@ -58,6 +59,9 @@ export const crearExpediente = async (req, res) => {
       [titulo, tipo_instrumento, numero_expediente || null, entidad_id || null, responsable_uuid || null, grupo_id || null, fecha_documento || null, contenido_texto || null, prompt_generado || null, creado_por]
     );
     await registrarLog(creado_por, 'CREAR_EXPEDIENTE_AMBIENTAL', 'ambiental', rows[0].id, req);
+    if (contenido_texto) {
+      setImmediate(() => guardarEmbedding(rows[0].id, contenido_texto, 'contenido'));
+    }
     res.status(201).json(rows[0]);
   } catch (error) {
     logger.error('crearExpediente error', { error: error.message });
@@ -337,6 +341,10 @@ export const guardarAnalisis = async (req, res) => {
 
     await client.query('COMMIT');
     await registrarLog(req.user.id, `${modo === 'acumular' ? 'ACUMULAR' : 'GUARDAR'}_ANALISIS_AMBIENTAL`, 'ambiental', id, req);
+    if (resumen) {
+      const textoEmb = [resumen, que_ordena].filter(Boolean).join(' ');
+      setImmediate(() => guardarEmbedding(id, textoEmb, 'analisis'));
+    }
     res.status(201).json({ analisis_id: analisisId, modo, message: modo === 'acumular' ? 'Hallazgos acumulados correctamente.' : 'Análisis guardado correctamente.' });
   } catch (error) {
     await client.query('ROLLBACK');
@@ -792,5 +800,66 @@ export const reactivarComunicacion = async (req, res) => {
   } catch (error) {
     logger.error('reactivarComunicacion error', { error: error.message });
     res.status(500).json({ error: 'Error al restaurar la comunicación.' });
+  }
+};
+
+// POST /expedientes/:id/prompt-comparativo
+export const generarPromptComparativo = async (req, res) => {
+  const { id } = req.params;
+  const { precedentes_ids = [] } = req.body;
+  if (!precedentes_ids.length) return res.status(400).json({ error: 'Se requieren al menos un precedente.' });
+  try {
+    const { rows: [exp] } = await pool.query(
+      `SELECT e.*, ent.nombre AS entidad_nombre FROM expedientes_ambientales e
+       LEFT JOIN global_entidades ent ON ent.id = e.entidad_id
+       WHERE e.id = $1 AND e.is_active = true`,
+      [id]
+    );
+    if (!exp) return res.status(404).json({ error: 'Expediente no encontrado.' });
+
+    const { rows: [analisis] } = await pool.query(
+      `SELECT nivel_riesgo, resumen FROM analisis_ambiental WHERE expediente_id = $1 ORDER BY created_at DESC LIMIT 1`,
+      [id]
+    );
+    const { rows: hallazgos } = await pool.query(
+      `SELECT h.tipo, h.descripcion, h.prioridad, h.norma_infringida
+       FROM hallazgos_ambientales h
+       JOIN analisis_ambiental a ON a.id = h.analisis_id
+       WHERE a.expediente_id = $1 ORDER BY h.numero_hallazgo`,
+      [id]
+    );
+
+    const { rows: precedentes } = await pool.query(
+      `SELECT e.id, e.titulo, e.numero_expediente, e.tipo_instrumento, e.estado,
+              ent.nombre AS entidad_nombre, a.nivel_riesgo, a.resumen,
+              ROUND(CAST((1 - (ea.embedding <=> (SELECT embedding FROM embeddings_ambiental WHERE expediente_id = $2))) AS NUMERIC), 4) AS similitud
+       FROM expedientes_ambientales e
+       LEFT JOIN global_entidades ent ON ent.id = e.entidad_id
+       LEFT JOIN analisis_ambiental a ON a.expediente_id = e.id
+       LEFT JOIN embeddings_ambiental ea ON ea.expediente_id = e.id
+       WHERE e.id = ANY($1::uuid[]) AND e.is_active = true`,
+      [precedentes_ids, id]
+    );
+
+    const { buildPromptComparativo } = await import('../services/ambientalService.js');
+    const prompt = buildPromptComparativo(exp, analisis, hallazgos, precedentes);
+    res.json({ prompt });
+  } catch (error) {
+    logger.error('generarPromptComparativo error', { error: error.message });
+    res.status(500).json({ error: 'Error al generar el prompt comparativo.' });
+  }
+};
+
+// GET /expedientes/:id/similares
+export const obtenerSimilares = async (req, res) => {
+  const { id } = req.params;
+  const limite = Math.min(parseInt(req.query.limite) || 5, 10);
+  try {
+    const similares = await buscarSimilares(id, limite);
+    if (similares === null) return res.status(404).json({ error: 'Este expediente aún no tiene embedding generado.' });
+    res.json(similares);
+  } catch (error) {
+    logger.error('obtenerSimilares error', { error: error.message });
+    res.status(500).json({ error: 'Error al buscar precedentes.' });
   }
 };
