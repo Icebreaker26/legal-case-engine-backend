@@ -29,6 +29,7 @@ import {
   reactivarComunicacion,
   obtenerSimilares,
   generarPromptComparativo,
+  generarEmbeddingExpediente,
 } from '../controllers/ambientalController.js';
 
 const router = Router();
@@ -57,8 +58,9 @@ router.get('/expedientes/:id/comunicaciones/inactivas',              authenticat
 router.post('/expedientes/:id/comunicaciones',                       authenticateToken, checkPermission('ambiental', 'WRITE'),  upload.single('file'), crearComunicacion);
 router.delete('/expedientes/:id/comunicaciones/:cId',                authenticateToken, checkPermission('ambiental', 'DELETE'), eliminarComunicacion);
 router.patch('/expedientes/:id/comunicaciones/:cId/reactivar',       authenticateToken, checkPermission('ambiental', 'WRITE'),  reactivarComunicacion);
-router.get('/expedientes/:id/similares',           authenticateToken, checkPermission('ambiental', 'READ'),  obtenerSimilares);
-router.post('/expedientes/:id/prompt-comparativo', authenticateToken, checkPermission('ambiental', 'WRITE'), generarPromptComparativo);
+router.get('/expedientes/:id/similares',             authenticateToken, checkPermission('ambiental', 'READ'),  obtenerSimilares);
+router.post('/expedientes/:id/generar-embedding',    authenticateToken, checkPermission('ambiental', 'WRITE'), generarEmbeddingExpediente);
+router.post('/expedientes/:id/prompt-comparativo',   authenticateToken, checkPermission('ambiental', 'WRITE'), generarPromptComparativo);
 router.get('/calendario',                authenticateToken, checkPermission('ambiental', 'READ'),  obtenerCalendario);
 router.get('/dashboard',                 authenticateToken, checkPermission('ambiental', 'READ'),  obtenerDashboard);
 

@@ -850,6 +850,39 @@ export const generarPromptComparativo = async (req, res) => {
   }
 };
 
+// POST /expedientes/:id/generar-embedding
+export const generarEmbeddingExpediente = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const { rows: [exp] } = await pool.query(
+      `SELECT e.contenido_texto, a.resumen, a.nivel_riesgo, e.que_ordena, e.tipo_instrumento
+       FROM expedientes_ambientales e
+       LEFT JOIN analisis_ambiental a ON a.expediente_id = e.id
+       WHERE e.id = $1 AND e.is_active = true
+       ORDER BY a.created_at DESC LIMIT 1`,
+      [id]
+    );
+    if (!exp) return res.status(404).json({ error: 'Expediente no encontrado.' });
+
+    let texto, fuente;
+    if (exp.resumen) {
+      texto = [exp.resumen, exp.que_ordena].filter(Boolean).join(' ');
+      fuente = 'analisis';
+    } else if (exp.contenido_texto) {
+      texto = exp.contenido_texto.slice(0, 1500);
+      fuente = 'contenido';
+    } else {
+      return res.status(422).json({ error: 'El expediente no tiene texto ni análisis para generar el embedding.' });
+    }
+
+    await guardarEmbedding(id, texto, fuente);
+    res.json({ ok: true, fuente });
+  } catch (error) {
+    logger.error('generarEmbeddingExpediente error', { error: error.message });
+    res.status(500).json({ error: 'Error al generar el embedding.' });
+  }
+};
+
 // GET /expedientes/:id/similares
 export const obtenerSimilares = async (req, res) => {
   const { id } = req.params;
