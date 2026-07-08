@@ -679,3 +679,27 @@ export const procesarRespuestaEntidad = async (req, res) => {
     res.status(500).json({ error: 'Error al procesar la respuesta.' });
   }
 };
+
+// POST /expedientes/:id/recurso/respuesta-pdf
+// Recibe el PDF de la respuesta que el equipo envió al interponer el recurso,
+// extrae el texto y lo guarda. No reemplaza el borrador generado por IA.
+export const subirRespuestaRecurso = async (req, res) => {
+  const { id } = req.params;
+  try {
+    if (!req.file) return res.status(400).json({ error: 'Se requiere un archivo PDF o Word.' });
+
+    const texto = await extractTextFromFile(req.file.buffer, req.file.mimetype);
+    if (!texto?.trim()) return res.status(400).json({ error: 'No se pudo extraer texto del archivo.' });
+
+    await pool.query(
+      'UPDATE expedientes_ambientales SET respuesta_recurso_texto = $1, updated_at = NOW() WHERE id = $2',
+      [texto, id]
+    );
+
+    await registrarLog(req.user.id, 'SUBIR_RESPUESTA_RECURSO', 'ambiental', id, req);
+    res.json({ respuesta_recurso_texto: texto });
+  } catch (error) {
+    logger.error('subirRespuestaRecurso error', { error: error.message });
+    res.status(500).json({ error: 'Error al procesar el archivo.' });
+  }
+};
