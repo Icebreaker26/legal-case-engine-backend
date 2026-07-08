@@ -5,7 +5,8 @@ import bcrypt from 'bcrypt';
 
 // Mockeamos aiService antes de cualquier otra importación de rutas
 jest.unstable_mockModule('../../src/modules/tutelas/services/aiService.js', () => ({
-  generarEmbeddingLocal: jest.fn().mockResolvedValue(new Array(384).fill(0.1))
+  generarEmbeddingLocal: jest.fn().mockResolvedValue(new Array(384).fill(0.1)),
+  generarEmbedding: jest.fn().mockResolvedValue(new Array(384).fill(0.1)),
 }));
 
 const { default: createApp } = await import('../../src/app_test.js');
