@@ -245,6 +245,75 @@ describe('Ambiental — Integración', () => {
       expect(res.body.que_ordena).toBeTruthy();
       expect(res.body.plazo_respuesta).toBeTruthy();
     });
+
+    test('modo acumular — agrega hallazgos y registra seccion_index', async () => {
+      if (!expedienteId) return;
+      const seccionJson = JSON.stringify({
+        que_ordena: null,
+        admite_recurso: 'No',
+        plazo_respuesta: null,
+        fecha_vencimiento: '2026-10-01',
+        nivel_riesgo: 'Medio',
+        resumen: 'Sección adicional sin nuevos incumplimientos.',
+        pagos: [],
+        hallazgos: [
+          {
+            numero: 1,
+            tipo: 'Observación',
+            descripcion: 'Hallazgo de la sección 2.',
+            norma_infringida: null,
+            recomendacion: null,
+            prioridad: 'Baja',
+          },
+        ],
+        normas_citadas: [],
+      });
+
+      const res = await agent
+        .post(`/api/ambiental/expedientes/${expedienteId}/analisis`)
+        .send({ resultado_llm_json: seccionJson, modo: 'acumular', seccion_index: 2 });
+      expect(res.status).toBe(201);
+
+      // Hallazgos acumulados (2 del reemplazar inicial + 1 de esta sección)
+      const analisis = await agent.get(`/api/ambiental/expedientes/${expedienteId}/analisis`);
+      expect(analisis.body.hallazgos.length).toBe(3);
+
+      // seccion_index registrado y smart merge aplicado
+      const exp = await agent.get(`/api/ambiental/expedientes/${expedienteId}`);
+      expect(exp.body.secciones_analizadas).toContain(2);
+      expect(exp.body.fecha_vencimiento?.slice(0, 10)).toBe('2026-10-01');
+      // admite_recurso original era 'Sí' → no debe sobreescribirse con 'No'
+      expect(exp.body.admite_recurso).toBe('Sí');
+    });
+
+    test('modo acumular — smart merge actualiza admite_recurso si era Depende', async () => {
+      if (!expedienteId) return;
+      // Forzar admite_recurso a 'Depende' directamente en BD
+      await pool.query(
+        `UPDATE expedientes_ambientales SET admite_recurso = 'Depende' WHERE id = $1`,
+        [expedienteId]
+      );
+      const seccionJson = JSON.stringify({
+        que_ordena: null,
+        admite_recurso: 'No',
+        plazo_respuesta: null,
+        fecha_vencimiento: null,
+        nivel_riesgo: 'Bajo',
+        resumen: 'Sin hallazgos.',
+        pagos: [],
+        hallazgos: [],
+        normas_citadas: [],
+      });
+
+      const res = await agent
+        .post(`/api/ambiental/expedientes/${expedienteId}/analisis`)
+        .send({ resultado_llm_json: seccionJson, modo: 'acumular', seccion_index: 3 });
+      expect(res.status).toBe(201);
+
+      const exp = await agent.get(`/api/ambiental/expedientes/${expedienteId}`);
+      expect(exp.body.admite_recurso).toBe('No');
+      expect(exp.body.secciones_analizadas).toContain(3);
+    });
   });
 
   // ── Análisis — obtener ────────────────────────────────────────────────────
@@ -256,9 +325,9 @@ describe('Ambiental — Integración', () => {
       expect(res.body).toHaveProperty('nivel_riesgo');
       expect(res.body).toHaveProperty('resumen');
       expect(Array.isArray(res.body.hallazgos)).toBe(true);
-      expect(res.body.hallazgos.length).toBe(2);
+      expect(res.body.hallazgos.length).toBeGreaterThanOrEqual(2);
       expect(Array.isArray(res.body.normas_citadas)).toBe(true);
-      expect(res.body.normas_citadas.length).toBe(2);
+      expect(res.body.normas_citadas.length).toBeGreaterThanOrEqual(2);
     });
 
     test('hallazgos tienen campos requeridos', async () => {
@@ -364,6 +433,124 @@ describe('Ambiental — Integración', () => {
 
       const get = await agent.get(`/api/ambiental/expedientes/${expedienteId}`);
       expect(get.body.fecha_documento).toMatch(/2025-03-10/);
+    });
+  });
+
+  // ── Respuesta de entidad ──────────────────────────────────────────────────
+  describe('POST /expedientes/:id/respuesta', () => {
+    const textoRespuesta = 'En respuesta al Auto 001-2026, la empresa certifica haber presentado el Plan de Manejo Ambiental dentro del plazo estipulado. Se adjuntan los soportes correspondientes.';
+
+    test('sin archivo ni texto → 400', async () => {
+      if (!expedienteId) return;
+      const res = await agent.post(`/api/ambiental/expedientes/${expedienteId}/respuesta`);
+      expect(res.status).toBe(400);
+    });
+
+    test('id inexistente → 404', async () => {
+      const res = await agent
+        .post('/api/ambiental/expedientes/00000000-0000-0000-0000-000000000000/respuesta')
+        .field('texto', textoRespuesta);
+      expect(res.status).toBe(404);
+    });
+
+    test('con texto → 200, guarda texto en DB y retorna prompt', async () => {
+      if (!expedienteId) return;
+      const res = await agent
+        .post(`/api/ambiental/expedientes/${expedienteId}/respuesta`)
+        .field('texto', textoRespuesta);
+      expect(res.status).toBe(200);
+      expect(res.body).toHaveProperty('respuesta_entidad_texto');
+      expect(res.body).toHaveProperty('prompt_respuesta');
+      expect(res.body.respuesta_entidad_texto).toBe(textoRespuesta);
+      expect(res.body.prompt_respuesta).toMatch(/Actúa como un experto/);
+    });
+
+    test('texto persiste en DB tras POST', async () => {
+      if (!expedienteId) return;
+      const res = await agent.get(`/api/ambiental/expedientes/${expedienteId}`);
+      expect(res.status).toBe(200);
+      expect(res.body.respuesta_entidad_texto).toBe(textoRespuesta);
+    });
+
+    test('con archivo TXT → 200 y extrae texto', async () => {
+      if (!expedienteId) return;
+      const res = await agent
+        .post(`/api/ambiental/expedientes/${expedienteId}/respuesta`)
+        .attach('file', Buffer.from(textoRespuesta), 'respuesta.txt');
+      expect(res.status).toBe(200);
+      expect(res.body.respuesta_entidad_texto).toContain('Plan de Manejo');
+      expect(res.body.prompt_respuesta).toBeTruthy();
+    });
+
+    test('regenerar prompt con texto ya guardado → 200', async () => {
+      if (!expedienteId) return;
+      const get = await agent.get(`/api/ambiental/expedientes/${expedienteId}`);
+      const textoGuardado = get.body.respuesta_entidad_texto;
+
+      const res = await agent
+        .post(`/api/ambiental/expedientes/${expedienteId}/respuesta`)
+        .field('texto', textoGuardado);
+      expect(res.status).toBe(200);
+      expect(res.body).toHaveProperty('prompt_respuesta');
+    });
+  });
+
+  // ── respuesta_llm_json y cierre de trámite ────────────────────────────────
+  describe('PATCH /expedientes/:id — respuesta_llm_json y estado Cerrado', () => {
+    const jsonEvaluacion = JSON.stringify({
+      valoracion: 'Favorable',
+      cumplimiento: 'Total',
+      resumen: 'La empresa demostró cumplimiento total del requerimiento ambiental.',
+      procede_recurso: 'No',
+      tipo_recurso: 'No aplica',
+      fundamentos_recurso: '',
+      plazo_recurso: '',
+      recomendaciones: ['Archivar el expediente', 'Mantener los soportes por 5 años'],
+      observaciones: 'Sin observaciones adicionales.',
+    });
+
+    test('guardar respuesta_llm_json → 200 y persiste', async () => {
+      if (!expedienteId) return;
+      const res = await agent
+        .patch(`/api/ambiental/expedientes/${expedienteId}`)
+        .send({ respuesta_llm_json: jsonEvaluacion });
+      expect(res.status).toBe(200);
+
+      const get = await agent.get(`/api/ambiental/expedientes/${expedienteId}`);
+      expect(get.body.respuesta_llm_json).toBe(jsonEvaluacion);
+    });
+
+    test('borrar respuesta_llm_json con null → 200', async () => {
+      if (!expedienteId) return;
+      const res = await agent
+        .patch(`/api/ambiental/expedientes/${expedienteId}`)
+        .send({ respuesta_llm_json: null });
+      expect(res.status).toBe(200);
+    });
+
+    test('cerrar trámite con estado Cerrado → 200', async () => {
+      if (!expedienteId) return;
+      const res = await agent
+        .patch(`/api/ambiental/expedientes/${expedienteId}`)
+        .send({ estado: 'Cerrado' });
+      expect(res.status).toBe(200);
+      expect(res.body.estado).toBe('Cerrado');
+    });
+
+    test('estado Cerrado persiste en GET', async () => {
+      if (!expedienteId) return;
+      const res = await agent.get(`/api/ambiental/expedientes/${expedienteId}`);
+      expect(res.status).toBe(200);
+      expect(res.body.estado).toBe('Cerrado');
+    });
+
+    test('reabrir expediente cambiando estado → 200', async () => {
+      if (!expedienteId) return;
+      const res = await agent
+        .patch(`/api/ambiental/expedientes/${expedienteId}`)
+        .send({ estado: 'Revisado' });
+      expect(res.status).toBe(200);
+      expect(res.body.estado).toBe('Revisado');
     });
   });
 

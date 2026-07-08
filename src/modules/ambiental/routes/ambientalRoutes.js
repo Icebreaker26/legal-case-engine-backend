@@ -18,6 +18,7 @@ import {
   obtenerDatosInforme,
   obtenerCalendario,
   obtenerDashboard,
+  procesarRespuestaEntidad,
 } from '../controllers/ambientalController.js';
 
 const router = Router();
@@ -37,6 +38,7 @@ router.patch('/expedientes/:id/analisis/resumen',    authenticateToken, checkPer
 router.patch('/expedientes/:id/pagos/:pagoId',        authenticateToken, checkPermission('ambiental', 'WRITE'), actualizarEstadoPago);
 router.get('/expedientes/:id/analisis',           authenticateToken, checkPermission('ambiental', 'READ'),  obtenerAnalisis);
 router.get('/expedientes/:id/informe',   authenticateToken, checkPermission('ambiental', 'READ'),  obtenerDatosInforme);
+router.post('/expedientes/:id/respuesta', authenticateToken, checkPermission('ambiental', 'WRITE'), upload.single('file'), procesarRespuestaEntidad);
 router.get('/calendario',                authenticateToken, checkPermission('ambiental', 'READ'),  obtenerCalendario);
 router.get('/dashboard',                 authenticateToken, checkPermission('ambiental', 'READ'),  obtenerDashboard);
 
