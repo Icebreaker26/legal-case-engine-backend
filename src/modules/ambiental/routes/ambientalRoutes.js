@@ -14,6 +14,9 @@ import {
   guardarAnalisis,
   consolidarResumen,
   actualizarEstadoPago,
+  desactivarPago,
+  listarPagosInactivos,
+  reactivarPago,
   obtenerAnalisis,
   obtenerDatosInforme,
   obtenerCalendario,
@@ -35,7 +38,10 @@ router.patch('/expedientes/:id',     authenticateToken, checkPermission('ambient
 router.delete('/expedientes/:id',    authenticateToken, checkPermission('ambiental', 'DELETE'), eliminarExpediente);
 router.post('/expedientes/:id/analisis',          authenticateToken, checkPermission('ambiental', 'WRITE'), validate(guardarAnalisisSchema), guardarAnalisis);
 router.patch('/expedientes/:id/analisis/resumen',    authenticateToken, checkPermission('ambiental', 'WRITE'), consolidarResumen);
-router.patch('/expedientes/:id/pagos/:pagoId',        authenticateToken, checkPermission('ambiental', 'WRITE'), actualizarEstadoPago);
+router.patch('/expedientes/:id/pagos/:pagoId',         authenticateToken, checkPermission('ambiental', 'WRITE'), actualizarEstadoPago);
+router.delete('/expedientes/:id/pagos/:pagoId',          authenticateToken, checkPermission('ambiental', 'DELETE'), desactivarPago);
+router.get('/expedientes/:id/pagos/inactivos',           authenticateToken, checkPermission('ambiental', 'READ'),   listarPagosInactivos);
+router.patch('/expedientes/:id/pagos/:pagoId/reactivar', authenticateToken, checkPermission('ambiental', 'WRITE'),  reactivarPago);
 router.get('/expedientes/:id/analisis',           authenticateToken, checkPermission('ambiental', 'READ'),  obtenerAnalisis);
 router.get('/expedientes/:id/informe',   authenticateToken, checkPermission('ambiental', 'READ'),  obtenerDatosInforme);
 router.post('/expedientes/:id/respuesta', authenticateToken, checkPermission('ambiental', 'WRITE'), upload.single('file'), procesarRespuestaEntidad);
