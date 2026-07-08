@@ -554,6 +554,134 @@ describe('Ambiental — Integración', () => {
     });
   });
 
+  // ── enlace_pdf ────────────────────────────────────────────────────────────
+  describe('PATCH /expedientes/:id — enlace_pdf', () => {
+    test('URL válida → 200 y persiste', async () => {
+      if (!expedienteId) return;
+      const res = await agent
+        .patch(`/api/ambiental/expedientes/${expedienteId}`)
+        .send({ enlace_pdf: 'https://example.com/documento.pdf' });
+      expect(res.status).toBe(200);
+
+      const get = await agent.get(`/api/ambiental/expedientes/${expedienteId}`);
+      expect(get.body.enlace_pdf).toBe('https://example.com/documento.pdf');
+    });
+
+    test('URL inválida → 400', async () => {
+      if (!expedienteId) return;
+      const res = await agent
+        .patch(`/api/ambiental/expedientes/${expedienteId}`)
+        .send({ enlace_pdf: 'no-es-una-url' });
+      expect(res.status).toBe(400);
+    });
+
+    test('vacío → 200 y borra el enlace', async () => {
+      if (!expedienteId) return;
+      const res = await agent
+        .patch(`/api/ambiental/expedientes/${expedienteId}`)
+        .send({ enlace_pdf: '' });
+      expect(res.status).toBe(200);
+
+      const get = await agent.get(`/api/ambiental/expedientes/${expedienteId}`);
+      expect(get.body.enlace_pdf).toBeNull();
+    });
+  });
+
+  // ── tipo_instrumento "otros" ───────────────────────────────────────────────
+  describe('POST /expedientes — tipo_instrumento otros', () => {
+    test('"otros" es tipo válido → 201', async () => {
+      const res = await agent.post('/api/ambiental/expedientes').send({
+        titulo: 'Documento tipo otros',
+        tipo_instrumento: 'otros',
+      });
+      expect(res.status).toBe(201);
+      expect(res.body.tipo_instrumento).toBe('otros');
+    });
+  });
+
+  // ── Comunicaciones ────────────────────────────────────────────────────────
+  describe('Comunicaciones del expediente', () => {
+    let comId;
+
+    test('GET /comunicaciones → 200 y array vacío inicial', async () => {
+      if (!expedienteId) return;
+      const res = await agent.get(`/api/ambiental/expedientes/${expedienteId}/comunicaciones`);
+      expect(res.status).toBe(200);
+      expect(Array.isArray(res.body)).toBe(true);
+    });
+
+    test('POST /comunicaciones sin asunto → 400', async () => {
+      if (!expedienteId) return;
+      const res = await agent
+        .post(`/api/ambiental/expedientes/${expedienteId}/comunicaciones`)
+        .field('direccion', 'entrante');
+      expect(res.status).toBe(400);
+    });
+
+    test('POST /comunicaciones con texto → 201 con id', async () => {
+      if (!expedienteId) return;
+      const res = await agent
+        .post(`/api/ambiental/expedientes/${expedienteId}/comunicaciones`)
+        .field('asunto', 'Solicitud de información adicional')
+        .field('direccion', 'entrante')
+        .field('fecha', '2026-06-01')
+        .field('descripcion', 'La entidad solicita complementar el informe.');
+      expect(res.status).toBe(201);
+      expect(res.body).toHaveProperty('id');
+      comId = res.body.id;
+    });
+
+    test('POST /comunicaciones con archivo TXT → 201 con texto_extraido', async () => {
+      if (!expedienteId) return;
+      const res = await agent
+        .post(`/api/ambiental/expedientes/${expedienteId}/comunicaciones`)
+        .field('asunto', 'Respuesta enviada')
+        .field('direccion', 'saliente')
+        .field('fecha', '2026-06-15')
+        .attach('file', Buffer.from('Adjuntamos los soportes solicitados por la autoridad ambiental.'), 'respuesta.txt');
+      expect(res.status).toBe(201);
+      expect(res.body.texto_extraido).toContain('soportes');
+    });
+
+    test('GET /comunicaciones → lista incluye la creada', async () => {
+      if (!expedienteId || !comId) return;
+      const res = await agent.get(`/api/ambiental/expedientes/${expedienteId}/comunicaciones`);
+      expect(res.status).toBe(200);
+      expect(res.body.some(c => c.id === comId)).toBe(true);
+    });
+
+    test('DELETE /comunicaciones/:cId → 200 y desaparece del listado', async () => {
+      if (!expedienteId || !comId) return;
+      const del = await agent.delete(`/api/ambiental/expedientes/${expedienteId}/comunicaciones/${comId}`);
+      expect(del.status).toBe(200);
+
+      const get = await agent.get(`/api/ambiental/expedientes/${expedienteId}/comunicaciones`);
+      expect(get.body.some(c => c.id === comId)).toBe(false);
+    });
+
+    test('GET /comunicaciones/inactivas → incluye la eliminada', async () => {
+      if (!expedienteId || !comId) return;
+      const res = await agent.get(`/api/ambiental/expedientes/${expedienteId}/comunicaciones/inactivas`);
+      expect(res.status).toBe(200);
+      expect(res.body.some(c => c.id === comId)).toBe(true);
+    });
+
+    test('PATCH /comunicaciones/:cId/reactivar → 200 y vuelve al listado', async () => {
+      if (!expedienteId || !comId) return;
+      const patch = await agent.patch(`/api/ambiental/expedientes/${expedienteId}/comunicaciones/${comId}/reactivar`);
+      expect(patch.status).toBe(200);
+
+      const get = await agent.get(`/api/ambiental/expedientes/${expedienteId}/comunicaciones`);
+      expect(get.body.some(c => c.id === comId)).toBe(true);
+    });
+
+    test('DELETE id inexistente → 404', async () => {
+      if (!expedienteId) return;
+      const res = await agent.delete(`/api/ambiental/expedientes/${expedienteId}/comunicaciones/00000000-0000-0000-0000-000000000000`);
+      expect(res.status).toBe(404);
+    });
+  });
+
   // ── Borrado lógico ────────────────────────────────────────────────────────
   describe('DELETE /expedientes/:id', () => {
     test('→ 200 y expediente no aparece en listado', async () => {
