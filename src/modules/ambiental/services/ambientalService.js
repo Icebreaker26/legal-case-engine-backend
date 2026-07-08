@@ -289,27 +289,18 @@ ${precedentesTexto}
 ════════════════════════════════════════════════════
 INSTRUCCIONES DE ANÁLISIS
 ════════════════════════════════════════════════════
-Realiza un análisis comparativo estructurado que incluya:
+Responde ÚNICAMENTE con un objeto JSON válido, sin texto adicional, sin markdown, sin bloques de código. El JSON debe seguir exactamente esta estructura:
 
-1. PATRONES IDENTIFICADOS
-   - ¿Qué tipo de incumplimientos o requerimientos se repiten entre el expediente actual y los precedentes?
-   - ¿Hay un patrón de comportamiento de esta entidad con la empresa?
-
-2. COMPARACIÓN DE RIESGO
-   - ¿El nivel de riesgo del expediente actual es coherente con los precedentes similares?
-   - ¿Hay algún precedente con mayor o menor riesgo que justifique revisar la clasificación actual?
-
-3. ARGUMENTOS QUE HAN FUNCIONADO
-   - Basándote en los precedentes que terminaron favorablemente (estado Cerrado o Revisado), ¿qué tipo de argumentos o acciones fueron más efectivos?
-   - ¿Algún precedente es especialmente relevante para el recurso o respuesta de este expediente?
-
-4. RECOMENDACIONES ESTRATÉGICAS
-   - ¿Qué acciones prioritarias recomiendas para el expediente actual, considerando el historial?
-   - ¿Hay riesgos específicos que los precedentes sugieren anticipar?
-
-5. DIFERENCIAS CLAVE
-   - ¿En qué aspectos el expediente actual difiere significativamente de los precedentes?
-   - ¿Esas diferencias cambian la estrategia recomendada?
-
-Responde en español, con estructura clara por secciones. Sé preciso y accionable.`;
+{
+  "patrones": "Descripción de incumplimientos o requerimientos que se repiten entre el expediente actual y los precedentes. Menciona si hay un patrón de comportamiento de la entidad.",
+  "comparacion_riesgo": "¿El nivel de riesgo actual es coherente con los precedentes? ¿Algún precedente justifica revisar la clasificación?",
+  "argumentos_efectivos": "Argumentos o acciones que funcionaron en precedentes con resultado favorable (Cerrado o Revisado). Indica cuál precedente es más relevante para el recurso o respuesta actual.",
+  "recomendaciones": [
+    "Acción prioritaria 1",
+    "Acción prioritaria 2"
+  ],
+  "diferencias_clave": "Aspectos en que el expediente actual difiere significativamente de los precedentes y si esas diferencias cambian la estrategia.",
+  "riesgo_sugerido": "Bajo|Medio|Alto|Crítico — nivel de riesgo recomendado para el expediente actual considerando los precedentes. Incluye solo el valor del enum, sin explicación.",
+  "precedente_mas_relevante": "Título o identificador del precedente más útil para la estrategia actual, o null si ninguno destaca."
+}`;
 };
