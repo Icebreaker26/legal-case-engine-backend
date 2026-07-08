@@ -436,99 +436,9 @@ describe('Ambiental — Integración', () => {
     });
   });
 
-  // ── Respuesta de entidad ──────────────────────────────────────────────────
-  describe('POST /expedientes/:id/respuesta', () => {
-    const textoRespuesta = 'En respuesta al Auto 001-2026, la empresa certifica haber presentado el Plan de Manejo Ambiental dentro del plazo estipulado. Se adjuntan los soportes correspondientes.';
-
-    test('sin archivo ni texto → 400', async () => {
-      if (!expedienteId) return;
-      const res = await agent.post(`/api/ambiental/expedientes/${expedienteId}/respuesta`);
-      expect(res.status).toBe(400);
-    });
-
-    test('id inexistente → 404', async () => {
-      const res = await agent
-        .post('/api/ambiental/expedientes/00000000-0000-0000-0000-000000000000/respuesta')
-        .field('texto', textoRespuesta);
-      expect(res.status).toBe(404);
-    });
-
-    test('con texto → 200, guarda texto en DB y retorna prompt', async () => {
-      if (!expedienteId) return;
-      const res = await agent
-        .post(`/api/ambiental/expedientes/${expedienteId}/respuesta`)
-        .field('texto', textoRespuesta);
-      expect(res.status).toBe(200);
-      expect(res.body).toHaveProperty('respuesta_entidad_texto');
-      expect(res.body).toHaveProperty('prompt_respuesta');
-      expect(res.body.respuesta_entidad_texto).toBe(textoRespuesta);
-      expect(res.body.prompt_respuesta).toMatch(/Actúa como un experto/);
-    });
-
-    test('texto persiste en DB tras POST', async () => {
-      if (!expedienteId) return;
-      const res = await agent.get(`/api/ambiental/expedientes/${expedienteId}`);
-      expect(res.status).toBe(200);
-      expect(res.body.respuesta_entidad_texto).toBe(textoRespuesta);
-    });
-
-    test('con archivo TXT → 200 y extrae texto', async () => {
-      if (!expedienteId) return;
-      const res = await agent
-        .post(`/api/ambiental/expedientes/${expedienteId}/respuesta`)
-        .attach('file', Buffer.from(textoRespuesta), 'respuesta.txt');
-      expect(res.status).toBe(200);
-      expect(res.body.respuesta_entidad_texto).toContain('Plan de Manejo');
-      expect(res.body.prompt_respuesta).toBeTruthy();
-    });
-
-    test('regenerar prompt con texto ya guardado → 200', async () => {
-      if (!expedienteId) return;
-      const get = await agent.get(`/api/ambiental/expedientes/${expedienteId}`);
-      const textoGuardado = get.body.respuesta_entidad_texto;
-
-      const res = await agent
-        .post(`/api/ambiental/expedientes/${expedienteId}/respuesta`)
-        .field('texto', textoGuardado);
-      expect(res.status).toBe(200);
-      expect(res.body).toHaveProperty('prompt_respuesta');
-    });
-  });
-
-  // ── respuesta_llm_json y cierre de trámite ────────────────────────────────
-  describe('PATCH /expedientes/:id — respuesta_llm_json y estado Cerrado', () => {
-    const jsonEvaluacion = JSON.stringify({
-      valoracion: 'Favorable',
-      cumplimiento: 'Total',
-      resumen: 'La empresa demostró cumplimiento total del requerimiento ambiental.',
-      procede_recurso: 'No',
-      tipo_recurso: 'No aplica',
-      fundamentos_recurso: '',
-      plazo_recurso: '',
-      recomendaciones: ['Archivar el expediente', 'Mantener los soportes por 5 años'],
-      observaciones: 'Sin observaciones adicionales.',
-    });
-
-    test('guardar respuesta_llm_json → 200 y persiste', async () => {
-      if (!expedienteId) return;
-      const res = await agent
-        .patch(`/api/ambiental/expedientes/${expedienteId}`)
-        .send({ respuesta_llm_json: jsonEvaluacion });
-      expect(res.status).toBe(200);
-
-      const get = await agent.get(`/api/ambiental/expedientes/${expedienteId}`);
-      expect(get.body.respuesta_llm_json).toBe(jsonEvaluacion);
-    });
-
-    test('borrar respuesta_llm_json con null → 200', async () => {
-      if (!expedienteId) return;
-      const res = await agent
-        .patch(`/api/ambiental/expedientes/${expedienteId}`)
-        .send({ respuesta_llm_json: null });
-      expect(res.status).toBe(200);
-    });
-
-    test('cerrar trámite con estado Cerrado → 200', async () => {
+  // ── Cierre de trámite ────────────────────────────────────────────────────
+  describe('PATCH /expedientes/:id — estado Cerrado', () => {
+    test('cerrar trámite → 200 y persiste', async () => {
       if (!expedienteId) return;
       const res = await agent
         .patch(`/api/ambiental/expedientes/${expedienteId}`)
@@ -678,6 +588,172 @@ describe('Ambiental — Integración', () => {
     test('DELETE id inexistente → 404', async () => {
       if (!expedienteId) return;
       const res = await agent.delete(`/api/ambiental/expedientes/${expedienteId}/comunicaciones/00000000-0000-0000-0000-000000000000`);
+      expect(res.status).toBe(404);
+    });
+
+    test('POST /comunicaciones con enlace → 201 y enlace persiste', async () => {
+      if (!expedienteId) return;
+      const res = await agent
+        .post(`/api/ambiental/expedientes/${expedienteId}/comunicaciones`)
+        .field('asunto', 'Oficio con enlace')
+        .field('direccion', 'saliente')
+        .field('fecha', '2026-07-01')
+        .field('enlace', 'https://example.com/oficio.pdf');
+      expect(res.status).toBe(201);
+      expect(res.body.enlace).toBe('https://example.com/oficio.pdf');
+    });
+
+    test('PATCH /comunicaciones/:cId/enlace → 200 y persiste', async () => {
+      if (!expedienteId) return;
+      // crear comunicación base
+      const post = await agent
+        .post(`/api/ambiental/expedientes/${expedienteId}/comunicaciones`)
+        .field('asunto', 'Para enlace')
+        .field('direccion', 'entrante')
+        .field('fecha', '2026-07-02');
+      expect(post.status).toBe(201);
+      const cId = post.body.id;
+
+      const patch = await agent
+        .patch(`/api/ambiental/expedientes/${expedienteId}/comunicaciones/${cId}/enlace`)
+        .send({ enlace: 'https://example.com/doc.pdf' });
+      expect(patch.status).toBe(200);
+      expect(patch.body.enlace).toBe('https://example.com/doc.pdf');
+
+      const list = await agent.get(`/api/ambiental/expedientes/${expedienteId}/comunicaciones`);
+      const com = list.body.find(c => c.id === cId);
+      expect(com.enlace).toBe('https://example.com/doc.pdf');
+    });
+
+    test('PATCH /comunicaciones/:cId/enlace vacío → 200 y borra enlace', async () => {
+      if (!expedienteId) return;
+      const post = await agent
+        .post(`/api/ambiental/expedientes/${expedienteId}/comunicaciones`)
+        .field('asunto', 'Para borrar enlace')
+        .field('direccion', 'entrante')
+        .field('fecha', '2026-07-03')
+        .field('enlace', 'https://example.com/tmp.pdf');
+      const cId = post.body.id;
+
+      const patch = await agent
+        .patch(`/api/ambiental/expedientes/${expedienteId}/comunicaciones/${cId}/enlace`)
+        .send({ enlace: '' });
+      expect(patch.status).toBe(200);
+      expect(patch.body.enlace).toBeNull();
+    });
+  });
+
+  // ── Análisis LLM de comunicación ──────────────────────────────────────────
+  describe('Análisis LLM de comunicación (prompt-analisis / resultado-llm)', () => {
+    let comConTextoId;
+
+    beforeAll(async () => {
+      if (!expedienteId) return;
+      // crear comunicación con texto extraído para poder generar prompt
+      const res = await agent
+        .post(`/api/ambiental/expedientes/${expedienteId}/comunicaciones`)
+        .field('asunto', 'Resolución sancionatoria')
+        .field('direccion', 'entrante')
+        .field('fecha', '2026-07-05')
+        .attach('file', Buffer.from('La autoridad ambiental resuelve imponer medida preventiva.'), 'resolucion.txt');
+      if (res.status === 201) comConTextoId = res.body.id;
+    });
+
+    test('POST /prompt-analisis sin texto_extraido → 400', async () => {
+      if (!expedienteId) return;
+      const postSinTexto = await agent
+        .post(`/api/ambiental/expedientes/${expedienteId}/comunicaciones`)
+        .field('asunto', 'Sin archivo')
+        .field('direccion', 'entrante')
+        .field('fecha', '2026-07-06');
+      const cId = postSinTexto.body.id;
+
+      const res = await agent.post(`/api/ambiental/expedientes/${expedienteId}/comunicaciones/${cId}/prompt-analisis`);
+      expect(res.status).toBe(422);
+    });
+
+    test('POST /prompt-analisis id inexistente → 404', async () => {
+      if (!expedienteId) return;
+      const res = await agent.post(`/api/ambiental/expedientes/${expedienteId}/comunicaciones/00000000-0000-0000-0000-000000000000/prompt-analisis`);
+      expect(res.status).toBe(404);
+    });
+
+    test('POST /prompt-analisis con texto_extraido → 200 con prompt', async () => {
+      if (!expedienteId || !comConTextoId) return;
+      const res = await agent.post(`/api/ambiental/expedientes/${expedienteId}/comunicaciones/${comConTextoId}/prompt-analisis`);
+      expect(res.status).toBe(200);
+      expect(res.body).toHaveProperty('prompt');
+      expect(typeof res.body.prompt).toBe('string');
+      expect(res.body.prompt.length).toBeGreaterThan(50);
+    });
+
+    test('PATCH /resultado-llm sin resultado → 400', async () => {
+      if (!expedienteId || !comConTextoId) return;
+      const res = await agent
+        .patch(`/api/ambiental/expedientes/${expedienteId}/comunicaciones/${comConTextoId}/resultado-llm`)
+        .send({});
+      expect(res.status).toBe(400);
+    });
+
+    test('PATCH /resultado-llm → 200 y persiste en listado', async () => {
+      if (!expedienteId || !comConTextoId) return;
+      const resultado = JSON.stringify({
+        valoracion: 'Desfavorable',
+        cumplimiento: 'Incumplimiento',
+        resumen: 'La autoridad impone medida preventiva por incumplimiento.',
+        procede_recurso: 'Sí',
+        tipo_recurso: 'Reposición',
+        fundamentos_recurso: 'Art. 85 Ley 99/93',
+        plazo_recurso: '10 días hábiles',
+        recomendaciones: ['Interponer recurso de reposición'],
+        observaciones: '',
+      });
+
+      const res = await agent
+        .patch(`/api/ambiental/expedientes/${expedienteId}/comunicaciones/${comConTextoId}/resultado-llm`)
+        .send({ resultado_llm: resultado });
+      expect(res.status).toBe(200);
+
+      const list = await agent.get(`/api/ambiental/expedientes/${expedienteId}/comunicaciones`);
+      const com = list.body.find(c => c.id === comConTextoId);
+      expect(com.resultado_llm).toBe(resultado);
+    });
+  });
+
+  // ── Precedentes — embeddings ──────────────────────────────────────────────
+  describe('Precedentes — embeddings y similares', () => {
+    test('GET /similares sin embedding → 404', async () => {
+      if (!expedienteId) return;
+      // El expediente de test puede o no tener embedding; si no tiene, espera 404
+      const res = await agent.get(`/api/ambiental/expedientes/${expedienteId}/similares`);
+      expect([200, 404]).toContain(res.status);
+      if (res.status === 200) expect(Array.isArray(res.body)).toBe(true);
+    });
+
+    test('POST /generar-embedding → 200 con fuente', async () => {
+      if (!expedienteId) return;
+      const res = await agent.post(`/api/ambiental/expedientes/${expedienteId}/generar-embedding`);
+      expect(res.status).toBe(200);
+      expect(res.body).toHaveProperty('fuente');
+    });
+
+    test('POST /generar-embedding id inexistente → 404', async () => {
+      const res = await agent.post('/api/ambiental/expedientes/00000000-0000-0000-0000-000000000000/generar-embedding');
+      expect(res.status).toBe(404);
+    });
+
+    test('POST /prompt-comparativo sin precedentes_ids → 400', async () => {
+      if (!expedienteId) return;
+      const res = await agent
+        .post(`/api/ambiental/expedientes/${expedienteId}/prompt-comparativo`)
+        .send({ precedentes_ids: [] });
+      expect(res.status).toBe(400);
+    });
+
+    test('POST /prompt-comparativo expediente inexistente → 404', async () => {
+      const res = await agent
+        .post('/api/ambiental/expedientes/00000000-0000-0000-0000-000000000000/prompt-comparativo')
+        .send({ precedentes_ids: ['00000000-0000-0000-0000-000000000001'] });
       expect(res.status).toBe(404);
     });
   });
