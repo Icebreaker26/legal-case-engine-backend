@@ -82,7 +82,7 @@ export const listarExpedientes = async (req, res) => {
     const { rows } = await pool.query(
       `SELECT DISTINCT ON (e.id) e.*, ent.nombre AS entidad_nombre, g.nombre AS grupo_nombre,
               p.nombre AS proyecto_nombre, u.nombre AS responsable_nombre,
-              a.nivel_riesgo, a.id AS analisis_id
+              a.nivel_riesgo, a.id AS analisis_id, a.resumen AS resumen_analisis
        FROM expedientes_ambientales e
        LEFT JOIN global_entidades ent ON ent.id = e.entidad_id
        LEFT JOIN global_grupos g ON g.id = e.grupo_id
