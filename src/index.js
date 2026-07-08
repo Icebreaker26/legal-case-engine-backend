@@ -25,7 +25,8 @@ app.use(cors({
 
 // Middlewares
 app.use(requestIdMiddleware);
-app.use(express.json());
+app.use(express.json({ limit: 52428800 }));        // 50 MB en bytes
+app.use(express.urlencoded({ extended: true, limit: 52428800 }));
 app.use(cookieParser());
 
 // Documentación
