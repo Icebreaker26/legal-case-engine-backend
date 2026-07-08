@@ -22,7 +22,11 @@ import {
   obtenerCalendario,
   obtenerDashboard,
   procesarRespuestaEntidad,
-  subirRespuestaRecurso,
+  listarComunicaciones,
+  crearComunicacion,
+  eliminarComunicacion,
+  listarComunicacionesInactivas,
+  reactivarComunicacion,
 } from '../controllers/ambientalController.js';
 
 const router = Router();
@@ -46,7 +50,11 @@ router.patch('/expedientes/:id/pagos/:pagoId/reactivar', authenticateToken, chec
 router.get('/expedientes/:id/analisis',           authenticateToken, checkPermission('ambiental', 'READ'),  obtenerAnalisis);
 router.get('/expedientes/:id/informe',   authenticateToken, checkPermission('ambiental', 'READ'),  obtenerDatosInforme);
 router.post('/expedientes/:id/respuesta', authenticateToken, checkPermission('ambiental', 'WRITE'), upload.single('file'), procesarRespuestaEntidad);
-router.post('/expedientes/:id/recurso/respuesta-pdf', authenticateToken, checkPermission('ambiental', 'WRITE'), upload.single('file'), subirRespuestaRecurso);
+router.get('/expedientes/:id/comunicaciones',                        authenticateToken, checkPermission('ambiental', 'READ'),   listarComunicaciones);
+router.get('/expedientes/:id/comunicaciones/inactivas',              authenticateToken, checkPermission('ambiental', 'READ'),   listarComunicacionesInactivas);
+router.post('/expedientes/:id/comunicaciones',                       authenticateToken, checkPermission('ambiental', 'WRITE'),  upload.single('file'), crearComunicacion);
+router.delete('/expedientes/:id/comunicaciones/:cId',                authenticateToken, checkPermission('ambiental', 'DELETE'), eliminarComunicacion);
+router.patch('/expedientes/:id/comunicaciones/:cId/reactivar',       authenticateToken, checkPermission('ambiental', 'WRITE'),  reactivarComunicacion);
 router.get('/calendario',                authenticateToken, checkPermission('ambiental', 'READ'),  obtenerCalendario);
 router.get('/dashboard',                 authenticateToken, checkPermission('ambiental', 'READ'),  obtenerDashboard);
 

@@ -680,26 +680,117 @@ export const procesarRespuestaEntidad = async (req, res) => {
   }
 };
 
-// POST /expedientes/:id/recurso/respuesta-pdf
-// Recibe el PDF de la respuesta que el equipo envió al interponer el recurso,
-// extrae el texto y lo guarda. No reemplaza el borrador generado por IA.
-export const subirRespuestaRecurso = async (req, res) => {
+// ── Comunicaciones del expediente ─────────────────────────────────────────────
+
+// GET /expedientes/:id/comunicaciones
+export const listarComunicaciones = async (req, res) => {
   const { id } = req.params;
   try {
-    if (!req.file) return res.status(400).json({ error: 'Se requiere un archivo PDF o Word.' });
+    const { rows } = await pool.query(
+      `SELECT c.id, c.direccion, c.asunto, c.fecha, c.descripcion,
+              c.texto_extraido, c.nombre_archivo, c.created_at,
+              u.nombre AS creado_por_nombre
+         FROM comunicaciones_expediente c
+         LEFT JOIN global_usuarios u ON u.id = c.creado_por
+        WHERE c.expediente_id = $1 AND c.is_active = true
+        ORDER BY c.fecha ASC, c.created_at ASC`,
+      [id]
+    );
+    res.json(rows);
+  } catch (error) {
+    logger.error('listarComunicaciones error', { error: error.message });
+    res.status(500).json({ error: 'Error al listar comunicaciones.' });
+  }
+};
 
-    const texto = await extractTextFromFile(req.file.buffer, req.file.mimetype);
-    if (!texto?.trim()) return res.status(400).json({ error: 'No se pudo extraer texto del archivo.' });
+// POST /expedientes/:id/comunicaciones
+export const crearComunicacion = async (req, res) => {
+  const { id } = req.params;
+  const { direccion, asunto, fecha, descripcion } = req.body;
 
-    await pool.query(
-      'UPDATE expedientes_ambientales SET respuesta_recurso_texto = $1, updated_at = NOW() WHERE id = $2',
-      [texto, id]
+  if (!['entrante', 'saliente'].includes(direccion))
+    return res.status(400).json({ error: 'dirección debe ser entrante o saliente.' });
+  if (!asunto?.trim()) return res.status(400).json({ error: 'El asunto es obligatorio.' });
+  if (!fecha) return res.status(400).json({ error: 'La fecha es obligatoria.' });
+
+  try {
+    let texto_extraido = null;
+    let nombre_archivo = null;
+
+    if (req.file) {
+      texto_extraido = await extractTextFromFile(req.file.buffer, req.file.mimetype);
+      nombre_archivo = req.file.originalname;
+    }
+
+    const { rows } = await pool.query(
+      `INSERT INTO comunicaciones_expediente
+         (expediente_id, direccion, asunto, fecha, descripcion, texto_extraido, nombre_archivo, creado_por)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+       RETURNING id, direccion, asunto, fecha, descripcion, texto_extraido, nombre_archivo, created_at`,
+      [id, direccion, asunto.trim(), fecha, descripcion?.trim() || null,
+       texto_extraido, nombre_archivo, req.user.id]
     );
 
-    await registrarLog(req.user.id, 'SUBIR_RESPUESTA_RECURSO', 'ambiental', id, req);
-    res.json({ respuesta_recurso_texto: texto });
+    await registrarLog(req.user.id, 'CREAR_COMUNICACION', 'ambiental', id, req, { asunto, direccion });
+    res.status(201).json(rows[0]);
   } catch (error) {
-    logger.error('subirRespuestaRecurso error', { error: error.message });
-    res.status(500).json({ error: 'Error al procesar el archivo.' });
+    logger.error('crearComunicacion error', { error: error.message });
+    res.status(500).json({ error: 'Error al guardar la comunicación.' });
+  }
+};
+
+// DELETE /expedientes/:id/comunicaciones/:cId
+export const eliminarComunicacion = async (req, res) => {
+  const { id, cId } = req.params;
+  try {
+    const { rowCount } = await pool.query(
+      `UPDATE comunicaciones_expediente SET is_active = false
+        WHERE id = $1 AND expediente_id = $2`,
+      [cId, id]
+    );
+    if (rowCount === 0) return res.status(404).json({ error: 'Comunicación no encontrada.' });
+    await registrarLog(req.user.id, 'ELIMINAR_COMUNICACION', 'ambiental', id, req, { cId });
+    res.json({ mensaje: 'Comunicación eliminada.' });
+  } catch (error) {
+    logger.error('eliminarComunicacion error', { error: error.message });
+    res.status(500).json({ error: 'Error al eliminar la comunicación.' });
+  }
+};
+
+// GET /expedientes/:id/comunicaciones/inactivas
+export const listarComunicacionesInactivas = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const { rows } = await pool.query(
+      `SELECT c.id, c.direccion, c.asunto, c.fecha, c.descripcion, c.nombre_archivo, c.created_at,
+              u.nombre AS creado_por_nombre
+         FROM comunicaciones_expediente c
+         LEFT JOIN global_usuarios u ON u.id = c.creado_por
+        WHERE c.expediente_id = $1 AND c.is_active = false
+        ORDER BY c.fecha ASC`,
+      [id]
+    );
+    res.json(rows);
+  } catch (error) {
+    logger.error('listarComunicacionesInactivas error', { error: error.message });
+    res.status(500).json({ error: 'Error al listar comunicaciones eliminadas.' });
+  }
+};
+
+// PATCH /expedientes/:id/comunicaciones/:cId/reactivar
+export const reactivarComunicacion = async (req, res) => {
+  const { id, cId } = req.params;
+  try {
+    const { rowCount } = await pool.query(
+      `UPDATE comunicaciones_expediente SET is_active = true
+        WHERE id = $1 AND expediente_id = $2`,
+      [cId, id]
+    );
+    if (rowCount === 0) return res.status(404).json({ error: 'Comunicación no encontrada.' });
+    await registrarLog(req.user.id, 'REACTIVAR_COMUNICACION', 'ambiental', id, req, { cId });
+    res.json({ mensaje: 'Comunicación restaurada.' });
+  } catch (error) {
+    logger.error('reactivarComunicacion error', { error: error.message });
+    res.status(500).json({ error: 'Error al restaurar la comunicación.' });
   }
 };
