@@ -36,6 +36,7 @@
     "jsonwebtoken": "^9.0.3",
     "mammoth": "^1.12.0",
     "ml-kmeans": "^7.0.1",
+    "ml-pca": "^4.1.1",
     "multer": "^2.2.0",
     "node-cron": "^4.4.1",
     "node-pg-migrate": "^8.0.4",

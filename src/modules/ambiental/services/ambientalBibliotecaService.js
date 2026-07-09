@@ -1,6 +1,7 @@
 import pool from '../../../db/database.js';
 import logger from '../../../utils/logger.js';
 import { kmeans } from 'ml-kmeans';
+import { PCA } from 'ml-pca';
 
 const MIN_EMBEDDINGS = 3;
 
@@ -176,6 +177,27 @@ export const recalcularClusters = async () => {
     };
   });
 
+  // PCA 2D — proyección de todos los puntos
+  const pca = new PCA(vectores);
+  const coords2D = pca.predict(vectores, { nComponents: 2 }).to2DArray();
+
+  // Normalizar a [0, 1] para facilitar el render en el frontend
+  const xs = coords2D.map(p => p[0]);
+  const ys = coords2D.map(p => p[1]);
+  const xMin = Math.min(...xs), xMax = Math.max(...xs);
+  const yMin = Math.min(...ys), yMax = Math.max(...ys);
+  const norm = (v, min, max) => max === min ? 0.5 : (v - min) / (max - min);
+
+  const puntos2D = puntos.map((p, i) => ({
+    expediente_id:   p.id,
+    titulo:          p.titulo,
+    tipo_instrumento: p.tipo_instrumento,
+    nivel_riesgo:    p.nivel_riesgo,
+    cluster_index:   result.clusters[i],
+    x:               norm(coords2D[i][0], xMin, xMax),
+    y:               norm(coords2D[i][1], yMin, yMax),
+  }));
+
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
@@ -190,6 +212,15 @@ export const recalcularClusters = async () => {
          c.tipo_instrumento, c.nivel_riesgo, c.miembros_count,
          JSON.stringify(c.tipo_distribucion), JSON.stringify(c.riesgo_distribucion),
          c.expediente_ids]
+      );
+    }
+    await client.query('DELETE FROM biblioteca_puntos');
+    for (const p of puntos2D) {
+      await client.query(
+        `INSERT INTO biblioteca_puntos
+           (expediente_id, titulo, tipo_instrumento, nivel_riesgo, cluster_index, x, y)
+         VALUES ($1,$2,$3,$4,$5,$6,$7)`,
+        [p.expediente_id, p.titulo, p.tipo_instrumento, p.nivel_riesgo, p.cluster_index, p.x, p.y]
       );
     }
     await client.query(
@@ -230,4 +261,13 @@ export const restaurarTermino = async (word) => {
     [word.toLowerCase().trim()]
   );
   if (!rowCount) throw Object.assign(new Error('Término no encontrado en la lista de ignorados'), { status: 404 });
+};
+
+export const obtenerProyeccion = async () => {
+  const { rows } = await pool.query(
+    `SELECT expediente_id, titulo, tipo_instrumento, nivel_riesgo, cluster_index, x, y
+     FROM biblioteca_puntos
+     ORDER BY cluster_index, id`
+  );
+  return rows;
 };
