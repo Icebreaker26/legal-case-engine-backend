@@ -96,11 +96,14 @@ export const obtenerClusters = async () => {
   const embActuales = parseInt(embCount.rows[0].total);
   const embEnComputo = meta.rows[0]?.embeddings_count_at_compute || 0;
 
+  const { rows: puntosCount } = await pool.query('SELECT COUNT(*) AS total FROM biblioteca_puntos');
+  const sinProyeccion = parseInt(puntosCount[0].total) === 0 && clusters.rows.length > 0;
+
   return {
     clusters: clusters.rows,
     meta: meta.rows[0] || null,
     embeddings_actuales: embActuales,
-    needs_recalculate: clusters.rows.length === 0 || (embActuales - embEnComputo) >= 10,
+    needs_recalculate: clusters.rows.length === 0 || sinProyeccion || (embActuales - embEnComputo) >= 10,
   };
 };
 
