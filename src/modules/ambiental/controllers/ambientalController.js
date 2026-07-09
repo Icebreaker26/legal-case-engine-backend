@@ -977,3 +977,11 @@ export const obtenerBibliotecaProyeccion = async (req, res, next) => {
     res.json(data);
   } catch (err) { next(err); }
 };
+
+export const obtenerNormasRecurrentes = async (req, res, next) => {
+  try {
+    const { tipo_instrumento } = req.query;
+    const data = await bibliotecaService.obtenerNormasRecurrentes({ tipo_instrumento });
+    res.json(data);
+  } catch (err) { next(err); }
+};

@@ -39,6 +39,7 @@ import {
   ignorarTermino,
   restaurarTermino,
   obtenerBibliotecaProyeccion,
+  obtenerNormasRecurrentes,
 } from '../controllers/ambientalController.js';
 
 const router = Router();
@@ -81,5 +82,6 @@ router.get('/biblioteca/proyeccion',            authenticateToken, checkPermissi
 router.get('/biblioteca/terminos-ignorados',    authenticateToken, checkPermission('ambiental', 'READ'),   listarTerminosIgnorados);
 router.post('/biblioteca/terminos-ignorados',   authenticateToken, checkPermission('ambiental', 'WRITE'),  ignorarTermino);
 router.delete('/biblioteca/terminos-ignorados/:word', authenticateToken, checkPermission('ambiental', 'WRITE'), restaurarTermino);
+router.get('/biblioteca/normas',                      authenticateToken, checkPermission('ambiental', 'READ'),  obtenerNormasRecurrentes);
 
 export default router;

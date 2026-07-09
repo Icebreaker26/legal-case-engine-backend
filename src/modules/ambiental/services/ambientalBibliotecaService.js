@@ -266,6 +266,63 @@ export const restaurarTermino = async (word) => {
   if (!rowCount) throw Object.assign(new Error('Término no encontrado en la lista de ignorados'), { status: 404 });
 };
 
+export const obtenerNormasRecurrentes = async ({ tipo_instrumento } = {}) => {
+  const values = [];
+  const filtroTipo = tipo_instrumento
+    ? `AND e.tipo_instrumento = $${values.push(tipo_instrumento)}`
+    : '';
+
+  const { rows } = await pool.query(`
+    SELECT
+      n.instrumento,
+      n.articulo,
+      COUNT(*)                                                   AS frecuencia,
+      COUNT(*) FILTER (WHERE a.nivel_riesgo = 'alto')            AS riesgo_alto,
+      COUNT(*) FILTER (WHERE a.nivel_riesgo = 'medio')           AS riesgo_medio,
+      COUNT(*) FILTER (WHERE a.nivel_riesgo = 'bajo')            AS riesgo_bajo,
+      array_agg(DISTINCT e.tipo_instrumento)
+        FILTER (WHERE e.tipo_instrumento IS NOT NULL)            AS tipos_instrumento,
+      mode() WITHIN GROUP (ORDER BY n.descripcion)
+        FILTER (WHERE n.descripcion IS NOT NULL AND n.descripcion <> '') AS descripcion
+    FROM normas_citadas_ambiental n
+    JOIN analisis_ambiental aa ON aa.id = n.analisis_id
+    JOIN expedientes_ambientales e ON e.id = aa.expediente_id
+    LEFT JOIN LATERAL (
+      SELECT nivel_riesgo FROM analisis_ambiental
+      WHERE expediente_id = e.id ORDER BY created_at DESC LIMIT 1
+    ) a ON true
+    WHERE e.is_active = true
+      AND n.instrumento IS NOT NULL
+      ${filtroTipo}
+    GROUP BY n.instrumento, n.articulo
+    ORDER BY frecuencia DESC, n.instrumento
+    LIMIT 60
+  `, values);
+
+  // Agrupar por instrumento para el frontend
+  const porInstrumento = {};
+  for (const row of rows) {
+    if (!porInstrumento[row.instrumento]) {
+      porInstrumento[row.instrumento] = { instrumento: row.instrumento, articulos: [], total: 0 };
+    }
+    const g = porInstrumento[row.instrumento];
+    g.total += parseInt(row.frecuencia);
+    if (row.articulo) {
+      g.articulos.push({
+        articulo:          row.articulo,
+        descripcion:       row.descripcion || null,
+        frecuencia:        parseInt(row.frecuencia),
+        riesgo_alto:       parseInt(row.riesgo_alto  || 0),
+        riesgo_medio:      parseInt(row.riesgo_medio || 0),
+        riesgo_bajo:       parseInt(row.riesgo_bajo  || 0),
+        tipos_instrumento: row.tipos_instrumento || [],
+      });
+    }
+  }
+
+  return Object.values(porInstrumento).sort((a, b) => b.total - a.total);
+};
+
 export const obtenerProyeccion = async () => {
   const { rows } = await pool.query(
     `SELECT expediente_id, titulo, tipo_instrumento, nivel_riesgo, cluster_index, x, y
