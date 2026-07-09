@@ -53,6 +53,7 @@ export const obtenerEstadisticas = async () => {
       )
       WHERE length(word) > 4
         AND word NOT IN ('como','para','este','esta','estos','estas','cuando','donde','desde','hasta','sobre','entre','tiene','tener','debe','siendo','dicha','dicho','dichos','dichas')
+        AND word NOT IN (SELECT word FROM biblioteca_terminos_ignorados)
       ORDER BY ndoc DESC, nentry DESC
       LIMIT 24
     `),
@@ -207,4 +208,26 @@ export const recalcularClusters = async () => {
 
   logger.info('biblioteca clusters recalculados', { clusters: clusterRows.length, expedientes: n });
   return { clusters: clusterRows.length, expedientes: n };
+};
+
+export const listarTerminosIgnorados = async () => {
+  const { rows } = await pool.query(
+    `SELECT word, created_at FROM biblioteca_terminos_ignorados ORDER BY created_at DESC`
+  );
+  return rows;
+};
+
+export const ignorarTermino = async (word, usuarioId) => {
+  await pool.query(
+    `INSERT INTO biblioteca_terminos_ignorados (word, ignorado_por) VALUES ($1, $2) ON CONFLICT DO NOTHING`,
+    [word.toLowerCase().trim(), usuarioId]
+  );
+};
+
+export const restaurarTermino = async (word) => {
+  const { rowCount } = await pool.query(
+    `DELETE FROM biblioteca_terminos_ignorados WHERE word = $1`,
+    [word.toLowerCase().trim()]
+  );
+  if (!rowCount) throw Object.assign(new Error('Término no encontrado en la lista de ignorados'), { status: 404 });
 };

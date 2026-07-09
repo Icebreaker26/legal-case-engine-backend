@@ -947,3 +947,26 @@ export const recalcularBibliotecaClusters = async (req, res, next) => {
     res.json(result);
   } catch (err) { next(err); }
 };
+
+export const listarTerminosIgnorados = async (req, res, next) => {
+  try {
+    const data = await bibliotecaService.listarTerminosIgnorados();
+    res.json(data);
+  } catch (err) { next(err); }
+};
+
+export const ignorarTermino = async (req, res, next) => {
+  try {
+    const { word } = req.body;
+    if (!word?.trim()) return res.status(400).json({ error: 'El campo word es obligatorio.' });
+    await bibliotecaService.ignorarTermino(word, req.user.id);
+    res.status(201).json({ word: word.toLowerCase().trim() });
+  } catch (err) { next(err); }
+};
+
+export const restaurarTermino = async (req, res, next) => {
+  try {
+    await bibliotecaService.restaurarTermino(req.params.word);
+    res.json({ ok: true });
+  } catch (err) { next(err); }
+};
