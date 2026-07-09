@@ -131,6 +131,18 @@ Gestión del ciclo de vida de expedientes de derecho ambiental en Enel Colombia.
 | `GET` | `/calendario` | READ | Expedientes y pagos con fechas de vencimiento |
 | `GET` | `/dashboard` | READ | KPIs, distribuciones por tipo/estado/riesgo, top entidades, próximos vencimientos |
 
+### Biblioteca de Conocimiento
+
+| Método | Ruta | Auth | Propósito |
+|---|---|---|---|
+| `GET` | `/biblioteca/estadisticas` | READ | KPIs globales, distribución por tipo de instrumento, top entidades, top términos (`ts_stat`) excluyendo términos ignorados |
+| `GET` | `/biblioteca/clusters` | READ | Clusters semánticos cacheados + `needs_recalculate` + `embeddings_actuales` |
+| `POST` | `/biblioteca/recalcular` | WRITE | Corre k-means + PCA; guarda en `biblioteca_clusters` y `biblioteca_puntos`. 422 si hay < 3 embeddings. |
+| `GET` | `/biblioteca/proyeccion` | READ | Coordenadas PCA 2D de todos los expedientes vectorizados |
+| `GET` | `/biblioteca/terminos-ignorados` | READ | Lista de términos excluidos de la nube de palabras |
+| `POST` | `/biblioteca/terminos-ignorados` | WRITE | Body `{ word }`. Agrega término a la lista de ignorados. |
+| `DELETE` | `/biblioteca/terminos-ignorados/:word` | WRITE | Restaura un término ignorado. 404 si no existe. |
+
 ---
 
 ## Flujo LLM — análisis del instrumento
@@ -223,6 +235,10 @@ Todas en `tutelas_backend/migrations/`, prefijo timestamp:
 | `1784800000000` | `resultado_llm`, `prompt_generado` en `comunicaciones_expediente` |
 | `1784900000000` | Migra datos de `respuesta_entidad_texto` → `comunicaciones_expediente`; dropea columnas obsoletas |
 | `1785000000000` | `enlace TEXT` en `comunicaciones_expediente` |
+| `1785100000000` | `search_vector tsvector` en `expedientes_ambientales` + índice GIN + trigger auto-update |
+| `1785200000000` | Tablas `biblioteca_clusters` y `biblioteca_meta` |
+| `1785300000000` | Tabla `biblioteca_terminos_ignorados` |
+| `1785400000000` | Tabla `biblioteca_puntos` (coordenadas PCA 2D) |
 
 ---
 
@@ -253,6 +269,75 @@ Todas en `tutelas_backend/migrations/`, prefijo timestamp:
 
 ---
 
+## Búsqueda híbrida (vector + full-text)
+
+`ambientalEmbeddingService.js` — `buscarSimilares(expedienteId, limite)`:
+
+- **Hybrid search con Reciprocal Rank Fusion (RRF)**: combina ranking vectorial (`pgvector cosine`) y full-text (`tsvector / plainto_tsquery('spanish')`).
+- Fórmula: `1/(60 + rank_vector) + 1/(60 + rank_fulltext)` con `k = 60`, `CANDIDATOS = 20`.
+- La columna `search_vector` se mantiene actualizada por un trigger `BEFORE INSERT OR UPDATE`.
+- **Fallback**: si el expediente no tiene texto útil para full-text, cae a búsqueda vectorial pura.
+- Retorna: `id, titulo, numero_expediente, tipo_instrumento, estado, entidad_nombre, nivel_riesgo, resumen, similitud, rrf_score`.
+
+---
+
+## Biblioteca de Conocimiento
+
+`ambientalBibliotecaService.js` — pipeline que corre al presionar "Actualizar conocimiento":
+
+### Estadísticas (`obtenerEstadisticas`)
+- Distribución por `tipo_instrumento`: total, riesgo A/M/B, días promedio, casos cerrados.
+- Top 8 entidades con desglose de riesgo.
+- Top 24 términos de `ts_stat` (excluye stopwords hardcodeados + lista `biblioteca_terminos_ignorados`).
+- KPIs: total expedientes, con análisis, con embedding.
+
+### Clustering semántico (`recalcularClusters`)
+1. Carga todos los embeddings activos de `embeddings_ambiental`.
+2. K-means con `ml-kmeans` — K auto-seleccionado: `n<6→2`, `n<15→3`, `n<30→5`, else `7`.
+3. Por cada cluster: **medoid** (expediente más cercano al centroide), distribución de tipos y riesgos.
+4. PCA 2D con `ml-pca` sobre los mismos vectores — coordenadas normalizadas a `[0,1]`.
+5. Guarda en `biblioteca_clusters` (clusters) y `biblioteca_puntos` (scatter plot).
+
+### `needs_recalculate = true` cuando:
+- No hay clusters aún.
+- `biblioteca_puntos` está vacío pero hay clusters (post-deploy con nueva migración).
+- Hay ≥ 10 embeddings nuevos desde el último cómputo.
+
+### Términos ignorados
+- `biblioteca_terminos_ignorados` — PRIMARY KEY `word`.
+- Al ignorar un término desde la UI, desaparece de la nube sin necesidad de recalcular.
+- Restaurable vía `DELETE /biblioteca/terminos-ignorados/:word`.
+
+---
+
+## Tests
+
+`tests/integration/ambiental.test.js` — **74 tests** (todos en verde, 2026-07-09)
+
+| Suite | Tests |
+|---|---|
+| Autenticación | 2 |
+| GET /expedientes | 3 |
+| POST /expedientes — validación Zod | 3 |
+| GET /expedientes/:id | 2 |
+| PATCH /expedientes/:id | 3 |
+| POST /expedientes/procesar | 2 |
+| POST /analisis — guardar LLM | 6 |
+| GET /analisis | 4 |
+| GET /informe | 1 |
+| PATCH — recurso y fecha_documento | 5 |
+| PATCH — estado Cerrado | 3 |
+| PATCH — enlace_pdf | 3 |
+| POST — tipo 'otros' | 1 |
+| Comunicaciones CRUD + restore | 7 |
+| Comunicaciones — enlace | 3 |
+| Análisis LLM de comunicación | 5 |
+| Precedentes — embeddings | 8 |
+| Biblioteca de Conocimiento | 8 |
+| DELETE /expedientes | 2 |
+
+---
+
 ## Trampas conocidas
 
 - `listarExpedientes` usa `DISTINCT ON (e.id)` — sin esto el JOIN con `analisis_ambiental` duplica filas.
@@ -262,3 +347,6 @@ Todas en `tutelas_backend/migrations/`, prefijo timestamp:
 - `@xenova/transformers` carga el modelo en el primer uso (~2-3 s). Los embeddings se generan con `setImmediate()` para no bloquear la respuesta HTTP.
 - `generarPromptAnalisisComunicacion` retorna **422** (no 400) cuando la comunicación no tiene `texto_extraido`.
 - En Railway: `.npmrc` requiere `sharp_ignore_global_libvips=true` para evitar timeout en la descarga de libvips (dependencia transitiva de `@xenova/transformers`).
+- `recalcularClusters` lanza error con `{ status: 422 }` cuando hay < 3 embeddings. El `errorHandler` lee `err.status` para propagar el código correcto (fix aplicado: `const status = err.status || err.statusCode || 500`).
+- Tras un deploy que agrega `biblioteca_puntos`, `needs_recalculate` fuerza el botón "Actualizar" hasta que el usuario recalcule una vez (detecta `COUNT(biblioteca_puntos) === 0 && clusters > 0`).
+- El embedding de pgvector se recupera como string `[v1,v2,...]` — es JSON válido, usar `JSON.parse(r.embedding)` para convertir a array antes de pasar a `ml-kmeans`/`ml-pca`.
