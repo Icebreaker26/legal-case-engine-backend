@@ -38,6 +38,7 @@ import {
   listarTerminosIgnorados,
   ignorarTermino,
   restaurarTermino,
+  obtenerBibliotecaProyeccion,
 } from '../controllers/ambientalController.js';
 
 const router = Router();
@@ -76,6 +77,7 @@ router.get('/dashboard',   authenticateToken, checkPermission('ambiental', 'READ
 router.get('/biblioteca/estadisticas',          authenticateToken, checkPermission('ambiental', 'READ'),   obtenerBibliotecaEstadisticas);
 router.get('/biblioteca/clusters',              authenticateToken, checkPermission('ambiental', 'READ'),   obtenerBibliotecaClusters);
 router.post('/biblioteca/recalcular',           authenticateToken, checkPermission('ambiental', 'WRITE'),  recalcularBibliotecaClusters);
+router.get('/biblioteca/proyeccion',            authenticateToken, checkPermission('ambiental', 'READ'),   obtenerBibliotecaProyeccion);
 router.get('/biblioteca/terminos-ignorados',    authenticateToken, checkPermission('ambiental', 'READ'),   listarTerminosIgnorados);
 router.post('/biblioteca/terminos-ignorados',   authenticateToken, checkPermission('ambiental', 'WRITE'),  ignorarTermino);
 router.delete('/biblioteca/terminos-ignorados/:word', authenticateToken, checkPermission('ambiental', 'WRITE'), restaurarTermino);

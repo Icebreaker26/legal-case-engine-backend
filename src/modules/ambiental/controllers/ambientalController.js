@@ -970,3 +970,10 @@ export const restaurarTermino = async (req, res, next) => {
     res.json({ ok: true });
   } catch (err) { next(err); }
 };
+
+export const obtenerBibliotecaProyeccion = async (req, res, next) => {
+  try {
+    const data = await bibliotecaService.obtenerProyeccion();
+    res.json(data);
+  } catch (err) { next(err); }
+};
