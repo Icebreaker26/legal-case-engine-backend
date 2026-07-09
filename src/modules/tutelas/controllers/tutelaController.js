@@ -9,7 +9,7 @@ import { registrarLog } from '../../../services/auditService.js';
 import { crearNotificacion } from '../../notificaciones/services/notificationService.js';
 import pool from '../../../db/database.js';
 import { ESTADOS, PRIORIDADES } from '../constants.js';
-import { extraerSolicitudes, agruparEnLotes, construirPromptLote } from '../services/peticionService.js';
+import { extraerSolicitudes, agruparEnLotes, construirPromptLote, buildPromptComprension } from '../services/peticionService.js';
 import { respuestaLlmSchema } from '../schemas/tutelaSchema.js';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -21,8 +21,11 @@ const limpiarTextoParaPostgres = (texto) => {
 export const listarBaseConocimiento = async (req, res) => {
   try {
     const query = `
-      SELECT DISTINCT ON (documento_id) categoria, titulo_referencia, documento_id, created_at 
-      FROM base_conocimiento_enel 
+      SELECT DISTINCT ON (documento_id)
+             categoria, titulo_referencia, documento_id, created_at, es_exitosa,
+             comprension_doc,
+             (comprension_doc IS NOT NULL) AS tiene_comprension
+      FROM base_conocimiento_enel
       WHERE is_active = TRUE
       ORDER BY documento_id, created_at DESC;
     `;
@@ -162,7 +165,7 @@ export const actualizarDatosTutela = async (req, res) => {
     // Promoción automática a memoria legal cuando el fallo es Favorable
     if (sanitizedResultado === 'Favorable') {
       const { rows: tutelaRows } = await pool.query(
-        `SELECT contestacion_generada, derecho_vulnerado, radicado, respuesta_promovida FROM tutelas WHERE id = $1`,
+        `SELECT contestacion_generada, derecho_vulnerado, radicado, respuesta_promovida, analisis_comprension FROM tutelas WHERE id = $1`,
         [id]
       );
       const tutela = tutelaRows[0];
@@ -171,20 +174,39 @@ export const actualizarDatosTutela = async (req, res) => {
           const documentoId = uuidv4();
           const chunks  = dividirEnChunks(tutela.contestacion_generada, 1500, 300);
           const vectores = await Promise.all(chunks.map(c => generarEmbeddingLocal(c)));
+
+          // Construir comprension_doc heredada de la tutela si existe
+          const ac = tutela.analisis_comprension;
+          const comprensionDoc = ac?.tema_central ? {
+            que_resuelve:        ac.tema_central,
+            tipo_caso:           tutela.derecho_vulnerado || 'General',
+            resultado:           'favorable',
+            derechos_involucrados: ac.derechos_invocados || [],
+          } : null;
+          const textoComprension = comprensionDoc
+            ? `${comprensionDoc.que_resuelve}. ${(comprensionDoc.derechos_involucrados).join('. ')}`
+            : null;
+          const vectorComprension = textoComprension
+            ? await generarEmbeddingLocal(textoComprension)
+            : null;
+
           const client  = await pool.connect();
           try {
             await client.query('BEGIN');
             for (let i = 0; i < chunks.length; i++) {
               await client.query(
                 `INSERT INTO base_conocimiento_enel
-                   (categoria, titulo_referencia, contenido_legal, embedding_local, es_exitosa, documento_id)
-                 VALUES ($1, $2, $3, $4, TRUE, $5)`,
+                   (categoria, titulo_referencia, contenido_legal, embedding_local, es_exitosa, documento_id,
+                    comprension_doc, embedding_comprension)
+                 VALUES ($1, $2, $3, $4, TRUE, $5, $6, $7)`,
                 [
                   tutela.derecho_vulnerado || 'General',
                   `Respuesta exitosa — ${tutela.radicado} (${i + 1}/${chunks.length})`,
                   chunks[i],
                   JSON.stringify(vectores[i]),
                   documentoId,
+                  comprensionDoc ? JSON.stringify(comprensionDoc) : null,
+                  vectorComprension  ? JSON.stringify(vectorComprension) : null,
                 ]
               );
             }
@@ -882,7 +904,7 @@ export const promoverArgumento = async (req, res) => {
     // Traer el argumento y el derecho vulnerado de la tutela en una sola query
     const { rows } = await pool.query(
       `SELECT ta.titulo, ta.contenido, ta.promovido_a_memoria,
-              t.derecho_vulnerado, t.radicado
+              t.derecho_vulnerado, t.radicado, t.analisis_comprension
        FROM tutela_argumentos ta
        JOIN tutelas t ON t.id = ta.tutela_id
        WHERE ta.id = $1 AND ta.tutela_id = $2`,
@@ -891,7 +913,7 @@ export const promoverArgumento = async (req, res) => {
 
     if (rows.length === 0) return res.status(404).json({ error: 'Argumento no encontrado.' });
 
-    const { titulo, contenido, promovido_a_memoria, derecho_vulnerado, radicado } = rows[0];
+    const { titulo, contenido, promovido_a_memoria, derecho_vulnerado, radicado, analisis_comprension } = rows[0];
 
     if (promovido_a_memoria) {
       return res.status(409).json({ error: 'Este argumento ya fue promovido a la memoria legal.' });
@@ -902,20 +924,38 @@ export const promoverArgumento = async (req, res) => {
     const chunks      = dividirEnChunks(contenido, 1500, 300);
     const vectores    = await Promise.all(chunks.map(c => generarEmbeddingLocal(c)));
 
+    // Comprension_doc: usa contexto de la tutela si disponible, complementa con el argumento
+    const ac = analisis_comprension;
+    const comprensionDoc = ac?.tema_central ? {
+      que_resuelve:         `${titulo}: ${ac.tema_central}`,
+      tipo_caso:            derecho_vulnerado || 'General',
+      resultado:            'favorable',
+      derechos_involucrados: ac.derechos_invocados || [],
+    } : null;
+    const textoComprension = comprensionDoc
+      ? `${comprensionDoc.que_resuelve}. ${(comprensionDoc.derechos_involucrados).join('. ')}`
+      : null;
+    const vectorComprension = textoComprension
+      ? await generarEmbeddingLocal(textoComprension)
+      : null;
+
     const client = await pool.connect();
     try {
       await client.query('BEGIN');
       for (let i = 0; i < chunks.length; i++) {
         await client.query(
           `INSERT INTO base_conocimiento_enel
-             (categoria, titulo_referencia, contenido_legal, embedding_local, es_exitosa, documento_id)
-           VALUES ($1, $2, $3, $4, TRUE, $5)`,
+             (categoria, titulo_referencia, contenido_legal, embedding_local, es_exitosa, documento_id,
+              comprension_doc, embedding_comprension)
+           VALUES ($1, $2, $3, $4, TRUE, $5, $6, $7)`,
           [
             derecho_vulnerado || 'General',
             `${titulo} — Arg. promovido de tutela ${radicado} (${i + 1}/${chunks.length})`,
             chunks[i],
             JSON.stringify(vectores[i]),
             documentoId,
+            comprensionDoc ? JSON.stringify(comprensionDoc) : null,
+            vectorComprension  ? JSON.stringify(vectorComprension) : null,
           ]
         );
       }
@@ -1052,7 +1092,7 @@ export const generarPromptsPeticion = async (req, res) => {
     const { id } = req.params;
 
     const [tutelaRes, configRes, argumentosRes] = await Promise.all([
-      pool.query('SELECT radicado, accionante, derecho_vulnerado, contenido_original FROM tutelas WHERE id = $1', [id]),
+      pool.query('SELECT radicado, accionante, derecho_vulnerado, contenido_original, analisis_comprension FROM tutelas WHERE id = $1', [id]),
       pool.query('SELECT key, value FROM system_config'),
       pool.query('SELECT titulo, contenido FROM tutela_argumentos WHERE tutela_id = $1 ORDER BY created_at ASC', [id]),
     ]);
@@ -1064,7 +1104,12 @@ export const generarPromptsPeticion = async (req, res) => {
     const legalNotes = config.legal_notes || [];
     const argumentos = argumentosRes.rows;
 
-    const vectorLocal = await generarEmbeddingLocal((tutela.contenido_original || '').substring(0, 1500));
+    const comprension = tutela.analisis_comprension || null;
+    const textoParaVector = comprension?.tema_central
+      ? `${comprension.tema_central}. ${(comprension.peticiones || []).join('. ')}`
+      : (tutela.contenido_original || '').substring(0, 1500);
+
+    const vectorLocal = await generarEmbeddingLocal(textoParaVector);
     const sugerencias = await buscarContextoLegal(vectorLocal, tutela.contenido_original || '', 5, tutela.derecho_vulnerado);
 
     const solicitudes = extraerSolicitudes(tutela.contenido_original || '');
@@ -1074,7 +1119,7 @@ export const generarPromptsPeticion = async (req, res) => {
       parte: i + 1,
       total: lotes.length,
       solicitudes: lote.map(s => s.etiqueta),
-      prompt: construirPromptLote({ lote, loteIndex: i, totalLotes: lotes.length, tutela, legalNotes, sugerencias, argumentos }),
+      prompt: construirPromptLote({ lote, loteIndex: i, totalLotes: lotes.length, tutela, legalNotes, sugerencias, argumentos, comprension }),
     }));
 
     res.json({ prompts, total_solicitudes: solicitudes.length, total_partes: lotes.length });
@@ -1102,4 +1147,129 @@ export const eliminarArgumento = async (req, res) => {
         console.error('Error al eliminar argumento:', error);
         res.status(500).json({ error: 'Error al eliminar argumento.' });
     }
+};
+
+// ── Comprensión de documentos en base_conocimiento_enel ───────────────────────
+
+const buildPromptComprensionDoc = (contenidoLegal) => {
+  const extracto = contenidoLegal.substring(0, 3000);
+  return `Eres un abogado experto en derecho colombiano de servicios públicos.
+Lee el siguiente fragmento de un documento legal que forma parte de la base de conocimiento de Enel Colombia.
+Responde ÚNICAMENTE con un objeto JSON válido, sin texto adicional, sin markdown, sin bloques de código.
+
+Estructura exacta:
+{
+  "que_resuelve": "Descripción concisa de qué tipo de caso o situación cubre este documento",
+  "tipo_caso": "Categoría principal del caso (ej: Corte del servicio, Facturación, Servidumbre, etc.)",
+  "resultado": "favorable | desfavorable | referencia",
+  "derechos_involucrados": ["Lista de derechos o figuras jurídicas mencionadas"]
+}
+
+Documento:
+${extracto}`;
+};
+
+export const generarPromptComprensionDoc = async (req, res, next) => {
+  try {
+    const { documento_id } = req.params;
+    const { rows } = await pool.query(
+      `SELECT contenido_legal FROM base_conocimiento_enel
+       WHERE documento_id = $1 AND is_active = TRUE
+       ORDER BY id ASC`,
+      [documento_id]
+    );
+    if (!rows.length) return res.status(404).json({ error: 'Documento no encontrado.' });
+
+    const textoCompleto = rows.map(r => r.contenido_legal).join('\n\n');
+    const prompt = buildPromptComprensionDoc(textoCompleto);
+    res.json({ prompt });
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const guardarComprensionDoc = async (req, res, next) => {
+  try {
+    const { documento_id } = req.params;
+    const { json_comprension } = req.body;
+
+    let parsed;
+    try {
+      let raw = typeof json_comprension === 'string' ? json_comprension : JSON.stringify(json_comprension);
+      raw = raw.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/, '').trim();
+      const start = raw.indexOf('{');
+      const end   = raw.lastIndexOf('}');
+      if (start !== -1 && end !== -1) raw = raw.slice(start, end + 1);
+      parsed = JSON.parse(raw);
+    } catch {
+      return res.status(400).json({ error: 'JSON de comprensión inválido — no se pudo parsear.' });
+    }
+
+    if (!parsed.que_resuelve || !parsed.tipo_caso) {
+      return res.status(400).json({ error: 'JSON inválido — falta que_resuelve o tipo_caso.' });
+    }
+
+    // Generar embedding semántico a partir de la comprensión
+    const textoComprension = `${parsed.que_resuelve}. ${(parsed.derechos_involucrados || []).join('. ')}`;
+    const vectorComprension = await generarEmbeddingLocal(textoComprension);
+
+    // Actualizar todos los chunks del documento con la misma comprension
+    await pool.query(
+      `UPDATE base_conocimiento_enel
+       SET comprension_doc = $1, embedding_comprension = $2
+       WHERE documento_id = $3`,
+      [JSON.stringify(parsed), JSON.stringify(vectorComprension), documento_id]
+    );
+
+    res.json({ ok: true, comprension: parsed });
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const generarPromptComprension = async (req, res, next) => {
+  try {
+    const { rows } = await pool.query(
+      'SELECT contenido_original FROM tutelas WHERE id = $1',
+      [req.params.id]
+    );
+    if (!rows.length) return res.status(404).json({ error: 'Tutela no encontrada.' });
+
+    const prompt = buildPromptComprension(rows[0].contenido_original || '');
+    res.json({ prompt });
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const guardarComprension = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const { json_comprension } = req.body;
+
+    let parsed;
+    try {
+      let raw = typeof json_comprension === 'string' ? json_comprension : JSON.stringify(json_comprension);
+      raw = raw.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/, '').trim();
+      const start = raw.indexOf('{');
+      const end   = raw.lastIndexOf('}');
+      if (start !== -1 && end !== -1) raw = raw.slice(start, end + 1);
+      parsed = JSON.parse(raw);
+    } catch {
+      return res.status(400).json({ error: 'JSON de comprensión inválido — no se pudo parsear.' });
+    }
+
+    if (!parsed.tema_central || !Array.isArray(parsed.peticiones)) {
+      return res.status(400).json({ error: 'JSON de comprensión inválido — falta tema_central o peticiones.' });
+    }
+
+    await pool.query(
+      'UPDATE tutelas SET analisis_comprension = $1 WHERE id = $2',
+      [JSON.stringify(parsed), id]
+    );
+
+    res.json({ ok: true, comprension: parsed });
+  } catch (err) {
+    next(err);
+  }
 };

@@ -48,6 +48,10 @@ import {
     guardarRespuestaPeticion,
     obtenerRespuestaPeticion,
     limpiarRespuestaPeticion,
+    generarPromptComprension,
+    guardarComprension,
+    generarPromptComprensionDoc,
+    guardarComprensionDoc,
 } from '../controllers/tutelaController.js';
 
 import { listarRequerimientosPorArea as listarReqArea, responderRequerimientoPorArea as responderReqArea } from '../controllers/requerimientoController.js';
@@ -123,6 +127,8 @@ router.patch('/requerimientos/:reqId/responder-area', checkPermission('tutelas',
 router.patch('/requerimientos/:reqId',                checkPermission('tutelas', 'WRITE'), validate(actualizarRequerimientoSchema), actualizarEstadoRequerimiento);
 router.get('/documento-referencia/:documento_id',     checkPermission('tutelas', 'READ'),  obtenerContenidoCompletoSugerencia);
 router.post('/memoria/:documento_id/feedback',        checkPermission('tutelas', 'WRITE'), validate(feedbackMemoriaSchema), registrarFeedbackMemoria);
+router.get('/memoria/:documento_id/prompt-comprension', checkPermission('tutelas', 'READ'),  generarPromptComprensionDoc);
+router.post('/memoria/:documento_id/comprension',       checkPermission('tutelas', 'WRITE'), guardarComprensionDoc);
 router.delete('/memoria/:documento_id',               checkPermission('tutelas', 'DELETE'), eliminarBaseConocimiento);
 
 // ── Gestión de Tutelas ────────────────────────────────────────────────────────
@@ -299,6 +305,10 @@ router.post('/:id/argumentos', checkPermission('tutelas', 'WRITE'), validate(cre
 router.patch('/:id/argumentos/:argId', checkPermission('tutelas', 'WRITE'), validate(actualizarArgumentoSchema), actualizarArgumento);
 router.delete('/:id/argumentos/:argId', checkPermission('tutelas', 'DELETE'), eliminarArgumento);
 router.post('/:id/argumentos/:argId/promover', checkPermission('tutelas', 'WRITE'), promoverArgumento);
+
+// Comprensión estructurada (opcional, enriquece RAG)
+router.get('/:id/prompt-comprension',  checkPermission('tutelas', 'READ'),  generarPromptComprension);
+router.post('/:id/comprension',        checkPermission('tutelas', 'WRITE'), guardarComprension);
 
 // Generación de prompts y respuestas de petición
 router.post('/:id/generar-prompts-peticion',  checkPermission('tutelas', 'WRITE'), generarPromptsPeticion);
