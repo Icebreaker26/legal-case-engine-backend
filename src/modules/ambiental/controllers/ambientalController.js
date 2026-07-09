@@ -2,6 +2,7 @@ import pool from '../../../db/database.js';
 import { registrarLog } from '../../../services/auditService.js';
 import { extractTextFromFile, generarPromptsAmbientales, generarPromptRespuesta } from '../services/ambientalService.js';
 import { guardarEmbedding, buscarSimilares } from '../services/ambientalEmbeddingService.js';
+import * as bibliotecaService from '../services/ambientalBibliotecaService.js';
 import { analisisLlmSchema } from '../schemas/ambientalSchema.js';
 import logger from '../../../utils/logger.js';
 
@@ -922,4 +923,50 @@ export const obtenerSimilares = async (req, res) => {
     logger.error('obtenerSimilares error', { error: error.message });
     res.status(500).json({ error: 'Error al buscar precedentes.' });
   }
+};
+
+// ── Biblioteca de Conocimiento ────────────────────────────────────────────────
+
+export const obtenerBibliotecaEstadisticas = async (req, res, next) => {
+  try {
+    const data = await bibliotecaService.obtenerEstadisticas();
+    res.json(data);
+  } catch (err) { next(err); }
+};
+
+export const obtenerBibliotecaClusters = async (req, res, next) => {
+  try {
+    const data = await bibliotecaService.obtenerClusters();
+    res.json(data);
+  } catch (err) { next(err); }
+};
+
+export const recalcularBibliotecaClusters = async (req, res, next) => {
+  try {
+    const result = await bibliotecaService.recalcularClusters();
+    res.json(result);
+  } catch (err) { next(err); }
+};
+
+export const listarTerminosIgnorados = async (req, res, next) => {
+  try {
+    const data = await bibliotecaService.listarTerminosIgnorados();
+    res.json(data);
+  } catch (err) { next(err); }
+};
+
+export const ignorarTermino = async (req, res, next) => {
+  try {
+    const { word } = req.body;
+    if (!word?.trim()) return res.status(400).json({ error: 'El campo word es obligatorio.' });
+    await bibliotecaService.ignorarTermino(word, req.user.id);
+    res.status(201).json({ word: word.toLowerCase().trim() });
+  } catch (err) { next(err); }
+};
+
+export const restaurarTermino = async (req, res, next) => {
+  try {
+    await bibliotecaService.restaurarTermino(req.params.word);
+    res.json({ ok: true });
+  } catch (err) { next(err); }
 };

@@ -1,10 +1,11 @@
 export const errorHandler = (err, req, res, next) => {
   console.error('Error no capturado:', err);
-  
-  // Si es un error de validación de Zod, podrías manejarlo aquí específicamente
+
   if (err.name === 'ZodError') {
     return res.status(400).json({ error: 'Error de validación', details: err.errors });
   }
 
-  res.status(500).json({ error: 'Error interno del servidor.' });
+  const status = err.status || err.statusCode || 500;
+  const message = status < 500 ? err.message : 'Error interno del servidor.';
+  res.status(status).json({ error: message });
 };

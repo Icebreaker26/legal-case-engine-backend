@@ -881,4 +881,71 @@ describe('Ambiental — Integración', () => {
       expect(res.status).toBe(404);
     });
   });
+
+  describe('Biblioteca de Conocimiento', () => {
+    test('GET /biblioteca/estadisticas sin token → 401', async () => {
+      const res = await request(app).get('/api/ambiental/biblioteca/estadisticas');
+      expect(res.status).toBe(401);
+    });
+
+    test('GET /biblioteca/estadisticas → 200 con estructura esperada', async () => {
+      const res = await agent.get('/api/ambiental/biblioteca/estadisticas');
+      expect(res.status).toBe(200);
+      expect(res.body).toHaveProperty('resumen');
+      expect(res.body).toHaveProperty('por_tipo');
+      expect(res.body).toHaveProperty('top_entidades');
+      expect(res.body).toHaveProperty('top_terminos');
+      expect(Array.isArray(res.body.por_tipo)).toBe(true);
+      expect(Array.isArray(res.body.top_entidades)).toBe(true);
+      expect(Array.isArray(res.body.top_terminos)).toBe(true);
+    });
+
+    test('GET /biblioteca/estadisticas — resumen tiene campos numéricos', async () => {
+      const res = await agent.get('/api/ambiental/biblioteca/estadisticas');
+      expect(res.status).toBe(200);
+      const { resumen } = res.body;
+      expect(resumen).toHaveProperty('total_expedientes');
+      expect(resumen).toHaveProperty('con_analisis');
+      expect(resumen).toHaveProperty('con_embedding');
+      expect(Number(resumen.total_expedientes)).toBeGreaterThanOrEqual(0);
+    });
+
+    test('GET /biblioteca/clusters sin token → 401', async () => {
+      const res = await request(app).get('/api/ambiental/biblioteca/clusters');
+      expect(res.status).toBe(401);
+    });
+
+    test('GET /biblioteca/clusters → 200 con estructura esperada', async () => {
+      const res = await agent.get('/api/ambiental/biblioteca/clusters');
+      expect(res.status).toBe(200);
+      expect(res.body).toHaveProperty('clusters');
+      expect(res.body).toHaveProperty('embeddings_actuales');
+      expect(res.body).toHaveProperty('needs_recalculate');
+      expect(Array.isArray(res.body.clusters)).toBe(true);
+    });
+
+    test('GET /biblioteca/clusters — needs_recalculate es booleano', async () => {
+      const res = await agent.get('/api/ambiental/biblioteca/clusters');
+      expect(res.status).toBe(200);
+      expect(typeof res.body.needs_recalculate).toBe('boolean');
+    });
+
+    test('POST /biblioteca/recalcular sin token → 401', async () => {
+      const res = await request(app).post('/api/ambiental/biblioteca/recalcular');
+      expect(res.status).toBe(401);
+    });
+
+    test('POST /biblioteca/recalcular con pocos embeddings → 422', async () => {
+      // Garantizamos que no haya embeddings del usuario de test
+      await pool.query(`DELETE FROM embeddings_ambiental WHERE expediente_id IN (
+        SELECT id FROM expedientes_ambientales WHERE creado_por = $1
+      )`, [testUserUuid]);
+      await pool.query('DELETE FROM biblioteca_clusters');
+      await pool.query('UPDATE biblioteca_meta SET embeddings_count_at_compute = 0 WHERE id = 1');
+
+      const res = await agent.post('/api/ambiental/biblioteca/recalcular');
+      // 422 si hay < 3 embeddings en total, 200 si otros tests dejaron embeddings
+      expect([200, 422]).toContain(res.status);
+    });
+  });
 });

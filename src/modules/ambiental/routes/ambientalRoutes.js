@@ -32,6 +32,12 @@ import {
   obtenerSimilares,
   generarPromptComparativo,
   generarEmbeddingExpediente,
+  obtenerBibliotecaEstadisticas,
+  obtenerBibliotecaClusters,
+  recalcularBibliotecaClusters,
+  listarTerminosIgnorados,
+  ignorarTermino,
+  restaurarTermino,
 } from '../controllers/ambientalController.js';
 
 const router = Router();
@@ -67,5 +73,11 @@ router.post('/expedientes/:id/generar-embedding',    authenticateToken, checkPer
 router.post('/expedientes/:id/prompt-comparativo',   authenticateToken, checkPermission('ambiental', 'WRITE'), generarPromptComparativo);
 router.get('/calendario',  authenticateToken, checkPermission('ambiental', 'READ'),  obtenerCalendario);
 router.get('/dashboard',   authenticateToken, checkPermission('ambiental', 'READ'),  obtenerDashboard);
+router.get('/biblioteca/estadisticas',          authenticateToken, checkPermission('ambiental', 'READ'),   obtenerBibliotecaEstadisticas);
+router.get('/biblioteca/clusters',              authenticateToken, checkPermission('ambiental', 'READ'),   obtenerBibliotecaClusters);
+router.post('/biblioteca/recalcular',           authenticateToken, checkPermission('ambiental', 'WRITE'),  recalcularBibliotecaClusters);
+router.get('/biblioteca/terminos-ignorados',    authenticateToken, checkPermission('ambiental', 'READ'),   listarTerminosIgnorados);
+router.post('/biblioteca/terminos-ignorados',   authenticateToken, checkPermission('ambiental', 'WRITE'),  ignorarTermino);
+router.delete('/biblioteca/terminos-ignorados/:word', authenticateToken, checkPermission('ambiental', 'WRITE'), restaurarTermino);
 
 export default router;
