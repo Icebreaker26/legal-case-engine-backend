@@ -45,7 +45,10 @@ import {
 const router = Router();
 const upload = multer({
   storage: multer.memoryStorage(),
-  limits: { fileSize: 60 * 1024 * 1024 },
+  limits: {
+    fileSize:  60 * 1024 * 1024,   // 60 MB para archivos
+    fieldSize: 20 * 1024 * 1024,   // 20 MB para campos de texto
+  },
 });
 
 router.post('/expedientes/procesar', authenticateToken, checkPermission('ambiental', 'WRITE'), upload.single('file'), procesarDocumento);
