@@ -859,6 +859,69 @@ describe('Ambiental — Integración', () => {
     });
   });
 
+  // ── Detección de duplicados ───────────────────────────────────────────────
+  describe('Detección de duplicados por hash', () => {
+    const contenidoArchivo = 'RESOLUCIÓN 002-HASH-TEST. Incumplimiento artículo 49 Ley 99/93. Presenta PMA en 15 días hábiles.';
+    let hashArchivo, hashContenido, expedienteDuplicadoId;
+
+    test('POST /procesar con archivo → devuelve file_hash y contenido_hash (hex 64 chars)', async () => {
+      const res = await agent
+        .post('/api/ambiental/expedientes/procesar')
+        .attach('file', Buffer.from(contenidoArchivo), 'resolucion-hash-test.txt');
+      expect(res.status).toBe(200);
+      expect(res.body).toHaveProperty('file_hash');
+      expect(res.body).toHaveProperty('contenido_hash');
+      expect(typeof res.body.file_hash).toBe('string');
+      expect(res.body.file_hash).toHaveLength(64);
+      expect(res.body.contenido_hash).toHaveLength(64);
+      hashArchivo   = res.body.file_hash;
+      hashContenido = res.body.contenido_hash;
+    });
+
+    test('POST /procesar con texto (sin archivo) → devuelve contenido_hash pero no file_hash', async () => {
+      const res = await agent
+        .post('/api/ambiental/expedientes/procesar')
+        .field('texto', 'Texto directo sin archivo.');
+      expect(res.status).toBe(200);
+      expect(res.body).toHaveProperty('contenido_hash');
+      expect(res.body.file_hash).toBeUndefined();
+    });
+
+    test('POST /expedientes con file_hash y contenido_hash → 201 y los persiste', async () => {
+      if (!hashArchivo) return;
+      const res = await agent.post('/api/ambiental/expedientes').send({
+        titulo:           'Resolución 002 — Prueba Duplicado',
+        tipo_instrumento: 'resolución',
+        file_hash:        hashArchivo,
+        contenido_hash:   hashContenido,
+      });
+      expect(res.status).toBe(201);
+      expect(res.body.file_hash).toBe(hashArchivo);
+      expect(res.body.contenido_hash).toBe(hashContenido);
+      expedienteDuplicadoId = res.body.id;
+    });
+
+    test('POST /procesar con mismo archivo → devuelve duplicado con id del expediente original', async () => {
+      if (!hashArchivo || !expedienteDuplicadoId) return;
+      const res = await agent
+        .post('/api/ambiental/expedientes/procesar')
+        .attach('file', Buffer.from(contenidoArchivo), 'resolucion-hash-test.txt');
+      expect(res.status).toBe(200);
+      expect(res.body).toHaveProperty('duplicado');
+      expect(res.body.duplicado).toHaveProperty('id');
+      expect(res.body.duplicado.id).toBe(expedienteDuplicadoId);
+      expect(res.body.duplicado).toHaveProperty('titulo');
+    });
+
+    test('POST /procesar con archivo diferente → no devuelve duplicado', async () => {
+      const res = await agent
+        .post('/api/ambiental/expedientes/procesar')
+        .attach('file', Buffer.from('Contenido único e irrepetible 9x7z2q para este test específico.'), 'unico.txt');
+      expect(res.status).toBe(200);
+      expect(res.body.duplicado).toBeUndefined();
+    });
+  });
+
   // ── Borrado lógico ────────────────────────────────────────────────────────
   describe('DELETE /expedientes/:id', () => {
     test('→ 200 y expediente no aparece en listado', async () => {
