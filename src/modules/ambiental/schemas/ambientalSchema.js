@@ -10,6 +10,8 @@ export const crearExpedienteSchema = z.object({
   fecha_documento:  z.string().optional(),
   contenido_texto:  z.string().optional(),
   prompt_generado:  z.string().optional(),
+  file_hash:        z.string().length(64).optional(),
+  contenido_hash:   z.string().length(64).optional(),
 });
 
 export const actualizarExpedienteSchema = z.object({

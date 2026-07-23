@@ -1,6 +1,6 @@
 import pool from '../../../db/database.js';
 import { registrarLog } from '../../../services/auditService.js';
-import { extractTextFromFile, generarPromptsAmbientales, generarPromptRespuesta } from '../services/ambientalService.js';
+import { extractTextFromFile, generarPromptsAmbientales, generarPromptRespuesta, hashBuffer, hashTexto } from '../services/ambientalService.js';
 import { guardarEmbedding, buscarSimilares } from '../services/ambientalEmbeddingService.js';
 import * as bibliotecaService from '../services/ambientalBibliotecaService.js';
 import { analisisLlmSchema } from '../schemas/ambientalSchema.js';
@@ -12,12 +12,32 @@ export const procesarDocumento = async (req, res) => {
     const { entidad_id, fecha_documento, texto } = req.body;
 
     let contenido_texto;
+    let file_hash_val;
     if (req.file) {
       contenido_texto = await extractTextFromFile(req.file.buffer, req.file.mimetype);
+      file_hash_val   = hashBuffer(req.file.buffer);
     } else if (texto) {
       contenido_texto = texto;
     } else {
       return res.status(400).json({ error: 'Se requiere un archivo o texto.' });
+    }
+
+    const contenido_hash_val = contenido_texto ? hashTexto(contenido_texto) : undefined;
+
+    // Buscar duplicados por hash de archivo o de contenido
+    let duplicado = null;
+    if (file_hash_val || contenido_hash_val) {
+      const conditions = [];
+      const params     = [];
+      if (file_hash_val)     { conditions.push(`file_hash = $${params.push(file_hash_val)}`);         }
+      if (contenido_hash_val){ conditions.push(`contenido_hash = $${params.push(contenido_hash_val)}`); }
+      const { rows: dups } = await pool.query(
+        `SELECT id, titulo, tipo_instrumento, numero_expediente FROM expedientes_ambientales
+         WHERE is_active = true AND (${conditions.join(' OR ')})
+         LIMIT 1`,
+        params
+      );
+      if (dups.length) duplicado = dups[0];
     }
 
     let entidadNombre;
@@ -38,9 +58,12 @@ export const procesarDocumento = async (req, res) => {
       : JSON.stringify(prompts);
 
     res.json({
-      contenido_texto: req.file ? contenido_texto : undefined,
+      contenido_texto:  req.file ? contenido_texto : undefined,
       prompt_generado,
-      total_partes: prompts.length,
+      total_partes:     prompts.length,
+      file_hash:        file_hash_val        || undefined,
+      contenido_hash:   contenido_hash_val   || undefined,
+      duplicado:        duplicado             || undefined,
     });
   } catch (error) {
     logger.error('procesarDocumento error', { error: error.message });
@@ -50,14 +73,14 @@ export const procesarDocumento = async (req, res) => {
 
 // POST /expedientes
 export const crearExpediente = async (req, res) => {
-  const { titulo, tipo_instrumento, numero_expediente, entidad_id, responsable_uuid, grupo_id, fecha_documento, contenido_texto, prompt_generado } = req.body;
+  const { titulo, tipo_instrumento, numero_expediente, entidad_id, responsable_uuid, grupo_id, fecha_documento, contenido_texto, prompt_generado, file_hash, contenido_hash } = req.body;
   const creado_por = req.user.id;
   try {
     const { rows } = await pool.query(
       `INSERT INTO expedientes_ambientales
-        (titulo, tipo_instrumento, numero_expediente, entidad_id, responsable_uuid, grupo_id, fecha_documento, contenido_texto, prompt_generado, creado_por)
-       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) RETURNING *`,
-      [titulo, tipo_instrumento, numero_expediente || null, entidad_id || null, responsable_uuid || null, grupo_id || null, fecha_documento || null, contenido_texto || null, prompt_generado || null, creado_por]
+        (titulo, tipo_instrumento, numero_expediente, entidad_id, responsable_uuid, grupo_id, fecha_documento, contenido_texto, prompt_generado, file_hash, contenido_hash, creado_por)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12) RETURNING *`,
+      [titulo, tipo_instrumento, numero_expediente || null, entidad_id || null, responsable_uuid || null, grupo_id || null, fecha_documento || null, contenido_texto || null, prompt_generado || null, file_hash || null, contenido_hash || null, creado_por]
     );
     await registrarLog(creado_por, 'CREAR_EXPEDIENTE_AMBIENTAL', 'ambiental', rows[0].id, req);
     if (contenido_texto) {

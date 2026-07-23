@@ -1,5 +1,9 @@
+import { createHash } from 'crypto';
 import { extraerTextoPdf } from '../../../services/pdfService.js';
 import mammoth from 'mammoth';
+
+export const hashBuffer  = (buffer) => createHash('sha256').update(buffer).digest('hex');
+export const hashTexto   = (texto)  => createHash('sha256').update(texto,  'utf8').digest('hex');
 
 // Limpia y estructura el texto extraído de un PDF
 const limpiarTextoPdf = (texto) => {
