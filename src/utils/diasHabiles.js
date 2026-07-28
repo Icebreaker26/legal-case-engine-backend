@@ -21,3 +21,5 @@ export const extraerDiasHabiles = (texto) => {
   const match = texto.match(/(\d+)\s*d[íi]as?\s*h[áa]bile[s]?/i);
   return match ? parseInt(match[1], 10) : null;
 };
+
+export const getFestivos = (year) => hd.getHolidays(year);
