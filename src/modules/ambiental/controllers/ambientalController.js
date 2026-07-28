@@ -4,6 +4,7 @@ import { extractTextFromFile, generarPromptsAmbientales, generarPromptRespuesta,
 import { guardarEmbedding, buscarSimilares } from '../services/ambientalEmbeddingService.js';
 import * as bibliotecaService from '../services/ambientalBibliotecaService.js';
 import { analisisLlmSchema } from '../schemas/ambientalSchema.js';
+import { jsonrepair } from 'jsonrepair';
 import logger from '../../../utils/logger.js';
 
 // POST /expedientes/procesar — extrae texto de archivo O genera prompt de un fragmento de texto
@@ -200,9 +201,10 @@ export const guardarAnalisis = async (req, res) => {
 
   let parsed;
   try {
-    parsed = JSON.parse(resultado_llm_json);
+    const repaired = jsonrepair(resultado_llm_json);
+    parsed = JSON.parse(repaired);
   } catch {
-    return res.status(400).json({ error: 'La respuesta del LLM no es un JSON válido.' });
+    return res.status(400).json({ error: 'La respuesta del LLM no es un JSON válido ni reparable. Verifica que sea un objeto JSON completo.' });
   }
 
   const validation = analisisLlmSchema.safeParse(parsed);
