@@ -94,23 +94,7 @@ export const restaurarRegistro = async (req, res) => {
     res.status(500).json({ error: 'Error al restaurar el registro.' });
   }
 };
-import Holidays from 'date-holidays';
-
-const hd = new Holidays('CO');
-
-const sumarDiasHabiles = (fecha, dias) => {
-    let fechaResult = new Date(fecha);
-    let contador = 0;
-    while (contador < dias) {
-        fechaResult.setDate(fechaResult.getDate() + 1);
-        let diaSemana = fechaResult.getDay();
-        // Saltar fines de semana y festivos de Colombia
-        if (diaSemana !== 0 && diaSemana !== 6 && !hd.isHoliday(fechaResult)) {
-            contador++;
-        }
-    }
-    return fechaResult;
-};
+import { sumarDiasHabiles } from '../../../utils/diasHabiles.js';
 
 export const listarFestivos = async (req, res) => {
   try {
