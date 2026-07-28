@@ -170,9 +170,9 @@ Reglas estrictas para el array "pagos":
 - Si el instrumento NO impone ninguna obligación de pago, o los valores no están determinados, devuelve "pagos": [].
 
 Reglas estrictas para el array "hallazgos":
+- EXHAUSTIVIDAD OBLIGATORIA: debes crear un hallazgo separado por CADA punto de incumplimiento, requerimiento, observación técnica o condición que el documento mencione explícitamente. Si el documento lista 5 puntos incumplidos, el array debe tener mínimo 5 hallazgos. No resumas ni fusiones puntos distintos en uno solo.
 - Cada hallazgo debe referirse a un hecho concreto identificado en el documento, no a generalidades.
 - La descripción debe citar el numeral, artículo o párrafo específico del instrumento donde se sustenta.
-- No dupliques hallazgos: si dos requerimientos son parte del mismo problema, unifícalos.
 - La norma_infringida debe ser específica (artículo exacto); nunca pongas solo el nombre de la ley.
 - La recomendación debe ser accionable e inmediata, no un consejo genérico como "cumplir con la normativa".
 
@@ -257,9 +257,9 @@ Reglas estrictas para el array "pagos":
 - Si el instrumento NO impone ninguna obligación de pago, o los valores no están determinados, devuelve "pagos": [].
 
 Reglas estrictas para el array "hallazgos":
+- EXHAUSTIVIDAD OBLIGATORIA: debes crear un hallazgo separado por CADA punto de incumplimiento, requerimiento, observación técnica o condición que el documento mencione explícitamente. Si el documento lista 5 puntos incumplidos, el array debe tener mínimo 5 hallazgos. No resumas ni fusiones puntos distintos en uno solo.
 - Cada hallazgo debe referirse a un hecho concreto identificado en el documento, no a generalidades.
 - La descripción debe citar el numeral, artículo o párrafo específico del instrumento donde se sustenta.
-- No dupliques hallazgos: si dos requerimientos son parte del mismo problema, unifícalos.
 - La norma_infringida debe ser específica (artículo exacto); nunca pongas solo el nombre de la ley.
 - La recomendación debe ser accionable e inmediata, no un consejo genérico como "cumplir con la normativa".
 
