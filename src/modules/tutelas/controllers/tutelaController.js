@@ -94,12 +94,12 @@ export const restaurarRegistro = async (req, res) => {
     res.status(500).json({ error: 'Error al restaurar el registro.' });
   }
 };
-import { sumarDiasHabiles } from '../../../utils/diasHabiles.js';
+import { sumarDiasHabiles, getFestivos } from '../../../utils/diasHabiles.js';
 
 export const listarFestivos = async (req, res) => {
   try {
     const year = req.query.year || new Date().getFullYear();
-    const holidays = hd.getHolidays(year);
+    const holidays = getFestivos(year);
     res.status(200).json(holidays);
   } catch (error) {
     res.status(500).json({ error: 'Error al listar festivos.' });
