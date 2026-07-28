@@ -587,7 +587,7 @@ export const obtenerDashboard = async (req, res) => {
           COUNT(*) FILTER (WHERE is_active AND estado = 'Pendiente') AS pendientes,
           COUNT(*) FILTER (WHERE is_active AND estado = 'Analizado') AS analizados,
           COUNT(*) FILTER (WHERE is_active AND estado = 'Revisado')  AS revisados,
-          COUNT(*) FILTER (WHERE is_active AND fecha_vencimiento < CURRENT_DATE AND estado NOT IN ('Archivado')) AS vencidos
+          COUNT(*) FILTER (WHERE is_active AND fecha_vencimiento < CURRENT_DATE AND estado NOT IN ('Archivado', 'Cerrado')) AS vencidos
         FROM expedientes_ambientales
       `),
 
