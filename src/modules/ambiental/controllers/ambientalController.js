@@ -5,7 +5,7 @@ import { guardarEmbedding, buscarSimilares } from '../services/ambientalEmbeddin
 import * as bibliotecaService from '../services/ambientalBibliotecaService.js';
 import { analisisLlmSchema } from '../schemas/ambientalSchema.js';
 import { jsonrepair } from 'jsonrepair';
-import { sumarDiasHabiles, extraerDiasHabiles } from '../../../utils/diasHabiles.js';
+
 import logger from '../../../utils/logger.js';
 
 // POST /expedientes/procesar — extrae texto de archivo O genera prompt de un fragmento de texto
@@ -213,17 +213,7 @@ export const guardarAnalisis = async (req, res) => {
     return res.status(400).json({ error: 'Estructura del JSON inválida.', details: validation.error.issues });
   }
 
-  const data = validation.data;
-
-  // Recalcular fecha_vencimiento en el backend con festivos colombianos reales,
-  // extrayendo los días hábiles del texto de plazo_respuesta
-  const diasHabiles = extraerDiasHabiles(data.plazo_respuesta);
-  if (diasHabiles) {
-    const fechaCalculada = sumarDiasHabiles(new Date(), diasHabiles);
-    data.fecha_vencimiento = fechaCalculada.toISOString().slice(0, 10);
-  }
-
-  const { que_ordena, admite_recurso, plazo_respuesta, fecha_vencimiento, pagos = [], nivel_riesgo, resumen, hallazgos, normas_citadas } = data;
+  const { que_ordena, admite_recurso, plazo_respuesta, fecha_vencimiento, pagos = [], nivel_riesgo, resumen, hallazgos, normas_citadas } = validation.data;
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
