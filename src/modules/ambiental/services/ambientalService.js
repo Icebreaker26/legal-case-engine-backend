@@ -149,9 +149,9 @@ Analiza el siguiente instrumento ambiental (expediente, auto o resolución) y ge
     {
       "numero": 1,
       "tipo": "Incumplimiento|Riesgo|Observación|Buena práctica",
-      "descripcion": "Descripción detallada del hallazgo",
-      "norma_infringida": "Artículo y norma aplicable (ej: Art. 49 Ley 99/93 o Art. 2.2.2.3.1.1 Decreto 1076/2015)",
-      "recomendacion": "Acción correctiva o respuesta sugerida",
+      "descripcion": "Descripción específica y contextualizada del hallazgo: (1) indica qué requerimiento, obligación o situación fue detectada y en qué numeral, artículo o apartado del documento aparece; (2) explica en qué consiste exactamente el incumplimiento, riesgo u observación con los datos concretos del caso (fechas, valores, actividades, omisiones); (3) señala qué consecuencia o implicación tiene para la empresa. Mínimo 3 oraciones. No uses frases genéricas.",
+      "norma_infringida": "Cita exacta: artículo, parágrafo y nombre de la norma (ej: Art. 49 par. 2 Ley 99/93; Art. 2.2.2.3.1.1 Dec. 1076/2015). Agrega en una frase qué exige esa norma en concreto.",
+      "recomendacion": "Acción concreta e inmediata: qué debe hacer la empresa, qué documento o evidencia debe preparar o radicar, ante qué entidad, en qué plazo y quién debe ejecutarlo. No uses recomendaciones genéricas.",
       "prioridad": "Alta|Media|Baja"
     }
   ],
@@ -168,6 +168,13 @@ Reglas estrictas para el array "pagos":
 - Incluye SOLO obligaciones de pago con un valor monetario concreto expresado en el documento (cifra en pesos, SMMLV, UVT u otra unidad cuantificable).
 - Si el documento menciona una posible sanción, multa o pago pero NO especifica el monto, NO lo incluyas en el array.
 - Si el instrumento NO impone ninguna obligación de pago, o los valores no están determinados, devuelve "pagos": [].
+
+Reglas estrictas para el array "hallazgos":
+- Cada hallazgo debe referirse a un hecho concreto identificado en el documento, no a generalidades.
+- La descripción debe citar el numeral, artículo o párrafo específico del instrumento donde se sustenta.
+- No dupliques hallazgos: si dos requerimientos son parte del mismo problema, unifícalos.
+- La norma_infringida debe ser específica (artículo exacto); nunca pongas solo el nombre de la ley.
+- La recomendación debe ser accionable e inmediata, no un consejo genérico como "cumplir con la normativa".
 
 INSTRUMENTO AMBIENTAL A ANALIZAR:
 ${textoSeccion}`;
@@ -229,9 +236,9 @@ Analiza el siguiente instrumento ambiental (expediente, auto o resolución) y ge
     {
       "numero": 1,
       "tipo": "Incumplimiento|Riesgo|Observación|Buena práctica",
-      "descripcion": "Descripción detallada del hallazgo",
-      "norma_infringida": "Artículo y norma aplicable (ej: Art. 49 Ley 99/93 o Art. 2.2.2.3.1.1 Decreto 1076/2015)",
-      "recomendacion": "Acción correctiva o respuesta sugerida",
+      "descripcion": "Descripción específica y contextualizada del hallazgo: (1) indica qué requerimiento, obligación o situación fue detectada y en qué numeral, artículo o apartado del documento aparece; (2) explica en qué consiste exactamente el incumplimiento, riesgo u observación con los datos concretos del caso (fechas, valores, actividades, omisiones); (3) señala qué consecuencia o implicación tiene para la empresa. Mínimo 3 oraciones. No uses frases genéricas.",
+      "norma_infringida": "Cita exacta: artículo, parágrafo y nombre de la norma (ej: Art. 49 par. 2 Ley 99/93; Art. 2.2.2.3.1.1 Dec. 1076/2015). Agrega en una frase qué exige esa norma en concreto.",
+      "recomendacion": "Acción concreta e inmediata: qué debe hacer la empresa, qué documento o evidencia debe preparar o radicar, ante qué entidad, en qué plazo y quién debe ejecutarlo. No uses recomendaciones genéricas.",
       "prioridad": "Alta|Media|Baja"
     }
   ],
@@ -248,6 +255,13 @@ Reglas estrictas para el array "pagos":
 - Incluye SOLO obligaciones de pago con un valor monetario concreto expresado en el documento (cifra en pesos, SMMLV, UVT u otra unidad cuantificable).
 - Si el documento menciona una posible sanción, multa o pago pero NO especifica el monto, NO lo incluyas en el array.
 - Si el instrumento NO impone ninguna obligación de pago, o los valores no están determinados, devuelve "pagos": [].
+
+Reglas estrictas para el array "hallazgos":
+- Cada hallazgo debe referirse a un hecho concreto identificado en el documento, no a generalidades.
+- La descripción debe citar el numeral, artículo o párrafo específico del instrumento donde se sustenta.
+- No dupliques hallazgos: si dos requerimientos son parte del mismo problema, unifícalos.
+- La norma_infringida debe ser específica (artículo exacto); nunca pongas solo el nombre de la ley.
+- La recomendación debe ser accionable e inmediata, no un consejo genérico como "cumplir con la normativa".
 
 INSTRUMENTO AMBIENTAL A ANALIZAR:
 ${texto}`;
