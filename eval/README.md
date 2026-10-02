@@ -18,7 +18,11 @@ script y aborta el proceso si `DATABASE_URL` no apunta exactamente a
 `127.0.0.1:5435/rag_eval_*` — es la única barrera real contra correr esto
 por accidente contra dev, test o producción.
 
-## Setup (una vez)
+Si el contenedor `rag-eval-db` ya no existe en esta máquina (sesión nueva,
+máquina nueva), recrearlo con `bash eval/scripts/00_db.sh <password>` —
+es idempotente, no borra nada si ya existe.
+
+## Setup (una vez por máquina)
 
 ```bash
 bash eval/scripts/00_db.sh "$(openssl rand -hex 16)"   # o cualquier password local
@@ -26,28 +30,49 @@ cp eval/.env.eval.example eval/.env.eval
 # completar DATABASE_URL con el password que imprimió 00_db.sh
 ```
 
-## Flujo
+## Corpus v1 (`eval/data/`) — el corpus real, ya versionado en el repo
+
+40 documentos + 40 consultas, 100% sintéticos (generados por un sub-agente
+sin contexto de los bugs conocidos del sistema — ver #74 y el hilo de
+Opus en #79), calibrados por patrones estructurales de documentos reales
+compartidos por Alejandro **sin copiar ningún dato identificable**
+(verificado de forma independiente, no solo el autorreporte del agente).
+Detalle completo, incluyendo cómo reproducir los resultados desde cero,
+en [`eval/data/README.md`](data/README.md).
+
+**Línea base ya corrida** (tag `rag-baseline-v1`, antes de corregir los
+bugs `#64`-`#67`):
+
+| Experimento | Recall@5 | nDCG@5 |
+|---|---|---|
+| E01 — ponderado | 0.481 | 0.526 |
+| E02 — RRF | 0.464 | 0.514 |
 
 ```bash
-# 1. Cargar categorías (fixture sintético para el mini-corpus; el corpus v1
-#    real necesita el export de categorías reales que haga Alejandro desde
-#    producción — solo nombres y palabras_clave, no son datos personales)
-node --env-file=eval/.env.eval --import ./eval/guard.js eval/scripts/01_cargar_categorias.js
-
-# 2. Indexar el corpus (TRUNCATE + reindexado completo, determinista)
-node --env-file=eval/.env.eval --import ./eval/guard.js eval/scripts/02_indexar.js
-
-# 3. Correr un experimento pre-registrado (eval/experimentos.json)
-node --env-file=eval/.env.eval --import ./eval/guard.js eval/scripts/04_correr.js --exp E01-baseline-ponderado
-
-# (opcional, solo para verificar de punta a punta durante desarrollo —
-#  el cálculo formal con ranx es el alcance de #76)
-node eval/scripts/_sanity_metrics.mjs eval/results/runs/E01-baseline-ponderado.trec eval/fixtures/mini/qrels.trec
+# Flujo completo sobre el corpus v1 (asume eval/.env.eval ya configurado)
+node --env-file=eval/.env.eval --import ./eval/guard.js eval/scripts/01_cargar_categorias.js eval/data/categorias.json
+node --env-file=eval/.env.eval --import ./eval/guard.js eval/scripts/02_indexar.js eval/data/corpus.jsonl
+node --env-file=eval/.env.eval --import ./eval/guard.js eval/scripts/04_correr.js --exp E01-baseline-ponderado --corpus eval/data/corpus.jsonl --queries eval/data/queries.jsonl --out eval/data/runs
+node --env-file=eval/.env.eval --import ./eval/guard.js eval/scripts/04_correr.js --exp E02-baseline-rrf       --corpus eval/data/corpus.jsonl --queries eval/data/queries.jsonl --out eval/data/runs
+node eval/scripts/_sanity_metrics.mjs eval/data/runs/E01-baseline-ponderado.trec eval/data/qrels.trec
 ```
 
-## Mini-corpus (`eval/fixtures/mini/`) — se versiona para siempre
+Para regenerar `eval/data/qrels.trec` después de editar el corpus:
+```bash
+node eval/scripts/03_generar_qrels.js --corpus eval/data/corpus.jsonl --queries eval/data/queries.jsonl --out eval/data/qrels.trec
+```
 
-8 documentos + 4 consultas sintéticas, con casos borde **deliberados**:
+`eval/data/categorias.json` es una taxonomía **inferida** de los patrones
+observados (no el export real de `global_categorias` de producción). Si
+Alejandro exporta el real, guardarlo como `eval/data/categorias.produccion.json`
+(patrón en `.gitignore`) — **nunca sobrescribir** `categorias.json`.
+
+## Mini-corpus (`eval/fixtures/mini/`) — prueba de regresión del arnés, no de la tesis
+
+8 documentos + 4 consultas sintéticas minúsculas, con casos borde
+**deliberados**, pensadas para probar que el arnés en sí funciona de
+punta a punta rápido (no para medir calidad del RAG — para eso está el
+corpus v1 de arriba):
 - `DOC-CORTE-002` tiene un párrafo de 1509 caracteres sin punto final (ejercita el bug de `chunkService.js`, #66 — no corregido todavía, es intencional).
 - `DOC-FAC-002` / `DOC-CORTE-002` no tienen `comprension` (fuerza el fallback a `substring(0,1500)` en `consultaService.construirConsulta`).
 - `Q-FAC-SEM` es relevante solo semánticamente (sin palabras compartidas con los documentos).
@@ -55,24 +80,27 @@ node eval/scripts/_sanity_metrics.mjs eval/results/runs/E01-baseline-ponderado.t
 - `DOC-FAC-003` es un distractor: misma categoría, subtema distinto (grado 1 en los qrels, no 2).
 - `Q-CAT-VACIA` no debería extraer ninguna categoría del fixture (prueba el camino sin filtro).
 
-Los qrels (`qrels.trec`) **no los escribe un humano a mano ni los infiere un LLM**: se derivan mecánicamente de la especificación latente de cada documento/consulta (`spec: {categoria, subtema, base_normativa}`) vía `eval/lib/qrels.js` — así la verdad de referencia no depende de ningún sistema de retrieval. Para regenerar tras editar el corpus:
-
+Regenerar tras editarlo:
 ```bash
 node eval/fixtures/mini/_generar_corpus.mjs   # o _generar_queries.mjs
-node eval/fixtures/mini/_generar_qrels.mjs
+node eval/scripts/03_generar_qrels.js --corpus eval/fixtures/mini/corpus.jsonl --queries eval/fixtures/mini/queries.jsonl --out eval/fixtures/mini/qrels.trec
 ```
 
-**Criterio de aceptación del arnés: determinismo.** Correr `04_correr.js` dos veces, y también reindexar desde cero y volver a correr, debe dar archivos `.trec` byte-idénticos. Verificado manualmente en #73 — no está (todavía) automatizado en `npm test` porque requeriría agregar el contenedor `rag-eval-db` al pipeline de CI, fuera del alcance de este issue.
+Los scripts `01`/`02`/`04` sin argumentos de ruta usan el mini-corpus por
+defecto (`eval/fixtures/mini/...`) — pásales `--corpus`/`--queries`/`--out`
+(y a `01` la ruta de categorías como argumento posicional) para apuntar al
+corpus v1 en su lugar, como en los comandos de arriba.
 
-## Corpus real (v1, #74)
+**Criterio de aceptación del arnés: determinismo.** Correr `04_correr.js`
+dos veces, y también reindexar desde cero y volver a correr, debe dar
+archivos `.trec` byte-idénticos — verificado manualmente en #73 **y**
+otra vez sobre el corpus v1 real. No está automatizado en `npm test`
+porque requeriría agregar el contenedor `rag-eval-db` al pipeline de CI,
+fuera del alcance de estos issues.
 
-Sigue el mismo contrato (`eval/schema.js`) pero con:
-- Categorías reales exportadas por Alejandro desde producción (`eval/data/categorias.json`, gitignored — nunca el fixture sintético de `fixtures/mini/`).
-- 30-50 documentos / consultas generados por un **sub-agente sin contexto de las debilidades conocidas del sistema** (ver #74 y la recomendación de Opus en el hilo de #79), para no sesgar el diseño del corpus hacia lo que ya se sabe que falla o funciona.
-- `eval/data/` está en `.gitignore` — el corpus real nunca se versiona en este repo público.
+## Qué falta (issues separados, Fase 4 en adelante — ver RAG-00 #79)
 
-## Qué falta (fuera del alcance de #73)
-
-- `03_pool_etiquetado.js` — pooling del top-K de todas las configuraciones para etiquetado (#75).
+- `#64`-`#67` — corregir los bugs de retrieval; después de cada uno, repetir el flujo de "Corpus v1" de arriba y comparar contra `rag-baseline-v1`.
+- `03_pool_etiquetado.js` — pooling del top-K de todas las configuraciones para etiquetado por un humano con criterio jurídico (#75) — distinto del `03_generar_qrels.js` de arriba, que deriva la verdad de referencia mecánicamente, no por pooling.
 - `05_evaluar.py` con `ranx` (métricas formales + significancia estadística, #76).
-- Ejecutar las configuraciones de `experimentos.json` contra el corpus v1 y taguear `rag-baseline-v1` (#77).
+- Comparar todas las configuraciones de `experimentos.json` sobre el corpus v1 con los resultados ya corregidos (#77).
