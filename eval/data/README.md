@@ -46,8 +46,25 @@ node --env-file=eval/.env.eval --import ./eval/guard.js eval/scripts/04_correr.j
 node eval/scripts/_sanity_metrics.mjs eval/data/runs/E01-baseline-ponderado.trec eval/data/qrels.trec
 ```
 
+## Pooling para etiquetado (`#75`, 2026-10-02)
+
+`eval/scripts/03b_pool_etiquetado.js` arma el CSV de etiquetado (`pool_etiquetado_test.csv`) uniendo el top-10 de **6 sistemas candidatos** para las 25 consultas del split de **test** congelado (nunca dev — ya se exploró):
+
+1. `ponderado-raw + multilingual-e5-small` — candidato principal (H1 de `#77`)
+2. `RRF + multilingual-e5-small` — alternativa de fusión (H2 de `#77`)
+3. `ponderado + MiniLM` — línea base de producción (referencia de H1)
+4. léxico-solo — control (ya le ganó en nDCG a la fusión completa en `#95`)
+5. `vector-solo + e5-small` — diversidad (`#98`)
+6. `ponderado-normalizado + e5-small` — diversidad (`#98`)
+
+Lista de sistemas **congelada antes de anotar** — no se agregan sistemas a mitad de etiquetado (si hiciera falta un sistema nuevo, se re-poolea desde cero con una lista nueva, documentada). El pool resultante: 408 pares (consulta, documento) sobre 25 consultas (~16 documentos únicos por consulta).
+
+**⚠️ El CSV generado tiene las columnas de relevancia vacías a propósito.** Ningún agente de IA llena `relevancia_anotador1_0a3` / `relevancia_anotador2_0a3` — esa es la tarea central de `#75`, justo para dejar de depender de una verdad de referencia mecánica/generada por IA (ver el riesgo de circularidad documentado en el [doc de seguimiento](https://claude.ai/code/artifact/a0d63867-88c7-4b4b-8ffa-d3df27ccba1c)). Según el propio issue, el etiquetado lo hace el autor de la tesis (no hay abogados reales disponibles para datos sintéticos), idealmente con una segunda pasada días después.
+
+`doble_anotacion=SI` marca ~20% de las consultas (5 de 25, deterministamente elegidas) para las que hay que llenar también `relevancia_anotador2_0a3` — una segunda persona, o la misma persona en una segunda pasada separada en el tiempo. Una vez lleno, `node eval/scripts/03c_cohen_kappa.js eval/data/pool_etiquetado_test.csv` calcula Cohen's κ (verificado contra un caso de prueba calculado a mano).
+
+Tras etiquetar, regenerar `qrels.trec` reemplazando las filas del split de test con los grados reales asignados (quedan solo los pares con relevancia ≥1; el formato TREC es `qid 0 doc_id grado`) — pendiente de automatizar en `#77` (hoy es un paso manual).
+
 ## Estado y siguiente paso (actualizado 2026-10-02)
 
-Fase 4 (`#64`-`#67`) completa y mergeada — ninguno de los 4 fixes movió recall@5/nDCG@5 de forma apreciable sobre el corpus v1 original de 40 queries (son casos borde que ese corpus casi no contiene). `#95` y `#98` (diagnóstico + RAG-Q1, `multilingual-e5-small` supera la línea base) también completos y mergeados, exploratorios sobre las mismas 40 queries.
-
-Con `#96` cerrado, sigue `#75` (etiquetado por pooling con criterio jurídico real, sobre **todas** las configuraciones candidatas incluyendo las de `#98`) → `#76` (métricas formales con `ranx`, significancia) → `#77` (confirmación: ¿`ponderado-raw + e5-small` le gana a la línea base de producción, con significancia, sobre el split de **test** congelado aquí?). Los números de `runs/` son el baseline histórico con el que comparar — ninguno de ellos usa todavía el split ni las 80 queries nuevas.
+Fase 4 (`#64`-`#67`), `#95`, `#98` y `#96` completos y mergeados. `#75` (este): script de pooling listo, CSV generado, **etiquetado real pendiente de Alejandro**. Después: `#76` (métricas formales con `ranx`, significancia) → `#77` (confirmación: ¿`ponderado-raw + e5-small` le gana a la línea base de producción, con significancia, sobre el split de test recién etiquetado?). Los números de `runs/E0*` siguen siendo el baseline histórico de 40 queries — ninguno de ellos usa el split ni las 80 queries nuevas todavía.
