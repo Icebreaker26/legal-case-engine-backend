@@ -1,9 +1,8 @@
 import { extraerTextoPdf } from '../../../services/pdfService.js';
 import { generarEmbeddingLocal } from '../services/aiService.js';
-import { buscarContextoLegal } from '../services/vectorService.js';
 import { generarDocumentoWord } from '../services/docxService.js';
 import { indexarDocumento } from '../services/memoriaService.js';
-import { construirConsulta } from '../services/consultaService.js';
+import { recuperarPrecedentes } from '../services/consultaService.js';
 import { extraerDatosTutela } from '../services/extractorService.js';
 import { limpiarTexto, limpiarTextoParaPostgres } from '../services/cleanerService.js';
 import { registrarLog } from '../../../services/auditService.js';
@@ -208,9 +207,10 @@ export const procesarTutela = async (req, res) => {
     const fechaVencimiento = sumarDiasHabiles(new Date(), parseInt(dias_termino) || 2);
 
     const datosExtraidos = await extraerDatosTutela(textoPdf);
-    const { textoVector, textoLexico } = construirConsulta({ contenido_original: textoPdf });
-    const vectorLocal = await generarEmbeddingLocal(textoVector, { tipo: 'query' });
-    const precedentesExitosos = await buscarContextoLegal(vectorLocal, textoLexico, 5, datosExtraidos.derecho_vulnerado);
+    const precedentesExitosos = await recuperarPrecedentes({
+      tutela: { contenido_original: textoPdf },
+      categoria: datosExtraidos.derecho_vulnerado,
+    });
 
     const queryInsert = `
       INSERT INTO tutelas (radicado, accionante, juzgado, derecho_vulnerado, responsable_uuid, fecha_recepcion, fecha_vencimiento, prioridad, grupo_id, dias_termino, estado, contenido_original)
@@ -345,9 +345,8 @@ export const obtenerSugerenciasTutela = async (req, res) => {
     if (rows.length === 0) return res.status(404).json({ error: 'Tutela no encontrada.' });
 
     const { contenido_original, derecho_vulnerado } = rows[0];
-    const { textoVector, textoLexico } = construirConsulta({ contenido_original });
-    const vectorLocal = await generarEmbeddingLocal(textoVector, { tipo: 'query' });
-    res.status(200).json(await buscarContextoLegal(vectorLocal, textoLexico, 5, derecho_vulnerado));
+    const sugerencias = await recuperarPrecedentes({ tutela: { contenido_original }, categoria: derecho_vulnerado });
+    res.status(200).json(sugerencias);
   } catch (error) {
     res.status(500).json({ error: 'Error al generar sugerencias.' });
   }
@@ -368,9 +367,10 @@ export const generarBorradorContestacion = async (req, res) => {
     }
 
     // Sin IA externa: devuelve sugerencias del RAG local para que el abogado redacte manualmente
-    const { textoVector, textoLexico } = construirConsulta({ contenido_original: rows[0].contenido_original });
-    const vectorLocal = await generarEmbeddingLocal(textoVector, { tipo: 'query' });
-    const sugerencias = await buscarContextoLegal(vectorLocal, textoLexico, 5, rows[0].derecho_vulnerado);
+    const sugerencias = await recuperarPrecedentes({
+      tutela: { contenido_original: rows[0].contenido_original },
+      categoria: rows[0].derecho_vulnerado,
+    });
 
     res.status(200).json({ sugerencias, status: 'suggestions_only' });
 
@@ -1027,9 +1027,7 @@ export const generarPromptsPeticion = async (req, res) => {
     const argumentos = argumentosRes.rows;
 
     const comprension = tutela.analisis_comprension || null;
-    const { textoVector, textoLexico } = construirConsulta(tutela);
-    const vectorLocal = await generarEmbeddingLocal(textoVector, { tipo: 'query' });
-    const sugerencias = await buscarContextoLegal(vectorLocal, textoLexico, 5, tutela.derecho_vulnerado);
+    const sugerencias = await recuperarPrecedentes({ tutela, categoria: tutela.derecho_vulnerado });
 
     const solicitudes = extraerSolicitudes(tutela.contenido_original || '');
     const lotes = agruparEnLotes(solicitudes, { tutela, legalNotes, sugerencias, argumentos });
