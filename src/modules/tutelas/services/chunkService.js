@@ -8,8 +8,11 @@ export const dividirEnChunks = (texto, size = 1500, overlap = null) => {
 
   for (const parrafo of parrafos) {
     if (parrafo.length > size) {
-      // Párrafo gigante: intentar cortar por oración antes de cortar por carácter
-      const oraciones = parrafo.match(/[^.!?]+[.!?]+/g) || [parrafo];
+      // Párrafo gigante: intentar cortar por oración antes de cortar por carácter.
+      // La segunda alternativa captura el remanente final sin punto/!/? — sin
+      // ella, match() descarta ese remanente por completo (no queda ni en un
+      // "temp" a medio llenar: nunca entra al loop de oraciones).
+      const oraciones = parrafo.match(/[^.!?]+[.!?]+|[^.!?]+$/g) || [parrafo];
       let temp = '';
       for (const oracion of oraciones) {
         if ((temp + oracion).length <= size) {
@@ -46,9 +49,12 @@ export const dividirEnChunks = (texto, size = 1500, overlap = null) => {
       if (current) chunks.push(current);
 
       // El overlap toma los últimos `overlap` caracteres del chunk anterior
-      // para preservar contexto entre chunks
+      // para preservar contexto entre chunks — pero si tail + unidad excede
+      // size (unidad por sí sola siempre cabe, ver arriba), se descarta el
+      // overlap para ese chunk en vez de superar el límite declarado.
       const tail = current.slice(-effectiveOverlap);
-      current = tail ? tail + '\n\n' + unidad : unidad;
+      const conTail = tail ? tail + '\n\n' + unidad : unidad;
+      current = conTail.length <= size ? conTail : unidad;
     }
   }
 
