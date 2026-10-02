@@ -22,3 +22,11 @@ export const limpiarTexto = async (texto) => {
         return texto; // Retornar texto original si falla la limpieza dinámica
     }
 };
+
+/**
+ * Postgres no acepta el byte nulo \0 en columnas de texto.
+ */
+export const limpiarTextoParaPostgres = (texto) => {
+    if (!texto) return '';
+    return texto.replace(/\0/g, '');
+};
