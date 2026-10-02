@@ -3,8 +3,14 @@ import { env } from '../../../config/env.js';
 
 // Algunos modelos (familia e5) requieren un prefijo distinto según si el texto
 // es una consulta de búsqueda o un documento que se va a indexar.
+//
+// 'intfloat/multilingual-e5-small' es el id original del modelo, pero
+// @xenova/transformers no puede cargarlo (no tiene conversión ONNX en ese
+// repo) — solo funciona el espejo 'Xenova/multilingual-e5-small' (#98). Se
+// mantienen ambas claves por si alguna vez se configura con el id original.
 const PREFIJOS = {
   'intfloat/multilingual-e5-small': { query: 'query: ', passage: 'passage: ' },
+  'Xenova/multilingual-e5-small': { query: 'query: ', passage: 'passage: ' },
 };
 
 // Caché de extractores por modelo — permite tener varios modelos cargados a
