@@ -3,19 +3,15 @@ import { generarEmbeddingLocal } from '../services/aiService.js';
 import { buscarContextoLegal } from '../services/vectorService.js';
 import { generarDocumentoWord } from '../services/docxService.js';
 import { indexarDocumento } from '../services/memoriaService.js';
+import { construirConsulta } from '../services/consultaService.js';
 import { extraerDatosTutela } from '../services/extractorService.js';
-import { limpiarTexto } from '../services/cleanerService.js';
+import { limpiarTexto, limpiarTextoParaPostgres } from '../services/cleanerService.js';
 import { registrarLog } from '../../../services/auditService.js';
 import { crearNotificacion } from '../../notificaciones/services/notificationService.js';
 import pool from '../../../db/database.js';
 import { ESTADOS, PRIORIDADES } from '../constants.js';
 import { extraerSolicitudes, agruparEnLotes, construirPromptLote, buildPromptComprension } from '../services/peticionService.js';
 import { respuestaLlmSchema } from '../schemas/tutelaSchema.js';
-
-const limpiarTextoParaPostgres = (texto) => {
-  if (!texto) return '';
-  return texto.replace(/\0/g, ''); 
-};
 
 export const listarBaseConocimiento = async (req, res) => {
   try {
@@ -211,10 +207,10 @@ export const procesarTutela = async (req, res) => {
 
     const fechaVencimiento = sumarDiasHabiles(new Date(), parseInt(dias_termino) || 2);
 
-    const textoParaVector = textoPdf.substring(0, 1500);
     const datosExtraidos = await extraerDatosTutela(textoPdf);
-    const vectorLocal = await generarEmbeddingLocal(textoParaVector);
-    const precedentesExitosos = await buscarContextoLegal(vectorLocal, textoParaVector, 5, datosExtraidos.derecho_vulnerado);
+    const { textoVector, textoLexico } = construirConsulta({ contenido_original: textoPdf });
+    const vectorLocal = await generarEmbeddingLocal(textoVector);
+    const precedentesExitosos = await buscarContextoLegal(vectorLocal, textoLexico, 5, datosExtraidos.derecho_vulnerado);
 
     const queryInsert = `
       INSERT INTO tutelas (radicado, accionante, juzgado, derecho_vulnerado, responsable_uuid, fecha_recepcion, fecha_vencimiento, prioridad, grupo_id, dias_termino, estado, contenido_original)
@@ -349,9 +345,9 @@ export const obtenerSugerenciasTutela = async (req, res) => {
     if (rows.length === 0) return res.status(404).json({ error: 'Tutela no encontrada.' });
 
     const { contenido_original, derecho_vulnerado } = rows[0];
-    const textoOriginal = contenido_original || '';
-    const vectorLocal = await generarEmbeddingLocal(textoOriginal.substring(0, 1500));
-    res.status(200).json(await buscarContextoLegal(vectorLocal, textoOriginal, 5, derecho_vulnerado));
+    const { textoVector, textoLexico } = construirConsulta({ contenido_original });
+    const vectorLocal = await generarEmbeddingLocal(textoVector);
+    res.status(200).json(await buscarContextoLegal(vectorLocal, textoLexico, 5, derecho_vulnerado));
   } catch (error) {
     res.status(500).json({ error: 'Error al generar sugerencias.' });
   }
@@ -372,9 +368,9 @@ export const generarBorradorContestacion = async (req, res) => {
     }
 
     // Sin IA externa: devuelve sugerencias del RAG local para que el abogado redacte manualmente
-    const textoOriginal = rows[0].contenido_original || '';
-    const vectorLocal = await generarEmbeddingLocal(textoOriginal.substring(0, 1500));
-    const sugerencias = await buscarContextoLegal(vectorLocal, textoOriginal, 5, rows[0].derecho_vulnerado);
+    const { textoVector, textoLexico } = construirConsulta({ contenido_original: rows[0].contenido_original });
+    const vectorLocal = await generarEmbeddingLocal(textoVector);
+    const sugerencias = await buscarContextoLegal(vectorLocal, textoLexico, 5, rows[0].derecho_vulnerado);
 
     res.status(200).json({ sugerencias, status: 'suggestions_only' });
 
@@ -1031,12 +1027,9 @@ export const generarPromptsPeticion = async (req, res) => {
     const argumentos = argumentosRes.rows;
 
     const comprension = tutela.analisis_comprension || null;
-    const textoParaVector = comprension?.tema_central
-      ? `${comprension.tema_central}. ${(comprension.peticiones || []).join('. ')}`
-      : (tutela.contenido_original || '').substring(0, 1500);
-
-    const vectorLocal = await generarEmbeddingLocal(textoParaVector);
-    const sugerencias = await buscarContextoLegal(vectorLocal, tutela.contenido_original || '', 5, tutela.derecho_vulnerado);
+    const { textoVector, textoLexico } = construirConsulta(tutela);
+    const vectorLocal = await generarEmbeddingLocal(textoVector);
+    const sugerencias = await buscarContextoLegal(vectorLocal, textoLexico, 5, tutela.derecho_vulnerado);
 
     const solicitudes = extraerSolicitudes(tutela.contenido_original || '');
     const lotes = agruparEnLotes(solicitudes, { tutela, legalNotes, sugerencias, argumentos });
