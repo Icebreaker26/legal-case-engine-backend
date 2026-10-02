@@ -1,0 +1,33 @@
+{
+  "_comentario": "Split dev/test congelado para #96 (segunda opinión de Opus 5.5, 2026-10-02). Regla: las 40 queries originales de corpus v1 (Q-*-001 a Q-*-040) van TODAS a dev, nunca a test — ya se usaron para exploración en #95 y #98 (ablation, experimento 2x2, RAG-Q1); incluirlas en test contaminaría la confirmación de #77. De las 80 queries nuevas (Q-*-041 a Q-*-120), se tomó un ~30% por cada 'modo' (PARA/SEM/LEX/NOKW/DIS) mediante muestreo sistemático (stride uniforme dentro del bloque de cada modo, ordenado por qid) — no las últimas N por orden de generación, para evitar sesgar el test hacia las categorías que quedaron generadas al final de cada bloque. Resultado: 25 queries de test con cobertura de la mayoría de las 9 categorías. Congelado el 2026-10-02 — no se recalcula después de ver resultados de ningún experimento.",
+  "fecha_congelado": "2026-10-02",
+  "regla_generacion": "para cada modo, nTest = round(0.3 * n_queries_nuevas_del_modo); stride = n/nTest; se toman los índices floor(i*stride) para i en [0, nTest) sobre las queries del modo ordenadas por qid",
+  "dev": "todas las queries de queries.jsonl que NO aparecen en 'test' (las 40 originales de v1 + 55 nuevas de #96)",
+  "test": [
+    "Q-ACP-LEX-089",
+    "Q-ACP-PARA-050",
+    "Q-ACP-SEM-069",
+    "Q-CAL-PARA-057",
+    "Q-CAL-SEM-076",
+    "Q-COR-LEX-093",
+    "Q-COR-PARA-055",
+    "Q-COR-SEM-074",
+    "Q-DIN-LEX-088",
+    "Q-DIS-109",
+    "Q-DIS-112",
+    "Q-DIS-115",
+    "Q-DIS-118",
+    "Q-FAC-PARA-053",
+    "Q-FAC-SEM-072",
+    "Q-INF-LEX-096",
+    "Q-INF-SEM-080",
+    "Q-ISA-PARA-046",
+    "Q-NOKW-097",
+    "Q-NOKW-100",
+    "Q-NOKW-103",
+    "Q-NOKW-106",
+    "Q-SPR-LEX-081",
+    "Q-SPR-PARA-042",
+    "Q-SPR-SEM-061"
+  ]
+}
