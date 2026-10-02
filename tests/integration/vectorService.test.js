@@ -84,6 +84,51 @@ describe('vectorService — buscarContextoLegal (integración real contra pgvect
     });
   });
 
+  describe('ROW_NUMBER() del chunk representante (#65)', () => {
+    // Mismo documento_id, dos chunks: uno con ts_rank alto pero vector lejano
+    // (score bajo, por el peso 0.55 del término vectorial), otro con ts_rank
+    // cero pero vector cercano (score alto). El chunk representante debe ser
+    // el de mayor score, no el de mayor ts_rank.
+    const DOCUMENTO_ID_COMPARTIDO = 'bbbbbbbb-0000-0000-0000-000000000001';
+    const CATEGORIA_ROWNUM = 'VECTORSVC_ROWNUM_TEST';
+
+    const chunkTsRankAlto = {
+      titulo_referencia: 'RowNumber Chunk ts_rank alto (vector lejano)',
+      contenido_legal: 'Corte del servicio eléctrico por mora en el pago de facturación mensual.',
+      embedding_local: vectorLejano,
+    };
+    const chunkScoreAlto = {
+      titulo_referencia: 'RowNumber Chunk score alto (vector cercano, sin match léxico)',
+      contenido_legal: 'Documento sin relación textual alguna con el término de búsqueda empleado.',
+      embedding_local: vectorCercano,
+    };
+
+    beforeAll(async () => {
+      for (const c of [chunkTsRankAlto, chunkScoreAlto]) {
+        await pool.query(
+          `INSERT INTO base_conocimiento_enel
+             (categoria, titulo_referencia, contenido_legal, embedding_local, es_exitosa, is_active, documento_id, relevancia_score)
+           VALUES ($1, $2, $3, $4, TRUE, TRUE, $5, 0)`,
+          [CATEGORIA_ROWNUM, c.titulo_referencia, c.contenido_legal, JSON.stringify(c.embedding_local), DOCUMENTO_ID_COMPARTIDO]
+        );
+      }
+    });
+
+    afterAll(async () => {
+      await pool.query('DELETE FROM base_conocimiento_enel WHERE categoria = $1', [CATEGORIA_ROWNUM]);
+    });
+
+    test('elige el chunk de mayor score, no el de mayor ts_rank', async () => {
+      // categoria con <3 resultados dispara el complemento global de
+      // buscarPonderado (comportamiento esperado, no el bug bajo prueba) —
+      // se filtra por documento_id para aislar el representante elegido.
+      const rows = await buscarContextoLegal(vectorCercano, 'facturación mensual', 10, CATEGORIA_ROWNUM);
+      const representante = rows.filter(r => r.documento_id === DOCUMENTO_ID_COMPARTIDO);
+      expect(representante).toHaveLength(1);
+      expect(representante[0].titulo_referencia).toBe(chunkScoreAlto.titulo_referencia);
+    });
+  });
+
   describe('fusion: "rrf"', () => {
     test('devuelve resultados fusionando señal vectorial, léxica y relevancia', async () => {
       const rows = await buscarContextoLegal(vectorCercano, 'facturación mensual', 10, CATEGORIA_TEST, { fusion: 'rrf' });
