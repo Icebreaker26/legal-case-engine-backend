@@ -1,0 +1,6 @@
+[
+  { "nombre": "FACTURACION_TEST", "palabras_clave": ["FACTURACION", "COBRO", "FACTURA"] },
+  { "nombre": "CORTE_SERVICIO_TEST", "palabras_clave": ["CORTE", "SUSPENSION", "SUSPENSIÓN", "SUSPENDIDO", "SUSPENDIERON"] },
+  { "nombre": "SERVIDUMBRE_TEST", "palabras_clave": ["SERVIDUMBRE", "PREDIO"] },
+  { "nombre": "PRESCRIPCION_TEST", "palabras_clave": ["PRESCRIPCION", "PRESCRIPCIÓN"] }
+]

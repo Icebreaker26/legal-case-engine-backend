@@ -1,0 +1,18 @@
+[
+  {
+    "id": "E01-baseline-ponderado",
+    "fusion": "ponderado",
+    "estrategia": "actual",
+    "comprensionQuery": false,
+    "categoria": "extraida",
+    "limit": 10
+  },
+  {
+    "id": "E02-baseline-rrf",
+    "fusion": "rrf",
+    "estrategia": "actual",
+    "comprensionQuery": false,
+    "categoria": "extraida",
+    "limit": 10
+  }
+]

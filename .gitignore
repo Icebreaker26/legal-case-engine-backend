@@ -28,3 +28,9 @@ coverage/
 # OS
 .DS_Store
 Thumbs.db
+
+# Arnés de evaluación RAG (#73) — datos reales/corridas nunca se versionan.
+# eval/fixtures/ SÍ se versiona (mini-corpus sintético, prueba de regresión del arnés).
+eval/.env.eval
+eval/data/
+eval/results/
