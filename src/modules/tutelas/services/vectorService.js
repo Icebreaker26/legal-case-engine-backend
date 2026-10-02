@@ -5,7 +5,7 @@ import pool from '../../../db/database.js';
  *
  * Estrategia de dos fases:
  *   1. CTE "scored": calcula score para cada chunk y marca con ROW_NUMBER el
- *      chunk de mayor ts_rank dentro de cada documento (el más relevante por texto).
+ *      chunk de mayor score híbrido dentro de cada documento (el más relevante).
  *   2. Filtra rn = 1  → un representante por documento → ORDER BY score global.
  *
  * COALESCE(embedding_comprension, embedding_local):
@@ -22,20 +22,25 @@ const buildScoringCTE = ({ filtrarCategoria, excluirIds = [] }) => {
   // Sin categoría, los IDs empiezan en $4.
   // Nota: categoría y exclusión son mutuamente excluyentes en el uso actual.
 
+  // La expresión se repite (no se puede referenciar el alias "score" del SELECT
+  // list dentro del propio SELECT): ROW_NUMBER() debe partir el documento por el
+  // mismo score híbrido, no solo por ts_rank, o descarta el mejor chunk semántico.
+  const scoreExpr = `
+          (1 - (COALESCE(embedding_comprension, embedding_local) <=> $1::vector)) * 0.55 +
+          LEAST(ts_rank(contenido_tsv, plainto_tsquery('spanish', $2)), 1.0) * 0.35 +
+          LEAST(GREATEST(relevancia_score, 0), 10) / 10.0 * 0.10
+  `;
+
   return `
     WITH scored AS (
       SELECT
         categoria, titulo_referencia, contenido_legal, documento_id,
         relevancia_score, comprension_doc,
         (comprension_doc IS NOT NULL) AS tiene_comprension,
-        ROUND(CAST(
-          (1 - (COALESCE(embedding_comprension, embedding_local) <=> $1::vector)) * 0.55 +
-          LEAST(ts_rank(contenido_tsv, plainto_tsquery('spanish', $2)), 1.0) * 0.35 +
-          LEAST(GREATEST(relevancia_score, 0), 10) / 10.0 * 0.10
-        AS NUMERIC), 4) AS score,
+        ROUND(CAST(${scoreExpr} AS NUMERIC), 4) AS score,
         ROW_NUMBER() OVER (
           PARTITION BY documento_id
-          ORDER BY ts_rank(contenido_tsv, plainto_tsquery('spanish', $2)) DESC
+          ORDER BY ${scoreExpr} DESC
         ) AS rn
       FROM base_conocimiento_enel
       WHERE embedding_local IS NOT NULL
