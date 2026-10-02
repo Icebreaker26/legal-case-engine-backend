@@ -209,7 +209,7 @@ export const procesarTutela = async (req, res) => {
 
     const datosExtraidos = await extraerDatosTutela(textoPdf);
     const { textoVector, textoLexico } = construirConsulta({ contenido_original: textoPdf });
-    const vectorLocal = await generarEmbeddingLocal(textoVector);
+    const vectorLocal = await generarEmbeddingLocal(textoVector, { tipo: 'query' });
     const precedentesExitosos = await buscarContextoLegal(vectorLocal, textoLexico, 5, datosExtraidos.derecho_vulnerado);
 
     const queryInsert = `
@@ -346,7 +346,7 @@ export const obtenerSugerenciasTutela = async (req, res) => {
 
     const { contenido_original, derecho_vulnerado } = rows[0];
     const { textoVector, textoLexico } = construirConsulta({ contenido_original });
-    const vectorLocal = await generarEmbeddingLocal(textoVector);
+    const vectorLocal = await generarEmbeddingLocal(textoVector, { tipo: 'query' });
     res.status(200).json(await buscarContextoLegal(vectorLocal, textoLexico, 5, derecho_vulnerado));
   } catch (error) {
     res.status(500).json({ error: 'Error al generar sugerencias.' });
@@ -369,7 +369,7 @@ export const generarBorradorContestacion = async (req, res) => {
 
     // Sin IA externa: devuelve sugerencias del RAG local para que el abogado redacte manualmente
     const { textoVector, textoLexico } = construirConsulta({ contenido_original: rows[0].contenido_original });
-    const vectorLocal = await generarEmbeddingLocal(textoVector);
+    const vectorLocal = await generarEmbeddingLocal(textoVector, { tipo: 'query' });
     const sugerencias = await buscarContextoLegal(vectorLocal, textoLexico, 5, rows[0].derecho_vulnerado);
 
     res.status(200).json({ sugerencias, status: 'suggestions_only' });
@@ -1028,7 +1028,7 @@ export const generarPromptsPeticion = async (req, res) => {
 
     const comprension = tutela.analisis_comprension || null;
     const { textoVector, textoLexico } = construirConsulta(tutela);
-    const vectorLocal = await generarEmbeddingLocal(textoVector);
+    const vectorLocal = await generarEmbeddingLocal(textoVector, { tipo: 'query' });
     const sugerencias = await buscarContextoLegal(vectorLocal, textoLexico, 5, tutela.derecho_vulnerado);
 
     const solicitudes = extraerSolicitudes(tutela.contenido_original || '');

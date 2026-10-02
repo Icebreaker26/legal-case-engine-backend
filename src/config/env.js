@@ -8,7 +8,8 @@ const envSchema = z.object({
   JWT_SECRET: z.string().min(16, "JWT_SECRET debe tener al menos 16 caracteres para mayor seguridad"),
   PORT: z.string().default('4000').transform(Number),
   NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
-  FRONTEND_URL: z.string().url("FRONTEND_URL debe ser una URL válida")
+  FRONTEND_URL: z.string().url("FRONTEND_URL debe ser una URL válida"),
+  EMBEDDING_MODEL: z.string().default('Xenova/all-MiniLM-L6-v2'),
 });
 
 const _env = envSchema.safeParse(process.env);
