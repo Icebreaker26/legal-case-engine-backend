@@ -46,6 +46,7 @@ const buildScoringCTE = ({ filtrarCategoria, excluirIds = [] }) => {
       WHERE embedding_local IS NOT NULL
         AND es_exitosa = TRUE
         AND is_active = TRUE
+        AND documento_id IS NOT NULL
         ${categoriaFilter}
         ${exclusion}
     )
@@ -65,7 +66,11 @@ const buscarPonderado = async (vectorTutelaLocal, texto, limit, categoria) => {
 
     if (rows.length >= 3) return rows;
 
-    // Complementa con búsqueda global excluyendo los ya encontrados
+    // Complementa con búsqueda global excluyendo los ya encontrados.
+    // idsEncontrados nunca puede traer un NULL (buildScoringCTE ya filtra
+    // documento_id IS NOT NULL) — si lo trajera, "<> ALL(ARRAY[NULL,...])"
+    // evalúa a NULL por fila (semántica SQL de NULL) y el WHERE completo
+    // descarta todas las filas en silencio (#67).
     const idsEncontrados = rows.map(r => r.documento_id);
     const faltantes = limit - rows.length;
     const complementoParams = [JSON.stringify(vectorTutelaLocal), texto, faltantes, ...idsEncontrados];
@@ -121,14 +126,16 @@ const RRF_QUERY = `
   vec AS (
     SELECT id, ROW_NUMBER() OVER (ORDER BY embedding_local <=> $1::vector) AS rank
     FROM base_conocimiento_enel
-    WHERE embedding_local IS NOT NULL AND es_exitosa = TRUE AND is_active = TRUE ${CATEGORIA_FILTER}
+    WHERE embedding_local IS NOT NULL AND es_exitosa = TRUE AND is_active = TRUE
+      AND documento_id IS NOT NULL ${CATEGORIA_FILTER}
     ORDER BY embedding_local <=> $1::vector
     LIMIT $5
   ),
   txt AS (
     SELECT b.id, ROW_NUMBER() OVER (ORDER BY ts_rank(b.contenido_tsv, q.tsq) DESC) AS rank
     FROM base_conocimiento_enel b, q
-    WHERE b.embedding_local IS NOT NULL AND b.es_exitosa = TRUE AND b.is_active = TRUE ${CATEGORIA_FILTER}
+    WHERE b.embedding_local IS NOT NULL AND b.es_exitosa = TRUE AND b.is_active = TRUE
+      AND b.documento_id IS NOT NULL ${CATEGORIA_FILTER}
       AND q.tsq IS NOT NULL AND b.contenido_tsv @@ q.tsq
     ORDER BY ts_rank(b.contenido_tsv, q.tsq) DESC
     LIMIT $5
@@ -144,6 +151,7 @@ const RRF_QUERY = `
     SELECT id, ROW_NUMBER() OVER (ORDER BY relevancia_score DESC) AS rank
     FROM base_conocimiento_enel
     WHERE embedding_local IS NOT NULL AND es_exitosa = TRUE AND is_active = TRUE
+      AND documento_id IS NOT NULL
       AND relevancia_score > 0 ${CATEGORIA_FILTER}
     ORDER BY relevancia_score DESC
     LIMIT $5

@@ -205,4 +205,50 @@ describe('vectorService — buscarContextoLegal (integración real contra pgvect
       expect(ids).toContain(docs[0].documento_id);
     });
   });
+
+  describe('documento_id NULL (#67)', () => {
+    // Dos filas con documento_id = NULL, vector cercano + texto relevante:
+    // antes del fix, PARTITION BY documento_id (ponderado) y
+    // DISTINCT ON (documento_id) (RRF) las agrupan entre sí como si fueran
+    // "un documento", y esa fila-fantasma puede colarse en el ranking junto
+    // a los documentos reales.
+    const CATEGORIA_NULL = 'VECTORSVC_NULL_TEST';
+
+    beforeAll(async () => {
+      for (let i = 0; i < 2; i++) {
+        await pool.query(
+          `INSERT INTO base_conocimiento_enel
+             (categoria, titulo_referencia, contenido_legal, embedding_local, es_exitosa, is_active, documento_id, relevancia_score)
+           VALUES ($1, $2, $3, $4, TRUE, TRUE, NULL, 0)`,
+          [CATEGORIA_NULL, `NULL Doc ${i}`, 'Corte del servicio eléctrico por mora en el pago de facturación mensual.', JSON.stringify(vectorCercano)]
+        );
+      }
+    });
+
+    afterAll(async () => {
+      await pool.query('DELETE FROM base_conocimiento_enel WHERE categoria = $1', [CATEGORIA_NULL]);
+    });
+
+    test('ponderado: ninguna fila con documento_id NULL aparece en los resultados', async () => {
+      const rows = await buscarContextoLegal(vectorCercano, 'facturación mensual', 10, CATEGORIA_NULL);
+      expect(rows.every(r => r.documento_id !== null)).toBe(true);
+    });
+
+    test('rrf: ninguna fila con documento_id NULL aparece en los resultados', async () => {
+      const rows = await buscarContextoLegal(vectorCercano, 'facturación mensual', 10, CATEGORIA_NULL, { fusion: 'rrf' });
+      expect(rows.every(r => r.documento_id !== null)).toBe(true);
+    });
+
+    test('ponderado: la búsqueda complementaria (idsEncontrados) no se rompe cuando el único resultado de la categoría es NULL', async () => {
+      // categoria con <3 resultados dispara el complemento global — si
+      // idsEncontrados llegara a traer un NULL, "<> ALL(ARRAY[NULL])"
+      // evalúa a NULL por fila y el complemento devolvería 0 filas en
+      // silencio. Con el fix, la categoría NULL simplemente no aporta
+      // resultados propios y el complemento trae los documentos activos
+      // reales de otras categorías.
+      const rows = await buscarContextoLegal(vectorCercano, 'facturación mensual', 10, CATEGORIA_NULL);
+      expect(rows.length).toBeGreaterThan(0);
+      expect(rows.every(r => r.documento_id !== null)).toBe(true);
+    });
+  });
 });
