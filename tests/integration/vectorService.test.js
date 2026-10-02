@@ -32,6 +32,13 @@ const docs = [
     embedding_local: vectorCercano,
     relevancia_score: 0,
   },
+  {
+    documento_id: 'aaaaaaaa-0000-0000-0000-000000000004',
+    titulo_referencia: 'VectorService Doc D (vector lejano, texto sin relación, sin feedback)',
+    contenido_legal: 'Reglamento interno de bienestar laboral para contratistas externos.',
+    embedding_local: vectorLejano,
+    relevancia_score: 0,
+  },
 ];
 
 describe('vectorService — buscarContextoLegal (integración real contra pgvector)', () => {
@@ -97,6 +104,28 @@ describe('vectorService — buscarContextoLegal (integración real contra pgvect
     test('texto sin lexemas útiles (vacío) no falla — solo cae a señal vectorial y relevancia', async () => {
       const rows = await buscarContextoLegal(vectorCercano, '', 10, CATEGORIA_TEST, { fusion: 'rrf' });
       expect(Array.isArray(rows)).toBe(true);
+    });
+
+    test('la señal de relevancia (rel) excluye documentos sin feedback positivo (relevancia_score=0)', async () => {
+      // Prueba quirúrgica de la señal "rel" en aislamiento, replicando su WHERE
+      // exacto — en vez de verificar el resultado fusionado (donde las otras dos
+      // señales, vectorial y léxica, pueden empatar entre sí y enmascarar el bug).
+      //
+      // Antes del fix: relevancia_score=0 es el default de TODO documento sin
+      // feedback del abogado. Sin "AND relevancia_score > 0", los 3 documentos
+      // de prueba con score=0 (B, C, D) empatan y Postgres los devuelve en un
+      // orden arbitrario — cualquiera de ellos podía colarse en el ranking de
+      // "rel" y recibir el mismo impulso RRF que un documento con feedback real.
+      const { rows } = await pool.query(
+        `SELECT documento_id FROM base_conocimiento_enel
+         WHERE embedding_local IS NOT NULL AND es_exitosa = TRUE
+           AND relevancia_score > 0 AND categoria = $1
+         ORDER BY relevancia_score DESC`,
+        [CATEGORIA_TEST]
+      );
+      // Solo Doc A tiene relevancia_score=8 > 0; B, C y D tienen 0 y deben quedar fuera.
+      expect(rows).toHaveLength(1);
+      expect(rows[0].documento_id).toBe(docs[0].documento_id);
     });
   });
 });

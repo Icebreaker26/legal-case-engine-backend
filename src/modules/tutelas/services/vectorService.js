@@ -96,7 +96,11 @@ const buscarPonderado = async (vectorTutelaLocal, texto, limit, categoria) => {
 // consulta y casi nunca matchea con textos largos) — corrige el mismo
 // problema que tiene ambientalEmbeddingService.js.
 const RRF_K = 60;
-const CANDIDATOS = 50;
+// hnsw.ef_search (pgvector) tiene default 40 — con CANDIDATOS > ef_search,
+// la rama vectorial devolvería menos de CANDIDATOS filas en producción (a
+// escala, cuando el planner use el índice) aunque en pruebas con pocas filas
+// no se note porque el planner usa seq scan. Se iguala a 40 por consistencia.
+const CANDIDATOS = 40;
 
 // $4 (categoría) puede ser NULL — "AND ($4::text IS NULL OR categoria ILIKE $4)"
 // es un no-op cuando no se filtra, y evita tener dos variantes de la query
@@ -124,9 +128,17 @@ const RRF_QUERY = `
     LIMIT $5
   ),
   rel AS (
+    -- relevancia_score default es 0 (NOT NULL) para todo documento sin
+    -- feedback del abogado. Sin el filtro > 0, todos los docs con 0 empatan
+    -- y Postgres los devuelve en un orden arbitrario (en la práctica, el de
+    -- inserción) — un documento sin ningún feedback podría terminar en el
+    -- puesto 1 de esta lista y recibir el mismo impulso RRF que el mejor
+    -- resultado semántico real. Solo los documentos con feedback positivo
+    -- entran a esta señal.
     SELECT id, ROW_NUMBER() OVER (ORDER BY relevancia_score DESC) AS rank
     FROM base_conocimiento_enel
-    WHERE embedding_local IS NOT NULL AND es_exitosa = TRUE ${CATEGORIA_FILTER}
+    WHERE embedding_local IS NOT NULL AND es_exitosa = TRUE
+      AND relevancia_score > 0 ${CATEGORIA_FILTER}
     ORDER BY relevancia_score DESC
     LIMIT $5
   ),
