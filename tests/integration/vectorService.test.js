@@ -39,6 +39,14 @@ const docs = [
     embedding_local: vectorLejano,
     relevancia_score: 0,
   },
+  {
+    documento_id: 'aaaaaaaa-0000-0000-0000-000000000005',
+    titulo_referencia: 'VectorService Doc E (desactivado — vector cercano, texto relevante, mejor relevancia que A)',
+    contenido_legal: 'Corte del servicio eléctrico por mora en el pago de facturación mensual.',
+    embedding_local: vectorCercano,
+    relevancia_score: 10,
+    is_active: false,
+  },
 ];
 
 describe('vectorService — buscarContextoLegal (integración real contra pgvector)', () => {
@@ -47,8 +55,8 @@ describe('vectorService — buscarContextoLegal (integración real contra pgvect
       await pool.query(
         `INSERT INTO base_conocimiento_enel
            (categoria, titulo_referencia, contenido_legal, embedding_local, es_exitosa, is_active, documento_id, relevancia_score)
-         VALUES ($1, $2, $3, $4, TRUE, TRUE, $5, $6)`,
-        [CATEGORIA_TEST, d.titulo_referencia, d.contenido_legal, JSON.stringify(d.embedding_local), d.documento_id, d.relevancia_score]
+         VALUES ($1, $2, $3, $4, TRUE, $5, $6, $7)`,
+        [CATEGORIA_TEST, d.titulo_referencia, d.contenido_legal, JSON.stringify(d.embedding_local), d.is_active ?? true, d.documento_id, d.relevancia_score]
       );
     }
   });
@@ -118,14 +126,38 @@ describe('vectorService — buscarContextoLegal (integración real contra pgvect
       // "rel" y recibir el mismo impulso RRF que un documento con feedback real.
       const { rows } = await pool.query(
         `SELECT documento_id FROM base_conocimiento_enel
-         WHERE embedding_local IS NOT NULL AND es_exitosa = TRUE
+         WHERE embedding_local IS NOT NULL AND es_exitosa = TRUE AND is_active = TRUE
            AND relevancia_score > 0 AND categoria = $1
          ORDER BY relevancia_score DESC`,
         [CATEGORIA_TEST]
       );
-      // Solo Doc A tiene relevancia_score=8 > 0; B, C y D tienen 0 y deben quedar fuera.
+      // Solo Doc A tiene relevancia_score=8 > 0 y is_active=TRUE; B, C y D tienen
+      // score 0, y Doc E (relevancia_score=10) está desactivado (#64) — los 4 quedan fuera.
       expect(rows).toHaveLength(1);
       expect(rows[0].documento_id).toBe(docs[0].documento_id);
+    });
+  });
+
+  describe('is_active (borrado lógico — #64)', () => {
+    // Doc E: vector cercano + mismo texto que A + mejor relevancia_score, pero
+    // is_active=FALSE. Si el filtro faltara, Doc E desplazaría a A en ambas
+    // estrategias (ponderado por score, RRF por las 3 señales).
+    test('ponderado: un documento desactivado no aparece en los resultados', async () => {
+      const rows = await buscarContextoLegal(vectorCercano, 'facturación mensual', 10, CATEGORIA_TEST);
+      const ids = rows.map(r => r.documento_id);
+      expect(ids).not.toContain(docs[4].documento_id);
+    });
+
+    test('rrf: un documento desactivado no aparece en los resultados', async () => {
+      const rows = await buscarContextoLegal(vectorCercano, 'facturación mensual', 10, CATEGORIA_TEST, { fusion: 'rrf' });
+      const ids = rows.map(r => r.documento_id);
+      expect(ids).not.toContain(docs[4].documento_id);
+    });
+
+    test('ponderado: el documento activo con el mismo contenido sigue apareciendo', async () => {
+      const rows = await buscarContextoLegal(vectorCercano, 'facturación mensual', 10, CATEGORIA_TEST);
+      const ids = rows.map(r => r.documento_id);
+      expect(ids).toContain(docs[0].documento_id);
     });
   });
 });
