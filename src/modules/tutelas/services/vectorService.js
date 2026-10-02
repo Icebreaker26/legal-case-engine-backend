@@ -40,6 +40,7 @@ const buildScoringCTE = ({ filtrarCategoria, excluirIds = [] }) => {
       FROM base_conocimiento_enel
       WHERE embedding_local IS NOT NULL
         AND es_exitosa = TRUE
+        AND is_active = TRUE
         ${categoriaFilter}
         ${exclusion}
     )
@@ -115,14 +116,14 @@ const RRF_QUERY = `
   vec AS (
     SELECT id, ROW_NUMBER() OVER (ORDER BY embedding_local <=> $1::vector) AS rank
     FROM base_conocimiento_enel
-    WHERE embedding_local IS NOT NULL AND es_exitosa = TRUE ${CATEGORIA_FILTER}
+    WHERE embedding_local IS NOT NULL AND es_exitosa = TRUE AND is_active = TRUE ${CATEGORIA_FILTER}
     ORDER BY embedding_local <=> $1::vector
     LIMIT $5
   ),
   txt AS (
     SELECT b.id, ROW_NUMBER() OVER (ORDER BY ts_rank(b.contenido_tsv, q.tsq) DESC) AS rank
     FROM base_conocimiento_enel b, q
-    WHERE b.embedding_local IS NOT NULL AND b.es_exitosa = TRUE ${CATEGORIA_FILTER}
+    WHERE b.embedding_local IS NOT NULL AND b.es_exitosa = TRUE AND b.is_active = TRUE ${CATEGORIA_FILTER}
       AND q.tsq IS NOT NULL AND b.contenido_tsv @@ q.tsq
     ORDER BY ts_rank(b.contenido_tsv, q.tsq) DESC
     LIMIT $5
@@ -137,7 +138,7 @@ const RRF_QUERY = `
     -- entran a esta señal.
     SELECT id, ROW_NUMBER() OVER (ORDER BY relevancia_score DESC) AS rank
     FROM base_conocimiento_enel
-    WHERE embedding_local IS NOT NULL AND es_exitosa = TRUE
+    WHERE embedding_local IS NOT NULL AND es_exitosa = TRUE AND is_active = TRUE
       AND relevancia_score > 0 ${CATEGORIA_FILTER}
     ORDER BY relevancia_score DESC
     LIMIT $5
