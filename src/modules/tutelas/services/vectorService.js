@@ -52,7 +52,115 @@ const buildScoringCTE = ({ filtrarCategoria, excluirIds = [] }) => {
   `;
 };
 
-export const buscarContextoLegal = async (vectorTutelaLocal, textoOriginal = '', limit = 5, categoria = null) => {
+const buscarPonderado = async (vectorTutelaLocal, texto, limit, categoria) => {
+  if (categoria?.trim()) {
+    const params = [JSON.stringify(vectorTutelaLocal), texto, limit, `%${categoria}%`];
+    const { rows } = await pool.query(buildScoringCTE({ filtrarCategoria: true }), params);
+
+    if (rows.length >= 3) return rows;
+
+    // Complementa con búsqueda global excluyendo los ya encontrados
+    const idsEncontrados = rows.map(r => r.documento_id);
+    const faltantes = limit - rows.length;
+    const complementoParams = [JSON.stringify(vectorTutelaLocal), texto, faltantes, ...idsEncontrados];
+    const { rows: complemento } = await pool.query(
+      buildScoringCTE({ filtrarCategoria: false, excluirIds: idsEncontrados }),
+      complementoParams
+    );
+
+    return [...rows, ...complemento];
+  }
+
+  const { rows } = await pool.query(
+    buildScoringCTE({ filtrarCategoria: false }),
+    [JSON.stringify(vectorTutelaLocal), texto, limit]
+  );
+  return rows;
+};
+
+// ── Fusión RRF (Reciprocal Rank Fusion) ──────────────────────────────────────
+//
+// Alternativa a buildScoringCTE: en vez de mezclar escalas crudas (coseno,
+// ts_rank, relevancia_score) en una fórmula ponderada sin justificación
+// empírica, cada señal se rankea por separado (top CANDIDATOS) y se fusiona
+// por posición de rango — el estándar de facto en búsqueda híbrida.
+//
+// Las ramas vectorial y léxica usan ORDER BY + LIMIT directo sobre la
+// columna indexada, así que SÍ pueden usar los índices HNSW y GIN existentes
+// (verificado con EXPLAIN forzando enable_seqscan=off — con el volumen de
+// datos actual, de cientos de filas, el planner prefiere un seq scan porque
+// es más barato, no porque el índice no aplique).
+//
+// La rama léxica construye un OR de lexemas (to_tsquery('simple', ...)) en
+// vez de plainto_tsquery (que arma un AND de todas las palabras de la
+// consulta y casi nunca matchea con textos largos) — corrige el mismo
+// problema que tiene ambientalEmbeddingService.js.
+const RRF_K = 60;
+const CANDIDATOS = 50;
+
+// $4 (categoría) puede ser NULL — "AND ($4::text IS NULL OR categoria ILIKE $4)"
+// es un no-op cuando no se filtra, y evita tener dos variantes de la query
+// con distinta numeración de parámetros.
+const CATEGORIA_FILTER = "AND ($4::text IS NULL OR categoria ILIKE $4)";
+
+const RRF_QUERY = `
+  WITH q AS (
+    SELECT to_tsquery('simple', string_agg(lexeme, ' | ')) AS tsq
+    FROM unnest(to_tsvector('spanish', $2)) AS lexeme
+  ),
+  vec AS (
+    SELECT id, ROW_NUMBER() OVER (ORDER BY embedding_local <=> $1::vector) AS rank
+    FROM base_conocimiento_enel
+    WHERE embedding_local IS NOT NULL AND es_exitosa = TRUE ${CATEGORIA_FILTER}
+    ORDER BY embedding_local <=> $1::vector
+    LIMIT $5
+  ),
+  txt AS (
+    SELECT b.id, ROW_NUMBER() OVER (ORDER BY ts_rank(b.contenido_tsv, q.tsq) DESC) AS rank
+    FROM base_conocimiento_enel b, q
+    WHERE b.embedding_local IS NOT NULL AND b.es_exitosa = TRUE ${CATEGORIA_FILTER}
+      AND q.tsq IS NOT NULL AND b.contenido_tsv @@ q.tsq
+    ORDER BY ts_rank(b.contenido_tsv, q.tsq) DESC
+    LIMIT $5
+  ),
+  rel AS (
+    SELECT id, ROW_NUMBER() OVER (ORDER BY relevancia_score DESC) AS rank
+    FROM base_conocimiento_enel
+    WHERE embedding_local IS NOT NULL AND es_exitosa = TRUE ${CATEGORIA_FILTER}
+    ORDER BY relevancia_score DESC
+    LIMIT $5
+  ),
+  fused AS (
+    SELECT id, SUM(1.0 / ($6 + rank)) AS rrf_score
+    FROM (SELECT * FROM vec UNION ALL SELECT * FROM txt UNION ALL SELECT * FROM rel) u
+    GROUP BY id
+  ),
+  mejor_chunk AS (
+    SELECT DISTINCT ON (b.documento_id)
+      b.categoria, b.titulo_referencia, b.contenido_legal, b.documento_id,
+      b.relevancia_score, b.comprension_doc,
+      (b.comprension_doc IS NOT NULL) AS tiene_comprension,
+      f.rrf_score
+    FROM fused f
+    JOIN base_conocimiento_enel b ON b.id = f.id
+    ORDER BY b.documento_id, f.rrf_score DESC
+  )
+  SELECT categoria, titulo_referencia, contenido_legal, documento_id,
+         relevancia_score, ROUND(CAST(rrf_score AS NUMERIC), 6) AS score,
+         tiene_comprension, comprension_doc
+  FROM mejor_chunk
+  ORDER BY score DESC
+  LIMIT $3;
+`;
+
+const buscarRRF = async (vectorTutelaLocal, texto, limit, categoria) => {
+  const categoriaParam = categoria?.trim() ? `%${categoria}%` : null;
+  const params = [JSON.stringify(vectorTutelaLocal), texto, limit, categoriaParam, CANDIDATOS, RRF_K];
+  const { rows } = await pool.query(RRF_QUERY, params);
+  return rows;
+};
+
+export const buscarContextoLegal = async (vectorTutelaLocal, textoOriginal = '', limit = 5, categoria = null, { fusion = 'ponderado' } = {}) => {
   if (!vectorTutelaLocal || !Array.isArray(vectorTutelaLocal) || vectorTutelaLocal.length === 0) {
     throw new Error('Vector inválido o vacío');
   }
@@ -60,30 +168,10 @@ export const buscarContextoLegal = async (vectorTutelaLocal, textoOriginal = '',
   const texto = textoOriginal || '';
 
   try {
-    if (categoria?.trim()) {
-      const params = [JSON.stringify(vectorTutelaLocal), texto, limit, `%${categoria}%`];
-      const { rows } = await pool.query(buildScoringCTE({ filtrarCategoria: true }), params);
-
-      if (rows.length >= 3) return rows;
-
-      // Complementa con búsqueda global excluyendo los ya encontrados
-      const idsEncontrados = rows.map(r => r.documento_id);
-      const faltantes = limit - rows.length;
-      const complementoParams = [JSON.stringify(vectorTutelaLocal), texto, faltantes, ...idsEncontrados];
-      const { rows: complemento } = await pool.query(
-        buildScoringCTE({ filtrarCategoria: false, excluirIds: idsEncontrados }),
-        complementoParams
-      );
-
-      return [...rows, ...complemento];
+    if (fusion === 'rrf') {
+      return await buscarRRF(vectorTutelaLocal, texto, limit, categoria);
     }
-
-    const { rows } = await pool.query(
-      buildScoringCTE({ filtrarCategoria: false }),
-      [JSON.stringify(vectorTutelaLocal), texto, limit]
-    );
-    return rows;
-
+    return await buscarPonderado(vectorTutelaLocal, texto, limit, categoria);
   } catch (error) {
     console.error('Error buscando en pgvector local:', error);
     throw new Error('Fallo al buscar casos previos localmente');
