@@ -1,5 +1,14 @@
 import pool from '../../../db/database.js';
 
+const escapeRegex = (str) => str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+// Boundary Unicode-aware: a diferencia de \b (ASCII), reconoce letras
+// acentuadas como parte de una palabra — ver #108.
+const construirRegexPalabraCompleta = (keyword) => {
+    const escapada = escapeRegex(keyword.toLowerCase());
+    return new RegExp(`(?<![\\p{L}\\p{N}_])${escapada}(?![\\p{L}\\p{N}_])`, 'u');
+};
+
 /**
  * Servicio de extracción inteligente de datos legales.
  * Ahora recupera las categorías dinámicamente desde la base de datos.
@@ -56,7 +65,10 @@ export const extraerDatosTutela = async (texto) => {
 
     // 4. Identificar Derecho Vulnerado (dinámico desde DB)
     try {
-        const { rows } = await pool.query('SELECT nombre, palabras_clave FROM global_categorias WHERE is_active = TRUE');
+        // ORDER BY id: sin esto, "la primera categoría que matchea" depende
+        // del orden físico del heap (no determinista — puede cambiar tras un
+        // UPDATE o un VACUUM). Ver #108.
+        const { rows } = await pool.query('SELECT nombre, palabras_clave FROM global_categorias WHERE is_active = TRUE ORDER BY id');
         const textoLower = texto.toLowerCase();
 
         for (const cat of rows) {
@@ -65,10 +77,15 @@ export const extraerDatosTutela = async (texto) => {
                 ? cat.palabras_clave
                 : JSON.parse(cat.palabras_clave || '[]');
 
-            // Coincidencia por palabra completa para evitar falsos positivos por substring
-            const encontrado = keywords.some(kw =>
-                new RegExp(`\\b${kw.toLowerCase()}\\b`).test(textoLower)
-            );
+            // Coincidencia por palabra completa, Unicode-aware (ver #108):
+            // - escapeRegex evita que una keyword con caracteres especiales de
+            //   regex (p.ej. "corte (servicio)") lance una excepción que el
+            //   catch silenciaba, devolviendo derecho_vulnerado: null sin aviso.
+            // - El boundary \b de JS es ASCII: \bsuspendió\b nunca matchea
+            //   después de "ó" porque \w no la reconoce como letra, así que
+            //   no hay transición palabra/no-palabra ahí. El lookaround con
+            //   \p{L}/\p{N} (Unicode, flag "u") sí la reconoce.
+            const encontrado = keywords.some(kw => construirRegexPalabraCompleta(kw).test(textoLower));
             if (encontrado) {
                 data.derecho_vulnerado = cat.nombre;
                 break;
