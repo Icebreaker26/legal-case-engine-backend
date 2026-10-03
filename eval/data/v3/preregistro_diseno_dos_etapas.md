@@ -2,22 +2,24 @@
 
 **Fecha de registro:** 2026-10-03, antes de generar un solo documento o consulta del corpus v3. Escrito siguiendo la recomendación de una consulta a un agente de Opus 5.5 (ver cierre de sesión de `#121`), que encontró dos fallas reales en el plan original de sumar directamente 25 (v1-test) + 24 (v2-test re-etiquetado) + 44 (preguntas nuevas sobre los corpus v1/v2 ya existentes) hasta n=93:
 
+> **Enmienda (2026-10-03, mismo día, antes de indexar o correr nada sobre v3)**: los 3 lotes de generación (sub-agentes Haiku, sin contexto, cada uno con instrucción de generar 7-8 consultas por categoría) redondearon al alza y entregaron **71 consultas**, no 68 — n2=71, N=96. Se actualiza el pre-registro con este número ANTES de indexar, correr o etiquetar nada de v3 (ningún resultado existía todavía cuando se hizo este cambio — no es optional stopping, es ajustar el tamaño de muestra pre-registrado al dato real disponible, antes de ver cualquier resultado). Se usan las 71 consultas completas, no se descarta ninguna para forzar el número original. Los cálculos de abajo ya reflejan n2=71.
+
 1. **Circularidad a nivel de colección, no de consulta**: la configuración congelada (e5-small, ponderado, α=0.9) se eligió porque separaba bien los 90 documentos de v2 (y, en menor medida, los 40 de v1 — el barrido de `#115` corrió sobre v2-dev, pero v1 ya había decidido antes el modelo e5-small y la eliminación del prefiltro). Cualquier consulta nueva contra esos mismos documentos — sea de test o no — hereda esa ventaja de fábrica. Separar consultas en test/dev no alcanza si los documentos del test ya fueron los que decidieron la configuración ganadora.
 2. **Optional stopping**: sumar datos *porque* el resultado anterior (p=0.063) casi cruzó el umbral de significancia es precisamente el patrón "casi dio, agrego más" que el propio proyecto se prometió no seguir (ver el cierre de `#115`, análisis de potencia). Hacerlo sin control infla el error tipo I.
 
 ## Diseño elegido: combinación de dos etapas independientes (Lehmacher-Wassmer / inverse-normal)
 
 - **Etapa 1** (ya ocurrió, congelada, no se re-abre): test de v1 (`eval/data/qrels.trec`, `eval/data/split.json`), n₁=25, etiquetado ciego real (`#75`/`#113`). Resultado ya conocido: nDCG@10 e5-a0.9=0.723 vs. léxico-solo=0.656, **p₁ (Fisher, dos colas) = 0.0630** (erratum corregido de `#115`/PR #120).
-- **Etapa 2** (nueva, este issue): corpus **v3 completamente nuevo** — documentos y consultas nunca vistos por ninguna configuración anterior, generados por sub-agentes (Haiku, sin contexto de esta investigación ni de ningún hallazgo previo) — **nunca reusa documentos de v1 ni v2**. n₂=**68**, **todas** las consultas van a test (no hay split dev para v3 — no hace falta, la configuración ya está congelada de antemano, v3 no se usa para tunear nada).
-- **N = n₁ + n₂ = 93** (el tamaño que el análisis de potencia de `#115` calculó para 80% de potencia con una diferencia mínima de 0.05 nDCG@10).
+- **Etapa 2** (nueva, este issue): corpus **v3 completamente nuevo** — documentos y consultas nunca vistos por ninguna configuración anterior, generados por sub-agentes (Haiku, sin contexto de esta investigación ni de ningún hallazgo previo) — **nunca reusa documentos de v1 ni v2**. n₂=**71** (ver enmienda arriba), **todas** las consultas van a test (no hay split dev para v3 — no hace falta, la configuración ya está congelada de antemano, v3 no se usa para tunear nada).
+- **N = n₁ + n₂ = 96**.
 
 ### Fórmula de combinación (fijada antes de ver cualquier resultado de la etapa 2)
 
 Pesos fijos, determinados solo por los tamaños de muestra (nunca por los resultados):
 
 ```
-w1 = sqrt(n1 / N) = sqrt(25/93) = 0.5185
-w2 = sqrt(n2 / N) = sqrt(68/93) = 0.8551
+w1 = sqrt(n1 / N) = sqrt(25/96) = 0.5103
+w2 = sqrt(n2 / N) = sqrt(71/96) = 0.8600
 (verificación: w1² + w2² = 1.0000)
 ```
 
@@ -36,15 +38,15 @@ Para la etapa 1 (ya conocida): p₁=0.0630, diferencia favorece a la híbrida �
 Como Z₁=1.8592 ya es conocido y fijo, el umbral que debe cruzar por sí sola la etapa 2 es mucho más bajo que si tuviera que demostrar significancia por su cuenta:
 
 ```
-Z2 necesario = (1.96 − w1·Z1) / w2 = (1.96 − 0.5185·1.8592) / 0.8551 = 1.1648
-→ equivalente a p2 (dos colas) ≤ 0.2441
+Z2 necesario = (1.96 − w1·Z1) / w2 = (1.96 − 0.5103·1.8592) / 0.8600 = 1.1758
+→ equivalente a p2 (dos colas) ≤ 0.2397
 ```
 
 Es decir, la etapa 2 no necesita "ganar" sola — solo necesita no contradecir fuertemente lo que ya apuntaba la etapa 1.
 
 ### Potencia condicional de la etapa 2 (dado que ya conocemos Z₁)
 
-Con n₂=68 y asumiendo que el efecto real tiene el tamaño mínimo que el proyecto ya definió como relevante (dz=0.2947, diferencia=0.05/sd=0.1697): potencia condicional ≈ **90%**. Si el efecto real fuera igual al observado originalmente en el test de v1 (dz=0.3962): potencia condicional ≈ **98%**. n₂=68 deja margen razonable, no es un número ajustado al límite.
+Con n₂=71 y asumiendo que el efecto real tiene el tamaño mínimo que el proyecto ya definió como relevante (dz=0.2947, diferencia=0.05/sd=0.1697): potencia condicional ≈ **90%**. Si el efecto real fuera igual al observado originalmente en el test de v1 (dz=0.3962): potencia condicional ≈ **99%**. n₂=71 deja margen razonable, no es un número ajustado al límite.
 
 ### Reglas duras de este pre-registro
 
@@ -58,7 +60,7 @@ Con n₂=68 y asumiendo que el efecto real tiene el tamaño mínimo que el proye
 ## Especificación del corpus v3 (antes de generar nada)
 
 - **Mismas 9 categorías** de producción (`eval/data/categorias.json`, sin cambios — son las categorías reales que usa `extraerDatosTutela`). Subtemas y base normativa: libres, inventados por los sub-agentes, pero **nunca reutilizando los subtemas ya documentados en `eval/data/v2/README.md`** (evitar cualquier solapamiento de contenido con v1/v2).
-- **45 documentos nuevos** (5 por categoría), **68 consultas nuevas** (~7-8 por categoría).
+- **45 documentos nuevos** (5 por categoría), **71 consultas nuevas** (7-8 por categoría, ver enmienda de n2 arriba).
 - **Sin negativos difíciles deliberados** (eso era específico del objetivo de `#115` de encontrar un caso borde) — v3 busca una muestra confirmatoria limpia e independiente, no un caso adversarial.
 - **Sin PII real, sin datos de Enel reales** — mismas reglas que v1/v2, verificación independiente obligatoria antes de usar nada (schema Zod, cobertura de IDs, ausencia de patrones de correo/teléfono/cédula).
 - Generado en 3 lotes por sub-agentes Haiku en paralelo, cada uno sin contexto de esta conversación ni de ningún hallazgo de `#95`-`#120`, solo con la especificación de dominio y el contrato Zod exacto (mismo principio que `#74`/`#115`).
