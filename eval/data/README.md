@@ -14,6 +14,7 @@ Todo en esta carpeta, salvo lo listado abajo como excluido, se versiona en el re
   - `E02-baseline-rrf.trec` / `.meta.json` — recall@5=0.464, nDCG@5=0.514 (tag `rag-baseline-v1`)
   - `ablation-*.trec` — diagnósticos de `#95` y `#98` (ver esos issues y el [doc de seguimiento](https://claude.ai/code/artifact/a0d63867-88c7-4b4b-8ffa-d3df27ccba1c)).
   - Cada `.meta.json` trae `git_sha`, `embedding_model`, `corpus_sha256` y los scores reales por query — así el resultado es auditable y reproducible exactamente. **Ninguno de estos runs se recalculó sobre las 120 queries** — son el baseline histórico de 40, intacto.
+  - `E03`-`E06-*.trec`/`.meta.json` — diagnóstico de `#106` (sin filtro / filtro actual / filtro-oráculo de categoría, e5-small y MiniLM) sobre las 120 queries. Experimentos correspondientes en `experimentos.json`.
 
 ## Ampliación del corpus de consultas (`#96`, 2026-10-02)
 
@@ -90,8 +91,30 @@ Tabla corregida — recall@5/nDCG@5 con qrels reales (test) y mecánicos (dev), 
 
 **La fusión sin prefiltro de categoría le gana a léxico-solo deduplicado en ambos splits y en ambas métricas.** El hallazgo real no es "texto puro > fusión híbrida" — es que el prefiltro de categoría (`extractorService.js`, acierta 14/40 en dev, null en 19, se equivoca en 7) está perjudicando a la fusión de forma artificial, devolviendo solo 3-6 documentos de esa categoría cuando dispara mal. Ver `#104` para la propuesta de siguiente paso (replantear el prefiltro, no los pesos de fusión).
 
-**Advertencia pendiente sobre el pool de `#75`**: `pool-lexico-solo.trec`/`pool-e5-vector-solo.trec` (los archivos originales, con el bug de duplicados, usados para construir el pool que se etiquetó) pueden haber excluido del pool algún documento que el top-10 real (deduplicado) sí incluye — el dedup no solo quita repetidos, cambia qué documentos entran al top-10. No se volvió a poolear ni a etiquetar para esta corrección (cambiaría `qrels.trec`, que es un artefacto ya cerrado de `#75`, bajo su propio protocolo) — queda como limitación conocida para cuando se complete el etiquetado exhaustivo que recomienda `#77` (ver sección de Opus más abajo).
+**Advertencia sobre el pool de `#75` — resuelta en `#106`**: `pool-lexico-solo.trec`/`pool-e5-vector-solo.trec` (los archivos originales, con el bug de duplicados) podían haber excluido del pool algún documento que el top-10 real (deduplicado) sí incluye. Chequeo hecho en `#106`: de los 125 pares en el top-5 de test para léxico-solo/vector-solo deduplicados, solo **1 (0.8%)** no estaba en el pool de 408 pares ya etiquetado — prácticamente 0. No hizo falta re-poolear ni re-etiquetar.
 
-## Estado y siguiente paso (actualizado 2026-10-03, corrección de `#104`)
+## Eliminación del prefiltro de categoría de la recuperación (`#106`, 2026-10-03)
 
-Fase 4 (`#64`-`#67`), `#95`, `#98`, `#96` y `#75` completos y mergeados. `#104` corrigió dos bugs de medición que invalidaban la conclusión "léxico le gana a la fusión" de esta misma sección — el candidato real a corregir es el prefiltro de categoría, no los pesos de fusión (0.55/0.35/0.10 siguen sin tunear, pero no son el problema que parecía). Sigue: replantear/rediseñar el prefiltro de categoría (nuevo issue, antes de `#76`) → `#76` (métricas formales con `ranx`, significancia) → `#77` (confirmación en test, con etiquetado exhaustivo de pares en vez de depender solo del pool original).
+El defecto real detrás de la brecha que corrigió `#104` no son los pesos de fusión — es que `buscarPonderado`/`buscarRRF` (`vectorService.js`) **filtran** por la categoría que detecta `extraerDatosTutela` (keyword-matching ingenuo, sin scoring): si la categoría tiene ≥3 documentos, el sistema nunca ve nada fuera de ella, aunque el score híbrido de otro documento sea mejor.
+
+Diagnóstico en dev (95 consultas, e5-small ponderado), estratificado por cómo le fue al extractor en cada consulta:
+
+| Grupo (n) | Sin filtro | Filtro actual | Filtro-oráculo (categoría real) |
+| --- | --- | --- | --- |
+| extractor devolvió `null` (41) | 0.409 / 0.444 | **idéntico** (invariante verificado ✓) | 0.922 / 0.899 |
+| extractor acertó (29) | 0.478 / 0.555 | **0.857 / 0.892** | 0.857 / 0.892 |
+| extractor se equivocó (25) | 0.488 / 0.558 | **0.000 / 0.000** | 0.909 / 0.897 |
+
+Total dev: sin filtro 0.451/0.508 vs. filtro actual 0.438/0.464. Modo DIS (el más adversarial): 0.579/0.563 vs. 0.470/0.459.
+
+**El filtro-oráculo está inflado por construcción, no es una cota útil para decidir**: `eval/lib/qrels.js` exige categoría igual como condición necesaria de relevancia (`if (query.spec.categoria !== doc.categoria) return 0`), así que filtrar por la categoría real nunca puede descartar un documento relevante bajo esta regla — es circular, confirma que la categoría es señal útil *si fuera perfecta*, no que valga la pena filtrar con un extractor que se equivoca 1 de cada 4 veces.
+
+**Decisión**: se elimina el filtro de categoría de la recuperación de producción (4 llamadas a `recuperarPrecedentes` en `tutelaController.js`, antes pasaban `categoria: derecho_vulnerado`). `extraerDatosTutela`/`derecho_vulnerado` siguen existiendo sin cambios para la etiqueta, analytics y la promoción a `base_conocimiento_enel` — solo se desacopla de qué documentos se recuperan. `vectorService.js` y el arnés de eval mantienen el parámetro `categoria` intacto (lo sigue usando `04_correr.js` para experimentos futuros, incl. este mismo diagnóstico, reproducible con los experimentos `E03`-`E06` de `experimentos.json`).
+
+**Chequeo de no-inversión (MiniLM, modelo actual de producción)**: sin filtro 0.389/0.439 vs. filtro actual 0.413/0.431 — mixto (recall favorece mantener el filtro, nDCG favorece quitarlo), más débil que con e5 pero no se invierte.
+
+**Fuera de alcance de `#106`** (issues de seguimiento): arreglos del extractor en sí (el `SELECT` de categorías no tiene `ORDER BY`, el regex de keywords no escapa caracteres especiales, `\b` no es Unicode-aware), el lazo de retroalimentación etiqueta↔corpus, y el re-tuneo de los pesos de fusión 0.55/0.35/0.10.
+
+## Estado y siguiente paso (actualizado 2026-10-03)
+
+Fase 4 (`#64`-`#67`), `#95`, `#98`, `#96`, `#75`, `#104` y `#106` completos. El prefiltro de categoría —no los pesos de fusión— era la causa real de la brecha medida en `#75`. Sigue: `#76` (métricas formales con `ranx`, significancia) → `#77` (confirmación en test de la configuración final: fusión elegida + sin prefiltro, vs. línea base de producción — con hipótesis pre-registradas, ya que la comparación filtro/sin-filtro en DIS se observó en test durante `#104`/`#106` y debe reportarse como hallazgo post-hoc, no confirmatorio).

@@ -14,5 +14,37 @@
     "comprensionQuery": false,
     "categoria": "extraida",
     "limit": 10
+  },
+  {
+    "id": "E03-e5-ponderado-sin-filtro",
+    "fusion": "ponderado",
+    "estrategia": "actual",
+    "comprensionQuery": false,
+    "categoria": "ninguna",
+    "limit": 10
+  },
+  {
+    "id": "E04-e5-ponderado-filtro-actual",
+    "fusion": "ponderado",
+    "estrategia": "actual",
+    "comprensionQuery": false,
+    "categoria": "extraida",
+    "limit": 10
+  },
+  {
+    "id": "E05-e5-ponderado-filtro-oraculo",
+    "fusion": "ponderado",
+    "estrategia": "actual",
+    "comprensionQuery": false,
+    "categoria": "etiquetada",
+    "limit": 10
+  },
+  {
+    "id": "E06-minilm-ponderado-sin-filtro",
+    "fusion": "ponderado",
+    "estrategia": "actual",
+    "comprensionQuery": false,
+    "categoria": "ninguna",
+    "limit": 10
   }
 ]
