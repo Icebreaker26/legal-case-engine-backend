@@ -1,0 +1,3211 @@
+{
+  "experimento": {
+    "id": "E07-e5-rrf-sin-filtro",
+    "fusion": "rrf",
+    "estrategia": "actual",
+    "comprensionQuery": false,
+    "categoria": "ninguna",
+    "limit": 10
+  },
+  "git_sha": "5821385fe1da37abe3693b3f4f0f4627a6f1e29a",
+  "embedding_model": "Xenova/multilingual-e5-small",
+  "corpus_sha256": "5b876910da8f3709b0c8231b122fcfa526d20282e0a6a9f95f3075fb8bebd19b",
+  "fecha": "2026-10-03T07:22:32.389Z",
+  "por_query": {
+    "Q-V3-ACP-001": {
+      "categoria_resuelta": null,
+      "scores_reales": [
+        {
+          "documento_id": "DOC-V3-ACP-002",
+          "score": "0.032787"
+        },
+        {
+          "documento_id": "DOC-V3-ACP-003",
+          "score": "0.032258"
+        },
+        {
+          "documento_id": "DOC-V3-ACP-001",
+          "score": "0.030550"
+        },
+        {
+          "documento_id": "DOC-V3-SPR-004",
+          "score": "0.029324"
+        },
+        {
+          "documento_id": "DOC-V3-ISA-002",
+          "score": "0.029206"
+        },
+        {
+          "documento_id": "DOC-V3-COR-004",
+          "score": "0.028850"
+        },
+        {
+          "documento_id": "DOC-V3-STR-002",
+          "score": "0.028485"
+        },
+        {
+          "documento_id": "DOC-V3-ISA-003",
+          "score": "0.028439"
+        },
+        {
+          "documento_id": "DOC-V3-ACP-005",
+          "score": "0.028372"
+        },
+        {
+          "documento_id": "DOC-V3-COR-002",
+          "score": "0.027651"
+        }
+      ]
+    },
+    "Q-V3-ACP-002": {
+      "categoria_resuelta": null,
+      "scores_reales": [
+        {
+          "documento_id": "DOC-V3-ACP-001",
+          "score": "0.032018"
+        },
+        {
+          "documento_id": "DOC-V3-ACP-004",
+          "score": "0.032002"
+        },
+        {
+          "documento_id": "DOC-V3-ACP-005",
+          "score": "0.031281"
+        },
+        {
+          "documento_id": "DOC-V3-ISA-004",
+          "score": "0.030886"
+        },
+        {
+          "documento_id": "DOC-V3-DIN-003",
+          "score": "0.030090"
+        },
+        {
+          "documento_id": "DOC-V3-ACP-002",
+          "score": "0.029083"
+        },
+        {
+          "documento_id": "DOC-V3-SPR-002",
+          "score": "0.029031"
+        },
+        {
+          "documento_id": "DOC-V3-DIN-004",
+          "score": "0.029010"
+        },
+        {
+          "documento_id": "DOC-V3-COR-002",
+          "score": "0.028790"
+        },
+        {
+          "documento_id": "DOC-V3-INF-005",
+          "score": "0.028439"
+        }
+      ]
+    },
+    "Q-V3-ACP-003": {
+      "categoria_resuelta": null,
+      "scores_reales": [
+        {
+          "documento_id": "DOC-V3-ACP-002",
+          "score": "0.032522"
+        },
+        {
+          "documento_id": "DOC-V3-ACP-003",
+          "score": "0.032002"
+        },
+        {
+          "documento_id": "DOC-V3-COR-004",
+          "score": "0.030478"
+        },
+        {
+          "documento_id": "DOC-V3-ISA-003",
+          "score": "0.030310"
+        },
+        {
+          "documento_id": "DOC-V3-ISA-005",
+          "score": "0.030090"
+        },
+        {
+          "documento_id": "DOC-V3-COR-002",
+          "score": "0.029911"
+        },
+        {
+          "documento_id": "DOC-V3-ISA-001",
+          "score": "0.029031"
+        },
+        {
+          "documento_id": "DOC-V3-STR-005",
+          "score": "0.028814"
+        },
+        {
+          "documento_id": "DOC-V3-ISA-002",
+          "score": "0.027971"
+        },
+        {
+          "documento_id": "DOC-V3-ACP-001",
+          "score": "0.027106"
+        }
+      ]
+    },
+    "Q-V3-ACP-004": {
+      "categoria_resuelta": null,
+      "scores_reales": [
+        {
+          "documento_id": "DOC-V3-ACP-001",
+          "score": "0.032522"
+        },
+        {
+          "documento_id": "DOC-V3-ACP-005",
+          "score": "0.032522"
+        },
+        {
+          "documento_id": "DOC-V3-SPR-004",
+          "score": "0.030579"
+        },
+        {
+          "documento_id": "DOC-V3-SPR-003",
+          "score": "0.030331"
+        },
+        {
+          "documento_id": "DOC-V3-STR-002",
+          "score": "0.029387"
+        },
+        {
+          "documento_id": "DOC-V3-DIN-004",
+          "score": "0.029324"
+        },
+        {
+          "documento_id": "DOC-V3-ACP-003",
+          "score": "0.029236"
+        },
+        {
+          "documento_id": "DOC-V3-COR-004",
+          "score": "0.029211"
+        },
+        {
+          "documento_id": "DOC-V3-SPR-001",
+          "score": "0.029083"
+        },
+        {
+          "documento_id": "DOC-V3-ISA-003",
+          "score": "0.028370"
+        }
+      ]
+    },
+    "Q-V3-ACP-005": {
+      "categoria_resuelta": null,
+      "scores_reales": [
+        {
+          "documento_id": "DOC-V3-ACP-001",
+          "score": "0.032018"
+        },
+        {
+          "documento_id": "DOC-V3-ACP-004",
+          "score": "0.032002"
+        },
+        {
+          "documento_id": "DOC-V3-ACP-005",
+          "score": "0.031281"
+        },
+        {
+          "documento_id": "DOC-V3-ISA-004",
+          "score": "0.030886"
+        },
+        {
+          "documento_id": "DOC-V3-DIN-003",
+          "score": "0.030090"
+        },
+        {
+          "documento_id": "DOC-V3-ACP-002",
+          "score": "0.029083"
+        },
+        {
+          "documento_id": "DOC-V3-SPR-002",
+          "score": "0.029031"
+        },
+        {
+          "documento_id": "DOC-V3-DIN-004",
+          "score": "0.029010"
+        },
+        {
+          "documento_id": "DOC-V3-COR-002",
+          "score": "0.028790"
+        },
+        {
+          "documento_id": "DOC-V3-INF-005",
+          "score": "0.028439"
+        }
+      ]
+    },
+    "Q-V3-ACP-006": {
+      "categoria_resuelta": null,
+      "scores_reales": [
+        {
+          "documento_id": "DOC-V3-ACP-001",
+          "score": "0.032787"
+        },
+        {
+          "documento_id": "DOC-V3-ACP-005",
+          "score": "0.032258"
+        },
+        {
+          "documento_id": "DOC-V3-ACP-004",
+          "score": "0.031250"
+        },
+        {
+          "documento_id": "DOC-V3-SPR-003",
+          "score": "0.030579"
+        },
+        {
+          "documento_id": "DOC-V3-ACP-003",
+          "score": "0.030303"
+        },
+        {
+          "documento_id": "DOC-V3-ACP-002",
+          "score": "0.029670"
+        },
+        {
+          "documento_id": "DOC-V3-INF-001",
+          "score": "0.029031"
+        },
+        {
+          "documento_id": "DOC-V3-SPR-001",
+          "score": "0.029010"
+        },
+        {
+          "documento_id": "DOC-V3-COR-001",
+          "score": "0.029010"
+        },
+        {
+          "documento_id": "DOC-V3-ISA-001",
+          "score": "0.028992"
+        }
+      ]
+    },
+    "Q-V3-ACP-007": {
+      "categoria_resuelta": null,
+      "scores_reales": [
+        {
+          "documento_id": "DOC-V3-ACP-001",
+          "score": "0.032787"
+        },
+        {
+          "documento_id": "DOC-V3-ACP-005",
+          "score": "0.032258"
+        },
+        {
+          "documento_id": "DOC-V3-ACP-004",
+          "score": "0.031250"
+        },
+        {
+          "documento_id": "DOC-V3-SPR-003",
+          "score": "0.030579"
+        },
+        {
+          "documento_id": "DOC-V3-ACP-003",
+          "score": "0.030303"
+        },
+        {
+          "documento_id": "DOC-V3-ACP-002",
+          "score": "0.029670"
+        },
+        {
+          "documento_id": "DOC-V3-INF-001",
+          "score": "0.029031"
+        },
+        {
+          "documento_id": "DOC-V3-SPR-001",
+          "score": "0.029010"
+        },
+        {
+          "documento_id": "DOC-V3-COR-001",
+          "score": "0.029010"
+        },
+        {
+          "documento_id": "DOC-V3-ISA-001",
+          "score": "0.028992"
+        }
+      ]
+    },
+    "Q-V3-CAL-001": {
+      "categoria_resuelta": null,
+      "scores_reales": [
+        {
+          "documento_id": "DOC-V3-CAL-001",
+          "score": "0.032787"
+        },
+        {
+          "documento_id": "DOC-V3-COR-005",
+          "score": "0.032002"
+        },
+        {
+          "documento_id": "DOC-V3-CAL-002",
+          "score": "0.031754"
+        },
+        {
+          "documento_id": "DOC-V3-COR-002",
+          "score": "0.030366"
+        },
+        {
+          "documento_id": "DOC-V3-INF-005",
+          "score": "0.030303"
+        },
+        {
+          "documento_id": "DOC-V3-ISA-003",
+          "score": "0.029877"
+        },
+        {
+          "documento_id": "DOC-V3-CAL-003",
+          "score": "0.029083"
+        },
+        {
+          "documento_id": "DOC-V3-ISA-004",
+          "score": "0.028283"
+        },
+        {
+          "documento_id": "DOC-V3-INF-004",
+          "score": "0.028259"
+        },
+        {
+          "documento_id": "DOC-V3-INF-001",
+          "score": "0.028219"
+        }
+      ]
+    },
+    "Q-V3-CAL-002": {
+      "categoria_resuelta": null,
+      "scores_reales": [
+        {
+          "documento_id": "DOC-V3-CAL-002",
+          "score": "0.032787"
+        },
+        {
+          "documento_id": "DOC-V3-COR-005",
+          "score": "0.032258"
+        },
+        {
+          "documento_id": "DOC-V3-FAC-001",
+          "score": "0.031746"
+        },
+        {
+          "documento_id": "DOC-V3-FAC-002",
+          "score": "0.030777"
+        },
+        {
+          "documento_id": "DOC-V3-FAC-003",
+          "score": "0.030310"
+        },
+        {
+          "documento_id": "DOC-V3-CAL-004",
+          "score": "0.029199"
+        },
+        {
+          "documento_id": "DOC-V3-INF-005",
+          "score": "0.028718"
+        },
+        {
+          "documento_id": "DOC-V3-STR-005",
+          "score": "0.027826"
+        },
+        {
+          "documento_id": "DOC-V3-SPR-004",
+          "score": "0.027444"
+        },
+        {
+          "documento_id": "DOC-V3-ISA-003",
+          "score": "0.027425"
+        }
+      ]
+    },
+    "Q-V3-CAL-003": {
+      "categoria_resuelta": null,
+      "scores_reales": [
+        {
+          "documento_id": "DOC-V3-CAL-003",
+          "score": "0.032787"
+        },
+        {
+          "documento_id": "DOC-V3-CAL-001",
+          "score": "0.032002"
+        },
+        {
+          "documento_id": "DOC-V3-DIN-004",
+          "score": "0.031754"
+        },
+        {
+          "documento_id": "DOC-V3-CAL-002",
+          "score": "0.030536"
+        },
+        {
+          "documento_id": "DOC-V3-DIN-003",
+          "score": "0.029911"
+        },
+        {
+          "documento_id": "DOC-V3-COR-002",
+          "score": "0.029644"
+        },
+        {
+          "documento_id": "DOC-V3-ISA-001",
+          "score": "0.029412"
+        },
+        {
+          "documento_id": "DOC-V3-SPR-001",
+          "score": "0.029010"
+        },
+        {
+          "documento_id": "DOC-V3-SPR-004",
+          "score": "0.028372"
+        },
+        {
+          "documento_id": "DOC-V3-INF-005",
+          "score": "0.027588"
+        }
+      ]
+    },
+    "Q-V3-CAL-004": {
+      "categoria_resuelta": null,
+      "scores_reales": [
+        {
+          "documento_id": "DOC-V3-CAL-004",
+          "score": "0.032787"
+        },
+        {
+          "documento_id": "DOC-V3-SPR-003",
+          "score": "0.031281"
+        },
+        {
+          "documento_id": "DOC-V3-CAL-001",
+          "score": "0.031054"
+        },
+        {
+          "documento_id": "DOC-V3-COR-005",
+          "score": "0.031025"
+        },
+        {
+          "documento_id": "DOC-V3-COR-004",
+          "score": "0.029877"
+        },
+        {
+          "documento_id": "DOC-V3-ISA-002",
+          "score": "0.029139"
+        },
+        {
+          "documento_id": "DOC-V3-DIN-003",
+          "score": "0.028814"
+        },
+        {
+          "documento_id": "DOC-V3-DIN-004",
+          "score": "0.028790"
+        },
+        {
+          "documento_id": "DOC-V3-ACP-002",
+          "score": "0.028783"
+        },
+        {
+          "documento_id": "DOC-V3-ACP-003",
+          "score": "0.028039"
+        }
+      ]
+    },
+    "Q-V3-CAL-005": {
+      "categoria_resuelta": null,
+      "scores_reales": [
+        {
+          "documento_id": "DOC-V3-CAL-005",
+          "score": "0.032787"
+        },
+        {
+          "documento_id": "DOC-V3-CAL-002",
+          "score": "0.032258"
+        },
+        {
+          "documento_id": "DOC-V3-CAL-004",
+          "score": "0.031498"
+        },
+        {
+          "documento_id": "DOC-V3-CAL-001",
+          "score": "0.030159"
+        },
+        {
+          "documento_id": "DOC-V3-ISA-002",
+          "score": "0.029670"
+        },
+        {
+          "documento_id": "DOC-V3-INF-005",
+          "score": "0.029631"
+        },
+        {
+          "documento_id": "DOC-V3-COR-005",
+          "score": "0.028986"
+        },
+        {
+          "documento_id": "DOC-V3-SPR-003",
+          "score": "0.028169"
+        },
+        {
+          "documento_id": "DOC-V3-DIN-003",
+          "score": "0.027810"
+        },
+        {
+          "documento_id": "DOC-V3-SPR-002",
+          "score": "0.027530"
+        }
+      ]
+    },
+    "Q-V3-CAL-006": {
+      "categoria_resuelta": null,
+      "scores_reales": [
+        {
+          "documento_id": "DOC-V3-CAL-002",
+          "score": "0.032787"
+        },
+        {
+          "documento_id": "DOC-V3-STR-005",
+          "score": "0.031746"
+        },
+        {
+          "documento_id": "DOC-V3-INF-005",
+          "score": "0.030835"
+        },
+        {
+          "documento_id": "DOC-V3-CAL-001",
+          "score": "0.030622"
+        },
+        {
+          "documento_id": "DOC-V3-STR-003",
+          "score": "0.029857"
+        },
+        {
+          "documento_id": "DOC-V3-STR-001",
+          "score": "0.029644"
+        },
+        {
+          "documento_id": "DOC-V3-COR-004",
+          "score": "0.028814"
+        },
+        {
+          "documento_id": "DOC-V3-SPR-005",
+          "score": "0.028624"
+        },
+        {
+          "documento_id": "DOC-V3-INF-003",
+          "score": "0.028446"
+        },
+        {
+          "documento_id": "DOC-V3-DIN-003",
+          "score": "0.028125"
+        }
+      ]
+    },
+    "Q-V3-CAL-007": {
+      "categoria_resuelta": null,
+      "scores_reales": [
+        {
+          "documento_id": "DOC-V3-CAL-003",
+          "score": "0.032522"
+        },
+        {
+          "documento_id": "DOC-V3-CAL-001",
+          "score": "0.032522"
+        },
+        {
+          "documento_id": "DOC-V3-COR-005",
+          "score": "0.028958"
+        },
+        {
+          "documento_id": "DOC-V3-SPR-004",
+          "score": "0.028898"
+        },
+        {
+          "documento_id": "DOC-V3-INF-005",
+          "score": "0.028373"
+        },
+        {
+          "documento_id": "DOC-V3-SPR-003",
+          "score": "0.027746"
+        },
+        {
+          "documento_id": "DOC-V3-CAL-004",
+          "score": "0.027200"
+        },
+        {
+          "documento_id": "DOC-V3-ACP-004",
+          "score": "0.027200"
+        },
+        {
+          "documento_id": "DOC-V3-COR-002",
+          "score": "0.027120"
+        },
+        {
+          "documento_id": "DOC-V3-INF-002",
+          "score": "0.027047"
+        }
+      ]
+    },
+    "Q-V3-CAL-008": {
+      "categoria_resuelta": null,
+      "scores_reales": [
+        {
+          "documento_id": "DOC-V3-CAL-002",
+          "score": "0.032787"
+        },
+        {
+          "documento_id": "DOC-V3-INF-005",
+          "score": "0.031514"
+        },
+        {
+          "documento_id": "DOC-V3-CAL-005",
+          "score": "0.030798"
+        },
+        {
+          "documento_id": "DOC-V3-CAL-001",
+          "score": "0.030777"
+        },
+        {
+          "documento_id": "DOC-V3-ISA-003",
+          "score": "0.030622"
+        },
+        {
+          "documento_id": "DOC-V3-COR-005",
+          "score": "0.029958"
+        },
+        {
+          "documento_id": "DOC-V3-CAL-004",
+          "score": "0.029514"
+        },
+        {
+          "documento_id": "DOC-V3-COR-002",
+          "score": "0.027746"
+        },
+        {
+          "documento_id": "DOC-V3-FAC-001",
+          "score": "0.027526"
+        },
+        {
+          "documento_id": "DOC-V3-ACP-005",
+          "score": "0.027206"
+        }
+      ]
+    },
+    "Q-V3-COR-001": {
+      "categoria_resuelta": null,
+      "scores_reales": [
+        {
+          "documento_id": "DOC-V3-COR-001",
+          "score": "0.032522"
+        },
+        {
+          "documento_id": "DOC-V3-COR-002",
+          "score": "0.032522"
+        },
+        {
+          "documento_id": "DOC-V3-COR-004",
+          "score": "0.031258"
+        },
+        {
+          "documento_id": "DOC-V3-CAL-001",
+          "score": "0.031258"
+        },
+        {
+          "documento_id": "DOC-V3-COR-005",
+          "score": "0.030777"
+        },
+        {
+          "documento_id": "DOC-V3-STR-001",
+          "score": "0.029851"
+        },
+        {
+          "documento_id": "DOC-V3-COR-003",
+          "score": "0.028783"
+        },
+        {
+          "documento_id": "DOC-V3-INF-002",
+          "score": "0.028665"
+        },
+        {
+          "documento_id": "DOC-V3-INF-004",
+          "score": "0.028191"
+        },
+        {
+          "documento_id": "DOC-V3-INF-001",
+          "score": "0.027973"
+        }
+      ]
+    },
+    "Q-V3-COR-002": {
+      "categoria_resuelta": null,
+      "scores_reales": [
+        {
+          "documento_id": "DOC-V3-COR-002",
+          "score": "0.032266"
+        },
+        {
+          "documento_id": "DOC-V3-COR-005",
+          "score": "0.032258"
+        },
+        {
+          "documento_id": "DOC-V3-COR-004",
+          "score": "0.031258"
+        },
+        {
+          "documento_id": "DOC-V3-COR-001",
+          "score": "0.030550"
+        },
+        {
+          "documento_id": "DOC-V3-FAC-001",
+          "score": "0.029418"
+        },
+        {
+          "documento_id": "DOC-V3-FAC-003",
+          "score": "0.029236"
+        },
+        {
+          "documento_id": "DOC-V3-INF-002",
+          "score": "0.029052"
+        },
+        {
+          "documento_id": "DOC-V3-CAL-001",
+          "score": "0.028992"
+        },
+        {
+          "documento_id": "DOC-V3-STR-005",
+          "score": "0.028665"
+        },
+        {
+          "documento_id": "DOC-V3-FAC-002",
+          "score": "0.028382"
+        }
+      ]
+    },
+    "Q-V3-COR-003": {
+      "categoria_resuelta": null,
+      "scores_reales": [
+        {
+          "documento_id": "DOC-V3-COR-003",
+          "score": "0.032522"
+        },
+        {
+          "documento_id": "DOC-V3-FAC-001",
+          "score": "0.032018"
+        },
+        {
+          "documento_id": "DOC-V3-COR-001",
+          "score": "0.031281"
+        },
+        {
+          "documento_id": "DOC-V3-FAC-003",
+          "score": "0.030579"
+        },
+        {
+          "documento_id": "DOC-V3-COR-005",
+          "score": "0.030536"
+        },
+        {
+          "documento_id": "DOC-V3-FAC-002",
+          "score": "0.030118"
+        },
+        {
+          "documento_id": "DOC-V3-CAL-001",
+          "score": "0.029387"
+        },
+        {
+          "documento_id": "DOC-V3-COR-002",
+          "score": "0.028790"
+        },
+        {
+          "documento_id": "DOC-V3-STR-004",
+          "score": "0.028718"
+        },
+        {
+          "documento_id": "DOC-V3-INF-004",
+          "score": "0.028175"
+        }
+      ]
+    },
+    "Q-V3-COR-004": {
+      "categoria_resuelta": null,
+      "scores_reales": [
+        {
+          "documento_id": "DOC-V3-COR-004",
+          "score": "0.032787"
+        },
+        {
+          "documento_id": "DOC-V3-COR-002",
+          "score": "0.032002"
+        },
+        {
+          "documento_id": "DOC-V3-COR-001",
+          "score": "0.031754"
+        },
+        {
+          "documento_id": "DOC-V3-ISA-003",
+          "score": "0.031258"
+        },
+        {
+          "documento_id": "DOC-V3-COR-005",
+          "score": "0.030118"
+        },
+        {
+          "documento_id": "DOC-V3-INF-001",
+          "score": "0.029010"
+        },
+        {
+          "documento_id": "DOC-V3-STR-005",
+          "score": "0.028485"
+        },
+        {
+          "documento_id": "DOC-V3-CAL-001",
+          "score": "0.028219"
+        },
+        {
+          "documento_id": "DOC-V3-FAC-004",
+          "score": "0.028175"
+        },
+        {
+          "documento_id": "DOC-V3-FAC-001",
+          "score": "0.027651"
+        }
+      ]
+    },
+    "Q-V3-COR-005": {
+      "categoria_resuelta": null,
+      "scores_reales": [
+        {
+          "documento_id": "DOC-V3-COR-005",
+          "score": "0.032522"
+        },
+        {
+          "documento_id": "DOC-V3-CAL-001",
+          "score": "0.032522"
+        },
+        {
+          "documento_id": "DOC-V3-CAL-004",
+          "score": "0.030769"
+        },
+        {
+          "documento_id": "DOC-V3-CAL-002",
+          "score": "0.030159"
+        },
+        {
+          "documento_id": "DOC-V3-FAC-001",
+          "score": "0.028612"
+        },
+        {
+          "documento_id": "DOC-V3-FAC-003",
+          "score": "0.028485"
+        },
+        {
+          "documento_id": "DOC-V3-SPR-003",
+          "score": "0.028405"
+        },
+        {
+          "documento_id": "DOC-V3-INF-005",
+          "score": "0.028083"
+        },
+        {
+          "documento_id": "DOC-V3-ACP-004",
+          "score": "0.027810"
+        },
+        {
+          "documento_id": "DOC-V3-FAC-002",
+          "score": "0.027364"
+        }
+      ]
+    },
+    "Q-V3-COR-006": {
+      "categoria_resuelta": null,
+      "scores_reales": [
+        {
+          "documento_id": "DOC-V3-COR-001",
+          "score": "0.032787"
+        },
+        {
+          "documento_id": "DOC-V3-COR-003",
+          "score": "0.031754"
+        },
+        {
+          "documento_id": "DOC-V3-COR-002",
+          "score": "0.031754"
+        },
+        {
+          "documento_id": "DOC-V3-COR-004",
+          "score": "0.030366"
+        },
+        {
+          "documento_id": "DOC-V3-FAC-003",
+          "score": "0.029762"
+        },
+        {
+          "documento_id": "DOC-V3-INF-004",
+          "score": "0.029670"
+        },
+        {
+          "documento_id": "DOC-V3-INF-002",
+          "score": "0.029199"
+        },
+        {
+          "documento_id": "DOC-V3-FAC-002",
+          "score": "0.029083"
+        },
+        {
+          "documento_id": "DOC-V3-FAC-001",
+          "score": "0.028665"
+        },
+        {
+          "documento_id": "DOC-V3-CAL-001",
+          "score": "0.028439"
+        }
+      ]
+    },
+    "Q-V3-COR-007": {
+      "categoria_resuelta": null,
+      "scores_reales": [
+        {
+          "documento_id": "DOC-V3-COR-002",
+          "score": "0.032787"
+        },
+        {
+          "documento_id": "DOC-V3-COR-004",
+          "score": "0.031754"
+        },
+        {
+          "documento_id": "DOC-V3-COR-001",
+          "score": "0.031258"
+        },
+        {
+          "documento_id": "DOC-V3-COR-005",
+          "score": "0.031025"
+        },
+        {
+          "documento_id": "DOC-V3-INF-002",
+          "score": "0.029116"
+        },
+        {
+          "documento_id": "DOC-V3-ISA-001",
+          "score": "0.028665"
+        },
+        {
+          "documento_id": "DOC-V3-SPR-003",
+          "score": "0.028405"
+        },
+        {
+          "documento_id": "DOC-V3-ISA-003",
+          "score": "0.028370"
+        },
+        {
+          "documento_id": "DOC-V3-CAL-003",
+          "score": "0.027271"
+        },
+        {
+          "documento_id": "DOC-V3-STR-005",
+          "score": "0.027253"
+        }
+      ]
+    },
+    "Q-V3-COR-008": {
+      "categoria_resuelta": null,
+      "scores_reales": [
+        {
+          "documento_id": "DOC-V3-INF-002",
+          "score": "0.032522"
+        },
+        {
+          "documento_id": "DOC-V3-COR-002",
+          "score": "0.032002"
+        },
+        {
+          "documento_id": "DOC-V3-INF-004",
+          "score": "0.031778"
+        },
+        {
+          "documento_id": "DOC-V3-INF-001",
+          "score": "0.030777"
+        },
+        {
+          "documento_id": "DOC-V3-COR-004",
+          "score": "0.030579"
+        },
+        {
+          "documento_id": "DOC-V3-FAC-004",
+          "score": "0.029644"
+        },
+        {
+          "documento_id": "DOC-V3-COR-005",
+          "score": "0.029418"
+        },
+        {
+          "documento_id": "DOC-V3-FAC-005",
+          "score": "0.028718"
+        },
+        {
+          "documento_id": "DOC-V3-COR-001",
+          "score": "0.028612"
+        },
+        {
+          "documento_id": "DOC-V3-ISA-003",
+          "score": "0.027746"
+        }
+      ]
+    },
+    "Q-V3-DIN-001": {
+      "categoria_resuelta": null,
+      "scores_reales": [
+        {
+          "documento_id": "DOC-V3-DIN-005",
+          "score": "0.032002"
+        },
+        {
+          "documento_id": "DOC-V3-DIN-001",
+          "score": "0.032002"
+        },
+        {
+          "documento_id": "DOC-V3-INF-005",
+          "score": "0.031319"
+        },
+        {
+          "documento_id": "DOC-V3-STR-005",
+          "score": "0.030769"
+        },
+        {
+          "documento_id": "DOC-V3-DIN-002",
+          "score": "0.030331"
+        },
+        {
+          "documento_id": "DOC-V3-ISA-002",
+          "score": "0.030092"
+        },
+        {
+          "documento_id": "DOC-V3-SPR-002",
+          "score": "0.030077"
+        },
+        {
+          "documento_id": "DOC-V3-ISA-004",
+          "score": "0.029710"
+        },
+        {
+          "documento_id": "DOC-V3-DIN-003",
+          "score": "0.028577"
+        },
+        {
+          "documento_id": "DOC-V3-DIN-004",
+          "score": "0.027864"
+        }
+      ]
+    },
+    "Q-V3-DIN-002": {
+      "categoria_resuelta": null,
+      "scores_reales": [
+        {
+          "documento_id": "DOC-V3-DIN-003",
+          "score": "0.032266"
+        },
+        {
+          "documento_id": "DOC-V3-DIN-004",
+          "score": "0.032258"
+        },
+        {
+          "documento_id": "DOC-V3-ISA-004",
+          "score": "0.032018"
+        },
+        {
+          "documento_id": "DOC-V3-INF-005",
+          "score": "0.031025"
+        },
+        {
+          "documento_id": "DOC-V3-STR-005",
+          "score": "0.030310"
+        },
+        {
+          "documento_id": "DOC-V3-SPR-001",
+          "score": "0.030310"
+        },
+        {
+          "documento_id": "DOC-V3-COR-005",
+          "score": "0.029324"
+        },
+        {
+          "documento_id": "DOC-V3-DIN-001",
+          "score": "0.028790"
+        },
+        {
+          "documento_id": "DOC-V3-DIN-005",
+          "score": "0.028778"
+        },
+        {
+          "documento_id": "DOC-V3-DIN-002",
+          "score": "0.027652"
+        }
+      ]
+    },
+    "Q-V3-DIN-003": {
+      "categoria_resuelta": null,
+      "scores_reales": [
+        {
+          "documento_id": "DOC-V3-ISA-004",
+          "score": "0.032787"
+        },
+        {
+          "documento_id": "DOC-V3-DIN-001",
+          "score": "0.031258"
+        },
+        {
+          "documento_id": "DOC-V3-INF-005",
+          "score": "0.031025"
+        },
+        {
+          "documento_id": "DOC-V3-DIN-005",
+          "score": "0.030536"
+        },
+        {
+          "documento_id": "DOC-V3-SPR-001",
+          "score": "0.030214"
+        },
+        {
+          "documento_id": "DOC-V3-DIN-002",
+          "score": "0.028783"
+        },
+        {
+          "documento_id": "DOC-V3-CAL-003",
+          "score": "0.028034"
+        },
+        {
+          "documento_id": "DOC-V3-DIN-004",
+          "score": "0.027971"
+        },
+        {
+          "documento_id": "DOC-V3-ACP-003",
+          "score": "0.027746"
+        },
+        {
+          "documento_id": "DOC-V3-ISA-002",
+          "score": "0.027619"
+        }
+      ]
+    },
+    "Q-V3-DIN-004": {
+      "categoria_resuelta": null,
+      "scores_reales": [
+        {
+          "documento_id": "DOC-V3-DIN-003",
+          "score": "0.032787"
+        },
+        {
+          "documento_id": "DOC-V3-DIN-004",
+          "score": "0.032258"
+        },
+        {
+          "documento_id": "DOC-V3-SPR-001",
+          "score": "0.031498"
+        },
+        {
+          "documento_id": "DOC-V3-STR-002",
+          "score": "0.031010"
+        },
+        {
+          "documento_id": "DOC-V3-ACP-003",
+          "score": "0.030310"
+        },
+        {
+          "documento_id": "DOC-V3-ACP-002",
+          "score": "0.029857"
+        },
+        {
+          "documento_id": "DOC-V3-ISA-004",
+          "score": "0.029762"
+        },
+        {
+          "documento_id": "DOC-V3-SPR-002",
+          "score": "0.029418"
+        },
+        {
+          "documento_id": "DOC-V3-CAL-002",
+          "score": "0.027799"
+        },
+        {
+          "documento_id": "DOC-V3-STR-005",
+          "score": "0.027651"
+        }
+      ]
+    },
+    "Q-V3-DIN-005": {
+      "categoria_resuelta": null,
+      "scores_reales": [
+        {
+          "documento_id": "DOC-V3-DIN-003",
+          "score": "0.032787"
+        },
+        {
+          "documento_id": "DOC-V3-DIN-004",
+          "score": "0.032258"
+        },
+        {
+          "documento_id": "DOC-V3-SPR-001",
+          "score": "0.031498"
+        },
+        {
+          "documento_id": "DOC-V3-STR-002",
+          "score": "0.031010"
+        },
+        {
+          "documento_id": "DOC-V3-ACP-003",
+          "score": "0.030310"
+        },
+        {
+          "documento_id": "DOC-V3-ACP-002",
+          "score": "0.029857"
+        },
+        {
+          "documento_id": "DOC-V3-ISA-004",
+          "score": "0.029762"
+        },
+        {
+          "documento_id": "DOC-V3-SPR-002",
+          "score": "0.029418"
+        },
+        {
+          "documento_id": "DOC-V3-CAL-002",
+          "score": "0.027799"
+        },
+        {
+          "documento_id": "DOC-V3-STR-005",
+          "score": "0.027651"
+        }
+      ]
+    },
+    "Q-V3-DIN-006": {
+      "categoria_resuelta": null,
+      "scores_reales": [
+        {
+          "documento_id": "DOC-V3-DIN-003",
+          "score": "0.032787"
+        },
+        {
+          "documento_id": "DOC-V3-DIN-004",
+          "score": "0.032258"
+        },
+        {
+          "documento_id": "DOC-V3-FAC-001",
+          "score": "0.031258"
+        },
+        {
+          "documento_id": "DOC-V3-ACP-002",
+          "score": "0.030118"
+        },
+        {
+          "documento_id": "DOC-V3-CAL-002",
+          "score": "0.029762"
+        },
+        {
+          "documento_id": "DOC-V3-ACP-003",
+          "score": "0.029469"
+        },
+        {
+          "documento_id": "DOC-V3-COR-001",
+          "score": "0.029418"
+        },
+        {
+          "documento_id": "DOC-V3-COR-005",
+          "score": "0.028958"
+        },
+        {
+          "documento_id": "DOC-V3-FAC-002",
+          "score": "0.028814"
+        },
+        {
+          "documento_id": "DOC-V3-FAC-003",
+          "score": "0.028485"
+        }
+      ]
+    },
+    "Q-V3-DIN-007": {
+      "categoria_resuelta": null,
+      "scores_reales": [
+        {
+          "documento_id": "DOC-V3-ISA-004",
+          "score": "0.032787"
+        },
+        {
+          "documento_id": "DOC-V3-DIN-001",
+          "score": "0.031258"
+        },
+        {
+          "documento_id": "DOC-V3-INF-005",
+          "score": "0.031025"
+        },
+        {
+          "documento_id": "DOC-V3-DIN-005",
+          "score": "0.030536"
+        },
+        {
+          "documento_id": "DOC-V3-SPR-001",
+          "score": "0.030214"
+        },
+        {
+          "documento_id": "DOC-V3-DIN-002",
+          "score": "0.028783"
+        },
+        {
+          "documento_id": "DOC-V3-CAL-003",
+          "score": "0.028034"
+        },
+        {
+          "documento_id": "DOC-V3-DIN-004",
+          "score": "0.027971"
+        },
+        {
+          "documento_id": "DOC-V3-ACP-003",
+          "score": "0.027746"
+        },
+        {
+          "documento_id": "DOC-V3-ISA-002",
+          "score": "0.027619"
+        }
+      ]
+    },
+    "Q-V3-DIN-008": {
+      "categoria_resuelta": null,
+      "scores_reales": [
+        {
+          "documento_id": "DOC-V3-DIN-003",
+          "score": "0.032266"
+        },
+        {
+          "documento_id": "DOC-V3-DIN-004",
+          "score": "0.032258"
+        },
+        {
+          "documento_id": "DOC-V3-ISA-004",
+          "score": "0.032018"
+        },
+        {
+          "documento_id": "DOC-V3-INF-005",
+          "score": "0.031025"
+        },
+        {
+          "documento_id": "DOC-V3-STR-005",
+          "score": "0.030310"
+        },
+        {
+          "documento_id": "DOC-V3-SPR-001",
+          "score": "0.030310"
+        },
+        {
+          "documento_id": "DOC-V3-COR-005",
+          "score": "0.029324"
+        },
+        {
+          "documento_id": "DOC-V3-DIN-001",
+          "score": "0.028790"
+        },
+        {
+          "documento_id": "DOC-V3-DIN-005",
+          "score": "0.028778"
+        },
+        {
+          "documento_id": "DOC-V3-DIN-002",
+          "score": "0.027652"
+        }
+      ]
+    },
+    "Q-V3-FAC-001": {
+      "categoria_resuelta": null,
+      "scores_reales": [
+        {
+          "documento_id": "DOC-V3-INF-003",
+          "score": "0.032787"
+        },
+        {
+          "documento_id": "DOC-V3-COR-002",
+          "score": "0.031514"
+        },
+        {
+          "documento_id": "DOC-V3-INF-004",
+          "score": "0.031025"
+        },
+        {
+          "documento_id": "DOC-V3-FAC-004",
+          "score": "0.030835"
+        },
+        {
+          "documento_id": "DOC-V3-FAC-005",
+          "score": "0.030366"
+        },
+        {
+          "documento_id": "DOC-V3-FAC-001",
+          "score": "0.030331"
+        },
+        {
+          "documento_id": "DOC-V3-FAC-003",
+          "score": "0.029851"
+        },
+        {
+          "documento_id": "DOC-V3-FAC-002",
+          "score": "0.029644"
+        },
+        {
+          "documento_id": "DOC-V3-STR-005",
+          "score": "0.028571"
+        },
+        {
+          "documento_id": "DOC-V3-CAL-002",
+          "score": "0.026905"
+        }
+      ]
+    },
+    "Q-V3-FAC-002": {
+      "categoria_resuelta": null,
+      "scores_reales": [
+        {
+          "documento_id": "DOC-V3-FAC-001",
+          "score": "0.032787"
+        },
+        {
+          "documento_id": "DOC-V3-FAC-003",
+          "score": "0.032002"
+        },
+        {
+          "documento_id": "DOC-V3-FAC-002",
+          "score": "0.032002"
+        },
+        {
+          "documento_id": "DOC-V3-INF-003",
+          "score": "0.030550"
+        },
+        {
+          "documento_id": "DOC-V3-INF-004",
+          "score": "0.030550"
+        },
+        {
+          "documento_id": "DOC-V3-INF-005",
+          "score": "0.030090"
+        },
+        {
+          "documento_id": "DOC-V3-COR-001",
+          "score": "0.029644"
+        },
+        {
+          "documento_id": "DOC-V3-SPR-004",
+          "score": "0.029469"
+        },
+        {
+          "documento_id": "DOC-V3-ISA-003",
+          "score": "0.028992"
+        },
+        {
+          "documento_id": "DOC-V3-COR-003",
+          "score": "0.027497"
+        }
+      ]
+    },
+    "Q-V3-FAC-003": {
+      "categoria_resuelta": null,
+      "scores_reales": [
+        {
+          "documento_id": "DOC-V3-FAC-002",
+          "score": "0.032522"
+        },
+        {
+          "documento_id": "DOC-V3-FAC-003",
+          "score": "0.032266"
+        },
+        {
+          "documento_id": "DOC-V3-FAC-001",
+          "score": "0.032002"
+        },
+        {
+          "documento_id": "DOC-V3-INF-004",
+          "score": "0.031010"
+        },
+        {
+          "documento_id": "DOC-V3-FAC-004",
+          "score": "0.029469"
+        },
+        {
+          "documento_id": "DOC-V3-INF-005",
+          "score": "0.029418"
+        },
+        {
+          "documento_id": "DOC-V3-COR-002",
+          "score": "0.029040"
+        },
+        {
+          "documento_id": "DOC-V3-INF-003",
+          "score": "0.028783"
+        },
+        {
+          "documento_id": "DOC-V3-ISA-002",
+          "score": "0.028405"
+        },
+        {
+          "documento_id": "DOC-V3-INF-001",
+          "score": "0.028259"
+        }
+      ]
+    },
+    "Q-V3-FAC-004": {
+      "categoria_resuelta": null,
+      "scores_reales": [
+        {
+          "documento_id": "DOC-V3-FAC-004",
+          "score": "0.032522"
+        },
+        {
+          "documento_id": "DOC-V3-FAC-005",
+          "score": "0.031281"
+        },
+        {
+          "documento_id": "DOC-V3-COR-002",
+          "score": "0.030090"
+        },
+        {
+          "documento_id": "DOC-V3-COR-004",
+          "score": "0.029572"
+        },
+        {
+          "documento_id": "DOC-V3-COR-001",
+          "score": "0.028442"
+        },
+        {
+          "documento_id": "DOC-V3-ISA-001",
+          "score": "0.028372"
+        },
+        {
+          "documento_id": "DOC-V3-SPR-004",
+          "score": "0.028083"
+        },
+        {
+          "documento_id": "DOC-V3-INF-003",
+          "score": "0.027402"
+        },
+        {
+          "documento_id": "DOC-V3-ISA-002",
+          "score": "0.027120"
+        },
+        {
+          "documento_id": "DOC-V3-ACP-005",
+          "score": "0.027119"
+        }
+      ]
+    },
+    "Q-V3-FAC-005": {
+      "categoria_resuelta": null,
+      "scores_reales": [
+        {
+          "documento_id": "DOC-V3-FAC-001",
+          "score": "0.032522"
+        },
+        {
+          "documento_id": "DOC-V3-FAC-003",
+          "score": "0.032522"
+        },
+        {
+          "documento_id": "DOC-V3-FAC-002",
+          "score": "0.031746"
+        },
+        {
+          "documento_id": "DOC-V3-INF-004",
+          "score": "0.030550"
+        },
+        {
+          "documento_id": "DOC-V3-INF-003",
+          "score": "0.029710"
+        },
+        {
+          "documento_id": "DOC-V3-COR-005",
+          "score": "0.029670"
+        },
+        {
+          "documento_id": "DOC-V3-INF-005",
+          "score": "0.029040"
+        },
+        {
+          "documento_id": "DOC-V3-INF-001",
+          "score": "0.028986"
+        },
+        {
+          "documento_id": "DOC-V3-ISA-003",
+          "score": "0.027972"
+        },
+        {
+          "documento_id": "DOC-V3-ACP-004",
+          "score": "0.027580"
+        }
+      ]
+    },
+    "Q-V3-FAC-006": {
+      "categoria_resuelta": null,
+      "scores_reales": [
+        {
+          "documento_id": "DOC-V3-FAC-001",
+          "score": "0.032522"
+        },
+        {
+          "documento_id": "DOC-V3-FAC-003",
+          "score": "0.032522"
+        },
+        {
+          "documento_id": "DOC-V3-FAC-002",
+          "score": "0.031746"
+        },
+        {
+          "documento_id": "DOC-V3-INF-004",
+          "score": "0.030550"
+        },
+        {
+          "documento_id": "DOC-V3-INF-003",
+          "score": "0.029710"
+        },
+        {
+          "documento_id": "DOC-V3-COR-005",
+          "score": "0.029670"
+        },
+        {
+          "documento_id": "DOC-V3-INF-005",
+          "score": "0.029040"
+        },
+        {
+          "documento_id": "DOC-V3-INF-001",
+          "score": "0.028986"
+        },
+        {
+          "documento_id": "DOC-V3-ISA-003",
+          "score": "0.027972"
+        },
+        {
+          "documento_id": "DOC-V3-ACP-004",
+          "score": "0.027580"
+        }
+      ]
+    },
+    "Q-V3-FAC-007": {
+      "categoria_resuelta": null,
+      "scores_reales": [
+        {
+          "documento_id": "DOC-V3-FAC-002",
+          "score": "0.032522"
+        },
+        {
+          "documento_id": "DOC-V3-FAC-003",
+          "score": "0.032266"
+        },
+        {
+          "documento_id": "DOC-V3-FAC-001",
+          "score": "0.032002"
+        },
+        {
+          "documento_id": "DOC-V3-INF-004",
+          "score": "0.031010"
+        },
+        {
+          "documento_id": "DOC-V3-FAC-004",
+          "score": "0.029469"
+        },
+        {
+          "documento_id": "DOC-V3-INF-005",
+          "score": "0.029418"
+        },
+        {
+          "documento_id": "DOC-V3-COR-002",
+          "score": "0.029040"
+        },
+        {
+          "documento_id": "DOC-V3-INF-003",
+          "score": "0.028783"
+        },
+        {
+          "documento_id": "DOC-V3-ISA-002",
+          "score": "0.028405"
+        },
+        {
+          "documento_id": "DOC-V3-INF-001",
+          "score": "0.028259"
+        }
+      ]
+    },
+    "Q-V3-FAC-008": {
+      "categoria_resuelta": null,
+      "scores_reales": [
+        {
+          "documento_id": "DOC-V3-FAC-002",
+          "score": "0.032522"
+        },
+        {
+          "documento_id": "DOC-V3-FAC-003",
+          "score": "0.032266"
+        },
+        {
+          "documento_id": "DOC-V3-FAC-001",
+          "score": "0.032002"
+        },
+        {
+          "documento_id": "DOC-V3-INF-004",
+          "score": "0.031010"
+        },
+        {
+          "documento_id": "DOC-V3-FAC-004",
+          "score": "0.029469"
+        },
+        {
+          "documento_id": "DOC-V3-INF-005",
+          "score": "0.029418"
+        },
+        {
+          "documento_id": "DOC-V3-COR-002",
+          "score": "0.029040"
+        },
+        {
+          "documento_id": "DOC-V3-INF-003",
+          "score": "0.028783"
+        },
+        {
+          "documento_id": "DOC-V3-ISA-002",
+          "score": "0.028405"
+        },
+        {
+          "documento_id": "DOC-V3-INF-001",
+          "score": "0.028259"
+        }
+      ]
+    },
+    "Q-V3-INF-001": {
+      "categoria_resuelta": null,
+      "scores_reales": [
+        {
+          "documento_id": "DOC-V3-INF-001",
+          "score": "0.032787"
+        },
+        {
+          "documento_id": "DOC-V3-INF-003",
+          "score": "0.032002"
+        },
+        {
+          "documento_id": "DOC-V3-INF-004",
+          "score": "0.032002"
+        },
+        {
+          "documento_id": "DOC-V3-INF-005",
+          "score": "0.031010"
+        },
+        {
+          "documento_id": "DOC-V3-FAC-004",
+          "score": "0.029877"
+        },
+        {
+          "documento_id": "DOC-V3-FAC-005",
+          "score": "0.029631"
+        },
+        {
+          "documento_id": "DOC-V3-ACP-001",
+          "score": "0.029236"
+        },
+        {
+          "documento_id": "DOC-V3-ACP-005",
+          "score": "0.028439"
+        },
+        {
+          "documento_id": "DOC-V3-COR-001",
+          "score": "0.028309"
+        },
+        {
+          "documento_id": "DOC-V3-INF-002",
+          "score": "0.028283"
+        }
+      ]
+    },
+    "Q-V3-INF-002": {
+      "categoria_resuelta": null,
+      "scores_reales": [
+        {
+          "documento_id": "DOC-V3-INF-002",
+          "score": "0.032787"
+        },
+        {
+          "documento_id": "DOC-V3-INF-001",
+          "score": "0.032002"
+        },
+        {
+          "documento_id": "DOC-V3-COR-005",
+          "score": "0.031010"
+        },
+        {
+          "documento_id": "DOC-V3-COR-002",
+          "score": "0.030415"
+        },
+        {
+          "documento_id": "DOC-V3-COR-004",
+          "score": "0.030366"
+        },
+        {
+          "documento_id": "DOC-V3-INF-004",
+          "score": "0.030303"
+        },
+        {
+          "documento_id": "DOC-V3-STR-001",
+          "score": "0.028595"
+        },
+        {
+          "documento_id": "DOC-V3-INF-005",
+          "score": "0.028595"
+        },
+        {
+          "documento_id": "DOC-V3-CAL-001",
+          "score": "0.027783"
+        },
+        {
+          "documento_id": "DOC-V3-COR-001",
+          "score": "0.027271"
+        }
+      ]
+    },
+    "Q-V3-INF-003": {
+      "categoria_resuelta": null,
+      "scores_reales": [
+        {
+          "documento_id": "DOC-V3-INF-003",
+          "score": "0.032787"
+        },
+        {
+          "documento_id": "DOC-V3-FAC-004",
+          "score": "0.031025"
+        },
+        {
+          "documento_id": "DOC-V3-FAC-005",
+          "score": "0.030331"
+        },
+        {
+          "documento_id": "DOC-V3-COR-002",
+          "score": "0.029469"
+        },
+        {
+          "documento_id": "DOC-V3-ISA-002",
+          "score": "0.029462"
+        },
+        {
+          "documento_id": "DOC-V3-FAC-003",
+          "score": "0.029206"
+        },
+        {
+          "documento_id": "DOC-V3-FAC-001",
+          "score": "0.029116"
+        },
+        {
+          "documento_id": "DOC-V3-INF-004",
+          "score": "0.029040"
+        },
+        {
+          "documento_id": "DOC-V3-FAC-002",
+          "score": "0.028783"
+        },
+        {
+          "documento_id": "DOC-V3-CAL-004",
+          "score": "0.028624"
+        }
+      ]
+    },
+    "Q-V3-INF-004": {
+      "categoria_resuelta": null,
+      "scores_reales": [
+        {
+          "documento_id": "DOC-V3-INF-004",
+          "score": "0.032787"
+        },
+        {
+          "documento_id": "DOC-V3-INF-005",
+          "score": "0.031754"
+        },
+        {
+          "documento_id": "DOC-V3-FAC-001",
+          "score": "0.031025"
+        },
+        {
+          "documento_id": "DOC-V3-FAC-002",
+          "score": "0.030835"
+        },
+        {
+          "documento_id": "DOC-V3-FAC-005",
+          "score": "0.030159"
+        },
+        {
+          "documento_id": "DOC-V3-FAC-003",
+          "score": "0.030077"
+        },
+        {
+          "documento_id": "DOC-V3-FAC-004",
+          "score": "0.029514"
+        },
+        {
+          "documento_id": "DOC-V3-ISA-003",
+          "score": "0.028219"
+        },
+        {
+          "documento_id": "DOC-V3-INF-001",
+          "score": "0.027912"
+        },
+        {
+          "documento_id": "DOC-V3-CAL-001",
+          "score": "0.027783"
+        }
+      ]
+    },
+    "Q-V3-INF-005": {
+      "categoria_resuelta": null,
+      "scores_reales": [
+        {
+          "documento_id": "DOC-V3-INF-005",
+          "score": "0.032787"
+        },
+        {
+          "documento_id": "DOC-V3-CAL-001",
+          "score": "0.031010"
+        },
+        {
+          "documento_id": "DOC-V3-STR-003",
+          "score": "0.030798"
+        },
+        {
+          "documento_id": "DOC-V3-STR-005",
+          "score": "0.029324"
+        },
+        {
+          "documento_id": "DOC-V3-INF-004",
+          "score": "0.029274"
+        },
+        {
+          "documento_id": "DOC-V3-CAL-004",
+          "score": "0.028629"
+        },
+        {
+          "documento_id": "DOC-V3-SPR-003",
+          "score": "0.028405"
+        },
+        {
+          "documento_id": "DOC-V3-SPR-002",
+          "score": "0.028139"
+        },
+        {
+          "documento_id": "DOC-V3-INF-001",
+          "score": "0.027444"
+        },
+        {
+          "documento_id": "DOC-V3-FAC-001",
+          "score": "0.027418"
+        }
+      ]
+    },
+    "Q-V3-INF-006": {
+      "categoria_resuelta": null,
+      "scores_reales": [
+        {
+          "documento_id": "DOC-V3-INF-003",
+          "score": "0.032787"
+        },
+        {
+          "documento_id": "DOC-V3-INF-004",
+          "score": "0.032258"
+        },
+        {
+          "documento_id": "DOC-V3-INF-001",
+          "score": "0.031746"
+        },
+        {
+          "documento_id": "DOC-V3-FAC-001",
+          "score": "0.030310"
+        },
+        {
+          "documento_id": "DOC-V3-COR-001",
+          "score": "0.030090"
+        },
+        {
+          "documento_id": "DOC-V3-INF-005",
+          "score": "0.030077"
+        },
+        {
+          "documento_id": "DOC-V3-FAC-003",
+          "score": "0.029911"
+        },
+        {
+          "documento_id": "DOC-V3-INF-002",
+          "score": "0.028958"
+        },
+        {
+          "documento_id": "DOC-V3-FAC-002",
+          "score": "0.028850"
+        },
+        {
+          "documento_id": "DOC-V3-CAL-004",
+          "score": "0.028577"
+        }
+      ]
+    },
+    "Q-V3-INF-007": {
+      "categoria_resuelta": null,
+      "scores_reales": [
+        {
+          "documento_id": "DOC-V3-INF-001",
+          "score": "0.032787"
+        },
+        {
+          "documento_id": "DOC-V3-INF-002",
+          "score": "0.032258"
+        },
+        {
+          "documento_id": "DOC-V3-INF-004",
+          "score": "0.031250"
+        },
+        {
+          "documento_id": "DOC-V3-INF-005",
+          "score": "0.030798"
+        },
+        {
+          "documento_id": "DOC-V3-INF-003",
+          "score": "0.030769"
+        },
+        {
+          "documento_id": "DOC-V3-COR-002",
+          "score": "0.030579"
+        },
+        {
+          "documento_id": "DOC-V3-COR-005",
+          "score": "0.029644"
+        },
+        {
+          "documento_id": "DOC-V3-FAC-004",
+          "score": "0.028778"
+        },
+        {
+          "documento_id": "DOC-V3-FAC-005",
+          "score": "0.028175"
+        },
+        {
+          "documento_id": "DOC-V3-COR-001",
+          "score": "0.027652"
+        }
+      ]
+    },
+    "Q-V3-INF-008": {
+      "categoria_resuelta": null,
+      "scores_reales": [
+        {
+          "documento_id": "DOC-V3-INF-001",
+          "score": "0.032522"
+        },
+        {
+          "documento_id": "DOC-V3-INF-003",
+          "score": "0.032266"
+        },
+        {
+          "documento_id": "DOC-V3-COR-001",
+          "score": "0.031025"
+        },
+        {
+          "documento_id": "DOC-V3-INF-005",
+          "score": "0.030769"
+        },
+        {
+          "documento_id": "DOC-V3-INF-004",
+          "score": "0.030550"
+        },
+        {
+          "documento_id": "DOC-V3-COR-002",
+          "score": "0.030118"
+        },
+        {
+          "documento_id": "DOC-V3-CAL-004",
+          "score": "0.029462"
+        },
+        {
+          "documento_id": "DOC-V3-COR-005",
+          "score": "0.029412"
+        },
+        {
+          "documento_id": "DOC-V3-INF-002",
+          "score": "0.028309"
+        },
+        {
+          "documento_id": "DOC-V3-COR-004",
+          "score": "0.027912"
+        }
+      ]
+    },
+    "Q-V3-ISA-001": {
+      "categoria_resuelta": null,
+      "scores_reales": [
+        {
+          "documento_id": "DOC-V3-ISA-001",
+          "score": "0.032787"
+        },
+        {
+          "documento_id": "DOC-V3-ISA-003",
+          "score": "0.032002"
+        },
+        {
+          "documento_id": "DOC-V3-ISA-005",
+          "score": "0.031025"
+        },
+        {
+          "documento_id": "DOC-V3-ACP-004",
+          "score": "0.028219"
+        },
+        {
+          "documento_id": "DOC-V3-INF-002",
+          "score": "0.028175"
+        },
+        {
+          "documento_id": "DOC-V3-STR-004",
+          "score": "0.028043"
+        },
+        {
+          "documento_id": "DOC-V3-COR-001",
+          "score": "0.027826"
+        },
+        {
+          "documento_id": "DOC-V3-ISA-002",
+          "score": "0.027530"
+        },
+        {
+          "documento_id": "DOC-V3-ACP-001",
+          "score": "0.027206"
+        },
+        {
+          "documento_id": "DOC-V3-INF-005",
+          "score": "0.027120"
+        }
+      ]
+    },
+    "Q-V3-ISA-002": {
+      "categoria_resuelta": null,
+      "scores_reales": [
+        {
+          "documento_id": "DOC-V3-ISA-002",
+          "score": "0.032018"
+        },
+        {
+          "documento_id": "DOC-V3-ISA-003",
+          "score": "0.031514"
+        },
+        {
+          "documento_id": "DOC-V3-STR-004",
+          "score": "0.030798"
+        },
+        {
+          "documento_id": "DOC-V3-COR-002",
+          "score": "0.030366"
+        },
+        {
+          "documento_id": "DOC-V3-STR-005",
+          "score": "0.030118"
+        },
+        {
+          "documento_id": "DOC-V3-SPR-003",
+          "score": "0.029412"
+        },
+        {
+          "documento_id": "DOC-V3-COR-004",
+          "score": "0.029052"
+        },
+        {
+          "documento_id": "DOC-V3-ISA-005",
+          "score": "0.028950"
+        },
+        {
+          "documento_id": "DOC-V3-ACP-002",
+          "score": "0.028309"
+        },
+        {
+          "documento_id": "DOC-V3-ACP-003",
+          "score": "0.027222"
+        }
+      ]
+    },
+    "Q-V3-ISA-003": {
+      "categoria_resuelta": null,
+      "scores_reales": [
+        {
+          "documento_id": "DOC-V3-ISA-003",
+          "score": "0.032787"
+        },
+        {
+          "documento_id": "DOC-V3-COR-004",
+          "score": "0.031514"
+        },
+        {
+          "documento_id": "DOC-V3-CAL-002",
+          "score": "0.029206"
+        },
+        {
+          "documento_id": "DOC-V3-STR-004",
+          "score": "0.028986"
+        },
+        {
+          "documento_id": "DOC-V3-INF-005",
+          "score": "0.028783"
+        },
+        {
+          "documento_id": "DOC-V3-ISA-001",
+          "score": "0.028694"
+        },
+        {
+          "documento_id": "DOC-V3-ISA-005",
+          "score": "0.028612"
+        },
+        {
+          "documento_id": "DOC-V3-STR-005",
+          "score": "0.028595"
+        },
+        {
+          "documento_id": "DOC-V3-DIN-003",
+          "score": "0.027652"
+        },
+        {
+          "documento_id": "DOC-V3-ISA-002",
+          "score": "0.027240"
+        }
+      ]
+    },
+    "Q-V3-ISA-004": {
+      "categoria_resuelta": null,
+      "scores_reales": [
+        {
+          "documento_id": "DOC-V3-SPR-002",
+          "score": "0.031514"
+        },
+        {
+          "documento_id": "DOC-V3-STR-002",
+          "score": "0.030886"
+        },
+        {
+          "documento_id": "DOC-V3-ISA-004",
+          "score": "0.030798"
+        },
+        {
+          "documento_id": "DOC-V3-COR-004",
+          "score": "0.030679"
+        },
+        {
+          "documento_id": "DOC-V3-SPR-003",
+          "score": "0.030579"
+        },
+        {
+          "documento_id": "DOC-V3-SPR-001",
+          "score": "0.030550"
+        },
+        {
+          "documento_id": "DOC-V3-INF-005",
+          "score": "0.029857"
+        },
+        {
+          "documento_id": "DOC-V3-ISA-003",
+          "score": "0.029040"
+        },
+        {
+          "documento_id": "DOC-V3-ISA-005",
+          "score": "0.028577"
+        },
+        {
+          "documento_id": "DOC-V3-STR-005",
+          "score": "0.028475"
+        }
+      ]
+    },
+    "Q-V3-ISA-005": {
+      "categoria_resuelta": null,
+      "scores_reales": [
+        {
+          "documento_id": "DOC-V3-ISA-003",
+          "score": "0.032018"
+        },
+        {
+          "documento_id": "DOC-V3-SPR-003",
+          "score": "0.031754"
+        },
+        {
+          "documento_id": "DOC-V3-COR-004",
+          "score": "0.031545"
+        },
+        {
+          "documento_id": "DOC-V3-SPR-001",
+          "score": "0.030798"
+        },
+        {
+          "documento_id": "DOC-V3-ISA-001",
+          "score": "0.030366"
+        },
+        {
+          "documento_id": "DOC-V3-ACP-001",
+          "score": "0.029418"
+        },
+        {
+          "documento_id": "DOC-V3-SPR-004",
+          "score": "0.028898"
+        },
+        {
+          "documento_id": "DOC-V3-ACP-005",
+          "score": "0.028850"
+        },
+        {
+          "documento_id": "DOC-V3-ISA-005",
+          "score": "0.028790"
+        },
+        {
+          "documento_id": "DOC-V3-INF-002",
+          "score": "0.028629"
+        }
+      ]
+    },
+    "Q-V3-ISA-006": {
+      "categoria_resuelta": null,
+      "scores_reales": [
+        {
+          "documento_id": "DOC-V3-SPR-003",
+          "score": "0.032522"
+        },
+        {
+          "documento_id": "DOC-V3-ISA-005",
+          "score": "0.032266"
+        },
+        {
+          "documento_id": "DOC-V3-COR-005",
+          "score": "0.030579"
+        },
+        {
+          "documento_id": "DOC-V3-ISA-001",
+          "score": "0.030331"
+        },
+        {
+          "documento_id": "DOC-V3-CAL-004",
+          "score": "0.029877"
+        },
+        {
+          "documento_id": "DOC-V3-ISA-003",
+          "score": "0.029828"
+        },
+        {
+          "documento_id": "DOC-V3-SPR-004",
+          "score": "0.028850"
+        },
+        {
+          "documento_id": "DOC-V3-SPR-001",
+          "score": "0.028814"
+        },
+        {
+          "documento_id": "DOC-V3-COR-001",
+          "score": "0.027826"
+        },
+        {
+          "documento_id": "DOC-V3-INF-005",
+          "score": "0.027425"
+        }
+      ]
+    },
+    "Q-V3-ISA-007": {
+      "categoria_resuelta": null,
+      "scores_reales": [
+        {
+          "documento_id": "DOC-V3-ISA-002",
+          "score": "0.032787"
+        },
+        {
+          "documento_id": "DOC-V3-CAL-001",
+          "score": "0.030118"
+        },
+        {
+          "documento_id": "DOC-V3-ISA-003",
+          "score": "0.029911"
+        },
+        {
+          "documento_id": "DOC-V3-ACP-002",
+          "score": "0.029857"
+        },
+        {
+          "documento_id": "DOC-V3-COR-002",
+          "score": "0.029274"
+        },
+        {
+          "documento_id": "DOC-V3-ACP-003",
+          "score": "0.029211"
+        },
+        {
+          "documento_id": "DOC-V3-ACP-005",
+          "score": "0.027894"
+        },
+        {
+          "documento_id": "DOC-V3-INF-003",
+          "score": "0.027894"
+        },
+        {
+          "documento_id": "DOC-V3-ISA-001",
+          "score": "0.027885"
+        },
+        {
+          "documento_id": "DOC-V3-ACP-001",
+          "score": "0.027778"
+        }
+      ]
+    },
+    "Q-V3-ISA-008": {
+      "categoria_resuelta": null,
+      "scores_reales": [
+        {
+          "documento_id": "DOC-V3-ISA-001",
+          "score": "0.032787"
+        },
+        {
+          "documento_id": "DOC-V3-ISA-003",
+          "score": "0.032002"
+        },
+        {
+          "documento_id": "DOC-V3-ISA-005",
+          "score": "0.031025"
+        },
+        {
+          "documento_id": "DOC-V3-ACP-004",
+          "score": "0.028219"
+        },
+        {
+          "documento_id": "DOC-V3-INF-002",
+          "score": "0.028175"
+        },
+        {
+          "documento_id": "DOC-V3-STR-004",
+          "score": "0.028043"
+        },
+        {
+          "documento_id": "DOC-V3-COR-001",
+          "score": "0.027826"
+        },
+        {
+          "documento_id": "DOC-V3-ISA-002",
+          "score": "0.027530"
+        },
+        {
+          "documento_id": "DOC-V3-ACP-001",
+          "score": "0.027206"
+        },
+        {
+          "documento_id": "DOC-V3-INF-005",
+          "score": "0.027120"
+        }
+      ]
+    },
+    "Q-V3-SPR-001": {
+      "categoria_resuelta": null,
+      "scores_reales": [
+        {
+          "documento_id": "DOC-V3-SPR-001",
+          "score": "0.032787"
+        },
+        {
+          "documento_id": "DOC-V3-SPR-004",
+          "score": "0.032002"
+        },
+        {
+          "documento_id": "DOC-V3-ISA-001",
+          "score": "0.032002"
+        },
+        {
+          "documento_id": "DOC-V3-ISA-004",
+          "score": "0.030536"
+        },
+        {
+          "documento_id": "DOC-V3-STR-002",
+          "score": "0.030331"
+        },
+        {
+          "documento_id": "DOC-V3-ISA-003",
+          "score": "0.029911"
+        },
+        {
+          "documento_id": "DOC-V3-SPR-005",
+          "score": "0.029857"
+        },
+        {
+          "documento_id": "DOC-V3-COR-002",
+          "score": "0.028898"
+        },
+        {
+          "documento_id": "DOC-V3-ACP-001",
+          "score": "0.028382"
+        },
+        {
+          "documento_id": "DOC-V3-SPR-003",
+          "score": "0.027588"
+        }
+      ]
+    },
+    "Q-V3-SPR-002": {
+      "categoria_resuelta": null,
+      "scores_reales": [
+        {
+          "documento_id": "DOC-V3-SPR-004",
+          "score": "0.032522"
+        },
+        {
+          "documento_id": "DOC-V3-SPR-005",
+          "score": "0.032018"
+        },
+        {
+          "documento_id": "DOC-V3-ISA-004",
+          "score": "0.031025"
+        },
+        {
+          "documento_id": "DOC-V3-SPR-003",
+          "score": "0.030159"
+        },
+        {
+          "documento_id": "DOC-V3-ISA-005",
+          "score": "0.029877"
+        },
+        {
+          "documento_id": "DOC-V3-SPR-002",
+          "score": "0.029199"
+        },
+        {
+          "documento_id": "DOC-V3-SPR-001",
+          "score": "0.029116"
+        },
+        {
+          "documento_id": "DOC-V3-STR-004",
+          "score": "0.029040"
+        },
+        {
+          "documento_id": "DOC-V3-ACP-002",
+          "score": "0.028783"
+        },
+        {
+          "documento_id": "DOC-V3-CAL-004",
+          "score": "0.028624"
+        }
+      ]
+    },
+    "Q-V3-SPR-003": {
+      "categoria_resuelta": null,
+      "scores_reales": [
+        {
+          "documento_id": "DOC-V3-SPR-002",
+          "score": "0.032787"
+        },
+        {
+          "documento_id": "DOC-V3-SPR-004",
+          "score": "0.031754"
+        },
+        {
+          "documento_id": "DOC-V3-ISA-004",
+          "score": "0.031746"
+        },
+        {
+          "documento_id": "DOC-V3-ISA-002",
+          "score": "0.030415"
+        },
+        {
+          "documento_id": "DOC-V3-SPR-001",
+          "score": "0.030090"
+        },
+        {
+          "documento_id": "DOC-V3-STR-005",
+          "score": "0.029631"
+        },
+        {
+          "documento_id": "DOC-V3-SPR-005",
+          "score": "0.028898"
+        },
+        {
+          "documento_id": "DOC-V3-INF-005",
+          "score": "0.028783"
+        },
+        {
+          "documento_id": "DOC-V3-DIN-005",
+          "score": "0.027497"
+        },
+        {
+          "documento_id": "DOC-V3-DIN-001",
+          "score": "0.027425"
+        }
+      ]
+    },
+    "Q-V3-SPR-004": {
+      "categoria_resuelta": null,
+      "scores_reales": [
+        {
+          "documento_id": "DOC-V3-SPR-005",
+          "score": "0.032787"
+        },
+        {
+          "documento_id": "DOC-V3-SPR-001",
+          "score": "0.032002"
+        },
+        {
+          "documento_id": "DOC-V3-SPR-004",
+          "score": "0.031754"
+        },
+        {
+          "documento_id": "DOC-V3-STR-002",
+          "score": "0.031498"
+        },
+        {
+          "documento_id": "DOC-V3-SPR-003",
+          "score": "0.030769"
+        },
+        {
+          "documento_id": "DOC-V3-ISA-004",
+          "score": "0.029236"
+        },
+        {
+          "documento_id": "DOC-V3-ISA-005",
+          "score": "0.029199"
+        },
+        {
+          "documento_id": "DOC-V3-CAL-004",
+          "score": "0.028992"
+        },
+        {
+          "documento_id": "DOC-V3-ACP-001",
+          "score": "0.027402"
+        },
+        {
+          "documento_id": "DOC-V3-CAL-002",
+          "score": "0.027072"
+        }
+      ]
+    },
+    "Q-V3-SPR-005": {
+      "categoria_resuelta": null,
+      "scores_reales": [
+        {
+          "documento_id": "DOC-V3-SPR-004",
+          "score": "0.032787"
+        },
+        {
+          "documento_id": "DOC-V3-SPR-002",
+          "score": "0.031754"
+        },
+        {
+          "documento_id": "DOC-V3-SPR-003",
+          "score": "0.031754"
+        },
+        {
+          "documento_id": "DOC-V3-SPR-005",
+          "score": "0.030769"
+        },
+        {
+          "documento_id": "DOC-V3-SPR-001",
+          "score": "0.029958"
+        },
+        {
+          "documento_id": "DOC-V3-STR-005",
+          "score": "0.029762"
+        },
+        {
+          "documento_id": "DOC-V3-ACP-005",
+          "score": "0.029418"
+        },
+        {
+          "documento_id": "DOC-V3-ISA-004",
+          "score": "0.029040"
+        },
+        {
+          "documento_id": "DOC-V3-ACP-001",
+          "score": "0.028850"
+        },
+        {
+          "documento_id": "DOC-V3-STR-002",
+          "score": "0.028790"
+        }
+      ]
+    },
+    "Q-V3-SPR-006": {
+      "categoria_resuelta": null,
+      "scores_reales": [
+        {
+          "documento_id": "DOC-V3-SPR-004",
+          "score": "0.031778"
+        },
+        {
+          "documento_id": "DOC-V3-ISA-004",
+          "score": "0.031281"
+        },
+        {
+          "documento_id": "DOC-V3-ISA-003",
+          "score": "0.031281"
+        },
+        {
+          "documento_id": "DOC-V3-COR-004",
+          "score": "0.030550"
+        },
+        {
+          "documento_id": "DOC-V3-ISA-001",
+          "score": "0.029572"
+        },
+        {
+          "documento_id": "DOC-V3-INF-004",
+          "score": "0.029274"
+        },
+        {
+          "documento_id": "DOC-V3-DIN-003",
+          "score": "0.028577"
+        },
+        {
+          "documento_id": "DOC-V3-INF-002",
+          "score": "0.028283"
+        },
+        {
+          "documento_id": "DOC-V3-INF-005",
+          "score": "0.028219"
+        },
+        {
+          "documento_id": "DOC-V3-DIN-004",
+          "score": "0.027746"
+        }
+      ]
+    },
+    "Q-V3-SPR-007": {
+      "categoria_resuelta": null,
+      "scores_reales": [
+        {
+          "documento_id": "DOC-V3-SPR-003",
+          "score": "0.032787"
+        },
+        {
+          "documento_id": "DOC-V3-ISA-005",
+          "score": "0.032258"
+        },
+        {
+          "documento_id": "DOC-V3-ISA-002",
+          "score": "0.031250"
+        },
+        {
+          "documento_id": "DOC-V3-ACP-002",
+          "score": "0.030579"
+        },
+        {
+          "documento_id": "DOC-V3-ACP-003",
+          "score": "0.029877"
+        },
+        {
+          "documento_id": "DOC-V3-INF-005",
+          "score": "0.029631"
+        },
+        {
+          "documento_id": "DOC-V3-CAL-004",
+          "score": "0.029040"
+        },
+        {
+          "documento_id": "DOC-V3-SPR-002",
+          "score": "0.028543"
+        },
+        {
+          "documento_id": "DOC-V3-STR-004",
+          "score": "0.028175"
+        },
+        {
+          "documento_id": "DOC-V3-ISA-004",
+          "score": "0.028139"
+        }
+      ]
+    },
+    "Q-V3-SPR-008": {
+      "categoria_resuelta": null,
+      "scores_reales": [
+        {
+          "documento_id": "DOC-V3-SPR-001",
+          "score": "0.032522"
+        },
+        {
+          "documento_id": "DOC-V3-SPR-004",
+          "score": "0.032266"
+        },
+        {
+          "documento_id": "DOC-V3-ISA-001",
+          "score": "0.032002"
+        },
+        {
+          "documento_id": "DOC-V3-ISA-004",
+          "score": "0.030118"
+        },
+        {
+          "documento_id": "DOC-V3-SPR-005",
+          "score": "0.029877"
+        },
+        {
+          "documento_id": "DOC-V3-STR-002",
+          "score": "0.029851"
+        },
+        {
+          "documento_id": "DOC-V3-ISA-003",
+          "score": "0.029710"
+        },
+        {
+          "documento_id": "DOC-V3-COR-002",
+          "score": "0.029083"
+        },
+        {
+          "documento_id": "DOC-V3-SPR-003",
+          "score": "0.027973"
+        },
+        {
+          "documento_id": "DOC-V3-ACP-001",
+          "score": "0.027693"
+        }
+      ]
+    },
+    "Q-V3-STR-001": {
+      "categoria_resuelta": null,
+      "scores_reales": [
+        {
+          "documento_id": "DOC-V3-STR-001",
+          "score": "0.032266"
+        },
+        {
+          "documento_id": "DOC-V3-STR-004",
+          "score": "0.031258"
+        },
+        {
+          "documento_id": "DOC-V3-ISA-001",
+          "score": "0.030835"
+        },
+        {
+          "documento_id": "DOC-V3-STR-005",
+          "score": "0.030550"
+        },
+        {
+          "documento_id": "DOC-V3-ISA-003",
+          "score": "0.029631"
+        },
+        {
+          "documento_id": "DOC-V3-STR-003",
+          "score": "0.029437"
+        },
+        {
+          "documento_id": "DOC-V3-ISA-005",
+          "score": "0.028543"
+        },
+        {
+          "documento_id": "DOC-V3-DIN-003",
+          "score": "0.028442"
+        },
+        {
+          "documento_id": "DOC-V3-SPR-004",
+          "score": "0.028382"
+        },
+        {
+          "documento_id": "DOC-V3-SPR-001",
+          "score": "0.028169"
+        }
+      ]
+    },
+    "Q-V3-STR-002": {
+      "categoria_resuelta": null,
+      "scores_reales": [
+        {
+          "documento_id": "DOC-V3-STR-002",
+          "score": "0.032018"
+        },
+        {
+          "documento_id": "DOC-V3-ACP-001",
+          "score": "0.030536"
+        },
+        {
+          "documento_id": "DOC-V3-STR-004",
+          "score": "0.030331"
+        },
+        {
+          "documento_id": "DOC-V3-ISA-001",
+          "score": "0.030018"
+        },
+        {
+          "documento_id": "DOC-V3-SPR-005",
+          "score": "0.029762"
+        },
+        {
+          "documento_id": "DOC-V3-ACP-005",
+          "score": "0.029437"
+        },
+        {
+          "documento_id": "DOC-V3-STR-001",
+          "score": "0.029199"
+        },
+        {
+          "documento_id": "DOC-V3-ISA-005",
+          "score": "0.028624"
+        },
+        {
+          "documento_id": "DOC-V3-SPR-001",
+          "score": "0.028169"
+        },
+        {
+          "documento_id": "DOC-V3-SPR-003",
+          "score": "0.028083"
+        }
+      ]
+    },
+    "Q-V3-STR-003": {
+      "categoria_resuelta": null,
+      "scores_reales": [
+        {
+          "documento_id": "DOC-V3-STR-003",
+          "score": "0.032018"
+        },
+        {
+          "documento_id": "DOC-V3-STR-005",
+          "score": "0.032002"
+        },
+        {
+          "documento_id": "DOC-V3-SPR-003",
+          "score": "0.030536"
+        },
+        {
+          "documento_id": "DOC-V3-COR-002",
+          "score": "0.030310"
+        },
+        {
+          "documento_id": "DOC-V3-ACP-001",
+          "score": "0.029211"
+        },
+        {
+          "documento_id": "DOC-V3-ISA-001",
+          "score": "0.029116"
+        },
+        {
+          "documento_id": "DOC-V3-INF-005",
+          "score": "0.029040"
+        },
+        {
+          "documento_id": "DOC-V3-ACP-005",
+          "score": "0.028778"
+        },
+        {
+          "documento_id": "DOC-V3-COR-004",
+          "score": "0.028373"
+        },
+        {
+          "documento_id": "DOC-V3-ISA-003",
+          "score": "0.027888"
+        }
+      ]
+    },
+    "Q-V3-STR-004": {
+      "categoria_resuelta": null,
+      "scores_reales": [
+        {
+          "documento_id": "DOC-V3-DIN-003",
+          "score": "0.032787"
+        },
+        {
+          "documento_id": "DOC-V3-STR-004",
+          "score": "0.031754"
+        },
+        {
+          "documento_id": "DOC-V3-DIN-004",
+          "score": "0.031754"
+        },
+        {
+          "documento_id": "DOC-V3-STR-005",
+          "score": "0.031746"
+        },
+        {
+          "documento_id": "DOC-V3-ISA-005",
+          "score": "0.029083"
+        },
+        {
+          "documento_id": "DOC-V3-INF-005",
+          "score": "0.028439"
+        },
+        {
+          "documento_id": "DOC-V3-INF-003",
+          "score": "0.028259"
+        },
+        {
+          "documento_id": "DOC-V3-STR-002",
+          "score": "0.027799"
+        },
+        {
+          "documento_id": "DOC-V3-ACP-002",
+          "score": "0.027588"
+        },
+        {
+          "documento_id": "DOC-V3-ISA-004",
+          "score": "0.027106"
+        }
+      ]
+    },
+    "Q-V3-STR-005": {
+      "categoria_resuelta": null,
+      "scores_reales": [
+        {
+          "documento_id": "DOC-V3-STR-004",
+          "score": "0.032787"
+        },
+        {
+          "documento_id": "DOC-V3-ISA-003",
+          "score": "0.031754"
+        },
+        {
+          "documento_id": "DOC-V3-STR-005",
+          "score": "0.031514"
+        },
+        {
+          "documento_id": "DOC-V3-STR-002",
+          "score": "0.031258"
+        },
+        {
+          "documento_id": "DOC-V3-STR-001",
+          "score": "0.030579"
+        },
+        {
+          "documento_id": "DOC-V3-STR-003",
+          "score": "0.030550"
+        },
+        {
+          "documento_id": "DOC-V3-SPR-003",
+          "score": "0.028850"
+        },
+        {
+          "documento_id": "DOC-V3-CAL-001",
+          "score": "0.027418"
+        },
+        {
+          "documento_id": "DOC-V3-ISA-005",
+          "score": "0.027056"
+        },
+        {
+          "documento_id": "DOC-V3-INF-001",
+          "score": "0.026631"
+        }
+      ]
+    },
+    "Q-V3-STR-006": {
+      "categoria_resuelta": null,
+      "scores_reales": [
+        {
+          "documento_id": "DOC-V3-STR-005",
+          "score": "0.032787"
+        },
+        {
+          "documento_id": "DOC-V3-STR-003",
+          "score": "0.031250"
+        },
+        {
+          "documento_id": "DOC-V3-ISA-002",
+          "score": "0.030214"
+        },
+        {
+          "documento_id": "DOC-V3-COR-004",
+          "score": "0.029958"
+        },
+        {
+          "documento_id": "DOC-V3-ISA-001",
+          "score": "0.029877"
+        },
+        {
+          "documento_id": "DOC-V3-COR-002",
+          "score": "0.029199"
+        },
+        {
+          "documento_id": "DOC-V3-ISA-003",
+          "score": "0.028992"
+        },
+        {
+          "documento_id": "DOC-V3-INF-005",
+          "score": "0.028950"
+        },
+        {
+          "documento_id": "DOC-V3-STR-004",
+          "score": "0.028898"
+        },
+        {
+          "documento_id": "DOC-V3-SPR-001",
+          "score": "0.027921"
+        }
+      ]
+    },
+    "Q-V3-STR-007": {
+      "categoria_resuelta": null,
+      "scores_reales": [
+        {
+          "documento_id": "DOC-V3-SPR-004",
+          "score": "0.032522"
+        },
+        {
+          "documento_id": "DOC-V3-STR-002",
+          "score": "0.031778"
+        },
+        {
+          "documento_id": "DOC-V3-SPR-001",
+          "score": "0.031754"
+        },
+        {
+          "documento_id": "DOC-V3-SPR-005",
+          "score": "0.031258"
+        },
+        {
+          "documento_id": "DOC-V3-STR-004",
+          "score": "0.030331"
+        },
+        {
+          "documento_id": "DOC-V3-ISA-004",
+          "score": "0.029418"
+        },
+        {
+          "documento_id": "DOC-V3-STR-001",
+          "score": "0.029206"
+        },
+        {
+          "documento_id": "DOC-V3-SPR-003",
+          "score": "0.028595"
+        },
+        {
+          "documento_id": "DOC-V3-STR-005",
+          "score": "0.028439"
+        },
+        {
+          "documento_id": "DOC-V3-ISA-003",
+          "score": "0.028309"
+        }
+      ]
+    },
+    "Q-V3-STR-008": {
+      "categoria_resuelta": null,
+      "scores_reales": [
+        {
+          "documento_id": "DOC-V3-SPR-003",
+          "score": "0.032266"
+        },
+        {
+          "documento_id": "DOC-V3-STR-002",
+          "score": "0.031778"
+        },
+        {
+          "documento_id": "DOC-V3-SPR-001",
+          "score": "0.030777"
+        },
+        {
+          "documento_id": "DOC-V3-STR-005",
+          "score": "0.030118"
+        },
+        {
+          "documento_id": "DOC-V3-STR-003",
+          "score": "0.029670"
+        },
+        {
+          "documento_id": "DOC-V3-ISA-001",
+          "score": "0.029631"
+        },
+        {
+          "documento_id": "DOC-V3-STR-004",
+          "score": "0.028475"
+        },
+        {
+          "documento_id": "DOC-V3-STR-001",
+          "score": "0.028191"
+        },
+        {
+          "documento_id": "DOC-V3-SPR-005",
+          "score": "0.027972"
+        },
+        {
+          "documento_id": "DOC-V3-FAC-004",
+          "score": "0.027638"
+        }
+      ]
+    }
+  }
+}
