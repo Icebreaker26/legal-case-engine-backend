@@ -15,11 +15,21 @@ export const actualizarGestionSchema = z.object({
 });
 
 export const actualizarDatosSchema = z.object({
+  radicado:          z.string().min(1).optional(),
+  accionante:        z.string().min(1).optional(),
+  sharepoint_link:   z.string().url().optional().or(z.literal('')),
+  resultado_fallo:   z.string().optional(),
   responsable_uuid:  z.string().uuid().optional(),
   prioridad:         z.enum(['Alta', 'Media', 'Baja']).optional(),
   grupo_id:          z.preprocess(v => v != null ? Number(v) : undefined, z.number().int().positive().optional()),
   dias_termino:      z.preprocess(v => v != null ? Number(v) : undefined, z.number().int().min(1).optional()),
   derecho_vulnerado: z.string().optional(),
+  // #108: el abogado debe confirmar o corregir la categoría explícitamente
+  // antes de que la promoción automática a memoria legal la use como
+  // `categoria` del documento — si no viene en true, la promoción se
+  // posterga (no se descarta la respuesta Favorable, solo se difiere el
+  // ingreso al corpus hasta que alguien confirme la categoría).
+  categoria_confirmada: z.boolean().optional(),
 });
 
 export const gestionarResponsablesSchema = z.object({
@@ -95,6 +105,11 @@ export const actualizarArgumentoSchema = z.object({
   titulo:    z.string().min(1).optional(),
   contenido: z.string().min(1).optional(),
 }).refine(d => Object.keys(d).length > 0, { message: 'Se requiere al menos un campo.' });
+
+// #108: mismo gate de categoria_confirmada que actualizarDatosSchema.
+export const promoverArgumentoSchema = z.object({
+  categoria_confirmada: z.boolean().optional(),
+});
 
 // ── Responsables (asignación de usuarios) ────────────────────────────────────
 

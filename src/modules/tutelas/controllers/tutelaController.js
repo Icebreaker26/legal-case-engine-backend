@@ -122,7 +122,7 @@ export const obtenerEstadisticas = async (req, res) => {
 export const actualizarDatosTutela = async (req, res) => {
   try {
     const { id } = req.params;
-    const { radicado, accionante, sharepoint_link, derecho_vulnerado, resultado_fallo, grupo_id, responsable_uuid } = req.body;
+    const { radicado, accionante, sharepoint_link, derecho_vulnerado, resultado_fallo, grupo_id, responsable_uuid, categoria_confirmada } = req.body;
 
     const sanitizedGrupoId = (grupo_id === '' || grupo_id === undefined) ? null : parseInt(grupo_id);
     const sanitizedResponsableUuid = (responsable_uuid === '' || responsable_uuid === undefined) ? null : responsable_uuid;
@@ -130,18 +130,32 @@ export const actualizarDatosTutela = async (req, res) => {
 
     await pool.query(
       `UPDATE tutelas
-       SET radicado = $1, accionante = $2,
+       SET radicado = COALESCE($1, radicado),
+           accionante = COALESCE($2, accionante),
            sharepoint_link = COALESCE($3, sharepoint_link),
-           derecho_vulnerado = $4,
-           resultado_fallo = $5,
-           grupo_id = $6, responsable_uuid = $7
+           derecho_vulnerado = COALESCE($4, derecho_vulnerado),
+           resultado_fallo = COALESCE($5, resultado_fallo),
+           grupo_id = COALESCE($6, grupo_id), responsable_uuid = COALESCE($7, responsable_uuid)
        WHERE id = $8`,
-      [radicado, accionante, sharepoint_link, derecho_vulnerado || null, sanitizedResultado, sanitizedGrupoId, sanitizedResponsableUuid, id]
+      [radicado, accionante, sharepoint_link, derecho_vulnerado, sanitizedResultado, sanitizedGrupoId, sanitizedResponsableUuid, id]
     );
     await registrarLog(req.user.id, 'ACTUALIZAR_DATOS_TUTELA', 'tutela', id, req, { radicado, accionante, derecho_vulnerado, resultado_fallo: sanitizedResultado, grupo_id: sanitizedGrupoId, responsable_uuid: sanitizedResponsableUuid });
 
-    // Promoción automática a memoria legal cuando el fallo es Favorable
-    if (sanitizedResultado === 'Favorable') {
+    // Promoción automática a memoria legal cuando el fallo es Favorable.
+    // #108: requiere categoria_confirmada=true — sin eso, se difiere la
+    // promoción (no se descarta la respuesta Favorable, solo no entra
+    // todavía al corpus) para que una categoría nunca corregida por un
+    // abogado no siga ensuciando la taxonomía de base_conocimiento_enel.
+    let promocionPendienteConfirmacion = false;
+    if (sanitizedResultado === 'Favorable' && categoria_confirmada !== true) {
+      const { rows: pendienteRows } = await pool.query(
+        `SELECT 1 FROM tutelas WHERE id = $1 AND contestacion_generada IS NOT NULL AND respuesta_promovida = FALSE`,
+        [id]
+      );
+      promocionPendienteConfirmacion = pendienteRows.length > 0;
+    }
+
+    if (sanitizedResultado === 'Favorable' && categoria_confirmada === true) {
       const { rows: tutelaRows } = await pool.query(
         `SELECT contestacion_generada, derecho_vulnerado, radicado, respuesta_promovida, analisis_comprension FROM tutelas WHERE id = $1`,
         [id]
@@ -184,6 +198,14 @@ export const actualizarDatosTutela = async (req, res) => {
           console.error('Error al generar embedding para promoción:', embedErr);
         }
       }
+    }
+
+    if (promocionPendienteConfirmacion) {
+      return res.status(200).json({
+        message: 'Datos actualizados correctamente.',
+        promocion_pendiente: true,
+        promocion_pendiente_motivo: 'Confirmá o corregí la categoría (derecho_vulnerado) y reenviá con categoria_confirmada=true para promover esta respuesta a la memoria legal.',
+      });
     }
 
     res.status(200).json({ message: 'Datos actualizados correctamente.' });
@@ -844,6 +866,15 @@ export const actualizarArgumento = async (req, res) => {
 export const promoverArgumento = async (req, res) => {
   try {
     const { id, argId } = req.params;
+
+    // #108: mismo gate que actualizarDatosTutela — sin confirmar la
+    // categoría, no se promueve (evita seguir ensuciando la taxonomía de
+    // base_conocimiento_enel con categorías nunca revisadas por un abogado).
+    if (req.body.categoria_confirmada !== true) {
+      return res.status(400).json({
+        error: 'Confirmá o corregí la categoría (derecho_vulnerado) de la tutela y reenviá con categoria_confirmada=true antes de promover este argumento.',
+      });
+    }
 
     // Traer el argumento y el derecho vulnerado de la tutela en una sola query
     const { rows } = await pool.query(

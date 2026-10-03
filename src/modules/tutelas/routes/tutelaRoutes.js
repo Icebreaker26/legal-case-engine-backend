@@ -77,6 +77,7 @@ import {
     responderRequerimientoSchema,
     crearArgumentoSchema,
     actualizarArgumentoSchema,
+    promoverArgumentoSchema,
     asignarUsuariosSchema,
     crearNoiseSchema,
     actualizarNoiseSchema,
@@ -304,7 +305,7 @@ router.get('/:id/argumentos', checkPermission('tutelas', 'READ'), listarArgument
 router.post('/:id/argumentos', checkPermission('tutelas', 'WRITE'), validate(crearArgumentoSchema), crearArgumento);
 router.patch('/:id/argumentos/:argId', checkPermission('tutelas', 'WRITE'), validate(actualizarArgumentoSchema), actualizarArgumento);
 router.delete('/:id/argumentos/:argId', checkPermission('tutelas', 'DELETE'), eliminarArgumento);
-router.post('/:id/argumentos/:argId/promover', checkPermission('tutelas', 'WRITE'), promoverArgumento);
+router.post('/:id/argumentos/:argId/promover', checkPermission('tutelas', 'WRITE'), validate(promoverArgumentoSchema), promoverArgumento);
 
 // Comprensión estructurada (opcional, enriquece RAG)
 router.get('/:id/prompt-comprension',  checkPermission('tutelas', 'READ'),  generarPromptComprension);
