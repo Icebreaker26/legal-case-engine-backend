@@ -30,6 +30,56 @@ export const listarBaseConocimiento = async (req, res) => {
   }
 };
 
+// #124 — visibilidad de cuántos documentos de la memoria legal usan el
+// fallback embedding_local↔embedding_local en vez de comprensión semántica
+// (comprension_doc IS NOT NULL implica embedding_comprension IS NOT NULL —
+// memoriaService.indexarDocumento y guardarComprensionDoc siempre generan el
+// embedding junto con la comprensión, nunca uno sin el otro).
+export const obtenerCoberturaComprension = async (req, res) => {
+  try {
+    const query = `
+      WITH docs AS (
+        SELECT DISTINCT ON (documento_id)
+               documento_id, categoria, titulo_referencia, created_at,
+               (comprension_doc IS NOT NULL) AS tiene_comprension
+        FROM base_conocimiento_enel
+        WHERE is_active = TRUE AND documento_id IS NOT NULL
+        ORDER BY documento_id, created_at DESC
+      )
+      SELECT
+        (SELECT COUNT(*) FROM docs) AS total,
+        (SELECT COUNT(*) FROM docs WHERE tiene_comprension) AS con_comprension,
+        (SELECT COUNT(*) FROM docs WHERE NOT tiene_comprension) AS sin_comprension,
+        (
+          SELECT COALESCE(json_agg(c), '[]')
+          FROM (
+            SELECT categoria,
+                   COUNT(*) AS total,
+                   COUNT(*) FILTER (WHERE tiene_comprension) AS con_comprension,
+                   COUNT(*) FILTER (WHERE NOT tiene_comprension) AS sin_comprension
+            FROM docs
+            GROUP BY categoria
+            ORDER BY categoria
+          ) c
+        ) AS por_categoria,
+        (
+          SELECT COALESCE(json_agg(d), '[]')
+          FROM (
+            SELECT documento_id, categoria, titulo_referencia, created_at
+            FROM docs
+            WHERE NOT tiene_comprension
+            ORDER BY created_at ASC
+            LIMIT 10
+          ) d
+        ) AS mas_antiguos_sin_comprension;
+    `;
+    const { rows: [resumen] } = await pool.query(query);
+    res.status(200).json(resumen);
+  } catch (error) {
+    res.status(500).json({ error: 'Error al calcular la cobertura de comprensión.' });
+  }
+};
+
 export const listarCategorias = async (req, res) => {
   try {
     const { rows } = await pool.query('SELECT id, nombre FROM global_categorias WHERE is_active = TRUE ORDER BY nombre ASC');
