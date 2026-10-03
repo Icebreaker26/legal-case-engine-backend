@@ -1,0 +1,163 @@
+[
+  {
+    "qid": "Q-ISA-PARA-005",
+    "desacuerdo_A": 0.46153846153846156,
+    "desacuerdo_B": 0.8235294117647058,
+    "cambio_desacuerdo": 0.3619909502262443,
+    "similitud_coseno_AB": 0.915258111102051
+  },
+  {
+    "qid": "Q-COR-PARA-010",
+    "desacuerdo_A": 0.6666666666666667,
+    "desacuerdo_B": 0.5714285714285714,
+    "cambio_desacuerdo": -0.09523809523809534,
+    "similitud_coseno_AB": 0.9429914394848445
+  },
+  {
+    "qid": "Q-DIN-PARA-007",
+    "desacuerdo_A": 0.8235294117647058,
+    "desacuerdo_B": 0.8235294117647058,
+    "cambio_desacuerdo": 0,
+    "similitud_coseno_AB": 0.9379136294257112
+  },
+  {
+    "qid": "Q-DIN-PARA-006",
+    "desacuerdo_A": 0.5714285714285714,
+    "desacuerdo_B": 0.5714285714285714,
+    "cambio_desacuerdo": 0,
+    "similitud_coseno_AB": 0.9521773945559662
+  },
+  {
+    "qid": "Q-FAC-PARA-009",
+    "desacuerdo_A": 0.5714285714285714,
+    "desacuerdo_B": 0.6666666666666667,
+    "cambio_desacuerdo": 0.09523809523809534,
+    "similitud_coseno_AB": 0.902495505783988
+  },
+  {
+    "qid": "Q-NOKW-037",
+    "desacuerdo_A": 0.75,
+    "desacuerdo_B": 0.8235294117647058,
+    "cambio_desacuerdo": 0.07352941176470584,
+    "similitud_coseno_AB": 0.9421903305447824
+  },
+  {
+    "qid": "Q-DIS-032",
+    "desacuerdo_A": 0.5714285714285714,
+    "desacuerdo_B": 0.75,
+    "cambio_desacuerdo": 0.1785714285714286,
+    "similitud_coseno_AB": 0.941877492318651
+  },
+  {
+    "qid": "Q-SPR-LEX-082",
+    "desacuerdo_A": 0.46153846153846156,
+    "desacuerdo_B": 0.75,
+    "cambio_desacuerdo": 0.28846153846153844,
+    "similitud_coseno_AB": 0.8892607897915253
+  },
+  {
+    "qid": "Q-NOKW-035",
+    "desacuerdo_A": 0.6666666666666667,
+    "desacuerdo_B": 0.5714285714285714,
+    "cambio_desacuerdo": -0.09523809523809534,
+    "similitud_coseno_AB": 0.9328516280026785
+  },
+  {
+    "qid": "Q-SPR-PARA-001",
+    "desacuerdo_A": 0.5714285714285714,
+    "desacuerdo_B": 0.46153846153846156,
+    "cambio_desacuerdo": -0.10989010989010983,
+    "similitud_coseno_AB": 0.9307697662061726
+  },
+  {
+    "qid": "Q-DIN-LEX-024",
+    "desacuerdo_A": 0.5714285714285714,
+    "desacuerdo_B": 0.5714285714285714,
+    "cambio_desacuerdo": 0,
+    "similitud_coseno_AB": 0.926364018783344
+  },
+  {
+    "qid": "Q-ISA-LEX-085",
+    "desacuerdo_A": 0.18181818181818177,
+    "desacuerdo_B": 0.75,
+    "cambio_desacuerdo": 0.5681818181818182,
+    "similitud_coseno_AB": 0.8995964276309828
+  },
+  {
+    "qid": "Q-ISA-SEM-066",
+    "desacuerdo_A": 0.6666666666666667,
+    "desacuerdo_B": 0.75,
+    "cambio_desacuerdo": 0.08333333333333326,
+    "similitud_coseno_AB": 0.9555453739950525
+  },
+  {
+    "qid": "Q-STR-LEX-022",
+    "desacuerdo_A": 0.8235294117647058,
+    "desacuerdo_B": 0.75,
+    "cambio_desacuerdo": -0.07352941176470584,
+    "similitud_coseno_AB": 0.942806614323922
+  },
+  {
+    "qid": "Q-STR-LEX-084",
+    "desacuerdo_A": 0.75,
+    "desacuerdo_B": 0.75,
+    "cambio_desacuerdo": 0,
+    "similitud_coseno_AB": 0.8951601035103619
+  },
+  {
+    "qid": "Q-DIN-PARA-048",
+    "desacuerdo_A": 0.6666666666666667,
+    "desacuerdo_B": 0.5714285714285714,
+    "cambio_desacuerdo": -0.09523809523809534,
+    "similitud_coseno_AB": 0.9425923801311729
+  },
+  {
+    "qid": "Q-NOKW-101",
+    "desacuerdo_A": 0.75,
+    "desacuerdo_B": 0.75,
+    "cambio_desacuerdo": 0,
+    "similitud_coseno_AB": 0.9752383324635381
+  },
+  {
+    "qid": "Q-CAL-LEX-095",
+    "desacuerdo_A": 0.6666666666666667,
+    "desacuerdo_B": 0.75,
+    "cambio_desacuerdo": 0.08333333333333326,
+    "similitud_coseno_AB": 0.8956864365007542
+  },
+  {
+    "qid": "Q-ISA-LEX-086",
+    "desacuerdo_A": 0.5714285714285714,
+    "desacuerdo_B": 0.9473684210526316,
+    "cambio_desacuerdo": 0.37593984962406024,
+    "similitud_coseno_AB": 0.8981669287211883
+  },
+  {
+    "qid": "Q-COR-LEX-094",
+    "desacuerdo_A": 0.6666666666666667,
+    "desacuerdo_B": 1,
+    "cambio_desacuerdo": 0.33333333333333326,
+    "similitud_coseno_AB": 0.8850503765871006
+  },
+  {
+    "qid": "Q-SPR-PARA-041",
+    "desacuerdo_A": 0.46153846153846156,
+    "desacuerdo_B": 0.46153846153846156,
+    "cambio_desacuerdo": 0,
+    "similitud_coseno_AB": 0.9338848468413536
+  },
+  {
+    "qid": "Q-COR-LEX-027",
+    "desacuerdo_A": 0.6666666666666667,
+    "desacuerdo_B": 0.8888888888888888,
+    "cambio_desacuerdo": 0.2222222222222221,
+    "similitud_coseno_AB": 0.9313995636562429
+  },
+  {
+    "qid": "Q-SPR-SEM-062",
+    "desacuerdo_A": 0.46153846153846156,
+    "desacuerdo_B": 0.5714285714285714,
+    "cambio_desacuerdo": 0.10989010989010983,
+    "similitud_coseno_AB": 0.9699192499340555
+  }
+]
