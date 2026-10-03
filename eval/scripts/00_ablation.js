@@ -59,26 +59,34 @@ if (!ultimoIndexado) {
 // en vectorService.js) — sin esto, un documento con varios chunks fuertes
 // puede ocupar 2-3 puestos del top-K él solo, inflando recall@K/nDCG@K al
 // contar el mismo acierto más de una vez (#104).
+// Desempate determinista: cuando varios documentos empatan en score (muy
+// común en LEXICAL_ONLY, donde los que no matchean ningún lexema quedan en
+// 0.0), "ORDER BY score DESC" sin más deja el orden librado al orden físico
+// de las filas en Postgres -- no determinista entre corridas, y corrompía la
+// comparación entre dos runs que deberían ser idénticos (ej. léxico-solo vs.
+// el extremo alpha=0 del barrido de pesos de #115). documento_id como
+// desempate secundario (tanto en el ROW_NUMBER por chunk como en el ORDER BY
+// final) hace el resultado reproducible byte a byte.
 const VECTOR_ONLY = `
   WITH scored AS (
     SELECT documento_id, titulo_referencia,
       1 - (embedding_local <=> $1::vector) AS score,
-      ROW_NUMBER() OVER (PARTITION BY documento_id ORDER BY embedding_local <=> $1::vector) AS rn
+      ROW_NUMBER() OVER (PARTITION BY documento_id ORDER BY embedding_local <=> $1::vector, documento_id) AS rn
     FROM base_conocimiento_enel
     WHERE embedding_local IS NOT NULL AND es_exitosa = TRUE AND is_active = TRUE AND documento_id IS NOT NULL
   )
-  SELECT documento_id, titulo_referencia, score FROM scored WHERE rn = 1 ORDER BY score DESC LIMIT $2;
+  SELECT documento_id, titulo_referencia, score FROM scored WHERE rn = 1 ORDER BY score DESC, documento_id LIMIT $2;
 `;
 
 const LEXICAL_ONLY = `
   WITH scored AS (
     SELECT documento_id, titulo_referencia,
       ts_rank(contenido_tsv, plainto_tsquery('spanish', $1)) AS score,
-      ROW_NUMBER() OVER (PARTITION BY documento_id ORDER BY ts_rank(contenido_tsv, plainto_tsquery('spanish', $1)) DESC) AS rn
+      ROW_NUMBER() OVER (PARTITION BY documento_id ORDER BY ts_rank(contenido_tsv, plainto_tsquery('spanish', $1)) DESC, documento_id) AS rn
     FROM base_conocimiento_enel
     WHERE embedding_local IS NOT NULL AND es_exitosa = TRUE AND is_active = TRUE AND documento_id IS NOT NULL
   )
-  SELECT documento_id, titulo_referencia, score FROM scored WHERE rn = 1 ORDER BY score DESC LIMIT $2;
+  SELECT documento_id, titulo_referencia, score FROM scored WHERE rn = 1 ORDER BY score DESC, documento_id LIMIT $2;
 `;
 
 const PONDERADO_SIN_RELEVANCIA = `
@@ -86,13 +94,13 @@ const PONDERADO_SIN_RELEVANCIA = `
     SELECT documento_id, titulo_referencia,
       ROW_NUMBER() OVER (
         PARTITION BY documento_id
-        ORDER BY (1 - (embedding_local <=> $1::vector)) * 0.55 + LEAST(ts_rank(contenido_tsv, plainto_tsquery('spanish', $2)), 1.0) * 0.35 DESC
+        ORDER BY (1 - (embedding_local <=> $1::vector)) * 0.55 + LEAST(ts_rank(contenido_tsv, plainto_tsquery('spanish', $2)), 1.0) * 0.35 DESC, documento_id
       ) AS rn,
       (1 - (embedding_local <=> $1::vector)) * 0.55 + LEAST(ts_rank(contenido_tsv, plainto_tsquery('spanish', $2)), 1.0) * 0.35 AS score
     FROM base_conocimiento_enel
     WHERE embedding_local IS NOT NULL AND es_exitosa = TRUE AND is_active = TRUE AND documento_id IS NOT NULL
   )
-  SELECT documento_id, titulo_referencia, score FROM scored WHERE rn = 1 ORDER BY score DESC LIMIT $3;
+  SELECT documento_id, titulo_referencia, score FROM scored WHERE rn = 1 ORDER BY score DESC, documento_id LIMIT $3;
 `;
 
 const corridas = {
