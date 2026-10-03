@@ -51,12 +51,19 @@ console.log(`[barrido] modelo indexado: ${ultimoIndexado.modelo}`);
 // Todas las filas candidatas (a nivel de chunk) con su coseno y su ts_rank
 // crudo -- se combinan en JS para cada alpha, así solo se consulta la base
 // una vez por consulta, no una vez por alpha.
+// COALESCE(embedding_comprension, embedding_local): misma señal vectorial que
+// produccion (vectorService.js:29, buildScoringCTE) -- erratum post-#119, ver
+// cierre de sesion de #115 (auditoria adversarial encontro que esta query
+// usaba solo embedding_local, senal distinta a produccion para ~70% de los
+// documentos de v1/v2). ORDER BY documento_id: determinismo del orden de
+// filas entre corridas, mismo criterio que 00_ablation.js (#115).
 const CANDIDATOS_SQL = `
   SELECT documento_id,
-    1 - (embedding_local <=> $1::vector) AS cos,
+    1 - (COALESCE(embedding_comprension, embedding_local) <=> $1::vector) AS cos,
     LEAST(ts_rank(contenido_tsv, plainto_tsquery('spanish', $2)), 1.0) AS lex
   FROM base_conocimiento_enel
   WHERE embedding_local IS NOT NULL AND es_exitosa = TRUE AND is_active = TRUE AND documento_id IS NOT NULL
+  ORDER BY documento_id
 `;
 
 const lineasPorAlpha = new Map(ALPHAS.map(a => [a, []]));
@@ -73,7 +80,13 @@ for (const q of queries) {
       const actual = mejorPorDoc.get(r.documento_id);
       if (actual === undefined || score > actual) mejorPorDoc.set(r.documento_id, score);
     }
-    const top = [...mejorPorDoc.entries()].sort((a, b) => b[1] - a[1]).slice(0, LIMIT);
+    // Desempate determinista por documento_id (score DESC, documento_id ASC) --
+    // sin esto, dos documentos con score combinado empatado (frecuente en
+    // alpha=0.0 puro-lexico) quedan en un orden dependiente del orden de
+    // filas que devolvio Postgres, no reproducible entre corridas (#115).
+    const top = [...mejorPorDoc.entries()]
+      .sort((a, b) => b[1] - a[1] || (a[0] < b[0] ? -1 : a[0] > b[0] ? 1 : 0))
+      .slice(0, LIMIT);
     top.forEach(([documentoId, score], i) => {
       lineasPorAlpha.get(alpha).push(
         `${q.qid} Q0 ${docIdDe.get(documentoId) ?? documentoId} ${i + 1} ${score.toFixed(6)} v2-barrido-${modeloLabel}-a${alpha}`
