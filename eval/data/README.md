@@ -71,19 +71,27 @@ Mitigación aplicada, dado que se hizo con IA: dos sesiones de IA completamente 
 
 `qrels.trec` ya tiene las filas del split de test reemplazadas por estos grados reales (131 pares con relevancia ≥1 de 408 pooleados) vía `eval/scripts/03d_fusionar_qrels.js` — las de dev siguen con la relevancia mecánica original (alcanza para tuning/screening).
 
-### Resultado con los qrels reales — cambia el panorama
+### ⚠️ Corrección (`#104`, 2026-10-03): la tabla original de esta sección estaba mal — no es "léxico le gana a la fusión"
 
-Recall@5 / nDCG@5 sobre las 25 consultas de test, ahora con relevancia etiquetada (no mecánica):
+La primera versión de esta sección (ver historial de git) publicó una tabla comparando `léxico-solo`/`vector-solo` **sin** el prefiltro de categoría contra `ponderado`/`RRF` **con** el prefiltro de categoría — una comparación inválida, no un hallazgo sobre fusión vs. texto puro. Además, los runs de `léxico-solo`/`vector-solo` no deduplicaban por documento (`ROW_NUMBER` como sí hace producción), así que su propio recall/nDCG estaba inflado por documentos repetidos en el top-10. Detalle completo, con la evidencia que lo prueba (conteo de líneas por archivo, recálculo con y sin dedup), en `#104`.
 
-| Sistema | Recall@5 | nDCG@5 |
-| --- | --- | --- |
-| MiniLM ponderado | 0.418 | 0.528 |
-| e5-small ponderado | 0.456 | 0.561 |
-| e5-small RRF | 0.453 | 0.544 |
-| **léxico-solo** | **0.527** | **0.655** |
+Tabla corregida — recall@5/nDCG@5 con qrels reales (test) y mecánicos (dev), todo deduplicado por documento:
 
-`e5-small` sigue ganándole a MiniLM (consistente con `#98`), pero léxico-solo le gana a los dos por un margen considerable — más marcado que en `#95` (donde ya había superado en nDCG a la fusión completa, pero por menos). Con una relevancia que lee el contenido real en vez de comparar etiquetas, la búsqueda por palabras clave se ve todavía más fuerte de lo que parecía. Señal importante para `#77`: el objetivo no debería ser "reemplazar léxico por semántico", sino entender por qué léxico solo sigue ganando y si la fusión está diluyendo una señal léxica que, sola, ya es mejor que cualquier combinación medida hasta ahora.
+| Sistema | Prefiltro categoría | Dev (95) Recall@5/nDCG@5 | Test (25) Recall@5/nDCG@5 |
+| --- | --- | --- | --- |
+| MiniLM ponderado (producción actual) | sí (14/40 aciertos en dev) | 0.413 / 0.431 | 0.418 / 0.528 |
+| e5-small ponderado | sí | 0.438 / 0.464 | 0.456 / 0.561 |
+| e5-small RRF | sí | 0.437 / 0.440 | 0.453 / 0.544 |
+| léxico-solo, deduplicado | no | 0.426 / 0.487 | 0.505 / 0.612 |
+| vector-solo e5, deduplicado | no | 0.371 / 0.410 | 0.499 / 0.598 |
+| **e5-small ponderado-normalizado, SIN prefiltro** | **no** | **0.456 / 0.509** | **0.559 / 0.641** |
 
-## Estado y siguiente paso (actualizado 2026-10-02)
+(Los valores de léxico-solo/vector-solo difieren de la tabla original no solo por el dedup: el script que generó esos dos runs para el pool de 120 consultas nunca se commiteó, así que no es reproducible — los valores de esta tabla salen de `eval/scripts/00_ablation.js`, que ya está corregido con el mismo patrón de dedup que producción, corriendo con `--corpus eval/data/corpus.jsonl --queries eval/data/queries.jsonl`.)
 
-Fase 4 (`#64`-`#67`), `#95`, `#98`, `#96` y `#75` completos y mergeados (o en PR). Sigue `#76` (métricas formales con `ranx`, significancia — con qrels ahora reales para el split de test) → `#77` (confirmación, con la pregunta re-abierta de si léxico-solo debería ser parte seria de la comparación, no solo un control).
+**La fusión sin prefiltro de categoría le gana a léxico-solo deduplicado en ambos splits y en ambas métricas.** El hallazgo real no es "texto puro > fusión híbrida" — es que el prefiltro de categoría (`extractorService.js`, acierta 14/40 en dev, null en 19, se equivoca en 7) está perjudicando a la fusión de forma artificial, devolviendo solo 3-6 documentos de esa categoría cuando dispara mal. Ver `#104` para la propuesta de siguiente paso (replantear el prefiltro, no los pesos de fusión).
+
+**Advertencia pendiente sobre el pool de `#75`**: `pool-lexico-solo.trec`/`pool-e5-vector-solo.trec` (los archivos originales, con el bug de duplicados, usados para construir el pool que se etiquetó) pueden haber excluido del pool algún documento que el top-10 real (deduplicado) sí incluye — el dedup no solo quita repetidos, cambia qué documentos entran al top-10. No se volvió a poolear ni a etiquetar para esta corrección (cambiaría `qrels.trec`, que es un artefacto ya cerrado de `#75`, bajo su propio protocolo) — queda como limitación conocida para cuando se complete el etiquetado exhaustivo que recomienda `#77` (ver sección de Opus más abajo).
+
+## Estado y siguiente paso (actualizado 2026-10-03, corrección de `#104`)
+
+Fase 4 (`#64`-`#67`), `#95`, `#98`, `#96` y `#75` completos y mergeados. `#104` corrigió dos bugs de medición que invalidaban la conclusión "léxico le gana a la fusión" de esta misma sección — el candidato real a corregir es el prefiltro de categoría, no los pesos de fusión (0.55/0.35/0.10 siguen sin tunear, pero no son el problema que parecía). Sigue: replantear/rediseñar el prefiltro de categoría (nuevo issue, antes de `#76`) → `#76` (métricas formales con `ranx`, significancia) → `#77` (confirmación en test, con etiquetado exhaustivo de pares en vez de depender solo del pool original).
