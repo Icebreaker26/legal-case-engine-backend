@@ -207,9 +207,12 @@ export const procesarTutela = async (req, res) => {
     const fechaVencimiento = sumarDiasHabiles(new Date(), parseInt(dias_termino) || 2);
 
     const datosExtraidos = await extraerDatosTutela(textoPdf);
+    // Sin filtro de categoría (#106): el prefiltro por categoría extraída
+    // descartaba por completo los candidatos correctos cada vez que
+    // extraerDatosTutela se equivocaba de categoría (recall@5=0 en ese caso,
+    // medido en #104/#106) — peor que no filtrar en absoluto.
     const precedentesExitosos = await recuperarPrecedentes({
       tutela: { contenido_original: textoPdf },
-      categoria: datosExtraidos.derecho_vulnerado,
     });
 
     const queryInsert = `
@@ -341,11 +344,11 @@ export const eliminarTutela = async (req, res) => {
 
 export const obtenerSugerenciasTutela = async (req, res) => {
   try {
-    const { rows } = await pool.query('SELECT contenido_original, derecho_vulnerado FROM tutelas WHERE id = $1', [req.params.id]);
+    const { rows } = await pool.query('SELECT contenido_original FROM tutelas WHERE id = $1', [req.params.id]);
     if (rows.length === 0) return res.status(404).json({ error: 'Tutela no encontrada.' });
 
-    const { contenido_original, derecho_vulnerado } = rows[0];
-    const sugerencias = await recuperarPrecedentes({ tutela: { contenido_original }, categoria: derecho_vulnerado });
+    const { contenido_original } = rows[0];
+    const sugerencias = await recuperarPrecedentes({ tutela: { contenido_original } }); // sin filtro de categoría (#106)
     res.status(200).json(sugerencias);
   } catch (error) {
     res.status(500).json({ error: 'Error al generar sugerencias.' });
@@ -355,7 +358,7 @@ export const obtenerSugerenciasTutela = async (req, res) => {
 export const generarBorradorContestacion = async (req, res) => {
   try {
     const { id } = req.params;
-    const { rows } = await pool.query('SELECT contenido_original, contestacion_generada, derecho_vulnerado FROM tutelas WHERE id = $1', [id]);
+    const { rows } = await pool.query('SELECT contenido_original, contestacion_generada FROM tutelas WHERE id = $1', [id]);
     if (rows.length === 0) return res.status(404).json({ error: 'Tutela no encontrada.' });
 
     // Si ya existe un borrador guardado, lo devuelve directamente
@@ -367,9 +370,9 @@ export const generarBorradorContestacion = async (req, res) => {
     }
 
     // Sin IA externa: devuelve sugerencias del RAG local para que el abogado redacte manualmente
+    // Sin filtro de categoría (#106)
     const sugerencias = await recuperarPrecedentes({
       tutela: { contenido_original: rows[0].contenido_original },
-      categoria: rows[0].derecho_vulnerado,
     });
 
     res.status(200).json({ sugerencias, status: 'suggestions_only' });
@@ -1027,7 +1030,7 @@ export const generarPromptsPeticion = async (req, res) => {
     const argumentos = argumentosRes.rows;
 
     const comprension = tutela.analisis_comprension || null;
-    const sugerencias = await recuperarPrecedentes({ tutela, categoria: tutela.derecho_vulnerado });
+    const sugerencias = await recuperarPrecedentes({ tutela }); // sin filtro de categoría (#106)
 
     const solicitudes = extraerSolicitudes(tutela.contenido_original || '');
     const lotes = agruparEnLotes(solicitudes, { tutela, legalNotes, sugerencias, argumentos });
