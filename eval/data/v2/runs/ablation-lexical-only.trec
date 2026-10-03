@@ -93,9 +93,9 @@ Q-V2-CAL-002 Q0 DOC-V2-NEG-CAL-007 2 9 ablation-lexical-only
 Q-V2-CAL-002 Q0 DOC-V2-SPR-004 3 8 ablation-lexical-only
 Q-V2-CAL-002 Q0 DOC-V2-DUP-04B 4 7 ablation-lexical-only
 Q-V2-CAL-002 Q0 DOC-V2-SPR-007 5 6 ablation-lexical-only
-Q-V2-CAL-002 Q0 DOC-V2-NEG-INF-008 6 5 ablation-lexical-only
-Q-V2-CAL-002 Q0 DOC-V2-NEG-FAC-007 7 4 ablation-lexical-only
-Q-V2-CAL-002 Q0 DOC-V2-CAL-005 8 3 ablation-lexical-only
+Q-V2-CAL-002 Q0 DOC-V2-CAL-005 6 5 ablation-lexical-only
+Q-V2-CAL-002 Q0 DOC-V2-NEG-INF-008 7 4 ablation-lexical-only
+Q-V2-CAL-002 Q0 DOC-V2-NEG-FAC-007 8 3 ablation-lexical-only
 Q-V2-CAL-002 Q0 DOC-V2-NEG-ACP-009 9 2 ablation-lexical-only
 Q-V2-CAL-002 Q0 DOC-V2-STR-003 10 1 ablation-lexical-only
 Q-V2-CAL-003 Q0 DOC-V2-CAL-004 1 10 ablation-lexical-only
@@ -131,8 +131,8 @@ Q-V2-CAL-005 Q0 DOC-V2-STR-004 10 1 ablation-lexical-only
 Q-V2-CAL-006 Q0 DOC-V2-CAL-003 1 10 ablation-lexical-only
 Q-V2-CAL-006 Q0 DOC-V2-DUP-03B 2 9 ablation-lexical-only
 Q-V2-CAL-006 Q0 DOC-V2-STR-002 3 8 ablation-lexical-only
-Q-V2-CAL-006 Q0 DOC-V2-SPR-002 4 7 ablation-lexical-only
-Q-V2-CAL-006 Q0 DOC-V2-INF-003 5 6 ablation-lexical-only
+Q-V2-CAL-006 Q0 DOC-V2-INF-003 4 7 ablation-lexical-only
+Q-V2-CAL-006 Q0 DOC-V2-SPR-002 5 6 ablation-lexical-only
 Q-V2-CAL-006 Q0 DOC-V2-CAL-005 6 5 ablation-lexical-only
 Q-V2-CAL-006 Q0 DOC-V2-COR-004 7 4 ablation-lexical-only
 Q-V2-CAL-006 Q0 DOC-V2-ACP-003 8 3 ablation-lexical-only
@@ -295,8 +295,8 @@ Q-V2-DIN-006 Q0 DOC-V2-DUP-02B 4 7 ablation-lexical-only
 Q-V2-DIN-006 Q0 DOC-V2-FAC-005 5 6 ablation-lexical-only
 Q-V2-DIN-006 Q0 DOC-V2-ISA-005 6 5 ablation-lexical-only
 Q-V2-DIN-006 Q0 DOC-V2-ACP-001 7 4 ablation-lexical-only
-Q-V2-DIN-006 Q0 DOC-V2-DIN-008 8 3 ablation-lexical-only
-Q-V2-DIN-006 Q0 DOC-V2-CAL-001 9 2 ablation-lexical-only
+Q-V2-DIN-006 Q0 DOC-V2-CAL-006 8 3 ablation-lexical-only
+Q-V2-DIN-006 Q0 DOC-V2-ISA-003 9 2 ablation-lexical-only
 Q-V2-DIN-006 Q0 DOC-V2-DIN-003 10 1 ablation-lexical-only
 Q-V2-DIN-007 Q0 DOC-V2-DIN-006 1 10 ablation-lexical-only
 Q-V2-DIN-007 Q0 DOC-V2-DUP-03B 2 9 ablation-lexical-only
@@ -720,8 +720,8 @@ Q-V2-SPR-012 Q0 DOC-V2-DIN-008 9 2 ablation-lexical-only
 Q-V2-SPR-012 Q0 DOC-V2-CAL-005 10 1 ablation-lexical-only
 Q-V2-SPR-013 Q0 DOC-V2-DIN-004 1 10 ablation-lexical-only
 Q-V2-SPR-013 Q0 DOC-V2-STR-003 2 9 ablation-lexical-only
-Q-V2-SPR-013 Q0 DOC-V2-SPR-006 3 8 ablation-lexical-only
-Q-V2-SPR-013 Q0 DOC-V2-SPR-010 4 7 ablation-lexical-only
+Q-V2-SPR-013 Q0 DOC-V2-SPR-010 3 8 ablation-lexical-only
+Q-V2-SPR-013 Q0 DOC-V2-SPR-006 4 7 ablation-lexical-only
 Q-V2-SPR-013 Q0 DOC-V2-STR-009 5 6 ablation-lexical-only
 Q-V2-SPR-013 Q0 DOC-V2-DUP-03B 6 5 ablation-lexical-only
 Q-V2-SPR-013 Q0 DOC-V2-COR-003 7 4 ablation-lexical-only
@@ -743,8 +743,8 @@ Q-V2-STR-002 Q0 DOC-V2-DUP-02B 2 9 ablation-lexical-only
 Q-V2-STR-002 Q0 DOC-V2-DUP-03B 3 8 ablation-lexical-only
 Q-V2-STR-002 Q0 DOC-V2-STR-009 4 7 ablation-lexical-only
 Q-V2-STR-002 Q0 DOC-V2-ACP-003 5 6 ablation-lexical-only
-Q-V2-STR-002 Q0 DOC-V2-ISA-006 6 5 ablation-lexical-only
-Q-V2-STR-002 Q0 DOC-V2-DUP-04B 7 4 ablation-lexical-only
+Q-V2-STR-002 Q0 DOC-V2-DUP-04B 6 5 ablation-lexical-only
+Q-V2-STR-002 Q0 DOC-V2-ISA-006 7 4 ablation-lexical-only
 Q-V2-STR-002 Q0 DOC-V2-ACP-004 8 3 ablation-lexical-only
 Q-V2-STR-002 Q0 DOC-V2-SPR-001 9 2 ablation-lexical-only
 Q-V2-STR-002 Q0 DOC-V2-SPR-003 10 1 ablation-lexical-only

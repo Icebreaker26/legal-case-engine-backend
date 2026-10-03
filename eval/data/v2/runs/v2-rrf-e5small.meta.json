@@ -7,10 +7,10 @@
     "categoria": "ninguna",
     "limit": 10
   },
-  "git_sha": "2504dca1761be9f01b9877f717aa1c332081fa39",
+  "git_sha": "8cb67d72ca4249ef01cb3dcfa557b491b8c524a6",
   "embedding_model": "Xenova/multilingual-e5-small",
   "corpus_sha256": "23534dd26a49cca1bf651b37224b00d9a2b940ce4bc0f7293e5fccd3ecd8f6d6",
-  "fecha": "2026-10-03T05:39:56.641Z",
+  "fecha": "2026-10-03T06:35:16.416Z",
   "por_query": {
     "Q-V2-ACP-001": {
       "categoria_resuelta": null,
