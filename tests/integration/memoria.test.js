@@ -44,7 +44,13 @@ describe('Memoria (Base de Conocimiento) - Integración', () => {
     });
   });
 
+  let documentoIdEntrenarLocal;
+
   afterAll(async () => {
+    if (documentoIdEntrenarLocal) {
+      await pool.query('DELETE FROM documentos_fuente WHERE documento_id = $1', [documentoIdEntrenarLocal]);
+      await pool.query('DELETE FROM base_conocimiento_enel WHERE documento_id = $1', [documentoIdEntrenarLocal]);
+    }
     if (testUserUuid) {
       await pool.query('DELETE FROM logs_sistema WHERE usuario_uuid = $1', [testUserUuid]);
       await pool.query('DELETE FROM permisos WHERE usuario_uuid = $1', [testUserUuid]);
@@ -66,6 +72,19 @@ describe('Memoria (Base de Conocimiento) - Integración', () => {
 
     expect(res.status).toBe(200);
     expect(res.body.mensaje).toBe('Conocimiento guardado');
+    documentoIdEntrenarLocal = res.body.documento_id;
+  });
+
+  // #72 (Fase 1): /entrenar-local es el único de los 3 caminos de indexación
+  // cuyo texto fuente no sobrevivía fuera de los chunks (multer.memoryStorage,
+  // sin persistencia propia) -- es el caso que más importa cubrir acá.
+  test('POST /api/tutelas/entrenar-local debería persistir el texto fuente íntegro en documentos_fuente', async () => {
+    const { rows } = await pool.query(
+      'SELECT texto_fuente FROM documentos_fuente WHERE documento_id = $1',
+      [documentoIdEntrenarLocal]
+    );
+    expect(rows).toHaveLength(1);
+    expect(rows[0].texto_fuente).toBe('Este es un contenido de prueba para la memoria legal.');
   });
 
   test('GET /api/tutelas/memoria debería listar los documentos activos', async () => {

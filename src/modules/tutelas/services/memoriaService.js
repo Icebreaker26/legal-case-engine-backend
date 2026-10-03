@@ -24,6 +24,19 @@ const insertarChunks = async (db, { chunks, vectores, categoria, titulo, esExito
   }
 };
 
+// #72 (Fase 1): una fila por documento_id, no por chunk -- el texto fuente
+// íntegro es el mismo para todos los chunks de un documento. ON CONFLICT DO
+// NOTHING es solo defensivo (documentoId siempre es nuevo en el uso actual,
+// ver uuidv4() en la firma de indexarDocumento), no se espera que dispare.
+const guardarTextoFuente = async (db, { documentoId, texto }) => {
+  await db.query(
+    `INSERT INTO documentos_fuente (documento_id, texto_fuente)
+     VALUES ($1, $2)
+     ON CONFLICT (documento_id) DO NOTHING`,
+    [documentoId, texto]
+  );
+};
+
 /**
  * Indexa un documento en base_conocimiento_enel: chunking + embeddings + insert.
  * Único punto de indexación — reemplaza la lógica que antes estaba duplicada
@@ -56,11 +69,13 @@ export const indexarDocumento = async ({
 
   if (client) {
     await insertarChunks(client, params);
+    await guardarTextoFuente(client, { documentoId, texto });
   } else {
     const ownClient = await pool.connect();
     try {
       await ownClient.query('BEGIN');
       await insertarChunks(ownClient, params);
+      await guardarTextoFuente(ownClient, { documentoId, texto });
       await ownClient.query('COMMIT');
     } catch (err) {
       await ownClient.query('ROLLBACK');
