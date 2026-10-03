@@ -230,6 +230,28 @@ Para las mismas 23 consultas del piloto, se midió (`eval/scripts/05e_diagnostic
 
 **Siguiente paso real**: antes de cualquier Fase C, investigar qué distingue a los documentos/subtemas de las consultas de bajo solapamiento *natural* de la Fase A (más allá de la consulta en sí) — es decir, medir si el confusor está del lado del documento (su especificidad léxica/semántica en el corpus), no de la consulta.
 
+## Fe de erratas del control léxico-solo, resuelta (`#113`, 2026-10-03)
+
+`#113` encontró que la afirmación "`ranx` es inmune al bug de duplicados de `#104`" (sección de `#76` más arriba) era incompleta: `ranx` no cuenta un documento repetido dos veces, pero en `ranx/data_structures/run.py:285` se queda con el score de su **última** aparición en el archivo, no la mejor — corrompe el ranking de ese documento en silencio. `pool-lexico-solo.trec` (el control de la corrida confirmatoria de `#77`) nunca se corrigió, a propósito, para no invalidar en silencio el pooling de `#75` — pero eso dejaba el control de `#77` midiéndose con este problema.
+
+**Qué se hizo:**
+
+1. **Guardrail agregado a `eval/scripts/04_evaluar.py`**: aborta si algún run tiene pares (consulta, documento) repetidos, igual que ya hacía `_sanity_metrics.mjs` (`#104`) — antes no existía ese chequeo en el pipeline de `ranx`.
+2. **Control regenerado deduplicado**: `eval/data/runs/ablation-lexical-only.trec`, con `00_ablation.js` (ya corregido con el mismo patrón `ROW_NUMBER() PARTITION BY documento_id` de producción), sobre las 120 consultas.
+3. **Etiquetado completado para los 17 pares (de 250, 6.8%) del top-10 corregido que nunca se habían pooleado en `#75`** — extendiendo el mismo protocolo ciego: dos sesiones de IA completamente aisladas (sin contexto de esta investigación, sin ver qué sistema recuperó cada documento), graduando en escala 0-3 con una razón breve cada una. A diferencia del 20% de doble anotación de `#75`, acá se doblemente anotó el 100% de los 17 (lote pequeño, costo bajo de anotar completo). Cohen's κ de este lote: **0.667** ("acuerdo sustancial", 3 de 17 discrepancias, todas de 1 punto en la escala 0-3) — más bajo que el κ=0.895 de `#75`, esperable con una muestra de solo 17 pares; combinado con los 81 pares de doble anotación originales, κ=**0.852** ("acuerdo casi perfecto"). Igual que en `#75`, esto mide consistencia interna del modelo bajo el mismo rubro, no validez externa de un jurista real. Rastro de auditoría en `eval/data/grados_anotador1.csv`/`grados_anotador2.csv` (filas nuevas al final) y `eval/data/pool_etiquetado_test.csv` (`sistemas=ablation-lexical-only`, ya que estos 17 pares entraron solo por el control léxico corregido, no por los 6 sistemas del pool original de `#75`).
+4. **`qrels.trec` refusionado** (`03d_fusionar_qrels.js`) con el pool ya completo (425 pares, antes 408) — el split de test pasó de 131 a **137 pares con relevancia ≥1** (6 de los 17 pares nuevos resultaron relevantes según el anotador de referencia).
+
+**Resultado final, con el control ya corregido y el etiquetado completo** (ver `eval/data/metricas_test_control_lexico_113.md`/`.json`):
+
+| Sistema | Recall@5 | Recall@10 | nDCG@10 | MRR@10 |
+| --- | --- | --- | --- | --- |
+| MiniLM, filtro (producción real) | 0.410 | 0.465 | 0.498 | 0.684 |
+| e5-small, sin filtro (H1) | 0.530 | 0.779 | 0.701 | 0.866 |
+| e5-small, RRF, sin filtro (H2) | 0.510 | 0.758 | 0.673 | 0.893 |
+| **léxico-solo, corregido y completo** | 0.480 | 0.725 | **0.656** | 0.884 |
+
+nDCG@10 pasó de 0.687 (número original de `#77`, con el bug) a 0.656 (antes una cota conservadora de 0.654 en `#113`, ahora el valor real con etiquetado completo). **El empate con la híbrida se sostiene y queda mejor respaldado, no peor**: léxico-solo vs. e5-sin-filtro, p_holm=0.5535 en nDCG@10 (antes 0.593 con el bug) — sigue sin haber evidencia de que la fusión híbrida le gane a la búsqueda léxica pura en este split de test. Este recálculo es, por disciplina de transparencia, el **quinto vistazo a test** sobre esta familia de comparaciones — declarado como addendum en `eval/data/preregistro_77.md`.
+
 ## Estado y siguiente paso (actualizado 2026-10-03)
 
 Fase 4 (`#64`-`#67`), `#95`, `#98`, `#96`, `#75`, `#104`, `#106`, `#76`, `#77`, Fase A y Fase B de `#114` completos. Cadena de hallazgos de la sesión: el prefiltro de categoría —no los pesos de fusión ni el modelo de embeddings— era la causa real de la brecha medida en `#75`; confirmado con significancia estadística real en test; el control léxico de esa confirmación tiene un problema de medición pendiente (`#113`); la correlación de la Fase A (la ventaja de la híbrida se concentra en consultas de bajo solapamiento léxico y alto desacuerdo vector/léxico) **no se replicó como efecto causal** en el piloto de perturbación pareada de la Fase B (interacción nula, p=0.684) — sigue sin resolverse si hay un caso borde real y exploitable, o si el hallazgo correlacional viene de un confusor. Sigue `#78` — documentar las 3 capas de evidencia para la tesis (diagnóstico en dev → confirmación en test → limitaciones: etiquetado por IA de `#75`, tamaño de muestra de 25 consultas en test, vistazos a test declarados en `preregistro_77.md`). Decisión pendiente, solo de Alejandro: promover `rag/integracion` → `main` (prefiltro ya eliminado ahí). Sobre el modelo de embeddings: en dev, e5-small-sin-filtro superó con significancia a MiniLM-sin-filtro (`#76`, p_holm=0.0000 en nDCG@10) — swap de modelo con soporte propio, no solo "efecto del filtro"; MiniLM-sin-filtro no se incluyó en la corrida confirmatoria de `#77` (no estaba en H1/H2/control), así que ese swap específico queda respaldado por dev, no confirmado en test todavía.

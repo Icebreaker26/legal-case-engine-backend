@@ -1,0 +1,282 @@
+{
+  "subset": "test",
+  "n_queries": 25,
+  "metricas": [
+    "recall@5",
+    "recall@10",
+    "ndcg@10",
+    "mrr@10"
+  ],
+  "stat_test": "fisher",
+  "n_permutations": 2000,
+  "max_p": 0.05,
+  "correccion_multiple": "holm-bonferroni (por métrica)",
+  "bootstrap_resamples": 2000,
+  "seed": 42,
+  "runs": {
+    "minilm-filtro-produccion": "eval/data/runs/pool-minilm-ponderado.trec",
+    "e5-sin-filtro": "eval/data/runs/pool-e5-ponderado-normalizado.trec",
+    "e5-rrf-sin-filtro": "eval/data/runs/E07-e5-rrf-sin-filtro.trec",
+    "lexico-solo-corregido": "eval/data/runs/ablation-lexical-only.trec"
+  },
+  "tabla": {
+    "minilm-filtro-produccion": {
+      "recall@5": {
+        "media": 0.40952380952380957,
+        "ci95_lo": 0.29759960317460327,
+        "ci95_hi": 0.5285313492063491,
+        "n": 25
+      },
+      "recall@10": {
+        "media": 0.46485714285714286,
+        "ci95_lo": 0.34932976190476195,
+        "ci95_hi": 0.5811940476190477,
+        "n": 25
+      },
+      "ndcg@10": {
+        "media": 0.4975675645480845,
+        "ci95_lo": 0.36605908822981653,
+        "ci95_hi": 0.6320480595575633,
+        "n": 25
+      },
+      "mrr@10": {
+        "media": 0.684,
+        "ci95_lo": 0.5139000000000001,
+        "ci95_hi": 0.8440000000000001,
+        "n": 25
+      }
+    },
+    "e5-sin-filtro": {
+      "recall@5": {
+        "media": 0.5301904761904762,
+        "ci95_lo": 0.44355,
+        "ci95_hi": 0.6191158730158729,
+        "n": 25
+      },
+      "recall@10": {
+        "media": 0.7792857142857144,
+        "ci95_lo": 0.688395238095238,
+        "ci95_hi": 0.8610238095238096,
+        "n": 25
+      },
+      "ndcg@10": {
+        "media": 0.7010760255107381,
+        "ci95_lo": 0.6196927380624542,
+        "ci95_hi": 0.7750773767271208,
+        "n": 25
+      },
+      "mrr@10": {
+        "media": 0.8657142857142857,
+        "ci95_lo": 0.7485357142857144,
+        "ci95_hi": 0.9657142857142857,
+        "n": 25
+      }
+    },
+    "e5-rrf-sin-filtro": {
+      "recall@5": {
+        "media": 0.5095238095238095,
+        "ci95_lo": 0.43299920634920636,
+        "ci95_hi": 0.5927908730158729,
+        "n": 25
+      },
+      "recall@10": {
+        "media": 0.7580634920634921,
+        "ci95_lo": 0.6609932539682539,
+        "ci95_hi": 0.8413349206349207,
+        "n": 25
+      },
+      "ndcg@10": {
+        "media": 0.6730190939725982,
+        "ci95_lo": 0.6055428992246025,
+        "ci95_hi": 0.7384557964638451,
+        "n": 25
+      },
+      "mrr@10": {
+        "media": 0.8933333333333333,
+        "ci95_lo": 0.7833333333333334,
+        "ci95_hi": 0.98,
+        "n": 25
+      }
+    },
+    "lexico-solo-corregido": {
+      "recall@5": {
+        "media": 0.4804761904761905,
+        "ci95_lo": 0.38579841269841275,
+        "ci95_hi": 0.5749242063492064,
+        "n": 25
+      },
+      "recall@10": {
+        "media": 0.7254603174603175,
+        "ci95_lo": 0.6268019841269842,
+        "ci95_hi": 0.8113642857142854,
+        "n": 25
+      },
+      "ndcg@10": {
+        "media": 0.655749085469168,
+        "ci95_lo": 0.5524891450792533,
+        "ci95_hi": 0.7534592899905997,
+        "n": 25
+      },
+      "mrr@10": {
+        "media": 0.884047619047619,
+        "ci95_lo": 0.7671250000000001,
+        "ci95_hi": 0.98,
+        "n": 25
+      }
+    }
+  },
+  "significancia": {
+    "recall@5": {
+      "minilm-filtro-produccion vs e5-sin-filtro": {
+        "p_crudo": 0.082,
+        "n": 25,
+        "p_holm": 0.492,
+        "significativo_holm": false
+      },
+      "minilm-filtro-produccion vs e5-rrf-sin-filtro": {
+        "p_crudo": 0.195,
+        "n": 25,
+        "p_holm": 0.9750000000000001,
+        "significativo_holm": false
+      },
+      "minilm-filtro-produccion vs lexico-solo-corregido": {
+        "p_crudo": 0.258,
+        "n": 25,
+        "p_holm": 0.9750000000000001,
+        "significativo_holm": false
+      },
+      "e5-sin-filtro vs e5-rrf-sin-filtro": {
+        "p_crudo": 0.569,
+        "n": 25,
+        "p_holm": 1.0,
+        "significativo_holm": false
+      },
+      "e5-sin-filtro vs lexico-solo-corregido": {
+        "p_crudo": 0.1995,
+        "n": 25,
+        "p_holm": 0.9750000000000001,
+        "significativo_holm": false
+      },
+      "e5-rrf-sin-filtro vs lexico-solo-corregido": {
+        "p_crudo": 0.5315,
+        "n": 25,
+        "p_holm": 1.0,
+        "significativo_holm": false
+      }
+    },
+    "recall@10": {
+      "minilm-filtro-produccion vs e5-sin-filtro": {
+        "p_crudo": 0.001,
+        "n": 25,
+        "p_holm": 0.006,
+        "significativo_holm": true
+      },
+      "minilm-filtro-produccion vs e5-rrf-sin-filtro": {
+        "p_crudo": 0.001,
+        "n": 25,
+        "p_holm": 0.006,
+        "significativo_holm": true
+      },
+      "minilm-filtro-produccion vs lexico-solo-corregido": {
+        "p_crudo": 0.002,
+        "n": 25,
+        "p_holm": 0.008,
+        "significativo_holm": true
+      },
+      "e5-sin-filtro vs e5-rrf-sin-filtro": {
+        "p_crudo": 0.3635,
+        "n": 25,
+        "p_holm": 0.879,
+        "significativo_holm": false
+      },
+      "e5-sin-filtro vs lexico-solo-corregido": {
+        "p_crudo": 0.293,
+        "n": 25,
+        "p_holm": 0.879,
+        "significativo_holm": false
+      },
+      "e5-rrf-sin-filtro vs lexico-solo-corregido": {
+        "p_crudo": 0.4365,
+        "n": 25,
+        "p_holm": 0.879,
+        "significativo_holm": false
+      }
+    },
+    "ndcg@10": {
+      "minilm-filtro-produccion vs e5-sin-filtro": {
+        "p_crudo": 0.002,
+        "n": 25,
+        "p_holm": 0.012,
+        "significativo_holm": true
+      },
+      "minilm-filtro-produccion vs e5-rrf-sin-filtro": {
+        "p_crudo": 0.011,
+        "n": 25,
+        "p_holm": 0.05,
+        "significativo_holm": true
+      },
+      "minilm-filtro-produccion vs lexico-solo-corregido": {
+        "p_crudo": 0.01,
+        "n": 25,
+        "p_holm": 0.05,
+        "significativo_holm": true
+      },
+      "e5-sin-filtro vs e5-rrf-sin-filtro": {
+        "p_crudo": 0.245,
+        "n": 25,
+        "p_holm": 0.5535,
+        "significativo_holm": false
+      },
+      "e5-sin-filtro vs lexico-solo-corregido": {
+        "p_crudo": 0.1845,
+        "n": 25,
+        "p_holm": 0.5535,
+        "significativo_holm": false
+      },
+      "e5-rrf-sin-filtro vs lexico-solo-corregido": {
+        "p_crudo": 0.6445,
+        "n": 25,
+        "p_holm": 0.6445,
+        "significativo_holm": false
+      }
+    },
+    "mrr@10": {
+      "minilm-filtro-produccion vs e5-sin-filtro": {
+        "p_crudo": 0.028,
+        "n": 25,
+        "p_holm": 0.168,
+        "significativo_holm": false
+      },
+      "minilm-filtro-produccion vs e5-rrf-sin-filtro": {
+        "p_crudo": 0.0365,
+        "n": 25,
+        "p_holm": 0.168,
+        "significativo_holm": false
+      },
+      "minilm-filtro-produccion vs lexico-solo-corregido": {
+        "p_crudo": 0.0295,
+        "n": 25,
+        "p_holm": 0.168,
+        "significativo_holm": false
+      },
+      "e5-sin-filtro vs e5-rrf-sin-filtro": {
+        "p_crudo": 0.679,
+        "n": 25,
+        "p_holm": 1.0,
+        "significativo_holm": false
+      },
+      "e5-sin-filtro vs lexico-solo-corregido": {
+        "p_crudo": 1.0,
+        "n": 25,
+        "p_holm": 1.0,
+        "significativo_holm": false
+      },
+      "e5-rrf-sin-filtro vs lexico-solo-corregido": {
+        "p_crudo": 0.8795,
+        "n": 25,
+        "p_holm": 1.0,
+        "significativo_holm": false
+      }
+    }
+  }
+}
