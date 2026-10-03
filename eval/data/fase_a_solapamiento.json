@@ -1,0 +1,667 @@
+[
+  {
+    "qid": "Q-SPR-PARA-001",
+    "modo_generador": "PARA",
+    "longitud_palabras": 115,
+    "solapamiento_lexico_idf": 0.5490933728977535,
+    "n_relevantes": 3
+  },
+  {
+    "qid": "Q-SPR-PARA-002",
+    "modo_generador": "PARA",
+    "longitud_palabras": 65,
+    "solapamiento_lexico_idf": 0.4099591709766718,
+    "n_relevantes": 2
+  },
+  {
+    "qid": "Q-STR-PARA-003",
+    "modo_generador": "PARA",
+    "longitud_palabras": 39,
+    "solapamiento_lexico_idf": 0.4124792430032136,
+    "n_relevantes": 2
+  },
+  {
+    "qid": "Q-STR-PARA-004",
+    "modo_generador": "PARA",
+    "longitud_palabras": 52,
+    "solapamiento_lexico_idf": 0.3995565953176911,
+    "n_relevantes": 2
+  },
+  {
+    "qid": "Q-ISA-PARA-005",
+    "modo_generador": "PARA",
+    "longitud_palabras": 58,
+    "solapamiento_lexico_idf": 0.7522123421974672,
+    "n_relevantes": 3
+  },
+  {
+    "qid": "Q-DIN-PARA-006",
+    "modo_generador": "PARA",
+    "longitud_palabras": 43,
+    "solapamiento_lexico_idf": 0.6376018589001781,
+    "n_relevantes": 2
+  },
+  {
+    "qid": "Q-DIN-PARA-007",
+    "modo_generador": "PARA",
+    "longitud_palabras": 52,
+    "solapamiento_lexico_idf": 0.6602249689079984,
+    "n_relevantes": 2
+  },
+  {
+    "qid": "Q-ACP-PARA-008",
+    "modo_generador": "PARA",
+    "longitud_palabras": 55,
+    "solapamiento_lexico_idf": 0.4129801893008017,
+    "n_relevantes": 2
+  },
+  {
+    "qid": "Q-FAC-PARA-009",
+    "modo_generador": "PARA",
+    "longitud_palabras": 51,
+    "solapamiento_lexico_idf": 0.6000196742738991,
+    "n_relevantes": 2
+  },
+  {
+    "qid": "Q-COR-PARA-010",
+    "modo_generador": "PARA",
+    "longitud_palabras": 45,
+    "solapamiento_lexico_idf": 0.7415299763176245,
+    "n_relevantes": 2
+  },
+  {
+    "qid": "Q-SPR-SEM-011",
+    "modo_generador": "SEM",
+    "longitud_palabras": 60,
+    "solapamiento_lexico_idf": 0.15969852277942498,
+    "n_relevantes": 1
+  },
+  {
+    "qid": "Q-STR-SEM-012",
+    "modo_generador": "SEM",
+    "longitud_palabras": 52,
+    "solapamiento_lexico_idf": 0.18403554322978521,
+    "n_relevantes": 1
+  },
+  {
+    "qid": "Q-ISA-SEM-013",
+    "modo_generador": "SEM",
+    "longitud_palabras": 51,
+    "solapamiento_lexico_idf": 0.16697437752309618,
+    "n_relevantes": 2
+  },
+  {
+    "qid": "Q-DIN-SEM-014",
+    "modo_generador": "SEM",
+    "longitud_palabras": 55,
+    "solapamiento_lexico_idf": 0.16421785545927203,
+    "n_relevantes": 1
+  },
+  {
+    "qid": "Q-ACP-SEM-015",
+    "modo_generador": "SEM",
+    "longitud_palabras": 44,
+    "solapamiento_lexico_idf": 0.10574397195651024,
+    "n_relevantes": 2
+  },
+  {
+    "qid": "Q-FAC-SEM-016",
+    "modo_generador": "SEM",
+    "longitud_palabras": 44,
+    "solapamiento_lexico_idf": 0.24624762948210036,
+    "n_relevantes": 2
+  },
+  {
+    "qid": "Q-COR-SEM-017",
+    "modo_generador": "SEM",
+    "longitud_palabras": 46,
+    "solapamiento_lexico_idf": 0.17439885871347197,
+    "n_relevantes": 2
+  },
+  {
+    "qid": "Q-CAL-SEM-018",
+    "modo_generador": "SEM",
+    "longitud_palabras": 46,
+    "solapamiento_lexico_idf": 0.3190937068876368,
+    "n_relevantes": 2
+  },
+  {
+    "qid": "Q-CAL-SEM-019",
+    "modo_generador": "SEM",
+    "longitud_palabras": 54,
+    "solapamiento_lexico_idf": 0.17115146769933906,
+    "n_relevantes": 1
+  },
+  {
+    "qid": "Q-INF-SEM-020",
+    "modo_generador": "SEM",
+    "longitud_palabras": 36,
+    "solapamiento_lexico_idf": 0.22737030205590003,
+    "n_relevantes": 2
+  },
+  {
+    "qid": "Q-SPR-LEX-021",
+    "modo_generador": "LEX",
+    "longitud_palabras": 54,
+    "solapamiento_lexico_idf": 0.3570467293650101,
+    "n_relevantes": 6
+  },
+  {
+    "qid": "Q-STR-LEX-022",
+    "modo_generador": "LEX",
+    "longitud_palabras": 48,
+    "solapamiento_lexico_idf": 0.4779763860621654,
+    "n_relevantes": 5
+  },
+  {
+    "qid": "Q-ISA-LEX-023",
+    "modo_generador": "LEX",
+    "longitud_palabras": 41,
+    "solapamiento_lexico_idf": 0.4110446855302023,
+    "n_relevantes": 5
+  },
+  {
+    "qid": "Q-DIN-LEX-024",
+    "modo_generador": "LEX",
+    "longitud_palabras": 53,
+    "solapamiento_lexico_idf": 0.5214508499342794,
+    "n_relevantes": 5
+  },
+  {
+    "qid": "Q-ACP-LEX-025",
+    "modo_generador": "LEX",
+    "longitud_palabras": 42,
+    "solapamiento_lexico_idf": 0.2703659838782944,
+    "n_relevantes": 4
+  },
+  {
+    "qid": "Q-FAC-LEX-026",
+    "modo_generador": "LEX",
+    "longitud_palabras": 45,
+    "solapamiento_lexico_idf": 0.20411097313738724,
+    "n_relevantes": 2
+  },
+  {
+    "qid": "Q-COR-LEX-027",
+    "modo_generador": "LEX",
+    "longitud_palabras": 37,
+    "solapamiento_lexico_idf": 0.4402094144027982,
+    "n_relevantes": 4
+  },
+  {
+    "qid": "Q-CAL-LEX-028",
+    "modo_generador": "LEX",
+    "longitud_palabras": 36,
+    "solapamiento_lexico_idf": 0.28154183334407545,
+    "n_relevantes": 3
+  },
+  {
+    "qid": "Q-DIS-029",
+    "modo_generador": "DIS",
+    "longitud_palabras": 56,
+    "solapamiento_lexico_idf": 0.34433471052860587,
+    "n_relevantes": 2
+  },
+  {
+    "qid": "Q-DIS-030",
+    "modo_generador": "DIS",
+    "longitud_palabras": 54,
+    "solapamiento_lexico_idf": 0.1466230547657786,
+    "n_relevantes": 2
+  },
+  {
+    "qid": "Q-DIS-031",
+    "modo_generador": "DIS",
+    "longitud_palabras": 50,
+    "solapamiento_lexico_idf": 0.22815225787688317,
+    "n_relevantes": 2
+  },
+  {
+    "qid": "Q-DIS-032",
+    "modo_generador": "DIS",
+    "longitud_palabras": 50,
+    "solapamiento_lexico_idf": 0.5657081028375518,
+    "n_relevantes": 3
+  },
+  {
+    "qid": "Q-DIS-033",
+    "modo_generador": "DIS",
+    "longitud_palabras": 50,
+    "solapamiento_lexico_idf": 0.31941724227084256,
+    "n_relevantes": 2
+  },
+  {
+    "qid": "Q-DIS-034",
+    "modo_generador": "DIS",
+    "longitud_palabras": 55,
+    "solapamiento_lexico_idf": 0.1206613956753791,
+    "n_relevantes": 2
+  },
+  {
+    "qid": "Q-NOKW-035",
+    "modo_generador": "NOKW",
+    "longitud_palabras": 55,
+    "solapamiento_lexico_idf": 0.5533949181429495,
+    "n_relevantes": 3
+  },
+  {
+    "qid": "Q-NOKW-036",
+    "modo_generador": "NOKW",
+    "longitud_palabras": 39,
+    "solapamiento_lexico_idf": 0.33330701899599946,
+    "n_relevantes": 2
+  },
+  {
+    "qid": "Q-NOKW-037",
+    "modo_generador": "NOKW",
+    "longitud_palabras": 35,
+    "solapamiento_lexico_idf": 0.575826218169415,
+    "n_relevantes": 3
+  },
+  {
+    "qid": "Q-NOKW-038",
+    "modo_generador": "NOKW",
+    "longitud_palabras": 36,
+    "solapamiento_lexico_idf": 0.08163446993647054,
+    "n_relevantes": 2
+  },
+  {
+    "qid": "Q-NOKW-039",
+    "modo_generador": "NOKW",
+    "longitud_palabras": 50,
+    "solapamiento_lexico_idf": 0.3461000228861433,
+    "n_relevantes": 2
+  },
+  {
+    "qid": "Q-NOKW-040",
+    "modo_generador": "NOKW",
+    "longitud_palabras": 43,
+    "solapamiento_lexico_idf": 0.28200322090255386,
+    "n_relevantes": 2
+  },
+  {
+    "qid": "Q-SPR-PARA-041",
+    "modo_generador": "PARA",
+    "longitud_palabras": 156,
+    "solapamiento_lexico_idf": 0.4420806307701431,
+    "n_relevantes": 3
+  },
+  {
+    "qid": "Q-STR-PARA-043",
+    "modo_generador": "PARA",
+    "longitud_palabras": 99,
+    "solapamiento_lexico_idf": 0.29567553377203265,
+    "n_relevantes": 2
+  },
+  {
+    "qid": "Q-STR-PARA-044",
+    "modo_generador": "PARA",
+    "longitud_palabras": 76,
+    "solapamiento_lexico_idf": 0.2586916058818704,
+    "n_relevantes": 2
+  },
+  {
+    "qid": "Q-STR-PARA-045",
+    "modo_generador": "PARA",
+    "longitud_palabras": 83,
+    "solapamiento_lexico_idf": 0.1658880867915549,
+    "n_relevantes": 1
+  },
+  {
+    "qid": "Q-ISA-PARA-047",
+    "modo_generador": "PARA",
+    "longitud_palabras": 83,
+    "solapamiento_lexico_idf": 0.2866474445653477,
+    "n_relevantes": 2
+  },
+  {
+    "qid": "Q-DIN-PARA-048",
+    "modo_generador": "PARA",
+    "longitud_palabras": 71,
+    "solapamiento_lexico_idf": 0.469849600887434,
+    "n_relevantes": 2
+  },
+  {
+    "qid": "Q-DIN-PARA-049",
+    "modo_generador": "PARA",
+    "longitud_palabras": 79,
+    "solapamiento_lexico_idf": 0.30971962073813336,
+    "n_relevantes": 2
+  },
+  {
+    "qid": "Q-ACP-PARA-051",
+    "modo_generador": "PARA",
+    "longitud_palabras": 86,
+    "solapamiento_lexico_idf": 0.3238548984123008,
+    "n_relevantes": 2
+  },
+  {
+    "qid": "Q-FAC-PARA-052",
+    "modo_generador": "PARA",
+    "longitud_palabras": 72,
+    "solapamiento_lexico_idf": 0.3864546259513482,
+    "n_relevantes": 2
+  },
+  {
+    "qid": "Q-COR-PARA-054",
+    "modo_generador": "PARA",
+    "longitud_palabras": 66,
+    "solapamiento_lexico_idf": 0.3291679813555083,
+    "n_relevantes": 2
+  },
+  {
+    "qid": "Q-CAL-PARA-056",
+    "modo_generador": "PARA",
+    "longitud_palabras": 60,
+    "solapamiento_lexico_idf": 0.32005959447307974,
+    "n_relevantes": 2
+  },
+  {
+    "qid": "Q-CAL-PARA-058",
+    "modo_generador": "PARA",
+    "longitud_palabras": 62,
+    "solapamiento_lexico_idf": 0.37289288616403393,
+    "n_relevantes": 2
+  },
+  {
+    "qid": "Q-INF-PARA-059",
+    "modo_generador": "PARA",
+    "longitud_palabras": 71,
+    "solapamiento_lexico_idf": 0.3378161549197146,
+    "n_relevantes": 2
+  },
+  {
+    "qid": "Q-INF-PARA-060",
+    "modo_generador": "PARA",
+    "longitud_palabras": 51,
+    "solapamiento_lexico_idf": 0.20514536758191548,
+    "n_relevantes": 2
+  },
+  {
+    "qid": "Q-SPR-SEM-062",
+    "modo_generador": "SEM",
+    "longitud_palabras": 83,
+    "solapamiento_lexico_idf": 0.4286929327013764,
+    "n_relevantes": 3
+  },
+  {
+    "qid": "Q-STR-SEM-063",
+    "modo_generador": "SEM",
+    "longitud_palabras": 68,
+    "solapamiento_lexico_idf": 0.15944377326124226,
+    "n_relevantes": 2
+  },
+  {
+    "qid": "Q-STR-SEM-064",
+    "modo_generador": "SEM",
+    "longitud_palabras": 62,
+    "solapamiento_lexico_idf": 0.20275293513517995,
+    "n_relevantes": 2
+  },
+  {
+    "qid": "Q-ISA-SEM-065",
+    "modo_generador": "SEM",
+    "longitud_palabras": 69,
+    "solapamiento_lexico_idf": 0.1512596186603768,
+    "n_relevantes": 2
+  },
+  {
+    "qid": "Q-ISA-SEM-066",
+    "modo_generador": "SEM",
+    "longitud_palabras": 53,
+    "solapamiento_lexico_idf": 0.48838068057397416,
+    "n_relevantes": 3
+  },
+  {
+    "qid": "Q-DIN-SEM-067",
+    "modo_generador": "SEM",
+    "longitud_palabras": 50,
+    "solapamiento_lexico_idf": 0.19275761877742623,
+    "n_relevantes": 1
+  },
+  {
+    "qid": "Q-DIN-SEM-068",
+    "modo_generador": "SEM",
+    "longitud_palabras": 58,
+    "solapamiento_lexico_idf": 0.17703822769750927,
+    "n_relevantes": 2
+  },
+  {
+    "qid": "Q-ACP-SEM-070",
+    "modo_generador": "SEM",
+    "longitud_palabras": 50,
+    "solapamiento_lexico_idf": 0.18313367056858773,
+    "n_relevantes": 2
+  },
+  {
+    "qid": "Q-FAC-SEM-071",
+    "modo_generador": "SEM",
+    "longitud_palabras": 56,
+    "solapamiento_lexico_idf": 0.15267859571355336,
+    "n_relevantes": 2
+  },
+  {
+    "qid": "Q-COR-SEM-073",
+    "modo_generador": "SEM",
+    "longitud_palabras": 58,
+    "solapamiento_lexico_idf": 0.1093157010551807,
+    "n_relevantes": 2
+  },
+  {
+    "qid": "Q-CAL-SEM-075",
+    "modo_generador": "SEM",
+    "longitud_palabras": 77,
+    "solapamiento_lexico_idf": 0.11030688769565937,
+    "n_relevantes": 1
+  },
+  {
+    "qid": "Q-CAL-SEM-077",
+    "modo_generador": "SEM",
+    "longitud_palabras": 55,
+    "solapamiento_lexico_idf": 0.04875813154111882,
+    "n_relevantes": 1
+  },
+  {
+    "qid": "Q-INF-SEM-078",
+    "modo_generador": "SEM",
+    "longitud_palabras": 55,
+    "solapamiento_lexico_idf": 0.0701642358129874,
+    "n_relevantes": 2
+  },
+  {
+    "qid": "Q-INF-SEM-079",
+    "modo_generador": "SEM",
+    "longitud_palabras": 55,
+    "solapamiento_lexico_idf": 0.1102272358173104,
+    "n_relevantes": 2
+  },
+  {
+    "qid": "Q-SPR-LEX-082",
+    "modo_generador": "LEX",
+    "longitud_palabras": 70,
+    "solapamiento_lexico_idf": 0.5635525072492139,
+    "n_relevantes": 2
+  },
+  {
+    "qid": "Q-STR-LEX-083",
+    "modo_generador": "LEX",
+    "longitud_palabras": 70,
+    "solapamiento_lexico_idf": 0.3996040449719582,
+    "n_relevantes": 2
+  },
+  {
+    "qid": "Q-STR-LEX-084",
+    "modo_generador": "LEX",
+    "longitud_palabras": 63,
+    "solapamiento_lexico_idf": 0.47631383871124094,
+    "n_relevantes": 1
+  },
+  {
+    "qid": "Q-ISA-LEX-085",
+    "modo_generador": "LEX",
+    "longitud_palabras": 81,
+    "solapamiento_lexico_idf": 0.48974511249294184,
+    "n_relevantes": 3
+  },
+  {
+    "qid": "Q-ISA-LEX-086",
+    "modo_generador": "LEX",
+    "longitud_palabras": 59,
+    "solapamiento_lexico_idf": 0.4533085714888553,
+    "n_relevantes": 2
+  },
+  {
+    "qid": "Q-DIN-LEX-087",
+    "modo_generador": "LEX",
+    "longitud_palabras": 74,
+    "solapamiento_lexico_idf": 0.35616664064050135,
+    "n_relevantes": 2
+  },
+  {
+    "qid": "Q-ACP-LEX-090",
+    "modo_generador": "LEX",
+    "longitud_palabras": 64,
+    "solapamiento_lexico_idf": 0.41570798884526167,
+    "n_relevantes": 2
+  },
+  {
+    "qid": "Q-FAC-LEX-091",
+    "modo_generador": "LEX",
+    "longitud_palabras": 55,
+    "solapamiento_lexico_idf": 0.39540458888678454,
+    "n_relevantes": 2
+  },
+  {
+    "qid": "Q-FAC-LEX-092",
+    "modo_generador": "LEX",
+    "longitud_palabras": 46,
+    "solapamiento_lexico_idf": 0.3536920896920414,
+    "n_relevantes": 2
+  },
+  {
+    "qid": "Q-COR-LEX-094",
+    "modo_generador": "LEX",
+    "longitud_palabras": 52,
+    "solapamiento_lexico_idf": 0.4467579260464361,
+    "n_relevantes": 2
+  },
+  {
+    "qid": "Q-CAL-LEX-095",
+    "modo_generador": "LEX",
+    "longitud_palabras": 60,
+    "solapamiento_lexico_idf": 0.45471541843542895,
+    "n_relevantes": 2
+  },
+  {
+    "qid": "Q-NOKW-098",
+    "modo_generador": "NOKW",
+    "longitud_palabras": 26,
+    "solapamiento_lexico_idf": 0.020591887348636505,
+    "n_relevantes": 1
+  },
+  {
+    "qid": "Q-NOKW-099",
+    "modo_generador": "NOKW",
+    "longitud_palabras": 23,
+    "solapamiento_lexico_idf": 0.06796176824492017,
+    "n_relevantes": 2
+  },
+  {
+    "qid": "Q-NOKW-101",
+    "modo_generador": "NOKW",
+    "longitud_palabras": 24,
+    "solapamiento_lexico_idf": 0.46601752255738776,
+    "n_relevantes": 2
+  },
+  {
+    "qid": "Q-NOKW-102",
+    "modo_generador": "NOKW",
+    "longitud_palabras": 20,
+    "solapamiento_lexico_idf": 0.06735143257605125,
+    "n_relevantes": 1
+  },
+  {
+    "qid": "Q-NOKW-104",
+    "modo_generador": "NOKW",
+    "longitud_palabras": 21,
+    "solapamiento_lexico_idf": 0.23932032436303868,
+    "n_relevantes": 2
+  },
+  {
+    "qid": "Q-NOKW-105",
+    "modo_generador": "NOKW",
+    "longitud_palabras": 18,
+    "solapamiento_lexico_idf": 0.07546534406833404,
+    "n_relevantes": 2
+  },
+  {
+    "qid": "Q-NOKW-107",
+    "modo_generador": "NOKW",
+    "longitud_palabras": 20,
+    "solapamiento_lexico_idf": 0.029014253486614013,
+    "n_relevantes": 2
+  },
+  {
+    "qid": "Q-NOKW-108",
+    "modo_generador": "NOKW",
+    "longitud_palabras": 22,
+    "solapamiento_lexico_idf": 0.06041744378073331,
+    "n_relevantes": 2
+  },
+  {
+    "qid": "Q-DIS-110",
+    "modo_generador": "DIS",
+    "longitud_palabras": 68,
+    "solapamiento_lexico_idf": 0.3285580379698551,
+    "n_relevantes": 2
+  },
+  {
+    "qid": "Q-DIS-111",
+    "modo_generador": "DIS",
+    "longitud_palabras": 75,
+    "solapamiento_lexico_idf": 0.20440573165161255,
+    "n_relevantes": 1
+  },
+  {
+    "qid": "Q-DIS-113",
+    "modo_generador": "DIS",
+    "longitud_palabras": 79,
+    "solapamiento_lexico_idf": 0.20666578255330512,
+    "n_relevantes": 2
+  },
+  {
+    "qid": "Q-DIS-114",
+    "modo_generador": "DIS",
+    "longitud_palabras": 72,
+    "solapamiento_lexico_idf": 0.3056456811318285,
+    "n_relevantes": 2
+  },
+  {
+    "qid": "Q-DIS-116",
+    "modo_generador": "DIS",
+    "longitud_palabras": 89,
+    "solapamiento_lexico_idf": 0.2283485193355271,
+    "n_relevantes": 2
+  },
+  {
+    "qid": "Q-DIS-117",
+    "modo_generador": "DIS",
+    "longitud_palabras": 76,
+    "solapamiento_lexico_idf": 0.32343921661492003,
+    "n_relevantes": 2
+  },
+  {
+    "qid": "Q-DIS-119",
+    "modo_generador": "DIS",
+    "longitud_palabras": 86,
+    "solapamiento_lexico_idf": 0.21321384967835036,
+    "n_relevantes": 2
+  },
+  {
+    "qid": "Q-DIS-120",
+    "modo_generador": "DIS",
+    "longitud_palabras": 99,
+    "solapamiento_lexico_idf": 0.2291752311234357,
+    "n_relevantes": 2
+  }
+]

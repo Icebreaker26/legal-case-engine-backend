@@ -138,7 +138,7 @@ eval/.venv/Scripts/python.exe eval/scripts/04_evaluar.py --subset dev \
          e5-sin-filtro=eval/data/runs/pool-e5-ponderado-normalizado.trec
 ```
 
-**Verificación adicional** (no citable, se corrió y se descartó el archivo — ver nota de transparencia en el comentario de cierre de `#76`): se confirmó que `ranx` es inmune al bug de duplicados de `#104` — indexa por `doc_id` en un diccionario, no por posición en una lista, así que un documento repetido en el `.trec` no se cuenta dos veces. El recall@5 de `pool-lexico-solo.trec` (el archivo original, nunca corregido por la razón documentada arriba) salió ~idéntico (0.525) al valor deduplicado a mano en `#104` (0.527/0.632 nDCG) — el pipeline nuevo no necesita que los `.trec` estén deduplicados para dar un número correcto.
+**⚠️ Corrección (`#113`, 2026-10-03): la afirmación "ranx es inmune al bug de duplicados" de esta sección era incompleta.** `ranx` no cuenta un documento repetido dos veces (correcto), pero en `ranx/data_structures/run.py:285` (`run[q_id][doc_id] = float(rel)`, ejecutado en orden de archivo) **se queda con el score de la última aparición del documento en el archivo, no la mejor** — corrompe el ranking efectivo de cualquier documento repetido. Verificado con `pool-lexico-solo.trec` (nunca corregido, por la razón documentada arriba): el control de la corrida confirmatoria de `#77` está midiéndose con este problema. Detalle completo, con el impacto cuantificado en dev y test, en `#113`.
 
 **Resultado en dev (95 consultas), con significancia real** — ver `eval/data/metricas_dev.md`/`.json` para el detalle completo:
 
@@ -167,6 +167,33 @@ Pre-registro completo (hipótesis, configuraciones exactas, sha256 de cada archi
 - **H2 NO CONFIRMADA**: RRF vs. ponderado (ambos e5-small sin filtro) no difieren con significancia en ninguna métrica (nDCG@10 p_holm=0.513) — no hay evidencia para preferir RRF sobre ponderado; se recomienda quedarse con ponderado (más simple, punto estimado más alto).
 - **Control, hallazgo honesto**: léxico-solo **no difiere con significancia** de `e5-small sin filtro` en nDCG@10 (p_holm=0.593) — con 25 consultas, no se puede afirmar que la fusión híbrida le gane a la búsqueda léxica pura. Lo que sí es significativo: **los tres candidatos sin el prefiltro (e5-ponderado, e5-RRF, léxico-solo) le ganan a la línea base de producción** — el prefiltro de categoría, no la elección de fusión, es la mejora confirmada con más fuerza.
 
+## Fase A — dónde diverge realmente la híbrida de la búsqueda léxica (`#114`, 2026-10-03)
+
+El empate técnico de `#77` (sujeto a la fe de erratas de `#113`) motivó buscar el "caso borde" real entre fusión híbrida y léxico-solo. En vez de confiar en la etiqueta de "modo" que puso el generador de consultas (PARA/SEM/LEX/NOKW/DIS), se midieron dos variables continuas por consulta sobre dev (95 consultas, sin generar nada nuevo):
+
+- **Solapamiento léxico real**: cuánto del vocabulario de la consulta (ponderado por IDF sobre el corpus real, mismo stemmer `to_tsvector('spanish')` que producción) aparece en el texto de sus documentos relevantes. No es lo mismo que la etiqueta "SEM" — hay consultas SEM con solapamiento alto y PARA con solapamiento bajo.
+- **Desacuerdo vector/léxico**: cuánto se superponen (Jaccard) el top-10 de vector-solo (e5-small) y el de léxico-solo, por consulta.
+
+`eval/scripts/05_solapamiento_lexico.js` calcula la primera; combinado con los runs deduplicados para la segunda (`eval/data/fase_a_analisis_completo.json`, 95 filas, no versionado por tamaño — regenerable).
+
+**Resultado — las dos variables predicen el margen real de la híbrida mejor que el modo del generador:**
+
+| Variable | Correlación con (nDCG@10 híbrida − nDCG@10 léxico) |
+| --- | --- |
+| Solapamiento léxico real | **−0.232** (a menor solapamiento, mayor ventaja de la híbrida) |
+| Desacuerdo vector/léxico | **+0.252** (a mayor desacuerdo, mayor ventaja de la híbrida) |
+| Longitud de la consulta | −0.322 (consultas más largas favorecen al léxico — confunde con el modo) |
+
+Estratificado por cuartil de solapamiento léxico real: Q1 (más bajo, 0.02-0.17) → diff = **+0.063**; Q2-Q4 → +0.017 a +0.023 (la ventaja se concentra casi toda en el cuartil de menor solapamiento). Estratificado por desacuerdo vector/léxico: Q4 (más alto, 0.75-0.89) → diff = **+0.085**; Q1-Q3 → +0.003 a +0.016.
+
+**La "esquina" (solapamiento bajo ∩ desacuerdo alto, 28 de 95 consultas de dev) da diff promedio +0.067**, con casos individuales de hasta +0.46 (`Q-NOKW-108`, `Q-NOKW-107`) — mayormente en modo NOKW y SEM, pero no todas las consultas de esos modos caen en la esquina (de ahí que el promedio por modo se vea diluido).
+
+**vector-solo (e5, sin nada de léxico) pierde contra léxico-solo en absolutamente todos los cuartiles** (diff entre −0.009 y −0.056) — refuerza la reformulación aceptada: la ventaja de la híbrida viene de **complementariedad** (la fusión aprovecha desacuerdo entre señales), nunca de que el vector por sí solo sea mejor.
+
+**Decisión empírica sobre qué "híbrida" perseguir** (reemplaza la pregunta abierta de `#114`): la fórmula de producción (`E03`, scores crudos, sin normalizar) tiene correlaciones más fuertes y limpias que la normalizada (−0.232/+0.252 vs. −0.113/+0.192) y es más estable frente a léxico (sd=0.092 vs. 0.133, de `#76`) — **se recomienda `E03` como la variante a optimizar**, no la normalizada que se usó en `#77`.
+
+**Siguiente paso**: Fase B (`#114`) — en vez de depender de la variación natural entre consultas (todavía ruidosa incluso en la esquina), diseñar un piloto de perturbación pareada usando estos dos criterios medibles (no la etiqueta de modo) para elegir qué consultas de dev perturbar.
+
 ## Estado y siguiente paso (actualizado 2026-10-03)
 
-Fase 4 (`#64`-`#67`), `#95`, `#98`, `#96`, `#75`, `#104`, `#106`, `#76` y `#77` completos. Cadena de hallazgos de la sesión: el prefiltro de categoría —no los pesos de fusión ni el modelo de embeddings— era la causa real de la brecha medida en `#75`; confirmado con significancia estadística real en test. Sigue `#78` — documentar las 3 capas de evidencia para la tesis (diagnóstico en dev → confirmación en test → limitaciones: etiquetado por IA de `#75`, tamaño de muestra de 25 consultas en test, vistazos a test declarados en `preregistro_77.md`). Decisión pendiente, solo de Alejandro: promover `rag/integracion` → `main` (prefiltro ya eliminado ahí). Sobre el modelo de embeddings: en dev, e5-small-sin-filtro superó con significancia a MiniLM-sin-filtro (`#76`, p_holm=0.0000 en nDCG@10) — swap de modelo con soporte propio, no solo "efecto del filtro"; MiniLM-sin-filtro no se incluyó en la corrida confirmatoria de `#77` (no estaba en H1/H2/control), así que ese swap específico queda respaldado por dev, no confirmado en test todavía.
+Fase 4 (`#64`-`#67`), `#95`, `#98`, `#96`, `#75`, `#104`, `#106`, `#76`, `#77` y Fase A de `#114` completos. Cadena de hallazgos de la sesión: el prefiltro de categoría —no los pesos de fusión ni el modelo de embeddings— era la causa real de la brecha medida en `#75`; confirmado con significancia estadística real en test; el control léxico de esa confirmación tiene un problema de medición pendiente (`#113`); la ventaja real de la híbrida se concentra en consultas de bajo solapamiento léxico y alto desacuerdo vector/léxico, no en absoluto sobre cualquier consulta (`#114`, Fase A). Sigue `#78` — documentar las 3 capas de evidencia para la tesis (diagnóstico en dev → confirmación en test → limitaciones: etiquetado por IA de `#75`, tamaño de muestra de 25 consultas en test, vistazos a test declarados en `preregistro_77.md`). Decisión pendiente, solo de Alejandro: promover `rag/integracion` → `main` (prefiltro ya eliminado ahí). Sobre el modelo de embeddings: en dev, e5-small-sin-filtro superó con significancia a MiniLM-sin-filtro (`#76`, p_holm=0.0000 en nDCG@10) — swap de modelo con soporte propio, no solo "efecto del filtro"; MiniLM-sin-filtro no se incluyó en la corrida confirmatoria de `#77` (no estaba en H1/H2/control), así que ese swap específico queda respaldado por dev, no confirmado en test todavía.
