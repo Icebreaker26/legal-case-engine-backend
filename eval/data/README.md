@@ -228,7 +228,22 @@ Para las mismas 23 consultas del piloto, se midió (`eval/scripts/05e_diagnostic
 
 **Interpretación que mejor explica los datos**: si `embed(A) ≈ embed(B)` (similitud ~0.93), el término vectorial de la híbrida (55% del peso) apenas cambia entre A y B — así que cuando la híbrida cae en el piloto, cae principalmente porque su propio 35% de peso léxico se degrada (el mismo mecanismo que hunde a léxico-solo), no porque el vector "no ayude". **Esto favorece H1** (la correlación de la Fase A viene de un confusor): las consultas de bajo solapamiento *natural* probablemente se distinguen de las de alto solapamiento por alguna otra propiedad —no reproducible reescribiendo una consulta de alto solapamiento— que hace que sus documentos relevantes sean más separables en el espacio vectorial (p.ej. menos genéricos, más distintivos dentro de su subtema), y que casualmente también correlaciona con menos vocabulario compartido. **H3 queda debilitada**: el modelo no "falla" al reconocer la paráfrasis (al contrario, la reconoce muy bien) — el límite está en qué tan fino es el espacio vectorial para discriminar entre 40 documentos similares, no en la robustez a la reescritura.
 
-**Siguiente paso real**: antes de cualquier Fase C, investigar qué distingue a los documentos/subtemas de las consultas de bajo solapamiento *natural* de la Fase A (más allá de la consulta en sí) — es decir, medir si el confusor está del lado del documento (su especificidad léxica/semántica en el corpus), no de la consulta.
+### El confusor del lado del documento tampoco se confirma
+
+Se probó directamente la hipótesis anterior (`eval/scripts/05f_confusor_documento.js`, `eval/data/fase_c_confusor_documento.json`, 95 consultas de dev): ¿los documentos relevantes de las consultas de bajo solapamiento natural son, en sí mismos, más "aislados" en el espacio vectorial (menor similitud coseno promedio con el resto del corpus, o con su misma categoría) o más distintivos léxicamente (mayor IDF promedio de sus propios lexemas)?
+
+**Resultado: tampoco.**
+
+| Correlación | valor |
+| --- | --- |
+| Aislamiento intra-categoría del documento vs. ventaja de la híbrida | −0.073 (≈0) |
+| Aislamiento global del documento vs. ventaja de la híbrida | −0.041 (≈0) |
+| Distintividad léxica del documento vs. ventaja de la híbrida | −0.198 (débil, y en sentido contrario al esperado) |
+| Distintividad léxica del documento vs. solapamiento léxico de la consulta | **+0.326** (documentos con vocabulario más raro reciben consultas con MÁS solapamiento, no menos — lo opuesto a lo que necesitaba la hipótesis) |
+
+Ni la posición del documento en el espacio vectorial ni su distintividad léxica explican por qué ciertas consultas naturales tienen bajo solapamiento y ventaja para la híbrida. **Ninguna de las 3 hipótesis originales, ni esta extensión del lado del documento, explica con evidencia sólida la discrepancia entre la Fase A (correlación real) y la Fase B (intervención nula).**
+
+**Conclusión honesta de esta ronda de investigación**: no se encontró un mecanismo causal verificable para "el caso borde" que llevara a la híbrida a ganarle de forma confiable al léxico. La correlación de la Fase A puede ser parcialmente ruido de muestra pequeña (dev, 95 consultas, repartidas en muchas celdas al cruzar variables), o depender de algo no probado todavía (longitud de consulta ya mostró correlación −0.322 con la ventaja, sin aislar). **No se recomienda construir una Fase C (split de test nuevo) sobre esta base** — el camino más prometedor que queda sin probar es la Fase D (`#115`): en vez de buscar el caso borde reescribiendo consultas o analizando el corpus existente, construir documentos deliberadamente más distintivos (negativos difíciles, más variedad de estilo) y medir ahí.
 
 ## Estado y siguiente paso (actualizado 2026-10-03)
 
