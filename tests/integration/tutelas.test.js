@@ -241,6 +241,23 @@ describe('Tutelas — Integración', () => {
         .send({ titulo: 'Argumento actualizado' });
       expect(res.status).not.toBe(400);
     });
+
+    // #108: gate de confirmación de categoría antes de promover a memoria legal
+    test('POST /:id/argumentos/:argId/promover SIN categoria_confirmada → 400', async () => {
+      if (!argumentoId) return;
+      const res = await agent
+        .post(`/api/tutelas/${tutelaId}/argumentos/${argumentoId}/promover`)
+        .send({});
+      expect(res.status).toBe(400);
+    });
+
+    test('POST /:id/argumentos/:argId/promover CON categoria_confirmada=true → no lo rechaza por el gate', async () => {
+      if (!argumentoId) return;
+      const res = await agent
+        .post(`/api/tutelas/${tutelaId}/argumentos/${argumentoId}/promover`)
+        .send({ categoria_confirmada: true });
+      expect(res.status).not.toBe(400);
+    });
   });
 
   // ── Bloqueo optimista de borrador ─────────────────────────────────────────
@@ -263,6 +280,37 @@ describe('Tutelas — Integración', () => {
     test('PATCH /:id/borrador sin contestacion_generada → 400 (Zod)', async () => {
       const res = await agent.patch(`/api/tutelas/${tutelaId}/borrador`).send({});
       expect(res.status).toBe(400);
+    });
+  });
+
+  // ── Gate de confirmación de categoría antes de promover (#108) ─────────────
+  describe('PATCH /:id/datos — promoción a memoria legal requiere categoria_confirmada', () => {
+    beforeAll(async () => {
+      await agent.post(`/api/tutelas/${tutelaId}/lock`); // actualizarBorrador exige lock_owner_id
+      const borrador = await agent
+        .patch(`/api/tutelas/${tutelaId}/borrador`)
+        .send({ contestacion_generada: 'Contestación de prueba para #108.' });
+      if (borrador.status !== 200) throw new Error(`Setup falló: PATCH /borrador → ${borrador.status} ${JSON.stringify(borrador.body)}`);
+      await pool.query('UPDATE tutelas SET respuesta_promovida = FALSE WHERE id = $1', [tutelaId]);
+    });
+
+    test('resultado_fallo=Favorable SIN categoria_confirmada → no promueve, avisa que está pendiente', async () => {
+      const res = await agent
+        .patch(`/api/tutelas/${tutelaId}/datos`)
+        .send({ resultado_fallo: 'Favorable' });
+      expect(res.status).toBe(200);
+      expect(res.body.promocion_pendiente).toBe(true);
+
+      const { rows } = await pool.query('SELECT respuesta_promovida FROM tutelas WHERE id = $1', [tutelaId]);
+      expect(rows[0].respuesta_promovida).toBe(false);
+    });
+
+    test('resultado_fallo=Favorable CON categoria_confirmada=true → intenta promover (no queda pendiente)', async () => {
+      const res = await agent
+        .patch(`/api/tutelas/${tutelaId}/datos`)
+        .send({ resultado_fallo: 'Favorable', categoria_confirmada: true });
+      expect(res.status).toBe(200);
+      expect(res.body.promocion_pendiente).toBeUndefined();
     });
   });
 
