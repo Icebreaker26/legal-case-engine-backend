@@ -152,6 +152,21 @@ eval/.venv/Scripts/python.exe eval/scripts/04_evaluar.py --subset dev \
 
 `e5-sin-filtro` le gana a la línea base de producción (MiniLM con filtro) de forma estadísticamente significativa (Holm) en recall@10, nDCG@10 y MRR@10 — no en recall@5 (p_holm=1.000, no significativo con este tamaño de muestra). Confirma con rigor lo que `#104`/`#106` ya habían encontrado por diagnóstico.
 
+## Experimentos confirmatorios pre-registrados (`#77`, 2026-10-03)
+
+Pre-registro completo (hipótesis, configuraciones exactas, sha256 de cada archivo, antes de correr nada) en `eval/data/preregistro_77.md`, commiteado en un commit propio antes de tocar el split de test. Resultado en `eval/data/metricas_test_confirmatorio.md`/`.json` (25 consultas de test, qrels reales de `#75`).
+
+| Sistema | Recall@5 | Recall@10 | **nDCG@10 (primaria)** | MRR@10 |
+| --- | --- | --- | --- | --- |
+| MiniLM, ponderado, CON filtro (producción real) | 0.418 | 0.473 | 0.507 | 0.684 |
+| **e5-small, ponderado, SIN filtro (H1)** | 0.559 | 0.819 | **0.724** | 0.866 |
+| e5-small, RRF, SIN filtro (H2) | 0.541 | 0.789 | 0.689 | 0.893 |
+| léxico-solo (control) | 0.525 | 0.762 | 0.687 | 0.889 |
+
+- **H1 CONFIRMADA**: `e5-small ponderado sin filtro` le gana a la línea base real de producción con significancia (Holm) en nDCG@10 (p=0.0060), recall@10 (p=0.0040) — no en recall@5 ni MRR@10 con este tamaño de muestra (25 consultas). La afirmación central de la tesis ("la configuración propuesta mejora lo que hay hoy en producción") queda confirmada en la métrica primaria.
+- **H2 NO CONFIRMADA**: RRF vs. ponderado (ambos e5-small sin filtro) no difieren con significancia en ninguna métrica (nDCG@10 p_holm=0.513) — no hay evidencia para preferir RRF sobre ponderado; se recomienda quedarse con ponderado (más simple, punto estimado más alto).
+- **Control, hallazgo honesto**: léxico-solo **no difiere con significancia** de `e5-small sin filtro` en nDCG@10 (p_holm=0.593) — con 25 consultas, no se puede afirmar que la fusión híbrida le gane a la búsqueda léxica pura. Lo que sí es significativo: **los tres candidatos sin el prefiltro (e5-ponderado, e5-RRF, léxico-solo) le ganan a la línea base de producción** — el prefiltro de categoría, no la elección de fusión, es la mejora confirmada con más fuerza.
+
 ## Estado y siguiente paso (actualizado 2026-10-03)
 
-Fase 4 (`#64`-`#67`), `#95`, `#98`, `#96`, `#75`, `#104`, `#106` y `#76` completos. El prefiltro de categoría —no los pesos de fusión— era la causa real de la brecha medida en `#75`, y ahora está confirmado con significancia estadística real (no solo diferencias puntuales sobre 40-95 consultas). Sigue: `#77` (confirmación en el split de **test**, congelado, con hipótesis pre-registradas usando `04_evaluar.py --subset test --confirmo-uso-de-test` — ya no hay que construir el pipeline de métricas, solo correrlo una vez). La comparación filtro/sin-filtro en modo DIS, y la comparación léxico-solo vs. fusión, ya se miraron en test durante `#104`/`#106`/`#76` — deben reportarse como hallazgo post-hoc, no confirmatorio; `#77` pre-registra qué compara antes de correr.
+Fase 4 (`#64`-`#67`), `#95`, `#98`, `#96`, `#75`, `#104`, `#106`, `#76` y `#77` completos. Cadena de hallazgos de la sesión: el prefiltro de categoría —no los pesos de fusión ni el modelo de embeddings— era la causa real de la brecha medida en `#75`; confirmado con significancia estadística real en test. Sigue `#78` — documentar las 3 capas de evidencia para la tesis (diagnóstico en dev → confirmación en test → limitaciones: etiquetado por IA de `#75`, tamaño de muestra de 25 consultas en test, vistazos a test declarados en `preregistro_77.md`). Decisión pendiente, solo de Alejandro: promover `rag/integracion` → `main` (prefiltro ya eliminado ahí). Sobre el modelo de embeddings: en dev, e5-small-sin-filtro superó con significancia a MiniLM-sin-filtro (`#76`, p_holm=0.0000 en nDCG@10) — swap de modelo con soporte propio, no solo "efecto del filtro"; MiniLM-sin-filtro no se incluyó en la corrida confirmatoria de `#77` (no estaba en H1/H2/control), así que ese swap específico queda respaldado por dev, no confirmado en test todavía.
