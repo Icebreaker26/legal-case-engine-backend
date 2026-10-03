@@ -125,6 +125,25 @@ La tabla de arriba es el resultado **tal como se pre-registró y se corrió orig
 
 ---
 
+## 4.5 Capa 4 — Corpus v2 y barrido de pesos/modelo (`#115`, Fase D): por qué pierde la híbrida, y hasta dónde llega al corregirlo
+
+Con el empate técnico de la sección 4 sin resolver, se investigó un "caso borde" reproducible donde la híbrida le gane claro al léxico — primero sobre el corpus v1 (`#114`, dos fases, agotó 3 hipótesis causales sin encontrar un mecanismo verificable), después sobre un **corpus v2 nuevo** (90 documentos, mismas 9 categorías/22 subtemas de v1, con negativos difíciles y variedad de estilo deliberados, estudio separado — números no comparables con `#77`/`#114`).
+
+La línea base de v2 (MiniLM, pesos de producción) dio el resultado opuesto al buscado: léxico-solo le ganó a la híbrida con significancia (nDCG@10 p_holm=0.0015) — una brecha más clara que en v1. Un diagnóstico descartó que los negativos difíciles explicaran la pérdida (engañan más a léxico-solo, 5.2% de su top-10, que a la híbrida, 4.1% — justo como se diseñó). Segunda opinión de Opus: antes de poolear/etiquetar el test de v2 (caro) o cerrar la investigación, correr un barrido pre-registrado de peso vectorial (α: 0.0-1.0) × modelo (MiniLM / `multilingual-e5-small`) sobre dev, con una regla de parada escrita antes de correr nada (`eval/data/v2/preregistro_barrido_pesos.md`).
+
+**Resultado del barrido**: con MiniLM, más peso vectorial siempre empeora el resultado. Con `e5-small`, la mejor configuración (α=0.9) supera a léxico-solo por Δ=0.0746 en dev — por encima del umbral pre-registrado (0.02) — así que se congeló esa configuración y se confirmó contra el **test de v1 ya etiquetado** (costo de etiquetado nuevo: cero):
+
+| Sistema | Recall@5 | Recall@10 | **nDCG@10** | MRR@10 |
+| --- | --- | --- | --- | --- |
+| léxico-solo (control) | 0.480 [0.386, 0.575] | 0.725 [0.627, 0.811] | 0.656 [0.552, 0.753] | 0.884 [0.767, 0.980] |
+| **e5-small, ponderado, α=0.9, sin filtro** | 0.519 [0.434, 0.607] | 0.787 [0.695, 0.870] | **0.706** [0.620, 0.784] | 0.894 [0.783, 0.980] |
+
+Mejor punto estimado para la híbrida, pero **no significativo** (nDCG@10 p_holm=0.1010, n=25 — una sola comparación pre-especificada).
+
+**El límite real no era el corpus ni la imposibilidad de un caso borde — era el modelo de embeddings y los pesos de producción.** MiniLM (solo-inglés) sobre texto jurídico en español, con 55% de peso vectorial, resta en vez de sumar. Corregido el modelo (e5-small, multilingüe) y el peso (α=0.9, no 0.55), la híbrida vuelve a tener el mejor punto estimado — pero el único split de test etiquetado disponible (25 consultas) sigue sin potencia estadística suficiente para confirmarlo, ni para descartarlo. Detalle completo en `eval/data/v2/README.md` y `eval/data/v2/preregistro_barrido_pesos.md`.
+
+---
+
 ## 5. Nomenclatura: "RAG con generación mediada por humano"
 
 Este sistema se documenta como **"RAG con generación mediada por humano"** (retrieve-then-read con generación externa validada), explícitamente **no** "RAG automatizado end-to-end". El backend nunca se conecta a una API de LLM (externa ni local) — genera un prompt estructurado a partir de los precedentes recuperados, el abogado lo copia a una herramienta corporativa aprobada, y pega el resultado de vuelta para revisión y envío.
@@ -148,6 +167,7 @@ Esta decisión de diseño es deliberada, no una limitación técnica a resolver 
 5. **Solo se mide retrieval, no generación** — ver sección 5. La calidad final de la contestación que el abogado produce con ayuda de la herramienta corporativa de LLM está fuera del alcance de esta evaluación.
 6. **Sesgo residual en el pool de `#75` por el bug de duplicados de `#104`, ya resuelto (`#113`)**: `#106` solo había revisado el top-5 (0.8% de pares sin juicio, considerado despreciable); el top-10 completo del run corregido tenía en realidad 17/250 pares (6.8%) sin etiquetar — `#113` completó ese etiquetado con el mismo protocolo ciego de `#75` y recalculó el control léxico-solo (ver sección 4.3) — el empate con la híbrida se sostiene con el número ya corregido y completo, no con una cota conservadora.
 7. **El modelo de embeddings específico (e5-small) no está confirmado con la misma fuerza que "eliminar el prefiltro"** — ver sección 4.3, el control léxico-solo compite de cerca con la fusión completa en el split de test.
+8. **El límite de potencia estadística de la limitación 2 se reafirma en un segundo diseño experimental independiente** (`#115`, sección 4.5): incluso con el modelo y el peso vectorial que dan el mejor punto estimado para la híbrida (e5-small, α=0.9), la diferencia contra léxico-solo en el único test etiquetado disponible no alcanza significancia (p_holm=0.101, n=25) — ni confirma ni descarta la superioridad de la híbrida, con la muestra que hay.
 
 ## 7. Sin afirmación de producción
 

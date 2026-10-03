@@ -123,6 +123,16 @@ Línea base corrida con el pipeline real (`04_correr.js`/`00_ablation.js`, sin m
 
 **No se avanzó a poolear/etiquetar el split de test con este resultado mecánico en contra de la hipótesis de la Fase D** — ver la discusión con Alejandro en el cierre de sesión del issue.
 
+## Barrido de pesos y modelos (2026-10-03) — por qué perdía la híbrida, y hasta dónde llega al corregirlo
+
+Segunda opinión de Opus: antes de poolear/etiquetar (caro) o cerrar la investigación, correr un barrido barato de peso vectorial (α de 0.0 a 1.0) × modelo (MiniLM / `multilingual-e5-small`) sobre el split dev, con una regla de parada **pre-registrada antes de correr nada** (`eval/data/v2/preregistro_barrido_pesos.md`).
+
+**Resultado**: con MiniLM, más peso vectorial siempre empeora (de 0.490 a 0.270 de nDCG@10) — el vector de MiniLM resta en este corpus. Con `e5-small`, la curva es creciente hasta **α=0.9 (nDCG@10=0.5653, Δ=+0.0746 sobre léxico-solo)** — supera el umbral de la regla de parada (0.02), así que se congeló esa configuración y se confirmó sobre el **test de v1 ya etiquetado** (cero costo de etiquetado nuevo, reindexando temporalmente `rag_eval_minilm` con e5-small y restaurándolo a MiniLM al terminar, regla 9 de RAG-00). Resultado confirmatorio: nDCG@10 0.706 (e5-a0.9) vs. 0.656 (léxico-solo) — **mejor punto estimado, pero no significativo** (p_holm=0.101, n=25).
+
+**Conclusión**: el límite real no era el corpus ni la imposibilidad de un caso borde — era el modelo de embeddings (MiniLM, solo-inglés, sobre texto jurídico en español) y los pesos de producción (0.55, no el óptimo para e5-small en este corpus). Corregido eso, la híbrida vuelve a tener el mejor punto estimado, pero la muestra de test disponible (25 consultas) sigue sin ser suficiente para confirmarlo con rigor estadístico. Detalle completo, con la curva de 27 configuraciones, en `eval/data/v2/preregistro_barrido_pesos.md` y `eval/data/v2/metricas_v2_barrido.md`.
+
+No se poolea ni se etiqueta el split de test de v2 bajo ningún escenario de este barrido (regla fijada de antemano).
+
 ## Fuera de alcance de esta sesión (próximos pasos)
 
 Indexar en una base de evaluación (posiblemente una tabla/BD separada de `rag_eval_minilm`, o un flag de "versión de corpus" — a decidir), correr línea base (equivalente a E01/E02 de v1) para confirmar que el corpus v2 no es degenerado, poolear y etiquetar el split de test con el protocolo ciego de `#75` (dos sesiones de IA aisladas, igual que se hizo para completar `#113`), pre-registrar y correr la comparación confirmatoria (E03 sin filtro vs. léxico-solo — la variante que decidió la Fase A de `#114`), y documentar el resultado en una sección propia de `eval/RESULTADOS_TESIS.md`, marcada explícitamente como estudio separado de `#77`/`#114`.

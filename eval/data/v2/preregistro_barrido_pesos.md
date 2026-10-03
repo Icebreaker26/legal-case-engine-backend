@@ -24,6 +24,25 @@ Sea `mejor` = max(nDCG@10) entre las 24 configuraciones del barrido.
 - **Si `mejor` − 0.491 ≥ 0.02**: se congela **una sola configuración** (la de mejor nDCG@10 en dev) y se confirma contra el split de **test de v1** (25 consultas, **ya etiquetado con relevancia real** desde `#75`/`#113` — costo de etiquetado nuevo: cero). Esto se declara como un nuevo vistazo a ese test (adicional a los ya declarados en `preregistro_77.md`), con corrección de Holm sobre la comparación `configuración-ganadora vs. léxico-solo` sobre ese split. No se corrige nada más que esa única comparación pre-especificada aquí.
 - En ningún escenario de este barrido se poolea ni se etiqueta el split de test de **v2** — eso queda fuera de alcance de esta sesión bajo cualquier resultado.
 
+## Resultado (2026-10-03, corrido tal como se pre-registró arriba)
+
+**Curva completa** (27 configuraciones: 11 α × 2 modelos + RRF × 2 modelos + 3 referencias, nDCG@10 sobre dev de v2, 61 consultas) en `eval/data/v2/metricas_v2_barrido.md`/`.json`. Resumen:
+
+- Con **MiniLM**, la curva es monótonamente decreciente en α: más peso vectorial, peor nDCG@10 (de 0.490 en α=0.0 a 0.270 en α=1.0) — el vector de MiniLM resta, no suma, en este corpus. RRF con MiniLM también pierde (0.395).
+- Con **multilingual-e5-small**, la curva es creciente hasta α=0.9: **mejor = e5-small, α=0.9, nDCG@10=0.5653** [0.505, 0.626] — por encima de lexico-solo (0.4908) por **Δ=0.0746**, muy por encima del umbral de 0.02 fijado en la regla de parada. RRF con e5-small también le gana a léxico-solo (0.5546).
+- `mejor − lexico-solo = 0.0746 ≥ 0.02` → **se activa la rama de confirmación**: se congeló la configuración `e5-small, ponderado, α=0.9` (score = coseno·0.9 + ts_rank_capado·0.1, sin filtro de categoría, sin término de feedback) y se corrió sobre el split de **test de v1** (25 consultas, relevancia real de `#75`/`#113`, cero etiquetado nuevo).
+
+**Para la corrida confirmatoria**, se reindexó temporalmente `rag_eval_minilm` (la base de v1) con `multilingual-e5-small` (normal durante la investigación, regla 9 de RAG-00) y se restauró a MiniLM inmediatamente después, verificado (`eval_indexado` → `Xenova/all-MiniLM-L6-v2`).
+
+| Sistema | Recall@5 | Recall@10 | **nDCG@10** | MRR@10 |
+| --- | --- | --- | --- | --- |
+| léxico-solo (control, corregido de `#113`) | 0.480 [0.386, 0.575] | 0.725 [0.627, 0.811] | 0.656 [0.552, 0.753] | 0.884 [0.767, 0.980] |
+| **e5-small, ponderado, α=0.9, sin filtro** | 0.519 [0.434, 0.607] | 0.787 [0.695, 0.870] | **0.706** [0.620, 0.784] | 0.894 [0.783, 0.980] |
+
+**No significativo**: nDCG@10 p_crudo=p_holm=0.1010 (una sola comparación pre-especificada, Holm no tiene nada que corregir con m=1). El punto estimado mejora sobre el número ya conocido de `e5-sin-filtro` con los pesos de producción (0.724 en `#77`, pesos normalizados distintos — no son el mismo experimento, no comparables directamente) y sobre léxico-solo (0.656), pero **con 25 consultas la diferencia no cruza el umbral de significancia** — mismo patrón de potencia estadística insuficiente que ya limitaba a `#77`.
+
+**Conclusión de este ciclo**: el barrido confirma precisamente el diagnóstico de Opus — el límite no era el corpus (los negativos difíciles funcionan como se diseñaron) ni la imposibilidad de un caso borde, sino **el modelo de embeddings y los pesos de producción**: con MiniLM y α=0.55, la híbrida pierde cada vez más claro a medida que el corpus crece (v1 empate → v2 pérdida significativa); con e5-small y un peso vectorial más alto (α=0.9, no 0.55), la híbrida vuelve a tener el punto estimado más alto, pero la confirmación con datos reales (no mecánicos) sobre el único split de test etiquetado que existe **no alcanza significancia estadística** — ni para afirmar que la híbrida gana, ni para descartarlo con la muestra disponible.
+
 ## Nota de transparencia (disciplina ya establecida en este proyecto)
 
 El diagnóstico de contaminación por negativos difíciles de la sesión anterior (documentado en `eval/data/v2/README.md`) corrió sobre las 85 consultas completas de v2, no solo sobre las 61 de dev — es decir, tocó las 24 consultas del split de test de v2 de forma puramente diagnóstica (contar apariciones de negativos difíciles en el top-10), sin que ese número influyera en ninguna decisión de diseño de este barrido ni de la regla de parada de arriba. Se declara por la misma disciplina que ya se usa en `preregistro_77.md`.
