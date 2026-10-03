@@ -33,6 +33,24 @@ const [rutaRun, rutaQrels] = process.argv.slice(2);
 const run = await leerTrec(rutaRun);
 const qrels = await leerQrels(rutaQrels);
 
+// Un run con el mismo documento repetido en el top-K de una consulta infla el
+// recall y el nDCG contando el mismo acierto más de una vez (#104) — el
+// generador del run debe deduplicar por documento (como hace producción con
+// ROW_NUMBER PARTITION BY documento_id), no este script. Si aparece, se
+// rechaza el run entero en vez de calcular métricas sobre un número inflado.
+let duplicadosEncontrados = false;
+for (const [qid, ranking] of run) {
+  const vistos = new Set();
+  for (const docId of ranking.slice(0, K)) {
+    if (vistos.has(docId)) {
+      console.error(`[sanity] RECHAZADO: ${qid} tiene "${docId}" repetido en el top-${K} de ${rutaRun} — dedupea por documento en el generador del run antes de medir.`);
+      duplicadosEncontrados = true;
+    }
+    vistos.add(docId);
+  }
+}
+if (duplicadosEncontrados) process.exit(1);
+
 let sumaRecall = 0, sumaNdcg = 0, n = 0;
 
 for (const [qid, relevantes] of qrels) {

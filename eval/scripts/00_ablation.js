@@ -53,20 +53,32 @@ if (!ultimoIndexado) {
 }
 
 // ── Las 3 queries SQL aisladas (espejo de buildScoringCTE, sin fusión) ─────
+//
+// Las dos de una sola señal deduplican por documento con el mismo patrón
+// ROW_NUMBER() PARTITION BY documento_id que usa producción (buildScoringCTE
+// en vectorService.js) — sin esto, un documento con varios chunks fuertes
+// puede ocupar 2-3 puestos del top-K él solo, inflando recall@K/nDCG@K al
+// contar el mismo acierto más de una vez (#104).
 const VECTOR_ONLY = `
-  SELECT documento_id, titulo_referencia, 1 - (embedding_local <=> $1::vector) AS score
-  FROM base_conocimiento_enel
-  WHERE embedding_local IS NOT NULL AND es_exitosa = TRUE AND is_active = TRUE AND documento_id IS NOT NULL
-  ORDER BY embedding_local <=> $1::vector
-  LIMIT $2;
+  WITH scored AS (
+    SELECT documento_id, titulo_referencia,
+      1 - (embedding_local <=> $1::vector) AS score,
+      ROW_NUMBER() OVER (PARTITION BY documento_id ORDER BY embedding_local <=> $1::vector) AS rn
+    FROM base_conocimiento_enel
+    WHERE embedding_local IS NOT NULL AND es_exitosa = TRUE AND is_active = TRUE AND documento_id IS NOT NULL
+  )
+  SELECT documento_id, titulo_referencia, score FROM scored WHERE rn = 1 ORDER BY score DESC LIMIT $2;
 `;
 
 const LEXICAL_ONLY = `
-  SELECT documento_id, titulo_referencia, ts_rank(contenido_tsv, plainto_tsquery('spanish', $1)) AS score
-  FROM base_conocimiento_enel
-  WHERE embedding_local IS NOT NULL AND es_exitosa = TRUE AND is_active = TRUE AND documento_id IS NOT NULL
-  ORDER BY score DESC
-  LIMIT $2;
+  WITH scored AS (
+    SELECT documento_id, titulo_referencia,
+      ts_rank(contenido_tsv, plainto_tsquery('spanish', $1)) AS score,
+      ROW_NUMBER() OVER (PARTITION BY documento_id ORDER BY ts_rank(contenido_tsv, plainto_tsquery('spanish', $1)) DESC) AS rn
+    FROM base_conocimiento_enel
+    WHERE embedding_local IS NOT NULL AND es_exitosa = TRUE AND is_active = TRUE AND documento_id IS NOT NULL
+  )
+  SELECT documento_id, titulo_referencia, score FROM scored WHERE rn = 1 ORDER BY score DESC LIMIT $2;
 `;
 
 const PONDERADO_SIN_RELEVANCIA = `
