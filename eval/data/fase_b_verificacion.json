@@ -1,0 +1,140 @@
+[
+  {
+    "qid": "Q-ISA-PARA-005",
+    "solap_a": 0.7522123421974672,
+    "solap_b": 0.1747798147152816,
+    "texto_b": "El mes pasado, unas personas de la empresa se presentaron y colocaron algo metálico de un lado a otro de mi terreno, sin que yo supiera con anticipación ni me consultaran. Quiero una razón de por qué colocaron eso sin mi aprobación, y si no la hay, que lo retiren de inmediato."
+  },
+  {
+    "qid": "Q-COR-PARA-010",
+    "solap_a": 0.7415299763176245,
+    "solap_b": 0.14444517660451428,
+    "texto_b": "El sábado, justo cuando más gente atendía en mi local, se fue todo de un momento a otro, sin que nadie me dijera que eso iba a pasar, y se me arruinaron varios encargos de comida. Quiero que me digan por qué no me avisaron con tiempo y que me paguen lo que perdí."
+  },
+  {
+    "qid": "Q-DIN-PARA-007",
+    "solap_a": 0.6602249689079984,
+    "solap_b": 0.344098436668867,
+    "texto_b": "Hace tres días hallé a uno de mis animales sin vida junto al alambrado del potrero, al parecer por una descarga de algo que se desprendió de lo alto y tocó el alambre. Pido que me paguen lo que vale ese animal, era de los que más leche daban."
+  },
+  {
+    "qid": "Q-DIN-PARA-006",
+    "solap_a": 0.6376018589001781,
+    "solap_b": 0.31372001535349714,
+    "texto_b": "El fin de semana pasado, por el viento tan fuerte, algo se soltó de lo alto y fue a parar encima de mi cocina, rompiendo parte del techo y una manguera del gas. Pido que revisen el daño y me respondan por eso."
+  },
+  {
+    "qid": "Q-FAC-PARA-009",
+    "solap_a": 0.6000196742738991,
+    "solap_b": 0.3184926123678662,
+    "texto_b": "Este mes me llegó un papel pidiéndome plata de varios meses atrás que, según me explicaron, ustedes nunca me habían pedido por una falla de ustedes mismos. Quiero que revisen eso, porque me parece que me están pidiendo de más de lo que debería ser."
+  },
+  {
+    "qid": "Q-NOKW-037",
+    "solap_a": 0.575826218169415,
+    "solap_b": 0.4495763370724907,
+    "texto_b": "Un día aparecieron unos trabajadores y dejaron algo tendido de un lado a otro de mi terreno, sin preguntarme nada ni decirme con anticipación que iban a hacer eso."
+  },
+  {
+    "qid": "Q-DIS-032",
+    "solap_a": 0.5657081028375518,
+    "solap_b": 0.4317205419483347,
+    "texto_b": "Necesito un papel que confirme que nadie tiene ningún permiso formal sobre mi terreno, porque eso que está metido ahí arriba lleva más de treinta años y quiero saber si todavía puedo reclamar algo o si ya se me pasó el tiempo."
+  },
+  {
+    "qid": "Q-SPR-LEX-082",
+    "solap_a": 0.5635525072492139,
+    "solap_b": 0.42661594839777883,
+    "texto_b": "Quiero que me digan exactamente qué tanto de mi terreno ocupa eso que pasa tan alto cruzando mi finca en Nemocón, y con qué papel quedó asegurado que podía quedarse ahí."
+  },
+  {
+    "qid": "Q-NOKW-035",
+    "solap_a": 0.5533949181429495,
+    "solap_b": 0.41591382704046503,
+    "texto_b": "Desde hace más de dos décadas, la empresa tiene puesta una línea bien arriba de mi predio, y en todo ese lapso no me han contado por qué está permitida ni me han entregado compensación alguna por eso."
+  },
+  {
+    "qid": "Q-SPR-PARA-001",
+    "solap_a": 0.5490933728977535,
+    "solap_b": 0.33378387118146957,
+    "texto_b": "Yo, Consuelo Yaneth Rincón Pardo, dueña del terreno \"La Primavera\" en la vereda Juaica de Tabio, les cuento lo siguiente: desde hace más de 15 años hay algo suyo atravesado por mi propiedad, y ni yo ni quienes tuvieron el terreno antes firmamos jamás ningún papel para eso, ni recibimos nunca nada a cambio por dejarlos tenerlo ahí. Quiero saber con qué derecho sigue eso metido en mi tierra, y si no hay ninguno, que lo saquen o que me paguen por todos los años que lleva ahí."
+  },
+  {
+    "qid": "Q-DIN-LEX-024",
+    "solap_a": 0.5214508499342794,
+    "solap_b": 0.17720389760011587,
+    "texto_b": "Me di cuenta de que una parte de un árbol quedó recostada encima de algo suyo que va de un lado a otro por el aire, sin llegar a tocar el suelo, y me preocupa que eso vaya a provocar un problema más adelante si no lo quitan pronto. Quisiera que manden a alguien a mirar antes de que pase algo peor."
+  },
+  {
+    "qid": "Q-ISA-LEX-085",
+    "solap_a": 0.48974511249294184,
+    "solap_b": 0.429190332735652,
+    "texto_b": "Ustedes dejaron algo suyo tendido por toda mi propiedad en la vereda Rozo, municipio de Tabio, sin que yo dijera que sí ni se firmara ningún papel que permitiera eso. Quiero que reconozcan que nunca les di permiso ni hubo ningún documento válido, y que por eso arreglen la situación o se lo lleven de mi terreno."
+  },
+  {
+    "qid": "Q-ISA-SEM-066",
+    "solap_a": 0.48838068057397416,
+    "solap_b": 0.2903909239975471,
+    "texto_b": "Un día fui a la finca en Tabio y me encontré con algo nuevo tendido de un extremo a otro del potrero, y nadie de mi familia dijo que sí a eso ni nos avisaron antes. Quiero saber quién dejó que hicieran eso porque a nosotros nadie nos consultó nada."
+  },
+  {
+    "qid": "Q-STR-LEX-022",
+    "solap_a": 0.4779763860621654,
+    "solap_b": 0.20190357070375267,
+    "texto_b": "Quisiera saber, en términos generales, qué pasos hay que seguir si en algún momento quiero pedir que muevan de lugar algún aparato suyo que esté puesto cerca de donde vivo, sea lo que sea ese aparato, para ya saber de antemano a qué atenerme."
+  },
+  {
+    "qid": "Q-STR-LEX-084",
+    "solap_a": 0.47631383871124094,
+    "solap_b": 0.04595756259721675,
+    "texto_b": "Quiero entender cómo funciona el tema de pagar cuando uno pide que cambien de sitio algo de la empresa que está puesto en su propiedad, y en especial si ese gasto me toca pagarlo completo a mí, en el caso de mi terreno en Chía."
+  },
+  {
+    "qid": "Q-DIN-PARA-048",
+    "solap_a": 0.469849600887434,
+    "solap_b": 0.24441243445540564,
+    "texto_b": "El domingo pasado, por un viento muy fuerte, algo suyo que estaba en lo alto se rompió y terminó encima del techo de mi cocina, en la vereda Rincón de Girardot, dañando parte de la cubierta, las canales y un enchufe de afuera. Pido que manden a alguien a mirar y me respondan por esos daños."
+  },
+  {
+    "qid": "Q-NOKW-101",
+    "solap_a": 0.46601752255738776,
+    "solap_b": 0.3107018650054352,
+    "texto_b": "Hace poco se me rompió algo en la casa y la culpa fue de ustedes, quiero que me digan qué piensan hacer con eso."
+  },
+  {
+    "qid": "Q-CAL-LEX-095",
+    "solap_a": 0.45471541843542895,
+    "solap_b": 0.2681286692939639,
+    "texto_b": "Quiero que revisen por qué en la zona rural de Nemocón esto se va y vuelve tan seguido desde hace más de tres meses, porque eso no me parece normal para lo que uno paga."
+  },
+  {
+    "qid": "Q-ISA-LEX-086",
+    "solap_a": 0.4533085714888553,
+    "solap_b": 0.06782356436164776,
+    "texto_b": "Quiero saber con cuánto tiempo de anticipación tienen que decirme antes de entrar a arreglar algo en terrenos de la gente, acá en Villeta."
+  },
+  {
+    "qid": "Q-COR-LEX-094",
+    "solap_a": 0.4467579260464361,
+    "solap_b": 0.09711583121142997,
+    "texto_b": "Quiero que me digan cuánto es exactamente lo que debo, con todo lo que se haya sumado por el atraso, por lo que me dejaron sin servicio en mi casa de Girardot, y cómo puedo hacer para que me vuelvan a conectar."
+  },
+  {
+    "qid": "Q-SPR-PARA-041",
+    "solap_a": 0.4420806307701431,
+    "solap_b": 0.21995699773990404,
+    "texto_b": "Yo, Jorge Humberto Salazar Niño, dueño del terreno \"El Guayabal\" en la vereda Patio Bonito de Nemocón, Cundinamarca, les cuento: desde más o menos 1998 hay algo de ustedes atravesado por mi propiedad de un lado a otro. Ni yo ni mis padres, que ya fallecieron y eran los dueños antes, firmamos jamás ningún papel por eso ni recibimos plata por dejarlos usar la tierra todos estos años. Quiero saber qué los respalda para seguir ahí, y si no hay nada, que me compensen por tanto tiempo o que lo quiten."
+  },
+  {
+    "qid": "Q-COR-LEX-027",
+    "solap_a": 0.4402094144027982,
+    "solap_b": 0.22079268530384805,
+    "texto_b": "Quiero entender en qué casos me pueden dejar sin servicio en mi casa, aparte de cuando uno debe plata, para saber todas las posibilidades que hay."
+  },
+  {
+    "qid": "Q-SPR-SEM-062",
+    "solap_a": 0.4286929327013764,
+    "solap_b": 0.3667477465234735,
+    "texto_b": "Mi papá contaba que eso tan grueso que pasa por encima del potrero ya estaba ahí desde que él era chiquito, y ahora que él murió y la finca quedó a mi nombre en Nemocón, nadie me ha explicado por qué pasa eso por mi tierra ni si en algún momento le dieron algo a la familia por eso. Quiero saber si puedo pedir que me paguen por todo el tiempo que ha estado eso ahí sin que nadie pidiera permiso."
+  }
+]
