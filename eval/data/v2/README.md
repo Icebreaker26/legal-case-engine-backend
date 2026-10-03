@@ -152,6 +152,8 @@ Tras mergear el barrido y el análisis de potencia de arriba a `rag/integracion`
 
 Detalle completo del erratum (incluyendo los dos intervalos de confianza — bootstrap y t de Student, que no coinciden en si excluyen cero — y las correcciones de redacción O1/O2/O3/O4b/O6 de la revisión adversarial) en `eval/data/v2/preregistro_barrido_pesos.md`.
 
+Por la misma corrección del desempate determinista, también se refrescó `metricas_v2_dev.md`/`.json` (la línea base de la sección "Indexado y línea base" arriba) — cambio cosmético (~0.001 en nDCG@10, lexico-solo 0.491→0.490), no cambia ninguna conclusión de esa sección ni su significancia.
+
 **Anexo exploratorio, no una segunda confirmación** (corrección O2, aceptada): el chequeo gratuito sobre v2-test mencionado en la sección anterior usa relevancia **mecánica** (categoría+subtema, no lectura del texto) sobre el mismo corpus de 90 documentos del split dev — no es un diseño independiente. La conclusión de esta investigación se apoya únicamente en el test de v1 (n=25, etiquetado ciego real).
 
 **Hipótesis, no hallazgo firme** (corrección O6, aceptada): "el modelo de embeddings importa más que los pesos de fusión" es consistente con los datos (MiniLM resta, e5-small permite que la fusión tenga sentido, en ambos corpus), pero es una comparación de un solo modelo por clase con factores confundidos (datos de entrenamiento, prefijos `query:`/`passage:` de e5, escala de los scores) — no se aisló ninguno de esos factores.
