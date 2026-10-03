@@ -46,8 +46,44 @@ node --env-file=eval/.env.eval --import ./eval/guard.js eval/scripts/04_correr.j
 node eval/scripts/_sanity_metrics.mjs eval/data/runs/E01-baseline-ponderado.trec eval/data/qrels.trec
 ```
 
+## Pooling y etiquetado (`#75`, 2026-10-02)
+
+`eval/scripts/03b_pool_etiquetado.js` arma el pool uniendo el top-10 de **6 sistemas candidatos** para las 25 consultas del split de **test** congelado (nunca dev — ya se exploró):
+
+1. `ponderado-raw + multilingual-e5-small` — candidato principal (H1 de `#77`)
+2. `RRF + multilingual-e5-small` — alternativa de fusión (H2 de `#77`)
+3. `ponderado + MiniLM` — línea base de producción (referencia de H1)
+4. léxico-solo — control (ya le ganó en nDCG a la fusión completa en `#95`)
+5. `vector-solo + e5-small` — diversidad (`#98`)
+6. `ponderado-normalizado + e5-small` — diversidad (`#98`)
+
+Lista de sistemas congelada antes de anotar. Pool: 408 pares (consulta, documento) sobre 25 consultas.
+
+### El etiquetado lo hizo IA, no una persona — por instrucción explícita de Alejandro
+
+El issue original (y el propio script) estaban diseñados para que el etiquetado (escala 0-3) lo hiciera una persona con criterio jurídico — es la razón de ser de `#75`: dejar de depender de una verdad de referencia mecánica/generada por IA. Se le planteó este punto a Alejandro explícitamente en la sesión, y pidió que se hiciera con IA de todas formas ("realiza tu mismo el etiquetado, no lo voy a hacer personalmente").
+
+Mitigación aplicada, dado que se hizo con IA: dos sesiones de IA completamente aisladas (sin memoria de esta conversación, por lo tanto sin saber qué sistema "debía" ganar) graduaron los pares sin ver qué sistema recuperó cada documento (columnas `sistemas`/`n_sistemas_que_lo_recuperaron` ocultas durante el etiquetado) — ver `eval/data/grados_anotador1.csv` (los 408 pares) y `grados_anotador2.csv` (81 pares, doble anotación), cada fila con una razón breve para poder auditar. Ambos archivos quedan versionados como rastro de auditoría.
+
+**Cohen's kappa = 0.895** ("acuerdo casi perfecto") entre los dos anotadores — pero esta cifra vale mucho menos que un kappa alto entre dos personas: dos instancias del mismo modelo, con el mismo rubro, tienden a converger más que dos juristas independientes. Alto acuerdo acá mide consistencia interna del modelo bajo este rubro, no validez externa del etiquetado.
+
+**Esto sigue siendo, en el fondo, relevancia derivada de un proceso automatizado — la circularidad que `#75` buscaba resolver no está resuelta, solo cambió de forma** (de una regla mecánica basada en `categoria`/`subtema` a un juicio de IA sobre el texto). Es mejor que la regla mecánica original — lee el contenido real en vez de solo comparar etiquetas, y detectó varios distractores correctamente (ver `razon_breve` en los CSV) — pero no equivale a criterio jurídico humano real, y así debe reportarse en la tesis: como una limitación conocida, no como un hallazgo validado de forma independiente.
+
+`qrels.trec` ya tiene las filas del split de test reemplazadas por estos grados reales (131 pares con relevancia ≥1 de 408 pooleados) vía `eval/scripts/03d_fusionar_qrels.js` — las de dev siguen con la relevancia mecánica original (alcanza para tuning/screening).
+
+### Resultado con los qrels reales — cambia el panorama
+
+Recall@5 / nDCG@5 sobre las 25 consultas de test, ahora con relevancia etiquetada (no mecánica):
+
+| Sistema | Recall@5 | nDCG@5 |
+| --- | --- | --- |
+| MiniLM ponderado | 0.418 | 0.528 |
+| e5-small ponderado | 0.456 | 0.561 |
+| e5-small RRF | 0.453 | 0.544 |
+| **léxico-solo** | **0.527** | **0.655** |
+
+`e5-small` sigue ganándole a MiniLM (consistente con `#98`), pero léxico-solo le gana a los dos por un margen considerable — más marcado que en `#95` (donde ya había superado en nDCG a la fusión completa, pero por menos). Con una relevancia que lee el contenido real en vez de comparar etiquetas, la búsqueda por palabras clave se ve todavía más fuerte de lo que parecía. Señal importante para `#77`: el objetivo no debería ser "reemplazar léxico por semántico", sino entender por qué léxico solo sigue ganando y si la fusión está diluyendo una señal léxica que, sola, ya es mejor que cualquier combinación medida hasta ahora.
+
 ## Estado y siguiente paso (actualizado 2026-10-02)
 
-Fase 4 (`#64`-`#67`) completa y mergeada — ninguno de los 4 fixes movió recall@5/nDCG@5 de forma apreciable sobre el corpus v1 original de 40 queries (son casos borde que ese corpus casi no contiene). `#95` y `#98` (diagnóstico + RAG-Q1, `multilingual-e5-small` supera la línea base) también completos y mergeados, exploratorios sobre las mismas 40 queries.
-
-Con `#96` cerrado, sigue `#75` (etiquetado por pooling con criterio jurídico real, sobre **todas** las configuraciones candidatas incluyendo las de `#98`) → `#76` (métricas formales con `ranx`, significancia) → `#77` (confirmación: ¿`ponderado-raw + e5-small` le gana a la línea base de producción, con significancia, sobre el split de **test** congelado aquí?). Los números de `runs/` son el baseline histórico con el que comparar — ninguno de ellos usa todavía el split ni las 80 queries nuevas.
+Fase 4 (`#64`-`#67`), `#95`, `#98`, `#96` y `#75` completos y mergeados (o en PR). Sigue `#76` (métricas formales con `ranx`, significancia — con qrels ahora reales para el split de test) → `#77` (confirmación, con la pregunta re-abierta de si léxico-solo debería ser parte seria de la comparación, no solo un control).
