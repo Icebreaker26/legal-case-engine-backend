@@ -340,6 +340,71 @@ describe('Tutelas — Integración', () => {
         .send({ util: true });
       expect(res.status).not.toBe(400);
     });
+
+    // #124 — cobertura de embedding_comprension (fallback a embedding_local)
+    describe('GET /memoria/cobertura-comprension', () => {
+      const CATEGORIA_COBERTURA = 'COBERTURA_COMPRENSION_TEST';
+      const docConComprension = 'cccccccc-0000-0000-0000-000000000001';
+      const docSinComprension = 'cccccccc-0000-0000-0000-000000000002';
+
+      beforeAll(async () => {
+        await pool.query(
+          `INSERT INTO base_conocimiento_enel
+             (categoria, titulo_referencia, contenido_legal, embedding_local, es_exitosa, is_active, documento_id, comprension_doc, embedding_comprension)
+           VALUES ($1, 'Doc con comprensión', 'texto', $2, TRUE, TRUE, $3, $4, $2)`,
+          [CATEGORIA_COBERTURA, JSON.stringify(Array(384).fill(0.1)), docConComprension, JSON.stringify({ que_resuelve: 'x', tipo_caso: 'y' })]
+        );
+        await pool.query(
+          // created_at deliberadamente antiquísimo: garantiza el puesto en el
+          // LIMIT 10 global de "más antiguos", sin depender de qué otra data
+          // de seed ya exista en la base de pruebas.
+          `INSERT INTO base_conocimiento_enel
+             (categoria, titulo_referencia, contenido_legal, embedding_local, es_exitosa, is_active, documento_id, created_at)
+           VALUES ($1, 'Doc sin comprensión', 'texto', $2, TRUE, TRUE, $3, '2000-01-01'::timestamptz)`,
+          [CATEGORIA_COBERTURA, JSON.stringify(Array(384).fill(0.1)), docSinComprension]
+        );
+      });
+
+      afterAll(async () => {
+        await pool.query('DELETE FROM base_conocimiento_enel WHERE categoria = $1', [CATEGORIA_COBERTURA]);
+      });
+
+      test('200 con el resumen agregado', async () => {
+        const res = await agent.get('/api/tutelas/memoria/cobertura-comprension');
+        expect(res.status).toBe(200);
+        expect(res.body).toHaveProperty('total');
+        expect(res.body).toHaveProperty('con_comprension');
+        expect(res.body).toHaveProperty('sin_comprension');
+        expect(Array.isArray(res.body.por_categoria)).toBe(true);
+        expect(Array.isArray(res.body.mas_antiguos_sin_comprension)).toBe(true);
+      });
+
+      test('con_comprension + sin_comprension == total', async () => {
+        const res = await agent.get('/api/tutelas/memoria/cobertura-comprension');
+        expect(Number(res.body.con_comprension) + Number(res.body.sin_comprension)).toBe(Number(res.body.total));
+      });
+
+      test('la categoría de prueba refleja exactamente 1 con comprensión y 1 sin ella', async () => {
+        const res = await agent.get('/api/tutelas/memoria/cobertura-comprension');
+        const fila = res.body.por_categoria.find(c => c.categoria === CATEGORIA_COBERTURA);
+        expect(fila).toBeDefined();
+        expect(Number(fila.total)).toBe(2);
+        expect(Number(fila.con_comprension)).toBe(1);
+        expect(Number(fila.sin_comprension)).toBe(1);
+      });
+
+      test('el documento sin comprensión aparece en mas_antiguos_sin_comprension', async () => {
+        const res = await agent.get('/api/tutelas/memoria/cobertura-comprension');
+        const ids = res.body.mas_antiguos_sin_comprension.map(d => d.documento_id);
+        expect(ids).toContain(docSinComprension);
+        expect(ids).not.toContain(docConComprension);
+      });
+
+      test('sin token → 401', async () => {
+        const res = await request(app).get('/api/tutelas/memoria/cobertura-comprension');
+        expect(res.status).toBe(401);
+      });
+    });
   });
 
   // ── Admin: Noise patterns ────────────────────────────────────────────────

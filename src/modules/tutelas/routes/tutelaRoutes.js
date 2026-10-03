@@ -20,6 +20,7 @@ import {
     agregarAccionHistorial,
     obtenerContenidoCompletoSugerencia,
     listarBaseConocimiento,
+    obtenerCoberturaComprension,
     eliminarBaseConocimiento,
     eliminarTutela,
     listarPapelera,
@@ -110,6 +111,7 @@ router.get('/festivos',        checkPermission('tutelas', 'READ'),  listarFestiv
 router.get('/papelera',        checkPermission('tutelas', 'READ'),  listarPapelera);
 router.post('/restaurar',      checkPermission('tutelas', 'WRITE'), validate(restaurarSchema),  restaurarRegistro);
 router.get('/memoria',         checkPermission('tutelas', 'READ'),  listarBaseConocimiento);
+router.get('/memoria/cobertura-comprension', checkPermission('tutelas', 'READ'), obtenerCoberturaComprension);
 router.post('/entrenar-local', checkPermission('tutelas', 'WRITE'), upload.single('documento'), entrenarContextoLocal);
 router.get('/config',          checkPermission('tutelas', 'READ'),  obtenerConfiguracion);
 router.post('/config',         checkPermission('tutelas', 'WRITE'), validate(actualizarConfigSchema), actualizarConfiguracion);
