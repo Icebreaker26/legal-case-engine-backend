@@ -1,0 +1,762 @@
+[
+  {
+    "qid": "Q-SPR-PARA-001",
+    "aislamiento_intra_categoria": 0.10675720895835261,
+    "aislamiento_global": 0.1239199286463757,
+    "distintividad_lexica_doc": 1.970959820345047,
+    "solapamiento_lexico_query": 0.5490933728977535,
+    "diff_E03": -0.09416558951728055
+  },
+  {
+    "qid": "Q-SPR-PARA-002",
+    "aislamiento_intra_categoria": 0.11938796899452236,
+    "aislamiento_global": 0.1335291177374453,
+    "distintividad_lexica_doc": 2.0482244848105142,
+    "solapamiento_lexico_query": 0.4099591709766718,
+    "diff_E03": -0.003620323934937608
+  },
+  {
+    "qid": "Q-STR-PARA-003",
+    "aislamiento_intra_categoria": 0.13043885823861762,
+    "aislamiento_global": 0.13721218121023426,
+    "distintividad_lexica_doc": 1.833801776794369,
+    "solapamiento_lexico_query": 0.4124792430032136,
+    "diff_E03": 0.06183391430674268
+  },
+  {
+    "qid": "Q-STR-PARA-004",
+    "aislamiento_intra_categoria": 0.13432155920699956,
+    "aislamiento_global": 0.14908866701837178,
+    "distintividad_lexica_doc": 2.020437036257079,
+    "solapamiento_lexico_query": 0.3995565953176911,
+    "diff_E03": 0.0301537036727898
+  },
+  {
+    "qid": "Q-ISA-PARA-005",
+    "aislamiento_intra_categoria": 0.10253630910592566,
+    "aislamiento_global": 0.11895876600607302,
+    "distintividad_lexica_doc": 1.8216990525784393,
+    "solapamiento_lexico_query": 0.7522123421974672,
+    "diff_E03": 0
+  },
+  {
+    "qid": "Q-DIN-PARA-006",
+    "aislamiento_intra_categoria": 0.12872451843948507,
+    "aislamiento_global": 0.1418086849147654,
+    "distintividad_lexica_doc": 2.0282246567200906,
+    "solapamiento_lexico_query": 0.6376018589001781,
+    "diff_E03": 0
+  },
+  {
+    "qid": "Q-DIN-PARA-007",
+    "aislamiento_intra_categoria": 0.12420992324540622,
+    "aislamiento_global": 0.1420643193541542,
+    "distintividad_lexica_doc": 2.099469575530822,
+    "solapamiento_lexico_query": 0.6602249689079984,
+    "diff_E03": 0.06312301365295114
+  },
+  {
+    "qid": "Q-ACP-PARA-008",
+    "aislamiento_intra_categoria": 0.12953160821900267,
+    "aislamiento_global": 0.14134547590470134,
+    "distintividad_lexica_doc": 1.8328287482956145,
+    "solapamiento_lexico_query": 0.4129801893008017,
+    "diff_E03": 0.016534966151336095
+  },
+  {
+    "qid": "Q-FAC-PARA-009",
+    "aislamiento_intra_categoria": 0.1268413219661556,
+    "aislamiento_global": 0.14062468566540806,
+    "distintividad_lexica_doc": 1.8963581141685721,
+    "solapamiento_lexico_query": 0.6000196742738991,
+    "diff_E03": 0.0689474871107576
+  },
+  {
+    "qid": "Q-COR-PARA-010",
+    "aislamiento_intra_categoria": 0.14996585694498982,
+    "aislamiento_global": 0.14469203854550344,
+    "distintividad_lexica_doc": 1.9200630331454862,
+    "solapamiento_lexico_query": 0.7415299763176245,
+    "diff_E03": 0.004261968476753641
+  },
+  {
+    "qid": "Q-SPR-SEM-011",
+    "aislamiento_intra_categoria": 0.10920260953739853,
+    "aislamiento_global": 0.12500264667487818,
+    "distintividad_lexica_doc": 1.8535140028054218,
+    "solapamiento_lexico_query": 0.15969852277942498,
+    "diff_E03": 0
+  },
+  {
+    "qid": "Q-STR-SEM-012",
+    "aislamiento_intra_categoria": 0.11700436219958618,
+    "aislamiento_global": 0.1227864843367369,
+    "distintividad_lexica_doc": 1.7660509273229192,
+    "solapamiento_lexico_query": 0.18403554322978521,
+    "diff_E03": 0.09010158652279443
+  },
+  {
+    "qid": "Q-ISA-SEM-013",
+    "aislamiento_intra_categoria": 0.12739040027277737,
+    "aislamiento_global": 0.13492306314571756,
+    "distintividad_lexica_doc": 1.7865872847730446,
+    "solapamiento_lexico_query": 0.16697437752309618,
+    "diff_E03": 0
+  },
+  {
+    "qid": "Q-DIN-SEM-014",
+    "aislamiento_intra_categoria": 0.12232131448529016,
+    "aislamiento_global": 0.1322541575873206,
+    "distintividad_lexica_doc": 1.8670926110297508,
+    "solapamiento_lexico_query": 0.16421785545927203,
+    "diff_E03": 0.027991009182275317
+  },
+  {
+    "qid": "Q-ACP-SEM-015",
+    "aislamiento_intra_categoria": 0.11801575411076082,
+    "aislamiento_global": 0.13213211892957155,
+    "distintividad_lexica_doc": 1.6623410665455614,
+    "solapamiento_lexico_query": 0.10574397195651024,
+    "diff_E03": 0.22166331501044967
+  },
+  {
+    "qid": "Q-FAC-SEM-016",
+    "aislamiento_intra_categoria": 0.12666069815051795,
+    "aislamiento_global": 0.1526815373015933,
+    "distintividad_lexica_doc": 1.9517093076429397,
+    "solapamiento_lexico_query": 0.24624762948210036,
+    "diff_E03": 0.08803030926568811
+  },
+  {
+    "qid": "Q-COR-SEM-017",
+    "aislamiento_intra_categoria": 0.15142886883474876,
+    "aislamiento_global": 0.15015361811901,
+    "distintividad_lexica_doc": 1.8181979699221924,
+    "solapamiento_lexico_query": 0.17439885871347197,
+    "diff_E03": -0.07180140873718394
+  },
+  {
+    "qid": "Q-CAL-SEM-018",
+    "aislamiento_intra_categoria": 0.13203260059213337,
+    "aislamiento_global": 0.13970721348580759,
+    "distintividad_lexica_doc": 1.9392408761356634,
+    "solapamiento_lexico_query": 0.3190937068876368,
+    "diff_E03": 0
+  },
+  {
+    "qid": "Q-CAL-SEM-019",
+    "aislamiento_intra_categoria": 0.11966946179483623,
+    "aislamiento_global": 0.12167794656007896,
+    "distintividad_lexica_doc": 1.7577101142958262,
+    "solapamiento_lexico_query": 0.17115146769933906,
+    "diff_E03": 0.022141487475894173
+  },
+  {
+    "qid": "Q-INF-SEM-020",
+    "aislamiento_intra_categoria": 0.09592363458961156,
+    "aislamiento_global": 0.12414690031850618,
+    "distintividad_lexica_doc": 1.7393028857840875,
+    "solapamiento_lexico_query": 0.22737030205590003,
+    "diff_E03": -0.012370020329377895
+  },
+  {
+    "qid": "Q-SPR-LEX-021",
+    "aislamiento_intra_categoria": 0.11137502906691686,
+    "aislamiento_global": 0.12730344468148266,
+    "distintividad_lexica_doc": 1.9771404055769317,
+    "solapamiento_lexico_query": 0.3570467293650101,
+    "diff_E03": -0.005407038076803816
+  },
+  {
+    "qid": "Q-STR-LEX-022",
+    "aislamiento_intra_categoria": 0.12930503941816412,
+    "aislamiento_global": 0.1390776361587898,
+    "distintividad_lexica_doc": 1.894905710685163,
+    "solapamiento_lexico_query": 0.4779763860621654,
+    "diff_E03": 0.1312342099296967
+  },
+  {
+    "qid": "Q-ISA-LEX-023",
+    "aislamiento_intra_categoria": 0.11247794557266635,
+    "aislamiento_global": 0.12534448486193084,
+    "distintividad_lexica_doc": 1.8076543454562812,
+    "solapamiento_lexico_query": 0.4110446855302023,
+    "diff_E03": 0
+  },
+  {
+    "qid": "Q-DIN-LEX-024",
+    "aislamiento_intra_categoria": 0.12563803957101455,
+    "aislamiento_global": 0.14000003322503196,
+    "distintividad_lexica_doc": 2.024496215106315,
+    "solapamiento_lexico_query": 0.5214508499342794,
+    "diff_E03": 0
+  },
+  {
+    "qid": "Q-ACP-LEX-025",
+    "aislamiento_intra_categoria": 0.12377368116488174,
+    "aislamiento_global": 0.13673879741713646,
+    "distintividad_lexica_doc": 1.7475849074205878,
+    "solapamiento_lexico_query": 0.2703659838782944,
+    "diff_E03": 0
+  },
+  {
+    "qid": "Q-FAC-LEX-026",
+    "aislamiento_intra_categoria": 0.12666069815051795,
+    "aislamiento_global": 0.1526815373015933,
+    "distintividad_lexica_doc": 1.9517093076429397,
+    "solapamiento_lexico_query": 0.20411097313738724,
+    "diff_E03": 0
+  },
+  {
+    "qid": "Q-COR-LEX-027",
+    "aislamiento_intra_categoria": 0.1506973628898693,
+    "aislamiento_global": 0.14742282833225673,
+    "distintividad_lexica_doc": 1.8691305015338393,
+    "solapamiento_lexico_query": 0.4402094144027982,
+    "diff_E03": 0.0511123637446792
+  },
+  {
+    "qid": "Q-CAL-LEX-028",
+    "aislamiento_intra_categoria": 0.12791155432636767,
+    "aislamiento_global": 0.13369745784389805,
+    "distintividad_lexica_doc": 1.8787306221890512,
+    "solapamiento_lexico_query": 0.28154183334407545,
+    "diff_E03": 0
+  },
+  {
+    "qid": "Q-DIS-029",
+    "aislamiento_intra_categoria": 0.1268413219661556,
+    "aislamiento_global": 0.14062468566540806,
+    "distintividad_lexica_doc": 1.8963581141685721,
+    "solapamiento_lexico_query": 0.34433471052860587,
+    "diff_E03": 0
+  },
+  {
+    "qid": "Q-DIS-030",
+    "aislamiento_intra_categoria": 0.13203260059213337,
+    "aislamiento_global": 0.13970721348580759,
+    "distintividad_lexica_doc": 1.9392408761356634,
+    "solapamiento_lexico_query": 0.1466230547657786,
+    "diff_E03": 0.16004318879660112
+  },
+  {
+    "qid": "Q-DIS-031",
+    "aislamiento_intra_categoria": 0.13043885823861762,
+    "aislamiento_global": 0.13721218121023426,
+    "distintividad_lexica_doc": 1.833801776794369,
+    "solapamiento_lexico_query": 0.22815225787688317,
+    "diff_E03": 0.07632175789289652
+  },
+  {
+    "qid": "Q-DIS-032",
+    "aislamiento_intra_categoria": 0.10675720895835261,
+    "aislamiento_global": 0.1239199286463757,
+    "distintividad_lexica_doc": 1.970959820345047,
+    "solapamiento_lexico_query": 0.5657081028375518,
+    "diff_E03": -0.1357975251967103
+  },
+  {
+    "qid": "Q-DIS-033",
+    "aislamiento_intra_categoria": 0.12872451843948507,
+    "aislamiento_global": 0.1418086849147654,
+    "distintividad_lexica_doc": 2.0282246567200906,
+    "solapamiento_lexico_query": 0.31941724227084256,
+    "diff_E03": 0.06573584468332616
+  },
+  {
+    "qid": "Q-DIS-034",
+    "aislamiento_intra_categoria": 0.12739040027277737,
+    "aislamiento_global": 0.13492306314571756,
+    "distintividad_lexica_doc": 1.7865872847730446,
+    "solapamiento_lexico_query": 0.1206613956753791,
+    "diff_E03": 0
+  },
+  {
+    "qid": "Q-NOKW-035",
+    "aislamiento_intra_categoria": 0.10675720895835261,
+    "aislamiento_global": 0.1239199286463757,
+    "distintividad_lexica_doc": 1.970959820345047,
+    "solapamiento_lexico_query": 0.5533949181429495,
+    "diff_E03": -0.008062363420435759
+  },
+  {
+    "qid": "Q-NOKW-036",
+    "aislamiento_intra_categoria": 0.13432155920699956,
+    "aislamiento_global": 0.14908866701837178,
+    "distintividad_lexica_doc": 2.020437036257079,
+    "solapamiento_lexico_query": 0.33330701899599946,
+    "diff_E03": 0.04270787375360785
+  },
+  {
+    "qid": "Q-NOKW-037",
+    "aislamiento_intra_categoria": 0.10253630910592566,
+    "aislamiento_global": 0.11895876600607302,
+    "distintividad_lexica_doc": 1.8216990525784393,
+    "solapamiento_lexico_query": 0.575826218169415,
+    "diff_E03": 0
+  },
+  {
+    "qid": "Q-NOKW-038",
+    "aislamiento_intra_categoria": 0.12872451843948507,
+    "aislamiento_global": 0.1418086849147654,
+    "distintividad_lexica_doc": 2.0282246567200906,
+    "solapamiento_lexico_query": 0.08163446993647054,
+    "diff_E03": -0.022235016899394888
+  },
+  {
+    "qid": "Q-NOKW-039",
+    "aislamiento_intra_categoria": 0.12953160821900267,
+    "aislamiento_global": 0.14134547590470134,
+    "distintividad_lexica_doc": 1.8328287482956145,
+    "solapamiento_lexico_query": 0.3461000228861433,
+    "diff_E03": 0.01091170280654874
+  },
+  {
+    "qid": "Q-NOKW-040",
+    "aislamiento_intra_categoria": 0.12666069815051795,
+    "aislamiento_global": 0.1526815373015933,
+    "distintividad_lexica_doc": 1.9517093076429397,
+    "solapamiento_lexico_query": 0.28200322090255386,
+    "diff_E03": -0.060358048803258346
+  },
+  {
+    "qid": "Q-SPR-PARA-041",
+    "aislamiento_intra_categoria": 0.10675720895835261,
+    "aislamiento_global": 0.1239199286463757,
+    "distintividad_lexica_doc": 1.970959820345047,
+    "solapamiento_lexico_query": 0.4420806307701431,
+    "diff_E03": -0.16252357544660678
+  },
+  {
+    "qid": "Q-STR-PARA-043",
+    "aislamiento_intra_categoria": 0.13043885823861762,
+    "aislamiento_global": 0.13721218121023426,
+    "distintividad_lexica_doc": 1.833801776794369,
+    "solapamiento_lexico_query": 0.29567553377203265,
+    "diff_E03": 0
+  },
+  {
+    "qid": "Q-STR-PARA-044",
+    "aislamiento_intra_categoria": 0.13432155920699956,
+    "aislamiento_global": 0.14908866701837178,
+    "distintividad_lexica_doc": 2.020437036257079,
+    "solapamiento_lexico_query": 0.2586916058818704,
+    "diff_E03": 0
+  },
+  {
+    "qid": "Q-STR-PARA-045",
+    "aislamiento_intra_categoria": 0.11700436219958618,
+    "aislamiento_global": 0.1227864843367369,
+    "distintividad_lexica_doc": 1.7660509273229192,
+    "solapamiento_lexico_query": 0.1658880867915549,
+    "diff_E03": 0
+  },
+  {
+    "qid": "Q-ISA-PARA-047",
+    "aislamiento_intra_categoria": 0.12739040027277737,
+    "aislamiento_global": 0.13492306314571756,
+    "distintividad_lexica_doc": 1.7865872847730446,
+    "solapamiento_lexico_query": 0.2866474445653477,
+    "diff_E03": 0
+  },
+  {
+    "qid": "Q-DIN-PARA-048",
+    "aislamiento_intra_categoria": 0.12872451843948507,
+    "aislamiento_global": 0.1418086849147654,
+    "distintividad_lexica_doc": 2.0282246567200906,
+    "solapamiento_lexico_query": 0.469849600887434,
+    "diff_E03": 0
+  },
+  {
+    "qid": "Q-DIN-PARA-049",
+    "aislamiento_intra_categoria": 0.12420992324540622,
+    "aislamiento_global": 0.1420643193541542,
+    "distintividad_lexica_doc": 2.099469575530822,
+    "solapamiento_lexico_query": 0.30971962073813336,
+    "diff_E03": 0.07742287878151688
+  },
+  {
+    "qid": "Q-ACP-PARA-051",
+    "aislamiento_intra_categoria": 0.11801575411076082,
+    "aislamiento_global": 0.13213211892957155,
+    "distintividad_lexica_doc": 1.6623410665455614,
+    "solapamiento_lexico_query": 0.3238548984123008,
+    "diff_E03": 0.016534966151335984
+  },
+  {
+    "qid": "Q-FAC-PARA-052",
+    "aislamiento_intra_categoria": 0.1268413219661556,
+    "aislamiento_global": 0.14062468566540806,
+    "distintividad_lexica_doc": 1.8963581141685721,
+    "solapamiento_lexico_query": 0.3864546259513482,
+    "diff_E03": 0
+  },
+  {
+    "qid": "Q-COR-PARA-054",
+    "aislamiento_intra_categoria": 0.14996585694498982,
+    "aislamiento_global": 0.14469203854550344,
+    "distintividad_lexica_doc": 1.9200630331454862,
+    "solapamiento_lexico_query": 0.3291679813555083,
+    "diff_E03": 0
+  },
+  {
+    "qid": "Q-CAL-PARA-056",
+    "aislamiento_intra_categoria": 0.13203260059213337,
+    "aislamiento_global": 0.13970721348580759,
+    "distintividad_lexica_doc": 1.9392408761356634,
+    "solapamiento_lexico_query": 0.32005959447307974,
+    "diff_E03": 0
+  },
+  {
+    "qid": "Q-CAL-PARA-058",
+    "aislamiento_intra_categoria": 0.13203260059213337,
+    "aislamiento_global": 0.13970721348580759,
+    "distintividad_lexica_doc": 1.9392408761356634,
+    "solapamiento_lexico_query": 0.37289288616403393,
+    "diff_E03": 0.023298983258487005
+  },
+  {
+    "qid": "Q-INF-PARA-059",
+    "aislamiento_intra_categoria": 0.09592363458961156,
+    "aislamiento_global": 0.12414690031850618,
+    "distintividad_lexica_doc": 1.7393028857840875,
+    "solapamiento_lexico_query": 0.3378161549197146,
+    "diff_E03": -0.016534966151335984
+  },
+  {
+    "qid": "Q-INF-PARA-060",
+    "aislamiento_intra_categoria": 0.11392061282968488,
+    "aislamiento_global": 0.13354233514058256,
+    "distintividad_lexica_doc": 1.8391150653604798,
+    "solapamiento_lexico_query": 0.20514536758191548,
+    "diff_E03": 0
+  },
+  {
+    "qid": "Q-SPR-SEM-062",
+    "aislamiento_intra_categoria": 0.10675720895835261,
+    "aislamiento_global": 0.1239199286463757,
+    "distintividad_lexica_doc": 1.970959820345047,
+    "solapamiento_lexico_query": 0.4286929327013764,
+    "diff_E03": 0
+  },
+  {
+    "qid": "Q-STR-SEM-063",
+    "aislamiento_intra_categoria": 0.13432155920699956,
+    "aislamiento_global": 0.14908866701837178,
+    "distintividad_lexica_doc": 2.020437036257079,
+    "solapamiento_lexico_query": 0.15944377326124226,
+    "diff_E03": -0.0078038607531670245
+  },
+  {
+    "qid": "Q-STR-SEM-064",
+    "aislamiento_intra_categoria": 0.13043885823861762,
+    "aislamiento_global": 0.13721218121023426,
+    "distintividad_lexica_doc": 1.833801776794369,
+    "solapamiento_lexico_query": 0.20275293513517995,
+    "diff_E03": 0.006956950453458122
+  },
+  {
+    "qid": "Q-ISA-SEM-065",
+    "aislamiento_intra_categoria": 0.12739040027277737,
+    "aislamiento_global": 0.13492306314571756,
+    "distintividad_lexica_doc": 1.7865872847730446,
+    "solapamiento_lexico_query": 0.1512596186603768,
+    "diff_E03": -0.06627515502460596
+  },
+  {
+    "qid": "Q-ISA-SEM-066",
+    "aislamiento_intra_categoria": 0.10253630910592566,
+    "aislamiento_global": 0.11895876600607302,
+    "distintividad_lexica_doc": 1.8216990525784393,
+    "solapamiento_lexico_query": 0.48838068057397416,
+    "diff_E03": 0
+  },
+  {
+    "qid": "Q-DIN-SEM-067",
+    "aislamiento_intra_categoria": 0.12232131448529016,
+    "aislamiento_global": 0.1322541575873206,
+    "distintividad_lexica_doc": 1.8670926110297508,
+    "solapamiento_lexico_query": 0.19275761877742623,
+    "diff_E03": 0.07623986638854102
+  },
+  {
+    "qid": "Q-DIN-SEM-068",
+    "aislamiento_intra_categoria": 0.12872451843948507,
+    "aislamiento_global": 0.1418086849147654,
+    "distintividad_lexica_doc": 2.0282246567200906,
+    "solapamiento_lexico_query": 0.17703822769750927,
+    "diff_E03": 0.16895390105951025
+  },
+  {
+    "qid": "Q-ACP-SEM-070",
+    "aislamiento_intra_categoria": 0.12953160821900267,
+    "aislamiento_global": 0.14134547590470134,
+    "distintividad_lexica_doc": 1.8328287482956145,
+    "solapamiento_lexico_query": 0.18313367056858773,
+    "diff_E03": 0.14360281747436798
+  },
+  {
+    "qid": "Q-FAC-SEM-071",
+    "aislamiento_intra_categoria": 0.12666069815051795,
+    "aislamiento_global": 0.1526815373015933,
+    "distintividad_lexica_doc": 1.9517093076429397,
+    "solapamiento_lexico_query": 0.15267859571355336,
+    "diff_E03": 0
+  },
+  {
+    "qid": "Q-COR-SEM-073",
+    "aislamiento_intra_categoria": 0.15142886883474876,
+    "aislamiento_global": 0.15015361811901,
+    "distintividad_lexica_doc": 1.8181979699221924,
+    "solapamiento_lexico_query": 0.1093157010551807,
+    "diff_E03": 0.008523936953507283
+  },
+  {
+    "qid": "Q-CAL-SEM-075",
+    "aislamiento_intra_categoria": 0.11966946179483623,
+    "aislamiento_global": 0.12167794656007896,
+    "distintividad_lexica_doc": 1.7577101142958262,
+    "solapamiento_lexico_query": 0.11030688769565937,
+    "diff_E03": 0.06395965775649715
+  },
+  {
+    "qid": "Q-CAL-SEM-077",
+    "aislamiento_intra_categoria": 0.11966946179483623,
+    "aislamiento_global": 0.12167794656007896,
+    "distintividad_lexica_doc": 1.7577101142958262,
+    "solapamiento_lexico_query": 0.04875813154111882,
+    "diff_E03": 0.0459265535191114
+  },
+  {
+    "qid": "Q-INF-SEM-078",
+    "aislamiento_intra_categoria": 0.11392061282968488,
+    "aislamiento_global": 0.13354233514058256,
+    "distintividad_lexica_doc": 1.8391150653604798,
+    "solapamiento_lexico_query": 0.0701642358129874,
+    "diff_E03": 0.0028539216264263645
+  },
+  {
+    "qid": "Q-INF-SEM-079",
+    "aislamiento_intra_categoria": 0.09592363458961156,
+    "aislamiento_global": 0.12414690031850618,
+    "distintividad_lexica_doc": 1.7393028857840875,
+    "solapamiento_lexico_query": 0.1102272358173104,
+    "diff_E03": 0.01461913250110028
+  },
+  {
+    "qid": "Q-SPR-LEX-082",
+    "aislamiento_intra_categoria": 0.11938796899452236,
+    "aislamiento_global": 0.1335291177374453,
+    "distintividad_lexica_doc": 2.0482244848105142,
+    "solapamiento_lexico_query": 0.5635525072492139,
+    "diff_E03": 0
+  },
+  {
+    "qid": "Q-STR-LEX-083",
+    "aislamiento_intra_categoria": 0.13043885823861762,
+    "aislamiento_global": 0.13721218121023426,
+    "distintividad_lexica_doc": 1.833801776794369,
+    "solapamiento_lexico_query": 0.3996040449719582,
+    "diff_E03": 0.009569781483833195
+  },
+  {
+    "qid": "Q-STR-LEX-084",
+    "aislamiento_intra_categoria": 0.11700436219958618,
+    "aislamiento_global": 0.1227864843367369,
+    "distintividad_lexica_doc": 1.7660509273229192,
+    "solapamiento_lexico_query": 0.47631383871124094,
+    "diff_E03": 0.09347196851142481
+  },
+  {
+    "qid": "Q-ISA-LEX-085",
+    "aislamiento_intra_categoria": 0.10253630910592566,
+    "aislamiento_global": 0.11895876600607302,
+    "distintividad_lexica_doc": 1.8216990525784393,
+    "solapamiento_lexico_query": 0.48974511249294184,
+    "diff_E03": 0.26872155364736516
+  },
+  {
+    "qid": "Q-ISA-LEX-086",
+    "aislamiento_intra_categoria": 0.12739040027277737,
+    "aislamiento_global": 0.13492306314571756,
+    "distintividad_lexica_doc": 1.7865872847730446,
+    "solapamiento_lexico_query": 0.4533085714888553,
+    "diff_E03": 0
+  },
+  {
+    "qid": "Q-DIN-LEX-087",
+    "aislamiento_intra_categoria": 0.12872451843948507,
+    "aislamiento_global": 0.1418086849147654,
+    "distintividad_lexica_doc": 2.0282246567200906,
+    "solapamiento_lexico_query": 0.35616664064050135,
+    "diff_E03": 0.0631230136529512
+  },
+  {
+    "qid": "Q-ACP-LEX-090",
+    "aislamiento_intra_categoria": 0.11801575411076082,
+    "aislamiento_global": 0.13213211892957155,
+    "distintividad_lexica_doc": 1.6623410665455614,
+    "solapamiento_lexico_query": 0.41570798884526167,
+    "diff_E03": 0.1378949742215152
+  },
+  {
+    "qid": "Q-FAC-LEX-091",
+    "aislamiento_intra_categoria": 0.1268413219661556,
+    "aislamiento_global": 0.14062468566540806,
+    "distintividad_lexica_doc": 1.8963581141685721,
+    "solapamiento_lexico_query": 0.39540458888678454,
+    "diff_E03": 0
+  },
+  {
+    "qid": "Q-FAC-LEX-092",
+    "aislamiento_intra_categoria": 0.12666069815051795,
+    "aislamiento_global": 0.1526815373015933,
+    "distintividad_lexica_doc": 1.9517093076429397,
+    "solapamiento_lexico_query": 0.3536920896920414,
+    "diff_E03": 0.003103409951787983
+  },
+  {
+    "qid": "Q-COR-LEX-094",
+    "aislamiento_intra_categoria": 0.15142886883474876,
+    "aislamiento_global": 0.15015361811901,
+    "distintividad_lexica_doc": 1.8181979699221924,
+    "solapamiento_lexico_query": 0.4467579260464361,
+    "diff_E03": -0.005455851403274425
+  },
+  {
+    "qid": "Q-CAL-LEX-095",
+    "aislamiento_intra_categoria": 0.13203260059213337,
+    "aislamiento_global": 0.13970721348580759,
+    "distintividad_lexica_doc": 1.9392408761356634,
+    "solapamiento_lexico_query": 0.45471541843542895,
+    "diff_E03": -0.011649491629243447
+  },
+  {
+    "qid": "Q-NOKW-098",
+    "aislamiento_intra_categoria": 0.10920260953739853,
+    "aislamiento_global": 0.12500264667487818,
+    "distintividad_lexica_doc": 1.8535140028054218,
+    "solapamiento_lexico_query": 0.020591887348636505,
+    "diff_E03": -0.1465687950524503
+  },
+  {
+    "qid": "Q-NOKW-099",
+    "aislamiento_intra_categoria": 0.13043885823861762,
+    "aislamiento_global": 0.13721218121023426,
+    "distintividad_lexica_doc": 1.833801776794369,
+    "solapamiento_lexico_query": 0.06796176824492017,
+    "diff_E03": 0.17343160353438097
+  },
+  {
+    "qid": "Q-NOKW-101",
+    "aislamiento_intra_categoria": 0.12872451843948507,
+    "aislamiento_global": 0.1418086849147654,
+    "distintividad_lexica_doc": 2.0282246567200906,
+    "solapamiento_lexico_query": 0.46601752255738776,
+    "diff_E03": 0.05940576366354755
+  },
+  {
+    "qid": "Q-NOKW-102",
+    "aislamiento_intra_categoria": 0.12232131448529016,
+    "aislamiento_global": 0.1322541575873206,
+    "distintividad_lexica_doc": 1.8670926110297508,
+    "solapamiento_lexico_query": 0.06735143257605125,
+    "diff_E03": 0.07911527683686083
+  },
+  {
+    "qid": "Q-NOKW-104",
+    "aislamiento_intra_categoria": 0.1268413219661556,
+    "aislamiento_global": 0.14062468566540806,
+    "distintividad_lexica_doc": 1.8963581141685721,
+    "solapamiento_lexico_query": 0.23932032436303868,
+    "diff_E03": -0.08496222371545514
+  },
+  {
+    "qid": "Q-NOKW-105",
+    "aislamiento_intra_categoria": 0.15142886883474876,
+    "aislamiento_global": 0.15015361811901,
+    "distintividad_lexica_doc": 1.8181979699221924,
+    "solapamiento_lexico_query": 0.07546534406833404,
+    "diff_E03": 0.0946800435954831
+  },
+  {
+    "qid": "Q-NOKW-107",
+    "aislamiento_intra_categoria": 0.09592363458961156,
+    "aislamiento_global": 0.12414690031850618,
+    "distintividad_lexica_doc": 1.7393028857840875,
+    "solapamiento_lexico_query": 0.029014253486614013,
+    "diff_E03": 0.43967281357003596
+  },
+  {
+    "qid": "Q-NOKW-108",
+    "aislamiento_intra_categoria": 0.11392061282968488,
+    "aislamiento_global": 0.13354233514058256,
+    "distintividad_lexica_doc": 1.8391150653604798,
+    "solapamiento_lexico_query": 0.06041744378073331,
+    "diff_E03": 0.46179417330306516
+  },
+  {
+    "qid": "Q-DIS-110",
+    "aislamiento_intra_categoria": 0.12420992324540622,
+    "aislamiento_global": 0.1420643193541542,
+    "distintividad_lexica_doc": 2.099469575530822,
+    "solapamiento_lexico_query": 0.3285580379698551,
+    "diff_E03": 0
+  },
+  {
+    "qid": "Q-DIS-111",
+    "aislamiento_intra_categoria": 0.11966946179483623,
+    "aislamiento_global": 0.12167794656007896,
+    "distintividad_lexica_doc": 1.7577101142958262,
+    "solapamiento_lexico_query": 0.20440573165161255,
+    "diff_E03": -0.044282974951788456
+  },
+  {
+    "qid": "Q-DIS-113",
+    "aislamiento_intra_categoria": 0.12666069815051795,
+    "aislamiento_global": 0.1526815373015933,
+    "distintividad_lexica_doc": 1.9517093076429397,
+    "solapamiento_lexico_query": 0.20666578255330512,
+    "diff_E03": 0
+  },
+  {
+    "qid": "Q-DIS-114",
+    "aislamiento_intra_categoria": 0.14996585694498982,
+    "aislamiento_global": 0.14469203854550344,
+    "distintividad_lexica_doc": 1.9200630331454862,
+    "solapamiento_lexico_query": 0.3056456811318285,
+    "diff_E03": 0.007309566250550237
+  },
+  {
+    "qid": "Q-DIS-116",
+    "aislamiento_intra_categoria": 0.12739040027277737,
+    "aislamiento_global": 0.13492306314571756,
+    "distintividad_lexica_doc": 1.7865872847730446,
+    "solapamiento_lexico_query": 0.2283485193355271,
+    "diff_E03": 0.06482013232277739
+  },
+  {
+    "qid": "Q-DIS-117",
+    "aislamiento_intra_categoria": 0.11392061282968488,
+    "aislamiento_global": 0.13354233514058256,
+    "distintividad_lexica_doc": 1.8391150653604798,
+    "solapamiento_lexico_query": 0.32343921661492003,
+    "diff_E03": 0.014619132501100363
+  },
+  {
+    "qid": "Q-DIS-119",
+    "aislamiento_intra_categoria": 0.12872451843948507,
+    "aislamiento_global": 0.1418086849147654,
+    "distintividad_lexica_doc": 2.0282246567200906,
+    "solapamiento_lexico_query": 0.21321384967835036,
+    "diff_E03": 0.013384152768016966
+  },
+  {
+    "qid": "Q-DIS-120",
+    "aislamiento_intra_categoria": 0.13203260059213337,
+    "aislamiento_global": 0.13970721348580759,
+    "distintividad_lexica_doc": 1.9392408761356634,
+    "solapamiento_lexico_query": 0.2291752311234357,
+    "diff_E03": 0
+  }
+]
