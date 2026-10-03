@@ -110,6 +110,19 @@ Se reemplazó el cálculo informal (`_sanity_metrics.mjs`, escrito solo para ver
 
 **La afirmación real de esta tesis, con el respaldo estadístico que tiene y no más**: eliminar el prefiltro de categoría de la recuperación mejora el sistema de forma estadísticamente significativa (nDCG@10, recall@10) sobre lo que corre hoy en producción. La elección específica de modelo de embeddings y método de fusión, más allá de "alguna variante sin el prefiltro", **no está confirmada con la misma fuerza** — el control léxico-solo compite de cerca.
 
+#### Erratum del control léxico-solo, corregido (`#113`)
+
+La tabla de arriba es el resultado **tal como se pre-registró y se corrió originalmente** — se deja intacta por disciplina de auditoría. Pero el run `léxico-solo (control)` de esa tabla (`pool-lexico-solo.trec`) tenía un bug no detectado en ese momento: un documento repetido para la misma consulta queda, en `ranx` (`ranx/data_structures/run.py:285`), con el score de su **última** aparición en el archivo, no la mejor — corrompe su propio ranking en silencio. `#113` lo corrigió: se regeneró el control deduplicado (`00_ablation.js`, mismo patrón `ROW_NUMBER` que usa producción), se completó el etiquetado de los 17 pares (de 250, 6.8%) que el top-10 corregido traía y que nunca se habían pooleado en `#75` — extendiendo el mismo protocolo ciego (dos sesiones de IA aisladas, sin ver qué sistema recuperó cada documento; Cohen's κ=0.667 en este lote de 17, κ=0.852 combinado con los 81 pares originales de doble anotación) — y se repitió la medición con `qrels.trec` ya completo:
+
+| Sistema | Recall@5 | Recall@10 | **nDCG@10** | MRR@10 |
+| --- | --- | --- | --- | --- |
+| MiniLM, filtro (producción real) | 0.410 [0.298, 0.529] | 0.465 [0.349, 0.581] | 0.498 [0.366, 0.632] | 0.684 [0.514, 0.844] |
+| e5-small, sin filtro (H1) | 0.530 [0.444, 0.619] | 0.779 [0.688, 0.861] | 0.701 [0.620, 0.775] | 0.866 [0.749, 0.966] |
+| e5-small, RRF, sin filtro (H2) | 0.510 [0.433, 0.593] | 0.758 [0.661, 0.841] | 0.673 [0.606, 0.738] | 0.893 [0.783, 0.980] |
+| **léxico-solo, corregido y completo (control)** | 0.480 [0.386, 0.575] | 0.725 [0.627, 0.811] | **0.656** [0.552, 0.753] | 0.884 [0.767, 0.980] |
+
+**El hallazgo central no cambia, y la evidencia detrás queda más fuerte, no más débil**: léxico-solo sigue sin diferir con significancia de e5-sin-filtro en nDCG@10 (p_holm=0.5535, antes 0.593 con el bug) — el empate técnico se sostiene con el control ya corregido y completamente etiquetado, no solo con la cota conservadora que dejó `#113` sin resolver. Detalle completo, con los 17 pares identificados y las dos anotaciones ciegas completas, en `eval/data/metricas_test_control_lexico_113.md`/`.json` y `eval/data/README.md`.
+
 ---
 
 ## 5. Nomenclatura: "RAG con generación mediada por humano"
@@ -133,7 +146,7 @@ Esta decisión de diseño es deliberada, no una limitación técnica a resolver 
 3. **Etiquetado de relevancia del split de test hecho por IA** (`#75`), no por una persona con criterio jurídico, por decisión explícita del autor — ver sección 4.1.
 4. **Parafraseo humano de las consultas nuevas, pendiente** (`#96`) — las 80 consultas que ampliaron el corpus de 40 a 120 son 100% generadas por IA; la mitigación de circularidad recomendada (que una persona parafraseara al menos parte sin ver el corpus) no se ejecutó.
 5. **Solo se mide retrieval, no generación** — ver sección 5. La calidad final de la contestación que el abogado produce con ayuda de la herramienta corporativa de LLM está fuera del alcance de esta evaluación.
-6. **Posible sesgo residual en el pool de `#75`**: los runs de léxico-solo/vector-solo que alimentaron el pooling original tenían el bug de duplicados de `#104` — se verificó (`#106`) que el efecto es mínimo (0.8% de pares sin juicio en el top-5 corregido de test) y no se consideró necesario re-poolear, pero no es cero.
+6. **Sesgo residual en el pool de `#75` por el bug de duplicados de `#104`, ya resuelto (`#113`)**: `#106` solo había revisado el top-5 (0.8% de pares sin juicio, considerado despreciable); el top-10 completo del run corregido tenía en realidad 17/250 pares (6.8%) sin etiquetar — `#113` completó ese etiquetado con el mismo protocolo ciego de `#75` y recalculó el control léxico-solo (ver sección 4.3) — el empate con la híbrida se sostiene con el número ya corregido y completo, no con una cota conservadora.
 7. **El modelo de embeddings específico (e5-small) no está confirmado con la misma fuerza que "eliminar el prefiltro"** — ver sección 4.3, el control léxico-solo compite de cerca con la fusión completa en el split de test.
 
 ## 7. Sin afirmación de producción

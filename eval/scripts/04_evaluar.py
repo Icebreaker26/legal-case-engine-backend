@@ -64,6 +64,29 @@ def cargar_run_filtrado(ruta_run, qids_permitidos, nombre):
     return run
 
 
+def verificar_sin_duplicados(ruta_run):
+    """Un documento repetido para la misma consulta en un archivo TREC no es
+    inofensivo: ranx no lo cuenta dos veces, pero en
+    ranx/data_structures/run.py:285 (`run[q_id][doc_id] = float(rel)`,
+    ejecutado en orden de archivo) se queda con el score de la ÚLTIMA
+    aparición, no la mejor — corrompe el ranking de ese documento en
+    silencio (#113, erratum de la afirmación "ranx es inmune" de #104/#76).
+    Devuelve la lista de (qid, docid) repetidos, vacía si el run está limpio."""
+    vistos_por_qid = {}
+    duplicados = []
+    with open(ruta_run, encoding="utf-8") as f:
+        for linea in f:
+            partes = linea.split()
+            if len(partes) < 3:
+                continue
+            qid, docid = partes[0], partes[2]
+            vistos = vistos_por_qid.setdefault(qid, set())
+            if docid in vistos:
+                duplicados.append((qid, docid))
+            vistos.add(docid)
+    return duplicados
+
+
 def puntajes_por_query(qrels, run, metricas):
     """Devuelve {metrica: {qid: score}} — nunca confía en el orden implícito
     del array que entrega ranx, lo re-indexa por qid explícitamente."""
@@ -158,6 +181,16 @@ def main():
     runs = {}
     runs_dict_crudo = {}
     for nombre, ruta in runs_specs:
+        duplicados = verificar_sin_duplicados(ruta)
+        if duplicados:
+            ejemplos = ", ".join(f"{q}/{d}" for q, d in duplicados[:5])
+            sys.exit(
+                f"[evaluar] RECHAZADO: {nombre} ({ruta}) tiene {len(duplicados)} pares "
+                f"(consulta, documento) repetidos — ej: {ejemplos}. ranx se queda con el "
+                "score de la ultima aparicion en el archivo, no la mejor (#113). "
+                "Dedupea por documento en el generador del run (ROW_NUMBER PARTITION BY "
+                "documento_id, como 00_ablation.js) antes de medir."
+            )
         run = cargar_run_filtrado(ruta, qids_subset, nombre)
         runs[nombre] = run
         runs_dict_crudo[nombre] = Run.from_file(ruta, kind="trec").to_dict()
