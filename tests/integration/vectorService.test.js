@@ -183,6 +183,59 @@ describe('vectorService — buscarContextoLegal (integración real contra pgvect
     });
   });
 
+  describe('fusion: "alpha" (#127 — replica cos*alpha + ts_rank*(1-alpha), sin relevancia_score)', () => {
+    test('alpha inválido (fuera de [0,1]) lanza error', async () => {
+      await expect(
+        buscarContextoLegal(vectorCercano, 'facturación', 10, CATEGORIA_TEST, { fusion: 'alpha', alpha: 1.5 })
+      ).rejects.toThrow(/alpha inválido/);
+    });
+
+    test('alpha no numérico lanza error', async () => {
+      await expect(
+        buscarContextoLegal(vectorCercano, 'facturación', 10, CATEGORIA_TEST, { fusion: 'alpha', alpha: 'alta' })
+      ).rejects.toThrow(/alpha inválido/);
+    });
+
+    test('sin pasar alpha, usa el default 0.9 y devuelve resultados', async () => {
+      const rows = await buscarContextoLegal(vectorCercano, 'facturación mensual', 10, CATEGORIA_TEST, { fusion: 'alpha' });
+      expect(rows.length).toBeGreaterThan(0);
+      expect(rows[0]).toHaveProperty('score');
+    });
+
+    test('nunca repite documento_id (un chunk representante por documento)', async () => {
+      const rows = await buscarContextoLegal(vectorCercano, 'facturación mensual', 10, CATEGORIA_TEST, { fusion: 'alpha', alpha: 0.9 });
+      const ids = rows.map(r => r.documento_id);
+      expect(new Set(ids).size).toBe(ids.length);
+    });
+
+    test('alpha=1 (puro vector): Doc C (vector cercano, sin match léxico) empata o le gana a Doc B (vector lejano, con match léxico)', async () => {
+      const rows = await buscarContextoLegal(vectorCercano, 'facturación mensual', 10, CATEGORIA_TEST, { fusion: 'alpha', alpha: 1 });
+      const porId = new Map(rows.map(r => [r.documento_id, Number(r.score)]));
+      expect(porId.get(docs[2].documento_id)).toBeGreaterThan(porId.get(docs[1].documento_id));
+    });
+
+    test('alpha=0 (puro léxico): Doc B (vector lejano, con match léxico) le gana a Doc C (vector cercano, sin match léxico)', async () => {
+      const rows = await buscarContextoLegal(vectorCercano, 'facturación mensual', 10, CATEGORIA_TEST, { fusion: 'alpha', alpha: 0 });
+      const porId = new Map(rows.map(r => [r.documento_id, Number(r.score)]));
+      expect(porId.get(docs[1].documento_id)).toBeGreaterThan(porId.get(docs[2].documento_id));
+    });
+
+    test('ignora relevancia_score — Doc A y Doc C (mismo vector cercano, A con texto relevante) no se reordenan por el feedback de Doc A', async () => {
+      // Doc A: relevancia_score=8. Doc C: relevancia_score=0. Si la fórmula alpha
+      // filtrara relevancia_score (no debería — ver el comentario en vectorService.js),
+      // el score de A subiría por un motivo ajeno a coseno/ts_rank. Con texto que no
+      // matchea a ninguno de los dos, el orden entre A y C debe depender solo del
+      // término léxico (A tiene match, C no) — nunca de relevancia_score.
+      const rows = await buscarContextoLegal(vectorCercano, 'facturación mensual', 10, CATEGORIA_TEST, { fusion: 'alpha', alpha: 0.9 });
+      const porId = new Map(rows.map(r => [r.documento_id, Number(r.score)]));
+      // cos es igual (mismo vector cercano) para A y C → la diferencia de score debe
+      // ser exactamente ts_rank*(1-0.9), no contaminada por relevancia_score.
+      const diferencia = porId.get(docs[0].documento_id) - porId.get(docs[2].documento_id);
+      expect(diferencia).toBeGreaterThan(0);
+      expect(diferencia).toBeLessThan(0.1 + 1e-6); // cota: (1-alpha)*ts_rank_max, ts_rank<=1
+    });
+  });
+
   describe('is_active (borrado lógico — #64)', () => {
     // Doc E: vector cercano + mismo texto que A + mejor relevancia_score, pero
     // is_active=FALSE. Si el filtro faltara, Doc E desplazaría a A en ambas
@@ -203,6 +256,12 @@ describe('vectorService — buscarContextoLegal (integración real contra pgvect
       const rows = await buscarContextoLegal(vectorCercano, 'facturación mensual', 10, CATEGORIA_TEST);
       const ids = rows.map(r => r.documento_id);
       expect(ids).toContain(docs[0].documento_id);
+    });
+
+    test('alpha: un documento desactivado no aparece en los resultados', async () => {
+      const rows = await buscarContextoLegal(vectorCercano, 'facturación mensual', 10, CATEGORIA_TEST, { fusion: 'alpha', alpha: 0.9 });
+      const ids = rows.map(r => r.documento_id);
+      expect(ids).not.toContain(docs[4].documento_id);
     });
   });
 
@@ -236,6 +295,11 @@ describe('vectorService — buscarContextoLegal (integración real contra pgvect
 
     test('rrf: ninguna fila con documento_id NULL aparece en los resultados', async () => {
       const rows = await buscarContextoLegal(vectorCercano, 'facturación mensual', 10, CATEGORIA_NULL, { fusion: 'rrf' });
+      expect(rows.every(r => r.documento_id !== null)).toBe(true);
+    });
+
+    test('alpha: ninguna fila con documento_id NULL aparece en los resultados', async () => {
+      const rows = await buscarContextoLegal(vectorCercano, 'facturación mensual', 10, CATEGORIA_NULL, { fusion: 'alpha', alpha: 0.9 });
       expect(rows.every(r => r.documento_id !== null)).toBe(true);
     });
 

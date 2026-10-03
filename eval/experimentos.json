@@ -54,5 +54,14 @@
     "comprensionQuery": false,
     "categoria": "ninguna",
     "limit": 10
+  },
+  {
+    "id": "E08-e5-alpha0.9-reproduccion-v3",
+    "fusion": "alpha",
+    "alpha": 0.9,
+    "estrategia": "completo",
+    "comprensionQuery": false,
+    "categoria": "ninguna",
+    "limit": 10
   }
 ]

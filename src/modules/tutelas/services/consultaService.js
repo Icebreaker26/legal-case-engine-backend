@@ -41,8 +41,9 @@ export const recuperarPrecedentes = async ({
   limit = 5,
   estrategia = 'actual',
   fusion = 'ponderado',
+  alpha = 0.9,
 }) => {
   const { textoVector, textoLexico } = construirConsulta(tutela, { estrategia });
   const vector = await generarEmbeddingLocal(textoVector, { tipo: 'query' });
-  return buscarContextoLegal(vector, textoLexico, limit, categoria, { fusion });
+  return buscarContextoLegal(vector, textoLexico, limit, categoria, { fusion, alpha });
 };
