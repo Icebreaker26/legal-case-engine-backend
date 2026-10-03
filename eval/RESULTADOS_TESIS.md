@@ -140,7 +140,17 @@ La línea base de v2 (MiniLM, pesos de producción) dio el resultado opuesto al 
 
 Mejor punto estimado para la híbrida, pero **no significativo** (nDCG@10 p_holm=0.1010, n=25 — una sola comparación pre-especificada).
 
-**El límite real no era el corpus ni la imposibilidad de un caso borde — era el modelo de embeddings y los pesos de producción.** MiniLM (solo-inglés) sobre texto jurídico en español, con 55% de peso vectorial, resta en vez de sumar. Corregido el modelo (e5-small, multilingüe) y el peso (α=0.9, no 0.55), la híbrida vuelve a tener el mejor punto estimado — pero el único split de test etiquetado disponible (25 consultas) sigue sin potencia estadística suficiente para confirmarlo, ni para descartarlo. Detalle completo en `eval/data/v2/README.md` y `eval/data/v2/preregistro_barrido_pesos.md`.
+**El límite real no era el corpus ni la imposibilidad de un caso borde — era el modelo de embeddings y los pesos de producción.** MiniLM (solo-inglés) sobre texto jurídico en español, con 55% de peso vectorial, resta en vez de sumar. Corregido el modelo (e5-small, multilingüe) y el peso (α=0.9, no 0.55), la híbrida vuelve a tener el mejor punto estimado.
+
+#### Análisis de potencia y cierre de la pregunta fusión vs. léxico
+
+¿Alcanzaría con más consultas de test? Cálculo de potencia (t pareado, dado el tamaño de efecto observado en el test de v1, dz=0.3487): se necesitarían **67 consultas** para 80% de potencia si el efecto real es igual al observado — pero el efecto en una muestra de 25 tiende a estar inflado (en dev, donde se elige el mejor de 22 configuraciones, la diferencia fue 0.0746; en el test independiente se encogió a 0.0507, la regresión a la media esperable tras seleccionar al ganador). Si el efecto real fuera la mitad, harían falta 261. **Y el n que exige la diferencia mínima que este mismo barrido definió como relevante antes de ver resultados (0.02 nDCG@10) es ~417** — un orden de magnitud por fuera de lo alcanzable en un trabajo de grado.
+
+**Se cierra esta pregunta sin perseguir más datos**, reencuadrada como **no-inferioridad + estimación** en vez de "superioridad no demostrada": el IC95% bootstrap de la diferencia pareada ([-0.0020, 0.1087]) tiene el límite inferior prácticamente en cero — la híbrida bien configurada no es peor que la léxica en ninguna magnitud con sentido práctico, y el punto estimado la favorece, en dos corpus independientes y dos instrumentos de medición distintos (etiquetado ciego real en v1-test, y un chequeo adicional declarado y gratuito —sin etiquetar nada nuevo— con relevancia mecánica en v2-test, que sí resultó significativo: nDCG@10 p_holm=0.0005, pero con el límite epistemológico ya conocido de toda relevancia mecánica de este proyecto, no comparable en peso al etiquetado real).
+
+**El hallazgo que sí queda firme, sin depender de ningún test de significancia**: el modelo de embeddings importa más que la elección de pesos de fusión. Con MiniLM (entrenado solo en inglés) sobre texto jurídico en español, más peso vectorial siempre empeora el resultado; con `multilingual-e5-small`, la fusión vuelve a tener sentido. Si la fusión híbrida ayuda o no depende, en este dominio, de si el modelo de embeddings maneja bien el español — no solo de qué pesos se usen.
+
+Detalle completo, con la tabla de potencia y el chequeo libre, en `eval/data/v2/README.md` y `eval/data/v2/preregistro_barrido_pesos.md`.
 
 ---
 
@@ -167,7 +177,7 @@ Esta decisión de diseño es deliberada, no una limitación técnica a resolver 
 5. **Solo se mide retrieval, no generación** — ver sección 5. La calidad final de la contestación que el abogado produce con ayuda de la herramienta corporativa de LLM está fuera del alcance de esta evaluación.
 6. **Sesgo residual en el pool de `#75` por el bug de duplicados de `#104`, ya resuelto (`#113`)**: `#106` solo había revisado el top-5 (0.8% de pares sin juicio, considerado despreciable); el top-10 completo del run corregido tenía en realidad 17/250 pares (6.8%) sin etiquetar — `#113` completó ese etiquetado con el mismo protocolo ciego de `#75` y recalculó el control léxico-solo (ver sección 4.3) — el empate con la híbrida se sostiene con el número ya corregido y completo, no con una cota conservadora.
 7. **El modelo de embeddings específico (e5-small) no está confirmado con la misma fuerza que "eliminar el prefiltro"** — ver sección 4.3, el control léxico-solo compite de cerca con la fusión completa en el split de test.
-8. **El límite de potencia estadística de la limitación 2 se reafirma en un segundo diseño experimental independiente** (`#115`, sección 4.5): incluso con el modelo y el peso vectorial que dan el mejor punto estimado para la híbrida (e5-small, α=0.9), la diferencia contra léxico-solo en el único test etiquetado disponible no alcanza significancia (p_holm=0.101, n=25) — ni confirma ni descarta la superioridad de la híbrida, con la muestra que hay.
+8. **El límite de potencia estadística de la limitación 2 se cuantificó explícitamente** (`#115`, sección 4.5): el n necesario para detectar con 80% de potencia la diferencia mínima que el propio proyecto definió como relevante (0.02 nDCG@10) es ~417 consultas — fuera de alcance para un trabajo de grado. Esta pregunta (¿la híbrida le gana al léxico?) se cierra reencuadrada como no-inferioridad + estimación del efecto, no como superioridad confirmada ni descartada.
 
 ## 7. Sin afirmación de producción
 

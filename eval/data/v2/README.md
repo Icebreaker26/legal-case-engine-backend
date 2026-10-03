@@ -133,6 +133,10 @@ Segunda opinión de Opus: antes de poolear/etiquetar (caro) o cerrar la investig
 
 No se poolea ni se etiqueta el split de test de v2 bajo ningún escenario de este barrido (regla fijada de antemano).
 
+## Análisis de potencia y cierre (2026-10-03, tercera opinión de Opus)
+
+¿Alcanzaría con más consultas de test? El n necesario para 80% de potencia es 67 si el efecto real es igual al observado en v1-test (dz=0.349), 261 si es la mitad (plausible — en dev el efecto fue 0.0746, en test independiente se encogió a 0.0507), y **417 para la diferencia mínima que este mismo documento definió como relevante antes de ver resultados (0.02)** — un orden de magnitud fuera de alcance. Se cierra la pregunta sin perseguir más datos, reencuadrada como **no-inferioridad + estimación**: el IC95% bootstrap de la diferencia ([-0.0020, 0.1087]) tiene el límite inferior casi en cero. Chequeo adicional gratuito (sin etiquetar nada, relevancia mecánica ya calculada) sobre v2-test: significativo (p_holm=0.0005), declarado como segunda réplica parcial con el límite epistemológico ya conocido de la relevancia mecánica, no como confirmación. Detalle completo del cálculo de potencia y la decisión de cierre en `eval/data/v2/preregistro_barrido_pesos.md` (sección "Addendum").
+
 ## Fuera de alcance de esta sesión (próximos pasos)
 
 Indexar en una base de evaluación (posiblemente una tabla/BD separada de `rag_eval_minilm`, o un flag de "versión de corpus" — a decidir), correr línea base (equivalente a E01/E02 de v1) para confirmar que el corpus v2 no es degenerado, poolear y etiquetar el split de test con el protocolo ciego de `#75` (dos sesiones de IA aisladas, igual que se hizo para completar `#113`), pre-registrar y correr la comparación confirmatoria (E03 sin filtro vs. léxico-solo — la variante que decidió la Fase A de `#114`), y documentar el resultado en una sección propia de `eval/RESULTADOS_TESIS.md`, marcada explícitamente como estudio separado de `#77`/`#114`.
