@@ -4,31 +4,31 @@ Test de significancia: Fisher's Randomization (`ranx`), corrección de Holm-Bonf
 
 | Sistema | recall@5 | recall@10 | ndcg@10 | mrr@10 |
 |---|---|---|---|---|
-| minilm-a0.0 | 0.260 [0.218, 0.303] | 0.382 [0.327, 0.441] | 0.490 [0.422, 0.559] | 0.787 [0.696, 0.870] |
-| minilm-a0.1 | 0.255 [0.215, 0.299] | 0.387 [0.331, 0.447] | 0.493 [0.424, 0.563] | 0.797 [0.707, 0.876] |
-| minilm-a0.2 | 0.254 [0.213, 0.297] | 0.379 [0.323, 0.439] | 0.485 [0.414, 0.557] | 0.787 [0.699, 0.867] |
-| minilm-a0.3 | 0.257 [0.216, 0.302] | 0.378 [0.320, 0.438] | 0.487 [0.417, 0.558] | 0.787 [0.697, 0.866] |
-| minilm-a0.4 | 0.256 [0.215, 0.301] | 0.376 [0.318, 0.438] | 0.480 [0.409, 0.551] | 0.776 [0.689, 0.859] |
-| minilm-a0.5 | 0.253 [0.211, 0.298] | 0.367 [0.309, 0.429] | 0.468 [0.396, 0.541] | 0.756 [0.666, 0.840] |
-| minilm-a0.6 | 0.245 [0.202, 0.290] | 0.360 [0.301, 0.422] | 0.459 [0.389, 0.530] | 0.749 [0.661, 0.832] |
-| minilm-a0.7 | 0.236 [0.191, 0.282] | 0.346 [0.290, 0.408] | 0.438 [0.367, 0.510] | 0.736 [0.647, 0.825] |
-| minilm-a0.8 | 0.218 [0.179, 0.260] | 0.327 [0.272, 0.386] | 0.413 [0.344, 0.482] | 0.699 [0.607, 0.788] |
-| minilm-a0.9 | 0.186 [0.151, 0.221] | 0.281 [0.236, 0.330] | 0.350 [0.291, 0.411] | 0.658 [0.562, 0.755] |
-| minilm-a1.0 | 0.135 [0.108, 0.163] | 0.223 [0.184, 0.265] | 0.270 [0.226, 0.322] | 0.565 [0.470, 0.667] |
-| e5-a0.0 | 0.260 [0.218, 0.303] | 0.382 [0.327, 0.441] | 0.490 [0.422, 0.559] | 0.787 [0.696, 0.870] |
-| e5-a0.1 | 0.262 [0.222, 0.306] | 0.391 [0.336, 0.449] | 0.497 [0.427, 0.567] | 0.782 [0.691, 0.863] |
-| e5-a0.2 | 0.265 [0.224, 0.309] | 0.392 [0.337, 0.450] | 0.501 [0.432, 0.570] | 0.790 [0.701, 0.869] |
-| e5-a0.3 | 0.265 [0.224, 0.309] | 0.393 [0.338, 0.451] | 0.503 [0.435, 0.572] | 0.793 [0.706, 0.873] |
-| e5-a0.4 | 0.263 [0.223, 0.307] | 0.403 [0.351, 0.458] | 0.513 [0.447, 0.580] | 0.801 [0.714, 0.881] |
-| e5-a0.5 | 0.265 [0.225, 0.308] | 0.406 [0.354, 0.462] | 0.516 [0.450, 0.582] | 0.802 [0.715, 0.881] |
-| e5-a0.6 | 0.267 [0.226, 0.310] | 0.409 [0.355, 0.465] | 0.518 [0.451, 0.583] | 0.806 [0.719, 0.883] |
-| e5-a0.7 | 0.271 [0.230, 0.315] | 0.417 [0.364, 0.474] | 0.534 [0.470, 0.598] | 0.820 [0.738, 0.895] |
-| e5-a0.8 | 0.277 [0.238, 0.321] | 0.426 [0.374, 0.480] | 0.546 [0.484, 0.608] | 0.837 [0.758, 0.910] |
-| e5-a0.9 | 0.283 [0.243, 0.325] | 0.443 [0.389, 0.499] | 0.565 [0.505, 0.626] | 0.860 [0.787, 0.923] |
-| e5-a1.0 | 0.266 [0.232, 0.305] | 0.420 [0.378, 0.465] | 0.529 [0.475, 0.585] | 0.787 [0.708, 0.862] |
+| minilm-a0.0 | 0.260 [0.218, 0.303] | 0.383 [0.328, 0.442] | 0.490 [0.422, 0.560] | 0.787 [0.696, 0.870] |
+| minilm-a0.1 | 0.262 [0.221, 0.306] | 0.390 [0.333, 0.450] | 0.497 [0.428, 0.567] | 0.799 [0.712, 0.878] |
+| minilm-a0.2 | 0.262 [0.221, 0.307] | 0.380 [0.325, 0.438] | 0.492 [0.422, 0.562] | 0.790 [0.702, 0.869] |
+| minilm-a0.3 | 0.263 [0.221, 0.308] | 0.381 [0.328, 0.438] | 0.493 [0.424, 0.562] | 0.791 [0.703, 0.869] |
+| minilm-a0.4 | 0.265 [0.225, 0.311] | 0.366 [0.313, 0.421] | 0.478 [0.410, 0.548] | 0.775 [0.688, 0.855] |
+| minilm-a0.5 | 0.254 [0.213, 0.298] | 0.362 [0.309, 0.421] | 0.471 [0.402, 0.542] | 0.761 [0.674, 0.844] |
+| minilm-a0.6 | 0.241 [0.200, 0.285] | 0.340 [0.287, 0.398] | 0.450 [0.382, 0.521] | 0.750 [0.663, 0.834] |
+| minilm-a0.7 | 0.227 [0.186, 0.271] | 0.329 [0.278, 0.384] | 0.429 [0.362, 0.498] | 0.736 [0.646, 0.824] |
+| minilm-a0.8 | 0.205 [0.168, 0.246] | 0.298 [0.251, 0.351] | 0.389 [0.327, 0.454] | 0.687 [0.593, 0.775] |
+| minilm-a0.9 | 0.177 [0.147, 0.213] | 0.261 [0.223, 0.305] | 0.340 [0.284, 0.399] | 0.639 [0.544, 0.734] |
+| minilm-a1.0 | 0.134 [0.106, 0.164] | 0.217 [0.185, 0.256] | 0.264 [0.217, 0.316] | 0.522 [0.434, 0.618] |
+| e5-a0.0 | 0.260 [0.218, 0.303] | 0.383 [0.328, 0.442] | 0.490 [0.422, 0.560] | 0.787 [0.696, 0.870] |
+| e5-a0.1 | 0.259 [0.218, 0.303] | 0.389 [0.334, 0.448] | 0.495 [0.426, 0.565] | 0.778 [0.688, 0.860] |
+| e5-a0.2 | 0.265 [0.224, 0.309] | 0.394 [0.338, 0.451] | 0.501 [0.431, 0.570] | 0.781 [0.692, 0.862] |
+| e5-a0.3 | 0.267 [0.227, 0.312] | 0.400 [0.344, 0.457] | 0.508 [0.441, 0.577] | 0.801 [0.711, 0.881] |
+| e5-a0.4 | 0.267 [0.226, 0.309] | 0.405 [0.350, 0.462] | 0.516 [0.448, 0.582] | 0.801 [0.711, 0.881] |
+| e5-a0.5 | 0.268 [0.228, 0.312] | 0.410 [0.354, 0.467] | 0.523 [0.456, 0.588] | 0.808 [0.718, 0.887] |
+| e5-a0.6 | 0.273 [0.232, 0.316] | 0.423 [0.367, 0.479] | 0.535 [0.469, 0.599] | 0.811 [0.724, 0.888] |
+| e5-a0.7 | 0.274 [0.233, 0.316] | 0.440 [0.385, 0.497] | 0.549 [0.484, 0.611] | 0.815 [0.729, 0.889] |
+| e5-a0.8 | 0.281 [0.243, 0.322] | 0.441 [0.386, 0.499] | 0.557 [0.491, 0.620] | 0.827 [0.743, 0.900] |
+| e5-a0.9 | 0.289 [0.248, 0.332] | 0.445 [0.389, 0.504] | 0.572 [0.507, 0.635] | 0.854 [0.770, 0.922] |
+| e5-a1.0 | 0.236 [0.198, 0.276] | 0.355 [0.303, 0.406] | 0.455 [0.389, 0.519] | 0.688 [0.595, 0.779] |
 | rrf-minilm | 0.203 [0.168, 0.239] | 0.307 [0.260, 0.354] | 0.395 [0.336, 0.451] | 0.738 [0.647, 0.825] |
 | rrf-e5 | 0.285 [0.247, 0.323] | 0.443 [0.389, 0.499] | 0.555 [0.492, 0.613] | 0.827 [0.744, 0.898] |
-| lexico-solo | 0.260 [0.218, 0.303] | 0.384 [0.329, 0.443] | 0.491 [0.422, 0.560] | 0.787 [0.696, 0.870] |
+| lexico-solo | 0.260 [0.218, 0.303] | 0.383 [0.328, 0.442] | 0.490 [0.422, 0.560] | 0.787 [0.696, 0.870] |
 | vector-solo-minilm | 0.135 [0.108, 0.163] | 0.223 [0.184, 0.265] | 0.270 [0.226, 0.322] | 0.565 [0.470, 0.667] |
 | vector-solo-e5 | 0.266 [0.232, 0.305] | 0.420 [0.378, 0.465] | 0.529 [0.475, 0.585] | 0.787 [0.708, 0.862] |
 
@@ -36,544 +36,190 @@ Test de significancia: Fisher's Randomization (`ranx`), corrección de Holm-Bonf
 
 **recall@5**
 
-- minilm-a0.0 vs minilm-a0.1: p_crudo=0.2660, p_holm=1.0000 → no significativo
-- minilm-a0.0 vs minilm-a0.2: p_crudo=0.1440, p_holm=1.0000 → no significativo
-- minilm-a0.0 vs minilm-a0.3: p_crudo=0.6580, p_holm=1.0000 → no significativo
-- minilm-a0.0 vs minilm-a0.4: p_crudo=0.5100, p_holm=1.0000 → no significativo
-- minilm-a0.0 vs minilm-a0.5: p_crudo=0.3420, p_holm=1.0000 → no significativo
-- minilm-a0.0 vs minilm-a0.6: p_crudo=0.0340, p_holm=1.0000 → no significativo
-- minilm-a0.0 vs minilm-a0.7: p_crudo=0.0060, p_holm=1.0000 → no significativo
+- minilm-a0.0 vs minilm-a0.1: p_crudo=0.7000, p_holm=1.0000 → no significativo
+- minilm-a0.0 vs minilm-a0.2: p_crudo=0.6105, p_holm=1.0000 → no significativo
+- minilm-a0.0 vs minilm-a0.3: p_crudo=0.6405, p_holm=1.0000 → no significativo
+- minilm-a0.0 vs minilm-a0.4: p_crudo=0.4360, p_holm=1.0000 → no significativo
+- minilm-a0.0 vs minilm-a0.5: p_crudo=0.4630, p_holm=1.0000 → no significativo
+- minilm-a0.0 vs minilm-a0.6: p_crudo=0.0450, p_holm=1.0000 → no significativo
+- minilm-a0.0 vs minilm-a0.7: p_crudo=0.0015, p_holm=0.3330 → no significativo
 - minilm-a0.0 vs minilm-a0.8: p_crudo=0.0000, p_holm=0.0000 → **significativo**
 - minilm-a0.0 vs minilm-a0.9: p_crudo=0.0000, p_holm=0.0000 → **significativo**
 - minilm-a0.0 vs minilm-a1.0: p_crudo=0.0000, p_holm=0.0000 → **significativo**
 - minilm-a0.0 vs e5-a0.0: p_crudo=1.0000, p_holm=1.0000 → no significativo
-- minilm-a0.0 vs e5-a0.1: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.0 vs e5-a0.2: p_crudo=0.2420, p_holm=1.0000 → no significativo
-- minilm-a0.0 vs e5-a0.3: p_crudo=0.3060, p_holm=1.0000 → no significativo
-- minilm-a0.0 vs e5-a0.4: p_crudo=0.4680, p_holm=1.0000 → no significativo
-- minilm-a0.0 vs e5-a0.5: p_crudo=0.3480, p_holm=1.0000 → no significativo
-- minilm-a0.0 vs e5-a0.6: p_crudo=0.2020, p_holm=1.0000 → no significativo
-- minilm-a0.0 vs e5-a0.7: p_crudo=0.0680, p_holm=1.0000 → no significativo
-- minilm-a0.0 vs e5-a0.8: p_crudo=0.0320, p_holm=1.0000 → no significativo
-- minilm-a0.0 vs e5-a0.9: p_crudo=0.0060, p_holm=1.0000 → no significativo
-- minilm-a0.0 vs e5-a1.0: p_crudo=0.7220, p_holm=1.0000 → no significativo
+- minilm-a0.0 vs e5-a0.1: p_crudo=1.0000, p_holm=1.0000 → no significativo
+- minilm-a0.0 vs e5-a0.2: p_crudo=0.2370, p_holm=1.0000 → no significativo
+- minilm-a0.0 vs e5-a0.3: p_crudo=0.0760, p_holm=1.0000 → no significativo
+- minilm-a0.0 vs e5-a0.4: p_crudo=0.1275, p_holm=1.0000 → no significativo
+- minilm-a0.0 vs e5-a0.5: p_crudo=0.1255, p_holm=1.0000 → no significativo
+- minilm-a0.0 vs e5-a0.6: p_crudo=0.0220, p_holm=1.0000 → no significativo
+- minilm-a0.0 vs e5-a0.7: p_crudo=0.0675, p_holm=1.0000 → no significativo
+- minilm-a0.0 vs e5-a0.8: p_crudo=0.0230, p_holm=1.0000 → no significativo
+- minilm-a0.0 vs e5-a0.9: p_crudo=0.0285, p_holm=1.0000 → no significativo
+- minilm-a0.0 vs e5-a1.0: p_crudo=0.3410, p_holm=1.0000 → no significativo
 - minilm-a0.0 vs rrf-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.0 vs rrf-e5: p_crudo=0.0480, p_holm=1.0000 → no significativo
+- minilm-a0.0 vs rrf-e5: p_crudo=0.0325, p_holm=1.0000 → no significativo
 - minilm-a0.0 vs lexico-solo: p_crudo=1.0000, p_holm=1.0000 → no significativo
 - minilm-a0.0 vs vector-solo-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.0 vs vector-solo-e5: p_crudo=0.6400, p_holm=1.0000 → no significativo
-- minilm-a0.1 vs minilm-a0.2: p_crudo=1.0000, p_holm=1.0000 → no significativo
-- minilm-a0.1 vs minilm-a0.3: p_crudo=0.3900, p_holm=1.0000 → no significativo
-- minilm-a0.1 vs minilm-a0.4: p_crudo=0.6960, p_holm=1.0000 → no significativo
-- minilm-a0.1 vs minilm-a0.5: p_crudo=0.7420, p_holm=1.0000 → no significativo
-- minilm-a0.1 vs minilm-a0.6: p_crudo=0.0980, p_holm=1.0000 → no significativo
-- minilm-a0.1 vs minilm-a0.7: p_crudo=0.0080, p_holm=1.0000 → no significativo
+- minilm-a0.0 vs vector-solo-e5: p_crudo=0.6745, p_holm=1.0000 → no significativo
+- minilm-a0.1 vs minilm-a0.2: p_crudo=0.6150, p_holm=1.0000 → no significativo
+- minilm-a0.1 vs minilm-a0.3: p_crudo=0.7415, p_holm=1.0000 → no significativo
+- minilm-a0.1 vs minilm-a0.4: p_crudo=0.5220, p_holm=1.0000 → no significativo
+- minilm-a0.1 vs minilm-a0.5: p_crudo=0.2490, p_holm=1.0000 → no significativo
+- minilm-a0.1 vs minilm-a0.6: p_crudo=0.0145, p_holm=1.0000 → no significativo
+- minilm-a0.1 vs minilm-a0.7: p_crudo=0.0010, p_holm=0.2240 → no significativo
 - minilm-a0.1 vs minilm-a0.8: p_crudo=0.0000, p_holm=0.0000 → **significativo**
 - minilm-a0.1 vs minilm-a0.9: p_crudo=0.0000, p_holm=0.0000 → **significativo**
 - minilm-a0.1 vs minilm-a1.0: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.1 vs e5-a0.0: p_crudo=0.2300, p_holm=1.0000 → no significativo
-- minilm-a0.1 vs e5-a0.1: p_crudo=0.0960, p_holm=1.0000 → no significativo
-- minilm-a0.1 vs e5-a0.2: p_crudo=0.0580, p_holm=1.0000 → no significativo
-- minilm-a0.1 vs e5-a0.3: p_crudo=0.0480, p_holm=1.0000 → no significativo
-- minilm-a0.1 vs e5-a0.4: p_crudo=0.0420, p_holm=1.0000 → no significativo
-- minilm-a0.1 vs e5-a0.5: p_crudo=0.0500, p_holm=1.0000 → no significativo
-- minilm-a0.1 vs e5-a0.6: p_crudo=0.0200, p_holm=1.0000 → no significativo
-- minilm-a0.1 vs e5-a0.7: p_crudo=0.0060, p_holm=1.0000 → no significativo
-- minilm-a0.1 vs e5-a0.8: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.1 vs e5-a0.9: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.1 vs e5-a1.0: p_crudo=0.4400, p_holm=1.0000 → no significativo
+- minilm-a0.1 vs e5-a0.0: p_crudo=0.7030, p_holm=1.0000 → no significativo
+- minilm-a0.1 vs e5-a0.1: p_crudo=0.6155, p_holm=1.0000 → no significativo
+- minilm-a0.1 vs e5-a0.2: p_crudo=0.5020, p_holm=1.0000 → no significativo
+- minilm-a0.1 vs e5-a0.3: p_crudo=0.2745, p_holm=1.0000 → no significativo
+- minilm-a0.1 vs e5-a0.4: p_crudo=0.2040, p_holm=1.0000 → no significativo
+- minilm-a0.1 vs e5-a0.5: p_crudo=0.1845, p_holm=1.0000 → no significativo
+- minilm-a0.1 vs e5-a0.6: p_crudo=0.0390, p_holm=1.0000 → no significativo
+- minilm-a0.1 vs e5-a0.7: p_crudo=0.0980, p_holm=1.0000 → no significativo
+- minilm-a0.1 vs e5-a0.8: p_crudo=0.0210, p_holm=1.0000 → no significativo
+- minilm-a0.1 vs e5-a0.9: p_crudo=0.0310, p_holm=1.0000 → no significativo
+- minilm-a0.1 vs e5-a1.0: p_crudo=0.3030, p_holm=1.0000 → no significativo
 - minilm-a0.1 vs rrf-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.1 vs rrf-e5: p_crudo=0.0040, p_holm=0.8520 → no significativo
-- minilm-a0.1 vs lexico-solo: p_crudo=0.2260, p_holm=1.0000 → no significativo
+- minilm-a0.1 vs rrf-e5: p_crudo=0.0355, p_holm=1.0000 → no significativo
+- minilm-a0.1 vs lexico-solo: p_crudo=0.7000, p_holm=1.0000 → no significativo
 - minilm-a0.1 vs vector-solo-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.1 vs vector-solo-e5: p_crudo=0.4860, p_holm=1.0000 → no significativo
-- minilm-a0.2 vs minilm-a0.3: p_crudo=0.1320, p_holm=1.0000 → no significativo
-- minilm-a0.2 vs minilm-a0.4: p_crudo=0.3340, p_holm=1.0000 → no significativo
-- minilm-a0.2 vs minilm-a0.5: p_crudo=0.8900, p_holm=1.0000 → no significativo
-- minilm-a0.2 vs minilm-a0.6: p_crudo=0.1160, p_holm=1.0000 → no significativo
-- minilm-a0.2 vs minilm-a0.7: p_crudo=0.0160, p_holm=1.0000 → no significativo
-- minilm-a0.2 vs minilm-a0.8: p_crudo=0.0040, p_holm=0.8520 → no significativo
-- minilm-a0.2 vs minilm-a0.9: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.2 vs minilm-a1.0: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.2 vs e5-a0.0: p_crudo=0.1420, p_holm=1.0000 → no significativo
-- minilm-a0.2 vs e5-a0.1: p_crudo=0.0740, p_holm=1.0000 → no significativo
-- minilm-a0.2 vs e5-a0.2: p_crudo=0.0340, p_holm=1.0000 → no significativo
-- minilm-a0.2 vs e5-a0.3: p_crudo=0.0280, p_holm=1.0000 → no significativo
-- minilm-a0.2 vs e5-a0.4: p_crudo=0.0200, p_holm=1.0000 → no significativo
-- minilm-a0.2 vs e5-a0.5: p_crudo=0.0120, p_holm=1.0000 → no significativo
-- minilm-a0.2 vs e5-a0.6: p_crudo=0.0080, p_holm=1.0000 → no significativo
-- minilm-a0.2 vs e5-a0.7: p_crudo=0.0020, p_holm=0.4500 → no significativo
-- minilm-a0.2 vs e5-a0.8: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.2 vs e5-a0.9: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.2 vs e5-a1.0: p_crudo=0.4100, p_holm=1.0000 → no significativo
-- minilm-a0.2 vs rrf-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.2 vs rrf-e5: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.2 vs lexico-solo: p_crudo=0.1220, p_holm=1.0000 → no significativo
-- minilm-a0.2 vs vector-solo-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.2 vs vector-solo-e5: p_crudo=0.4120, p_holm=1.0000 → no significativo
-- minilm-a0.3 vs minilm-a0.4: p_crudo=1.0000, p_holm=1.0000 → no significativo
-- minilm-a0.3 vs minilm-a0.5: p_crudo=0.4360, p_holm=1.0000 → no significativo
-- minilm-a0.3 vs minilm-a0.6: p_crudo=0.0340, p_holm=1.0000 → no significativo
-- minilm-a0.3 vs minilm-a0.7: p_crudo=0.0060, p_holm=1.0000 → no significativo
-- minilm-a0.3 vs minilm-a0.8: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.3 vs minilm-a0.9: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.3 vs minilm-a1.0: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.3 vs e5-a0.0: p_crudo=0.6380, p_holm=1.0000 → no significativo
-- minilm-a0.3 vs e5-a0.1: p_crudo=0.3380, p_holm=1.0000 → no significativo
-- minilm-a0.3 vs e5-a0.2: p_crudo=0.1700, p_holm=1.0000 → no significativo
-- minilm-a0.3 vs e5-a0.3: p_crudo=0.1920, p_holm=1.0000 → no significativo
-- minilm-a0.3 vs e5-a0.4: p_crudo=0.2480, p_holm=1.0000 → no significativo
-- minilm-a0.3 vs e5-a0.5: p_crudo=0.1200, p_holm=1.0000 → no significativo
-- minilm-a0.3 vs e5-a0.6: p_crudo=0.0780, p_holm=1.0000 → no significativo
-- minilm-a0.3 vs e5-a0.7: p_crudo=0.0060, p_holm=1.0000 → no significativo
-- minilm-a0.3 vs e5-a0.8: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.3 vs e5-a0.9: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.3 vs e5-a1.0: p_crudo=0.5720, p_holm=1.0000 → no significativo
-- minilm-a0.3 vs rrf-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.3 vs rrf-e5: p_crudo=0.0140, p_holm=1.0000 → no significativo
-- minilm-a0.3 vs lexico-solo: p_crudo=0.6400, p_holm=1.0000 → no significativo
-- minilm-a0.3 vs vector-solo-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.3 vs vector-solo-e5: p_crudo=0.6140, p_holm=1.0000 → no significativo
-- minilm-a0.4 vs minilm-a0.5: p_crudo=0.5560, p_holm=1.0000 → no significativo
-- minilm-a0.4 vs minilm-a0.6: p_crudo=0.0580, p_holm=1.0000 → no significativo
-- minilm-a0.4 vs minilm-a0.7: p_crudo=0.0140, p_holm=1.0000 → no significativo
-- minilm-a0.4 vs minilm-a0.8: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.4 vs minilm-a0.9: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.4 vs minilm-a1.0: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.4 vs e5-a0.0: p_crudo=0.4880, p_holm=1.0000 → no significativo
-- minilm-a0.4 vs e5-a0.1: p_crudo=0.2040, p_holm=1.0000 → no significativo
-- minilm-a0.4 vs e5-a0.2: p_crudo=0.1020, p_holm=1.0000 → no significativo
-- minilm-a0.4 vs e5-a0.3: p_crudo=0.1080, p_holm=1.0000 → no significativo
-- minilm-a0.4 vs e5-a0.4: p_crudo=0.1480, p_holm=1.0000 → no significativo
-- minilm-a0.4 vs e5-a0.5: p_crudo=0.0920, p_holm=1.0000 → no significativo
-- minilm-a0.4 vs e5-a0.6: p_crudo=0.0500, p_holm=1.0000 → no significativo
-- minilm-a0.4 vs e5-a0.7: p_crudo=0.0080, p_holm=1.0000 → no significativo
-- minilm-a0.4 vs e5-a0.8: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.4 vs e5-a0.9: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.4 vs e5-a1.0: p_crudo=0.5420, p_holm=1.0000 → no significativo
-- minilm-a0.4 vs rrf-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.4 vs rrf-e5: p_crudo=0.0100, p_holm=1.0000 → no significativo
-- minilm-a0.4 vs lexico-solo: p_crudo=0.5560, p_holm=1.0000 → no significativo
-- minilm-a0.4 vs vector-solo-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.4 vs vector-solo-e5: p_crudo=0.4920, p_holm=1.0000 → no significativo
-- minilm-a0.5 vs minilm-a0.6: p_crudo=0.1180, p_holm=1.0000 → no significativo
-- minilm-a0.5 vs minilm-a0.7: p_crudo=0.0180, p_holm=1.0000 → no significativo
-- minilm-a0.5 vs minilm-a0.8: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.5 vs minilm-a0.9: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.5 vs minilm-a1.0: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.5 vs e5-a0.0: p_crudo=0.3660, p_holm=1.0000 → no significativo
-- minilm-a0.5 vs e5-a0.1: p_crudo=0.1740, p_holm=1.0000 → no significativo
-- minilm-a0.5 vs e5-a0.2: p_crudo=0.1380, p_holm=1.0000 → no significativo
-- minilm-a0.5 vs e5-a0.3: p_crudo=0.1160, p_holm=1.0000 → no significativo
-- minilm-a0.5 vs e5-a0.4: p_crudo=0.1720, p_holm=1.0000 → no significativo
-- minilm-a0.5 vs e5-a0.5: p_crudo=0.1120, p_holm=1.0000 → no significativo
-- minilm-a0.5 vs e5-a0.6: p_crudo=0.0920, p_holm=1.0000 → no significativo
-- minilm-a0.5 vs e5-a0.7: p_crudo=0.0180, p_holm=1.0000 → no significativo
-- minilm-a0.5 vs e5-a0.8: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.5 vs e5-a0.9: p_crudo=0.0020, p_holm=0.4500 → no significativo
-- minilm-a0.5 vs e5-a1.0: p_crudo=0.4160, p_holm=1.0000 → no significativo
-- minilm-a0.5 vs rrf-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.5 vs rrf-e5: p_crudo=0.0060, p_holm=1.0000 → no significativo
-- minilm-a0.5 vs lexico-solo: p_crudo=0.3440, p_holm=1.0000 → no significativo
-- minilm-a0.5 vs vector-solo-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.5 vs vector-solo-e5: p_crudo=0.4320, p_holm=1.0000 → no significativo
-- minilm-a0.6 vs minilm-a0.7: p_crudo=0.0640, p_holm=1.0000 → no significativo
-- minilm-a0.6 vs minilm-a0.8: p_crudo=0.0040, p_holm=0.8520 → no significativo
-- minilm-a0.6 vs minilm-a0.9: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.6 vs minilm-a1.0: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.6 vs e5-a0.0: p_crudo=0.0580, p_holm=1.0000 → no significativo
-- minilm-a0.6 vs e5-a0.1: p_crudo=0.0160, p_holm=1.0000 → no significativo
-- minilm-a0.6 vs e5-a0.2: p_crudo=0.0220, p_holm=1.0000 → no significativo
-- minilm-a0.6 vs e5-a0.3: p_crudo=0.0240, p_holm=1.0000 → no significativo
-- minilm-a0.6 vs e5-a0.4: p_crudo=0.0300, p_holm=1.0000 → no significativo
-- minilm-a0.6 vs e5-a0.5: p_crudo=0.0120, p_holm=1.0000 → no significativo
-- minilm-a0.6 vs e5-a0.6: p_crudo=0.0040, p_holm=0.8520 → no significativo
-- minilm-a0.6 vs e5-a0.7: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.6 vs e5-a0.8: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.6 vs e5-a0.9: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.6 vs e5-a1.0: p_crudo=0.2360, p_holm=1.0000 → no significativo
-- minilm-a0.6 vs rrf-minilm: p_crudo=0.0020, p_holm=0.4500 → no significativo
-- minilm-a0.6 vs rrf-e5: p_crudo=0.0040, p_holm=0.8520 → no significativo
-- minilm-a0.6 vs lexico-solo: p_crudo=0.0460, p_holm=1.0000 → no significativo
-- minilm-a0.6 vs vector-solo-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.6 vs vector-solo-e5: p_crudo=0.2060, p_holm=1.0000 → no significativo
-- minilm-a0.7 vs minilm-a0.8: p_crudo=0.0280, p_holm=1.0000 → no significativo
-- minilm-a0.7 vs minilm-a0.9: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.7 vs minilm-a1.0: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.7 vs e5-a0.0: p_crudo=0.0060, p_holm=1.0000 → no significativo
-- minilm-a0.7 vs e5-a0.1: p_crudo=0.0040, p_holm=0.8520 → no significativo
-- minilm-a0.7 vs e5-a0.2: p_crudo=0.0020, p_holm=0.4500 → no significativo
-- minilm-a0.7 vs e5-a0.3: p_crudo=0.0060, p_holm=1.0000 → no significativo
-- minilm-a0.7 vs e5-a0.4: p_crudo=0.0060, p_holm=1.0000 → no significativo
-- minilm-a0.7 vs e5-a0.5: p_crudo=0.0020, p_holm=0.4500 → no significativo
-- minilm-a0.7 vs e5-a0.6: p_crudo=0.0140, p_holm=1.0000 → no significativo
-- minilm-a0.7 vs e5-a0.7: p_crudo=0.0020, p_holm=0.4500 → no significativo
-- minilm-a0.7 vs e5-a0.8: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.7 vs e5-a0.9: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.7 vs e5-a1.0: p_crudo=0.0940, p_holm=1.0000 → no significativo
-- minilm-a0.7 vs rrf-minilm: p_crudo=0.0080, p_holm=1.0000 → no significativo
-- minilm-a0.7 vs rrf-e5: p_crudo=0.0020, p_holm=0.4500 → no significativo
-- minilm-a0.7 vs lexico-solo: p_crudo=0.0080, p_holm=1.0000 → no significativo
-- minilm-a0.7 vs vector-solo-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.7 vs vector-solo-e5: p_crudo=0.0860, p_holm=1.0000 → no significativo
-- minilm-a0.8 vs minilm-a0.9: p_crudo=0.0020, p_holm=0.4500 → no significativo
-- minilm-a0.8 vs minilm-a1.0: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.8 vs e5-a0.0: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.8 vs e5-a0.1: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.8 vs e5-a0.2: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.8 vs e5-a0.3: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.8 vs e5-a0.4: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.8 vs e5-a0.5: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.8 vs e5-a0.6: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.8 vs e5-a0.7: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.8 vs e5-a0.8: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.8 vs e5-a0.9: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.8 vs e5-a1.0: p_crudo=0.0060, p_holm=1.0000 → no significativo
-- minilm-a0.8 vs rrf-minilm: p_crudo=0.3080, p_holm=1.0000 → no significativo
-- minilm-a0.8 vs rrf-e5: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.8 vs lexico-solo: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.8 vs vector-solo-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.8 vs vector-solo-e5: p_crudo=0.0040, p_holm=0.8520 → no significativo
-- minilm-a0.9 vs minilm-a1.0: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.9 vs e5-a0.0: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.9 vs e5-a0.1: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.9 vs e5-a0.2: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.9 vs e5-a0.3: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.9 vs e5-a0.4: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.9 vs e5-a0.5: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.9 vs e5-a0.6: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.9 vs e5-a0.7: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.9 vs e5-a0.8: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.9 vs e5-a0.9: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.9 vs e5-a1.0: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.9 vs rrf-minilm: p_crudo=0.0680, p_holm=1.0000 → no significativo
-- minilm-a0.9 vs rrf-e5: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.9 vs lexico-solo: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.9 vs vector-solo-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.9 vs vector-solo-e5: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a1.0 vs e5-a0.0: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a1.0 vs e5-a0.1: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a1.0 vs e5-a0.2: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a1.0 vs e5-a0.3: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a1.0 vs e5-a0.4: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a1.0 vs e5-a0.5: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a1.0 vs e5-a0.6: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a1.0 vs e5-a0.7: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a1.0 vs e5-a0.8: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a1.0 vs e5-a0.9: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a1.0 vs e5-a1.0: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a1.0 vs rrf-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a1.0 vs rrf-e5: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a1.0 vs lexico-solo: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a1.0 vs vector-solo-minilm: p_crudo=1.0000, p_holm=1.0000 → no significativo
-- minilm-a1.0 vs vector-solo-e5: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- e5-a0.0 vs e5-a0.1: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- e5-a0.0 vs e5-a0.2: p_crudo=0.2800, p_holm=1.0000 → no significativo
-- e5-a0.0 vs e5-a0.3: p_crudo=0.2680, p_holm=1.0000 → no significativo
-- e5-a0.0 vs e5-a0.4: p_crudo=0.4600, p_holm=1.0000 → no significativo
-- e5-a0.0 vs e5-a0.5: p_crudo=0.3740, p_holm=1.0000 → no significativo
-- e5-a0.0 vs e5-a0.6: p_crudo=0.2240, p_holm=1.0000 → no significativo
-- e5-a0.0 vs e5-a0.7: p_crudo=0.0860, p_holm=1.0000 → no significativo
-- e5-a0.0 vs e5-a0.8: p_crudo=0.0240, p_holm=1.0000 → no significativo
-- e5-a0.0 vs e5-a0.9: p_crudo=0.0040, p_holm=0.8520 → no significativo
-- e5-a0.0 vs e5-a1.0: p_crudo=0.6640, p_holm=1.0000 → no significativo
-- e5-a0.0 vs rrf-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- e5-a0.0 vs rrf-e5: p_crudo=0.0260, p_holm=1.0000 → no significativo
-- e5-a0.0 vs lexico-solo: p_crudo=1.0000, p_holm=1.0000 → no significativo
-- e5-a0.0 vs vector-solo-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- e5-a0.0 vs vector-solo-e5: p_crudo=0.6620, p_holm=1.0000 → no significativo
-- e5-a0.1 vs e5-a0.2: p_crudo=0.5640, p_holm=1.0000 → no significativo
-- e5-a0.1 vs e5-a0.3: p_crudo=0.5580, p_holm=1.0000 → no significativo
-- e5-a0.1 vs e5-a0.4: p_crudo=0.8420, p_holm=1.0000 → no significativo
-- e5-a0.1 vs e5-a0.5: p_crudo=0.7100, p_holm=1.0000 → no significativo
-- e5-a0.1 vs e5-a0.6: p_crudo=0.3800, p_holm=1.0000 → no significativo
-- e5-a0.1 vs e5-a0.7: p_crudo=0.1600, p_holm=1.0000 → no significativo
-- e5-a0.1 vs e5-a0.8: p_crudo=0.0600, p_holm=1.0000 → no significativo
-- e5-a0.1 vs e5-a0.9: p_crudo=0.0020, p_holm=0.4500 → no significativo
-- e5-a0.1 vs e5-a1.0: p_crudo=0.8000, p_holm=1.0000 → no significativo
-- e5-a0.1 vs rrf-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- e5-a0.1 vs rrf-e5: p_crudo=0.0540, p_holm=1.0000 → no significativo
-- e5-a0.1 vs lexico-solo: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- e5-a0.1 vs vector-solo-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- e5-a0.1 vs vector-solo-e5: p_crudo=0.8080, p_holm=1.0000 → no significativo
-- e5-a0.2 vs e5-a0.3: p_crudo=1.0000, p_holm=1.0000 → no significativo
-- e5-a0.2 vs e5-a0.4: p_crudo=1.0000, p_holm=1.0000 → no significativo
-- e5-a0.2 vs e5-a0.5: p_crudo=1.0000, p_holm=1.0000 → no significativo
-- e5-a0.2 vs e5-a0.6: p_crudo=0.5360, p_holm=1.0000 → no significativo
-- e5-a0.2 vs e5-a0.7: p_crudo=0.2040, p_holm=1.0000 → no significativo
-- e5-a0.2 vs e5-a0.8: p_crudo=0.0580, p_holm=1.0000 → no significativo
-- e5-a0.2 vs e5-a0.9: p_crudo=0.0160, p_holm=1.0000 → no significativo
-- e5-a0.2 vs e5-a1.0: p_crudo=0.9140, p_holm=1.0000 → no significativo
-- e5-a0.2 vs rrf-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- e5-a0.2 vs rrf-e5: p_crudo=0.0840, p_holm=1.0000 → no significativo
-- e5-a0.2 vs lexico-solo: p_crudo=0.2520, p_holm=1.0000 → no significativo
-- e5-a0.2 vs vector-solo-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- e5-a0.2 vs vector-solo-e5: p_crudo=0.9380, p_holm=1.0000 → no significativo
-- e5-a0.3 vs e5-a0.4: p_crudo=1.0000, p_holm=1.0000 → no significativo
-- e5-a0.3 vs e5-a0.5: p_crudo=1.0000, p_holm=1.0000 → no significativo
-- e5-a0.3 vs e5-a0.6: p_crudo=0.5600, p_holm=1.0000 → no significativo
-- e5-a0.3 vs e5-a0.7: p_crudo=0.2000, p_holm=1.0000 → no significativo
-- e5-a0.3 vs e5-a0.8: p_crudo=0.0640, p_holm=1.0000 → no significativo
-- e5-a0.3 vs e5-a0.9: p_crudo=0.0180, p_holm=1.0000 → no significativo
-- e5-a0.3 vs e5-a1.0: p_crudo=0.9080, p_holm=1.0000 → no significativo
-- e5-a0.3 vs rrf-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- e5-a0.3 vs rrf-e5: p_crudo=0.0860, p_holm=1.0000 → no significativo
-- e5-a0.3 vs lexico-solo: p_crudo=0.2620, p_holm=1.0000 → no significativo
-- e5-a0.3 vs vector-solo-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- e5-a0.3 vs vector-solo-e5: p_crudo=0.9140, p_holm=1.0000 → no significativo
-- e5-a0.4 vs e5-a0.5: p_crudo=1.0000, p_holm=1.0000 → no significativo
-- e5-a0.4 vs e5-a0.6: p_crudo=0.4200, p_holm=1.0000 → no significativo
-- e5-a0.4 vs e5-a0.7: p_crudo=0.0760, p_holm=1.0000 → no significativo
-- e5-a0.4 vs e5-a0.8: p_crudo=0.0260, p_holm=1.0000 → no significativo
-- e5-a0.4 vs e5-a0.9: p_crudo=0.0020, p_holm=0.4500 → no significativo
-- e5-a0.4 vs e5-a1.0: p_crudo=0.8520, p_holm=1.0000 → no significativo
-- e5-a0.4 vs rrf-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- e5-a0.4 vs rrf-e5: p_crudo=0.0520, p_holm=1.0000 → no significativo
-- e5-a0.4 vs lexico-solo: p_crudo=0.4960, p_holm=1.0000 → no significativo
-- e5-a0.4 vs vector-solo-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- e5-a0.4 vs vector-solo-e5: p_crudo=0.8780, p_holm=1.0000 → no significativo
-- e5-a0.5 vs e5-a0.6: p_crudo=0.4760, p_holm=1.0000 → no significativo
-- e5-a0.5 vs e5-a0.7: p_crudo=0.1440, p_holm=1.0000 → no significativo
-- e5-a0.5 vs e5-a0.8: p_crudo=0.0360, p_holm=1.0000 → no significativo
-- e5-a0.5 vs e5-a0.9: p_crudo=0.0020, p_holm=0.4500 → no significativo
-- e5-a0.5 vs e5-a1.0: p_crudo=0.9280, p_holm=1.0000 → no significativo
-- e5-a0.5 vs rrf-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- e5-a0.5 vs rrf-e5: p_crudo=0.0440, p_holm=1.0000 → no significativo
-- e5-a0.5 vs lexico-solo: p_crudo=0.3440, p_holm=1.0000 → no significativo
-- e5-a0.5 vs vector-solo-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- e5-a0.5 vs vector-solo-e5: p_crudo=0.9220, p_holm=1.0000 → no significativo
-- e5-a0.6 vs e5-a0.7: p_crudo=0.2640, p_holm=1.0000 → no significativo
-- e5-a0.6 vs e5-a0.8: p_crudo=0.0520, p_holm=1.0000 → no significativo
-- e5-a0.6 vs e5-a0.9: p_crudo=0.0080, p_holm=1.0000 → no significativo
-- e5-a0.6 vs e5-a1.0: p_crudo=0.9580, p_holm=1.0000 → no significativo
-- e5-a0.6 vs rrf-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- e5-a0.6 vs rrf-e5: p_crudo=0.1020, p_holm=1.0000 → no significativo
-- e5-a0.6 vs lexico-solo: p_crudo=0.2040, p_holm=1.0000 → no significativo
-- e5-a0.6 vs vector-solo-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- e5-a0.6 vs vector-solo-e5: p_crudo=0.9580, p_holm=1.0000 → no significativo
-- e5-a0.7 vs e5-a0.8: p_crudo=0.1840, p_holm=1.0000 → no significativo
-- e5-a0.7 vs e5-a0.9: p_crudo=0.0580, p_holm=1.0000 → no significativo
-- e5-a0.7 vs e5-a1.0: p_crudo=0.8080, p_holm=1.0000 → no significativo
-- e5-a0.7 vs rrf-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- e5-a0.7 vs rrf-e5: p_crudo=0.2000, p_holm=1.0000 → no significativo
-- e5-a0.7 vs lexico-solo: p_crudo=0.0640, p_holm=1.0000 → no significativo
-- e5-a0.7 vs vector-solo-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- e5-a0.7 vs vector-solo-e5: p_crudo=0.7540, p_holm=1.0000 → no significativo
-- e5-a0.8 vs e5-a0.9: p_crudo=0.3780, p_holm=1.0000 → no significativo
-- e5-a0.8 vs e5-a1.0: p_crudo=0.5260, p_holm=1.0000 → no significativo
-- e5-a0.8 vs rrf-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- e5-a0.8 vs rrf-e5: p_crudo=0.5320, p_holm=1.0000 → no significativo
-- e5-a0.8 vs lexico-solo: p_crudo=0.0400, p_holm=1.0000 → no significativo
-- e5-a0.8 vs vector-solo-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- e5-a0.8 vs vector-solo-e5: p_crudo=0.4760, p_holm=1.0000 → no significativo
-- e5-a0.9 vs e5-a1.0: p_crudo=0.2320, p_holm=1.0000 → no significativo
-- e5-a0.9 vs rrf-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- e5-a0.9 vs rrf-e5: p_crudo=0.8320, p_holm=1.0000 → no significativo
-- e5-a0.9 vs lexico-solo: p_crudo=0.0060, p_holm=1.0000 → no significativo
-- e5-a0.9 vs vector-solo-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- e5-a0.9 vs vector-solo-e5: p_crudo=0.2340, p_holm=1.0000 → no significativo
-- e5-a1.0 vs rrf-minilm: p_crudo=0.0020, p_holm=0.4500 → no significativo
-- e5-a1.0 vs rrf-e5: p_crudo=0.1620, p_holm=1.0000 → no significativo
-- e5-a1.0 vs lexico-solo: p_crudo=0.7000, p_holm=1.0000 → no significativo
-- e5-a1.0 vs vector-solo-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- e5-a1.0 vs vector-solo-e5: p_crudo=1.0000, p_holm=1.0000 → no significativo
-- rrf-minilm vs rrf-e5: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- rrf-minilm vs lexico-solo: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- rrf-minilm vs vector-solo-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- rrf-minilm vs vector-solo-e5: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- rrf-e5 vs lexico-solo: p_crudo=0.0380, p_holm=1.0000 → no significativo
-- rrf-e5 vs vector-solo-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- rrf-e5 vs vector-solo-e5: p_crudo=0.1300, p_holm=1.0000 → no significativo
-- lexico-solo vs vector-solo-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- lexico-solo vs vector-solo-e5: p_crudo=0.6700, p_holm=1.0000 → no significativo
-- vector-solo-minilm vs vector-solo-e5: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-
-**recall@10**
-
-- minilm-a0.0 vs minilm-a0.1: p_crudo=0.3620, p_holm=1.0000 → no significativo
-- minilm-a0.0 vs minilm-a0.2: p_crudo=0.6620, p_holm=1.0000 → no significativo
-- minilm-a0.0 vs minilm-a0.3: p_crudo=0.6500, p_holm=1.0000 → no significativo
-- minilm-a0.0 vs minilm-a0.4: p_crudo=0.5880, p_holm=1.0000 → no significativo
-- minilm-a0.0 vs minilm-a0.5: p_crudo=0.1360, p_holm=1.0000 → no significativo
-- minilm-a0.0 vs minilm-a0.6: p_crudo=0.0600, p_holm=1.0000 → no significativo
-- minilm-a0.0 vs minilm-a0.7: p_crudo=0.0060, p_holm=0.8820 → no significativo
-- minilm-a0.0 vs minilm-a0.8: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.0 vs minilm-a0.9: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.0 vs minilm-a1.0: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.0 vs e5-a0.0: p_crudo=1.0000, p_holm=1.0000 → no significativo
-- minilm-a0.0 vs e5-a0.1: p_crudo=0.0760, p_holm=1.0000 → no significativo
-- minilm-a0.0 vs e5-a0.2: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.0 vs e5-a0.3: p_crudo=0.0380, p_holm=1.0000 → no significativo
-- minilm-a0.0 vs e5-a0.4: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.0 vs e5-a0.5: p_crudo=0.0020, p_holm=0.3520 → no significativo
-- minilm-a0.0 vs e5-a0.6: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.0 vs e5-a0.7: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.0 vs e5-a0.8: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.0 vs e5-a0.9: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.0 vs e5-a1.0: p_crudo=0.1500, p_holm=1.0000 → no significativo
-- minilm-a0.0 vs rrf-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.0 vs rrf-e5: p_crudo=0.0020, p_holm=0.3520 → no significativo
-- minilm-a0.0 vs lexico-solo: p_crudo=1.0000, p_holm=1.0000 → no significativo
-- minilm-a0.0 vs vector-solo-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.0 vs vector-solo-e5: p_crudo=0.1300, p_holm=1.0000 → no significativo
-- minilm-a0.1 vs minilm-a0.2: p_crudo=0.0740, p_holm=1.0000 → no significativo
-- minilm-a0.1 vs minilm-a0.3: p_crudo=0.2740, p_holm=1.0000 → no significativo
-- minilm-a0.1 vs minilm-a0.4: p_crudo=0.2580, p_holm=1.0000 → no significativo
-- minilm-a0.1 vs minilm-a0.5: p_crudo=0.0620, p_holm=1.0000 → no significativo
-- minilm-a0.1 vs minilm-a0.6: p_crudo=0.0320, p_holm=1.0000 → no significativo
-- minilm-a0.1 vs minilm-a0.7: p_crudo=0.0060, p_holm=0.8820 → no significativo
-- minilm-a0.1 vs minilm-a0.8: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.1 vs minilm-a0.9: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.1 vs minilm-a1.0: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.1 vs e5-a0.0: p_crudo=0.3800, p_holm=1.0000 → no significativo
-- minilm-a0.1 vs e5-a0.1: p_crudo=0.3740, p_holm=1.0000 → no significativo
-- minilm-a0.1 vs e5-a0.2: p_crudo=0.1740, p_holm=1.0000 → no significativo
-- minilm-a0.1 vs e5-a0.3: p_crudo=0.1260, p_holm=1.0000 → no significativo
-- minilm-a0.1 vs e5-a0.4: p_crudo=0.0060, p_holm=0.8820 → no significativo
-- minilm-a0.1 vs e5-a0.5: p_crudo=0.0020, p_holm=0.3520 → no significativo
-- minilm-a0.1 vs e5-a0.6: p_crudo=0.0140, p_holm=1.0000 → no significativo
-- minilm-a0.1 vs e5-a0.7: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.1 vs e5-a0.8: p_crudo=0.0060, p_holm=0.8820 → no significativo
-- minilm-a0.1 vs e5-a0.9: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.1 vs e5-a1.0: p_crudo=0.1680, p_holm=1.0000 → no significativo
-- minilm-a0.1 vs rrf-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.1 vs rrf-e5: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.1 vs lexico-solo: p_crudo=0.4320, p_holm=1.0000 → no significativo
-- minilm-a0.1 vs vector-solo-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.1 vs vector-solo-e5: p_crudo=0.1940, p_holm=1.0000 → no significativo
-- minilm-a0.2 vs minilm-a0.3: p_crudo=0.8180, p_holm=1.0000 → no significativo
-- minilm-a0.2 vs minilm-a0.4: p_crudo=0.7000, p_holm=1.0000 → no significativo
-- minilm-a0.2 vs minilm-a0.5: p_crudo=0.2280, p_holm=1.0000 → no significativo
-- minilm-a0.2 vs minilm-a0.6: p_crudo=0.1200, p_holm=1.0000 → no significativo
-- minilm-a0.2 vs minilm-a0.7: p_crudo=0.0160, p_holm=1.0000 → no significativo
+- minilm-a0.1 vs vector-solo-e5: p_crudo=0.7750, p_holm=1.0000 → no significativo
+- minilm-a0.2 vs minilm-a0.3: p_crudo=1.0000, p_holm=1.0000 → no significativo
+- minilm-a0.2 vs minilm-a0.4: p_crudo=0.5815, p_holm=1.0000 → no significativo
+- minilm-a0.2 vs minilm-a0.5: p_crudo=0.1755, p_holm=1.0000 → no significativo
+- minilm-a0.2 vs minilm-a0.6: p_crudo=0.0110, p_holm=1.0000 → no significativo
+- minilm-a0.2 vs minilm-a0.7: p_crudo=0.0000, p_holm=0.0000 → **significativo**
 - minilm-a0.2 vs minilm-a0.8: p_crudo=0.0000, p_holm=0.0000 → **significativo**
 - minilm-a0.2 vs minilm-a0.9: p_crudo=0.0000, p_holm=0.0000 → **significativo**
 - minilm-a0.2 vs minilm-a1.0: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.2 vs e5-a0.0: p_crudo=0.6580, p_holm=1.0000 → no significativo
-- minilm-a0.2 vs e5-a0.1: p_crudo=0.0220, p_holm=1.0000 → no significativo
-- minilm-a0.2 vs e5-a0.2: p_crudo=0.0160, p_holm=1.0000 → no significativo
-- minilm-a0.2 vs e5-a0.3: p_crudo=0.0040, p_holm=0.6200 → no significativo
-- minilm-a0.2 vs e5-a0.4: p_crudo=0.0020, p_holm=0.3520 → no significativo
-- minilm-a0.2 vs e5-a0.5: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.2 vs e5-a0.6: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.2 vs e5-a0.7: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.2 vs e5-a0.8: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.2 vs e5-a0.9: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.2 vs e5-a1.0: p_crudo=0.1000, p_holm=1.0000 → no significativo
-- minilm-a0.2 vs rrf-minilm: p_crudo=0.0020, p_holm=0.3520 → no significativo
-- minilm-a0.2 vs rrf-e5: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.2 vs lexico-solo: p_crudo=0.3600, p_holm=1.0000 → no significativo
+- minilm-a0.2 vs e5-a0.0: p_crudo=0.6420, p_holm=1.0000 → no significativo
+- minilm-a0.2 vs e5-a0.1: p_crudo=0.5680, p_holm=1.0000 → no significativo
+- minilm-a0.2 vs e5-a0.2: p_crudo=0.6685, p_holm=1.0000 → no significativo
+- minilm-a0.2 vs e5-a0.3: p_crudo=0.3855, p_holm=1.0000 → no significativo
+- minilm-a0.2 vs e5-a0.4: p_crudo=0.3615, p_holm=1.0000 → no significativo
+- minilm-a0.2 vs e5-a0.5: p_crudo=0.3030, p_holm=1.0000 → no significativo
+- minilm-a0.2 vs e5-a0.6: p_crudo=0.0925, p_holm=1.0000 → no significativo
+- minilm-a0.2 vs e5-a0.7: p_crudo=0.1455, p_holm=1.0000 → no significativo
+- minilm-a0.2 vs e5-a0.8: p_crudo=0.0360, p_holm=1.0000 → no significativo
+- minilm-a0.2 vs e5-a0.9: p_crudo=0.0300, p_holm=1.0000 → no significativo
+- minilm-a0.2 vs e5-a1.0: p_crudo=0.2980, p_holm=1.0000 → no significativo
+- minilm-a0.2 vs rrf-minilm: p_crudo=0.0005, p_holm=0.1165 → no significativo
+- minilm-a0.2 vs rrf-e5: p_crudo=0.0550, p_holm=1.0000 → no significativo
+- minilm-a0.2 vs lexico-solo: p_crudo=0.6340, p_holm=1.0000 → no significativo
 - minilm-a0.2 vs vector-solo-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.2 vs vector-solo-e5: p_crudo=0.1180, p_holm=1.0000 → no significativo
-- minilm-a0.3 vs minilm-a0.4: p_crudo=0.8120, p_holm=1.0000 → no significativo
-- minilm-a0.3 vs minilm-a0.5: p_crudo=0.1060, p_holm=1.0000 → no significativo
-- minilm-a0.3 vs minilm-a0.6: p_crudo=0.0500, p_holm=1.0000 → no significativo
-- minilm-a0.3 vs minilm-a0.7: p_crudo=0.0060, p_holm=0.8820 → no significativo
+- minilm-a0.2 vs vector-solo-e5: p_crudo=0.8155, p_holm=1.0000 → no significativo
+- minilm-a0.3 vs minilm-a0.4: p_crudo=0.7440, p_holm=1.0000 → no significativo
+- minilm-a0.3 vs minilm-a0.5: p_crudo=0.1080, p_holm=1.0000 → no significativo
+- minilm-a0.3 vs minilm-a0.6: p_crudo=0.0075, p_holm=1.0000 → no significativo
+- minilm-a0.3 vs minilm-a0.7: p_crudo=0.0000, p_holm=0.0000 → **significativo**
 - minilm-a0.3 vs minilm-a0.8: p_crudo=0.0000, p_holm=0.0000 → **significativo**
 - minilm-a0.3 vs minilm-a0.9: p_crudo=0.0000, p_holm=0.0000 → **significativo**
 - minilm-a0.3 vs minilm-a1.0: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.3 vs e5-a0.0: p_crudo=0.6400, p_holm=1.0000 → no significativo
-- minilm-a0.3 vs e5-a0.1: p_crudo=0.1140, p_holm=1.0000 → no significativo
-- minilm-a0.3 vs e5-a0.2: p_crudo=0.1260, p_holm=1.0000 → no significativo
-- minilm-a0.3 vs e5-a0.3: p_crudo=0.0900, p_holm=1.0000 → no significativo
-- minilm-a0.3 vs e5-a0.4: p_crudo=0.0180, p_holm=1.0000 → no significativo
-- minilm-a0.3 vs e5-a0.5: p_crudo=0.0020, p_holm=0.3520 → no significativo
-- minilm-a0.3 vs e5-a0.6: p_crudo=0.0020, p_holm=0.3520 → no significativo
-- minilm-a0.3 vs e5-a0.7: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.3 vs e5-a0.8: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.3 vs e5-a0.9: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.3 vs e5-a1.0: p_crudo=0.0920, p_holm=1.0000 → no significativo
+- minilm-a0.3 vs e5-a0.0: p_crudo=0.6390, p_holm=1.0000 → no significativo
+- minilm-a0.3 vs e5-a0.1: p_crudo=0.6000, p_holm=1.0000 → no significativo
+- minilm-a0.3 vs e5-a0.2: p_crudo=0.6370, p_holm=1.0000 → no significativo
+- minilm-a0.3 vs e5-a0.3: p_crudo=0.3955, p_holm=1.0000 → no significativo
+- minilm-a0.3 vs e5-a0.4: p_crudo=0.3780, p_holm=1.0000 → no significativo
+- minilm-a0.3 vs e5-a0.5: p_crudo=0.3080, p_holm=1.0000 → no significativo
+- minilm-a0.3 vs e5-a0.6: p_crudo=0.0925, p_holm=1.0000 → no significativo
+- minilm-a0.3 vs e5-a0.7: p_crudo=0.1740, p_holm=1.0000 → no significativo
+- minilm-a0.3 vs e5-a0.8: p_crudo=0.0310, p_holm=1.0000 → no significativo
+- minilm-a0.3 vs e5-a0.9: p_crudo=0.0285, p_holm=1.0000 → no significativo
+- minilm-a0.3 vs e5-a1.0: p_crudo=0.2780, p_holm=1.0000 → no significativo
 - minilm-a0.3 vs rrf-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.3 vs rrf-e5: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.3 vs lexico-solo: p_crudo=0.4600, p_holm=1.0000 → no significativo
+- minilm-a0.3 vs rrf-e5: p_crudo=0.0665, p_holm=1.0000 → no significativo
+- minilm-a0.3 vs lexico-solo: p_crudo=0.6315, p_holm=1.0000 → no significativo
 - minilm-a0.3 vs vector-solo-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.3 vs vector-solo-e5: p_crudo=0.1000, p_holm=1.0000 → no significativo
-- minilm-a0.4 vs minilm-a0.5: p_crudo=0.0240, p_holm=1.0000 → no significativo
-- minilm-a0.4 vs minilm-a0.6: p_crudo=0.0380, p_holm=1.0000 → no significativo
-- minilm-a0.4 vs minilm-a0.7: p_crudo=0.0020, p_holm=0.3520 → no significativo
+- minilm-a0.3 vs vector-solo-e5: p_crudo=0.8375, p_holm=1.0000 → no significativo
+- minilm-a0.4 vs minilm-a0.5: p_crudo=0.0340, p_holm=1.0000 → no significativo
+- minilm-a0.4 vs minilm-a0.6: p_crudo=0.0025, p_holm=0.5375 → no significativo
+- minilm-a0.4 vs minilm-a0.7: p_crudo=0.0000, p_holm=0.0000 → **significativo**
 - minilm-a0.4 vs minilm-a0.8: p_crudo=0.0000, p_holm=0.0000 → **significativo**
 - minilm-a0.4 vs minilm-a0.9: p_crudo=0.0000, p_holm=0.0000 → **significativo**
 - minilm-a0.4 vs minilm-a1.0: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.4 vs e5-a0.0: p_crudo=0.5340, p_holm=1.0000 → no significativo
-- minilm-a0.4 vs e5-a0.1: p_crudo=0.1500, p_holm=1.0000 → no significativo
-- minilm-a0.4 vs e5-a0.2: p_crudo=0.1400, p_holm=1.0000 → no significativo
-- minilm-a0.4 vs e5-a0.3: p_crudo=0.1300, p_holm=1.0000 → no significativo
-- minilm-a0.4 vs e5-a0.4: p_crudo=0.0140, p_holm=1.0000 → no significativo
-- minilm-a0.4 vs e5-a0.5: p_crudo=0.0040, p_holm=0.6200 → no significativo
-- minilm-a0.4 vs e5-a0.6: p_crudo=0.0020, p_holm=0.3520 → no significativo
-- minilm-a0.4 vs e5-a0.7: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.4 vs e5-a0.8: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.4 vs e5-a0.9: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.4 vs e5-a1.0: p_crudo=0.0540, p_holm=1.0000 → no significativo
+- minilm-a0.4 vs e5-a0.0: p_crudo=0.4295, p_holm=1.0000 → no significativo
+- minilm-a0.4 vs e5-a0.1: p_crudo=0.4075, p_holm=1.0000 → no significativo
+- minilm-a0.4 vs e5-a0.2: p_crudo=0.9595, p_holm=1.0000 → no significativo
+- minilm-a0.4 vs e5-a0.3: p_crudo=0.6970, p_holm=1.0000 → no significativo
+- minilm-a0.4 vs e5-a0.4: p_crudo=0.7295, p_holm=1.0000 → no significativo
+- minilm-a0.4 vs e5-a0.5: p_crudo=0.6220, p_holm=1.0000 → no significativo
+- minilm-a0.4 vs e5-a0.6: p_crudo=0.2485, p_holm=1.0000 → no significativo
+- minilm-a0.4 vs e5-a0.7: p_crudo=0.2845, p_holm=1.0000 → no significativo
+- minilm-a0.4 vs e5-a0.8: p_crudo=0.0555, p_holm=1.0000 → no significativo
+- minilm-a0.4 vs e5-a0.9: p_crudo=0.0540, p_holm=1.0000 → no significativo
+- minilm-a0.4 vs e5-a1.0: p_crudo=0.2615, p_holm=1.0000 → no significativo
 - minilm-a0.4 vs rrf-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.4 vs rrf-e5: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.4 vs lexico-solo: p_crudo=0.4140, p_holm=1.0000 → no significativo
+- minilm-a0.4 vs rrf-e5: p_crudo=0.0895, p_holm=1.0000 → no significativo
+- minilm-a0.4 vs lexico-solo: p_crudo=0.4505, p_holm=1.0000 → no significativo
 - minilm-a0.4 vs vector-solo-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.4 vs vector-solo-e5: p_crudo=0.0560, p_holm=1.0000 → no significativo
-- minilm-a0.5 vs minilm-a0.6: p_crudo=0.2340, p_holm=1.0000 → no significativo
-- minilm-a0.5 vs minilm-a0.7: p_crudo=0.0140, p_holm=1.0000 → no significativo
-- minilm-a0.5 vs minilm-a0.8: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- minilm-a0.4 vs vector-solo-e5: p_crudo=0.9355, p_holm=1.0000 → no significativo
+- minilm-a0.5 vs minilm-a0.6: p_crudo=0.1095, p_holm=1.0000 → no significativo
+- minilm-a0.5 vs minilm-a0.7: p_crudo=0.0030, p_holm=0.6420 → no significativo
+- minilm-a0.5 vs minilm-a0.8: p_crudo=0.0005, p_holm=0.1165 → no significativo
 - minilm-a0.5 vs minilm-a0.9: p_crudo=0.0000, p_holm=0.0000 → **significativo**
 - minilm-a0.5 vs minilm-a1.0: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.5 vs e5-a0.0: p_crudo=0.1520, p_holm=1.0000 → no significativo
-- minilm-a0.5 vs e5-a0.1: p_crudo=0.0260, p_holm=1.0000 → no significativo
-- minilm-a0.5 vs e5-a0.2: p_crudo=0.0320, p_holm=1.0000 → no significativo
-- minilm-a0.5 vs e5-a0.3: p_crudo=0.0140, p_holm=1.0000 → no significativo
-- minilm-a0.5 vs e5-a0.4: p_crudo=0.0020, p_holm=0.3520 → no significativo
-- minilm-a0.5 vs e5-a0.5: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.5 vs e5-a0.6: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.5 vs e5-a0.7: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.5 vs e5-a0.8: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.5 vs e5-a0.9: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.5 vs e5-a1.0: p_crudo=0.0500, p_holm=1.0000 → no significativo
-- minilm-a0.5 vs rrf-minilm: p_crudo=0.0020, p_holm=0.3520 → no significativo
-- minilm-a0.5 vs rrf-e5: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.5 vs lexico-solo: p_crudo=0.0920, p_holm=1.0000 → no significativo
+- minilm-a0.5 vs e5-a0.0: p_crudo=0.4710, p_holm=1.0000 → no significativo
+- minilm-a0.5 vs e5-a0.1: p_crudo=0.4705, p_holm=1.0000 → no significativo
+- minilm-a0.5 vs e5-a0.2: p_crudo=0.1705, p_holm=1.0000 → no significativo
+- minilm-a0.5 vs e5-a0.3: p_crudo=0.0845, p_holm=1.0000 → no significativo
+- minilm-a0.5 vs e5-a0.4: p_crudo=0.0535, p_holm=1.0000 → no significativo
+- minilm-a0.5 vs e5-a0.5: p_crudo=0.0525, p_holm=1.0000 → no significativo
+- minilm-a0.5 vs e5-a0.6: p_crudo=0.0145, p_holm=1.0000 → no significativo
+- minilm-a0.5 vs e5-a0.7: p_crudo=0.0250, p_holm=1.0000 → no significativo
+- minilm-a0.5 vs e5-a0.8: p_crudo=0.0015, p_holm=0.3330 → no significativo
+- minilm-a0.5 vs e5-a0.9: p_crudo=0.0030, p_holm=0.6420 → no significativo
+- minilm-a0.5 vs e5-a1.0: p_crudo=0.5035, p_holm=1.0000 → no significativo
+- minilm-a0.5 vs rrf-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- minilm-a0.5 vs rrf-e5: p_crudo=0.0060, p_holm=1.0000 → no significativo
+- minilm-a0.5 vs lexico-solo: p_crudo=0.4650, p_holm=1.0000 → no significativo
 - minilm-a0.5 vs vector-solo-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.5 vs vector-solo-e5: p_crudo=0.0400, p_holm=1.0000 → no significativo
-- minilm-a0.6 vs minilm-a0.7: p_crudo=0.0140, p_holm=1.0000 → no significativo
-- minilm-a0.6 vs minilm-a0.8: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- minilm-a0.5 vs vector-solo-e5: p_crudo=0.4600, p_holm=1.0000 → no significativo
+- minilm-a0.6 vs minilm-a0.7: p_crudo=0.0195, p_holm=1.0000 → no significativo
+- minilm-a0.6 vs minilm-a0.8: p_crudo=0.0005, p_holm=0.1165 → no significativo
 - minilm-a0.6 vs minilm-a0.9: p_crudo=0.0000, p_holm=0.0000 → **significativo**
 - minilm-a0.6 vs minilm-a1.0: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.6 vs e5-a0.0: p_crudo=0.0580, p_holm=1.0000 → no significativo
-- minilm-a0.6 vs e5-a0.1: p_crudo=0.0240, p_holm=1.0000 → no significativo
-- minilm-a0.6 vs e5-a0.2: p_crudo=0.0100, p_holm=1.0000 → no significativo
-- minilm-a0.6 vs e5-a0.3: p_crudo=0.0120, p_holm=1.0000 → no significativo
-- minilm-a0.6 vs e5-a0.4: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.6 vs e5-a0.5: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.6 vs e5-a0.6: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.6 vs e5-a0.7: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- minilm-a0.6 vs e5-a0.0: p_crudo=0.0490, p_holm=1.0000 → no significativo
+- minilm-a0.6 vs e5-a0.1: p_crudo=0.0720, p_holm=1.0000 → no significativo
+- minilm-a0.6 vs e5-a0.2: p_crudo=0.0205, p_holm=1.0000 → no significativo
+- minilm-a0.6 vs e5-a0.3: p_crudo=0.0090, p_holm=1.0000 → no significativo
+- minilm-a0.6 vs e5-a0.4: p_crudo=0.0015, p_holm=0.3330 → no significativo
+- minilm-a0.6 vs e5-a0.5: p_crudo=0.0015, p_holm=0.3330 → no significativo
+- minilm-a0.6 vs e5-a0.6: p_crudo=0.0005, p_holm=0.1165 → no significativo
+- minilm-a0.6 vs e5-a0.7: p_crudo=0.0005, p_holm=0.1165 → no significativo
 - minilm-a0.6 vs e5-a0.8: p_crudo=0.0000, p_holm=0.0000 → **significativo**
 - minilm-a0.6 vs e5-a0.9: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.6 vs e5-a1.0: p_crudo=0.0160, p_holm=1.0000 → no significativo
-- minilm-a0.6 vs rrf-minilm: p_crudo=0.0060, p_holm=0.8820 → no significativo
+- minilm-a0.6 vs e5-a1.0: p_crudo=0.8555, p_holm=1.0000 → no significativo
+- minilm-a0.6 vs rrf-minilm: p_crudo=0.0020, p_holm=0.4340 → no significativo
 - minilm-a0.6 vs rrf-e5: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.6 vs lexico-solo: p_crudo=0.0380, p_holm=1.0000 → no significativo
+- minilm-a0.6 vs lexico-solo: p_crudo=0.0485, p_holm=1.0000 → no significativo
 - minilm-a0.6 vs vector-solo-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.6 vs vector-solo-e5: p_crudo=0.0160, p_holm=1.0000 → no significativo
-- minilm-a0.7 vs minilm-a0.8: p_crudo=0.0120, p_holm=1.0000 → no significativo
+- minilm-a0.6 vs vector-solo-e5: p_crudo=0.1515, p_holm=1.0000 → no significativo
+- minilm-a0.7 vs minilm-a0.8: p_crudo=0.0080, p_holm=1.0000 → no significativo
 - minilm-a0.7 vs minilm-a0.9: p_crudo=0.0000, p_holm=0.0000 → **significativo**
 - minilm-a0.7 vs minilm-a1.0: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.7 vs e5-a0.0: p_crudo=0.0100, p_holm=1.0000 → no significativo
-- minilm-a0.7 vs e5-a0.1: p_crudo=0.0060, p_holm=0.8820 → no significativo
-- minilm-a0.7 vs e5-a0.2: p_crudo=0.0020, p_holm=0.3520 → no significativo
-- minilm-a0.7 vs e5-a0.3: p_crudo=0.0020, p_holm=0.3520 → no significativo
+- minilm-a0.7 vs e5-a0.0: p_crudo=0.0005, p_holm=0.1165 → no significativo
+- minilm-a0.7 vs e5-a0.1: p_crudo=0.0030, p_holm=0.6420 → no significativo
+- minilm-a0.7 vs e5-a0.2: p_crudo=0.0015, p_holm=0.3330 → no significativo
+- minilm-a0.7 vs e5-a0.3: p_crudo=0.0010, p_holm=0.2240 → no significativo
 - minilm-a0.7 vs e5-a0.4: p_crudo=0.0000, p_holm=0.0000 → **significativo**
 - minilm-a0.7 vs e5-a0.5: p_crudo=0.0000, p_holm=0.0000 → **significativo**
 - minilm-a0.7 vs e5-a0.6: p_crudo=0.0000, p_holm=0.0000 → **significativo**
 - minilm-a0.7 vs e5-a0.7: p_crudo=0.0000, p_holm=0.0000 → **significativo**
 - minilm-a0.7 vs e5-a0.8: p_crudo=0.0000, p_holm=0.0000 → **significativo**
 - minilm-a0.7 vs e5-a0.9: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.7 vs e5-a1.0: p_crudo=0.0040, p_holm=0.6200 → no significativo
-- minilm-a0.7 vs rrf-minilm: p_crudo=0.0220, p_holm=1.0000 → no significativo
+- minilm-a0.7 vs e5-a1.0: p_crudo=0.6995, p_holm=1.0000 → no significativo
+- minilm-a0.7 vs rrf-minilm: p_crudo=0.0525, p_holm=1.0000 → no significativo
 - minilm-a0.7 vs rrf-e5: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.7 vs lexico-solo: p_crudo=0.0040, p_holm=0.6200 → no significativo
+- minilm-a0.7 vs lexico-solo: p_crudo=0.0020, p_holm=0.4340 → no significativo
 - minilm-a0.7 vs vector-solo-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.7 vs vector-solo-e5: p_crudo=0.0020, p_holm=0.3520 → no significativo
-- minilm-a0.8 vs minilm-a0.9: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- minilm-a0.7 vs vector-solo-e5: p_crudo=0.0330, p_holm=1.0000 → no significativo
+- minilm-a0.8 vs minilm-a0.9: p_crudo=0.0005, p_holm=0.1165 → no significativo
 - minilm-a0.8 vs minilm-a1.0: p_crudo=0.0000, p_holm=0.0000 → **significativo**
 - minilm-a0.8 vs e5-a0.0: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.8 vs e5-a0.1: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- minilm-a0.8 vs e5-a0.1: p_crudo=0.0005, p_holm=0.1165 → no significativo
 - minilm-a0.8 vs e5-a0.2: p_crudo=0.0000, p_holm=0.0000 → **significativo**
 - minilm-a0.8 vs e5-a0.3: p_crudo=0.0000, p_holm=0.0000 → **significativo**
 - minilm-a0.8 vs e5-a0.4: p_crudo=0.0000, p_holm=0.0000 → **significativo**
@@ -582,8 +228,8 @@ Test de significancia: Fisher's Randomization (`ranx`), corrección de Holm-Bonf
 - minilm-a0.8 vs e5-a0.7: p_crudo=0.0000, p_holm=0.0000 → **significativo**
 - minilm-a0.8 vs e5-a0.8: p_crudo=0.0000, p_holm=0.0000 → **significativo**
 - minilm-a0.8 vs e5-a0.9: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.8 vs e5-a1.0: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.8 vs rrf-minilm: p_crudo=0.2060, p_holm=1.0000 → no significativo
+- minilm-a0.8 vs e5-a1.0: p_crudo=0.2430, p_holm=1.0000 → no significativo
+- minilm-a0.8 vs rrf-minilm: p_crudo=0.9120, p_holm=1.0000 → no significativo
 - minilm-a0.8 vs rrf-e5: p_crudo=0.0000, p_holm=0.0000 → **significativo**
 - minilm-a0.8 vs lexico-solo: p_crudo=0.0000, p_holm=0.0000 → **significativo**
 - minilm-a0.8 vs vector-solo-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
@@ -599,8 +245,8 @@ Test de significancia: Fisher's Randomization (`ranx`), corrección de Holm-Bonf
 - minilm-a0.9 vs e5-a0.7: p_crudo=0.0000, p_holm=0.0000 → **significativo**
 - minilm-a0.9 vs e5-a0.8: p_crudo=0.0000, p_holm=0.0000 → **significativo**
 - minilm-a0.9 vs e5-a0.9: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.9 vs e5-a1.0: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.9 vs rrf-minilm: p_crudo=0.0520, p_holm=1.0000 → no significativo
+- minilm-a0.9 vs e5-a1.0: p_crudo=0.0170, p_holm=1.0000 → no significativo
+- minilm-a0.9 vs rrf-minilm: p_crudo=0.0420, p_holm=1.0000 → no significativo
 - minilm-a0.9 vs rrf-e5: p_crudo=0.0000, p_holm=0.0000 → **significativo**
 - minilm-a0.9 vs lexico-solo: p_crudo=0.0000, p_holm=0.0000 → **significativo**
 - minilm-a0.9 vs vector-solo-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
@@ -619,277 +265,277 @@ Test de significancia: Fisher's Randomization (`ranx`), corrección de Holm-Bonf
 - minilm-a1.0 vs rrf-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
 - minilm-a1.0 vs rrf-e5: p_crudo=0.0000, p_holm=0.0000 → **significativo**
 - minilm-a1.0 vs lexico-solo: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a1.0 vs vector-solo-minilm: p_crudo=1.0000, p_holm=1.0000 → no significativo
+- minilm-a1.0 vs vector-solo-minilm: p_crudo=0.9290, p_holm=1.0000 → no significativo
 - minilm-a1.0 vs vector-solo-e5: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- e5-a0.0 vs e5-a0.1: p_crudo=0.0680, p_holm=1.0000 → no significativo
-- e5-a0.0 vs e5-a0.2: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- e5-a0.0 vs e5-a0.3: p_crudo=0.0380, p_holm=1.0000 → no significativo
-- e5-a0.0 vs e5-a0.4: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- e5-a0.0 vs e5-a0.5: p_crudo=0.0020, p_holm=0.3520 → no significativo
-- e5-a0.0 vs e5-a0.6: p_crudo=0.0020, p_holm=0.3520 → no significativo
-- e5-a0.0 vs e5-a0.7: p_crudo=0.0020, p_holm=0.3520 → no significativo
-- e5-a0.0 vs e5-a0.8: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- e5-a0.0 vs e5-a0.9: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- e5-a0.0 vs e5-a1.0: p_crudo=0.1200, p_holm=1.0000 → no significativo
+- e5-a0.0 vs e5-a0.1: p_crudo=1.0000, p_holm=1.0000 → no significativo
+- e5-a0.0 vs e5-a0.2: p_crudo=0.2480, p_holm=1.0000 → no significativo
+- e5-a0.0 vs e5-a0.3: p_crudo=0.0720, p_holm=1.0000 → no significativo
+- e5-a0.0 vs e5-a0.4: p_crudo=0.1315, p_holm=1.0000 → no significativo
+- e5-a0.0 vs e5-a0.5: p_crudo=0.1200, p_holm=1.0000 → no significativo
+- e5-a0.0 vs e5-a0.6: p_crudo=0.0225, p_holm=1.0000 → no significativo
+- e5-a0.0 vs e5-a0.7: p_crudo=0.0540, p_holm=1.0000 → no significativo
+- e5-a0.0 vs e5-a0.8: p_crudo=0.0310, p_holm=1.0000 → no significativo
+- e5-a0.0 vs e5-a0.9: p_crudo=0.0330, p_holm=1.0000 → no significativo
+- e5-a0.0 vs e5-a1.0: p_crudo=0.3580, p_holm=1.0000 → no significativo
 - e5-a0.0 vs rrf-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- e5-a0.0 vs rrf-e5: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- e5-a0.0 vs rrf-e5: p_crudo=0.0295, p_holm=1.0000 → no significativo
 - e5-a0.0 vs lexico-solo: p_crudo=1.0000, p_holm=1.0000 → no significativo
 - e5-a0.0 vs vector-solo-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- e5-a0.0 vs vector-solo-e5: p_crudo=0.1160, p_holm=1.0000 → no significativo
-- e5-a0.1 vs e5-a0.2: p_crudo=0.5020, p_holm=1.0000 → no significativo
-- e5-a0.1 vs e5-a0.3: p_crudo=0.7440, p_holm=1.0000 → no significativo
-- e5-a0.1 vs e5-a0.4: p_crudo=0.0080, p_holm=1.0000 → no significativo
-- e5-a0.1 vs e5-a0.5: p_crudo=0.0160, p_holm=1.0000 → no significativo
-- e5-a0.1 vs e5-a0.6: p_crudo=0.0160, p_holm=1.0000 → no significativo
-- e5-a0.1 vs e5-a0.7: p_crudo=0.0040, p_holm=0.6200 → no significativo
-- e5-a0.1 vs e5-a0.8: p_crudo=0.0060, p_holm=0.8820 → no significativo
-- e5-a0.1 vs e5-a0.9: p_crudo=0.0020, p_holm=0.3520 → no significativo
-- e5-a0.1 vs e5-a1.0: p_crudo=0.2340, p_holm=1.0000 → no significativo
+- e5-a0.0 vs vector-solo-e5: p_crudo=0.6925, p_holm=1.0000 → no significativo
+- e5-a0.1 vs e5-a0.2: p_crudo=0.1375, p_holm=1.0000 → no significativo
+- e5-a0.1 vs e5-a0.3: p_crudo=0.0690, p_holm=1.0000 → no significativo
+- e5-a0.1 vs e5-a0.4: p_crudo=0.1005, p_holm=1.0000 → no significativo
+- e5-a0.1 vs e5-a0.5: p_crudo=0.1150, p_holm=1.0000 → no significativo
+- e5-a0.1 vs e5-a0.6: p_crudo=0.0230, p_holm=1.0000 → no significativo
+- e5-a0.1 vs e5-a0.7: p_crudo=0.0580, p_holm=1.0000 → no significativo
+- e5-a0.1 vs e5-a0.8: p_crudo=0.0080, p_holm=1.0000 → no significativo
+- e5-a0.1 vs e5-a0.9: p_crudo=0.0210, p_holm=1.0000 → no significativo
+- e5-a0.1 vs e5-a1.0: p_crudo=0.3595, p_holm=1.0000 → no significativo
 - e5-a0.1 vs rrf-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- e5-a0.1 vs rrf-e5: p_crudo=0.0020, p_holm=0.3520 → no significativo
-- e5-a0.1 vs lexico-solo: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- e5-a0.1 vs rrf-e5: p_crudo=0.0270, p_holm=1.0000 → no significativo
+- e5-a0.1 vs lexico-solo: p_crudo=1.0000, p_holm=1.0000 → no significativo
 - e5-a0.1 vs vector-solo-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- e5-a0.1 vs vector-solo-e5: p_crudo=0.2760, p_holm=1.0000 → no significativo
-- e5-a0.2 vs e5-a0.3: p_crudo=1.0000, p_holm=1.0000 → no significativo
-- e5-a0.2 vs e5-a0.4: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- e5-a0.2 vs e5-a0.5: p_crudo=0.0140, p_holm=1.0000 → no significativo
-- e5-a0.2 vs e5-a0.6: p_crudo=0.0100, p_holm=1.0000 → no significativo
-- e5-a0.2 vs e5-a0.7: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- e5-a0.2 vs e5-a0.8: p_crudo=0.0040, p_holm=0.6200 → no significativo
-- e5-a0.2 vs e5-a0.9: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- e5-a0.2 vs e5-a1.0: p_crudo=0.2560, p_holm=1.0000 → no significativo
+- e5-a0.1 vs vector-solo-e5: p_crudo=0.6840, p_holm=1.0000 → no significativo
+- e5-a0.2 vs e5-a0.3: p_crudo=0.4930, p_holm=1.0000 → no significativo
+- e5-a0.2 vs e5-a0.4: p_crudo=0.7500, p_holm=1.0000 → no significativo
+- e5-a0.2 vs e5-a0.5: p_crudo=0.6315, p_holm=1.0000 → no significativo
+- e5-a0.2 vs e5-a0.6: p_crudo=0.2205, p_holm=1.0000 → no significativo
+- e5-a0.2 vs e5-a0.7: p_crudo=0.2640, p_holm=1.0000 → no significativo
+- e5-a0.2 vs e5-a0.8: p_crudo=0.0740, p_holm=1.0000 → no significativo
+- e5-a0.2 vs e5-a0.9: p_crudo=0.0535, p_holm=1.0000 → no significativo
+- e5-a0.2 vs e5-a1.0: p_crudo=0.2625, p_holm=1.0000 → no significativo
 - e5-a0.2 vs rrf-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- e5-a0.2 vs rrf-e5: p_crudo=0.0040, p_holm=0.6200 → no significativo
-- e5-a0.2 vs lexico-solo: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- e5-a0.2 vs rrf-e5: p_crudo=0.1045, p_holm=1.0000 → no significativo
+- e5-a0.2 vs lexico-solo: p_crudo=0.2235, p_holm=1.0000 → no significativo
 - e5-a0.2 vs vector-solo-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- e5-a0.2 vs vector-solo-e5: p_crudo=0.2420, p_holm=1.0000 → no significativo
-- e5-a0.3 vs e5-a0.4: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- e5-a0.3 vs e5-a0.5: p_crudo=0.0120, p_holm=1.0000 → no significativo
-- e5-a0.3 vs e5-a0.6: p_crudo=0.0060, p_holm=0.8820 → no significativo
-- e5-a0.3 vs e5-a0.7: p_crudo=0.0060, p_holm=0.8820 → no significativo
-- e5-a0.3 vs e5-a0.8: p_crudo=0.0100, p_holm=1.0000 → no significativo
-- e5-a0.3 vs e5-a0.9: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- e5-a0.3 vs e5-a1.0: p_crudo=0.3200, p_holm=1.0000 → no significativo
+- e5-a0.2 vs vector-solo-e5: p_crudo=0.9545, p_holm=1.0000 → no significativo
+- e5-a0.3 vs e5-a0.4: p_crudo=0.8835, p_holm=1.0000 → no significativo
+- e5-a0.3 vs e5-a0.5: p_crudo=1.0000, p_holm=1.0000 → no significativo
+- e5-a0.3 vs e5-a0.6: p_crudo=0.3135, p_holm=1.0000 → no significativo
+- e5-a0.3 vs e5-a0.7: p_crudo=0.3850, p_holm=1.0000 → no significativo
+- e5-a0.3 vs e5-a0.8: p_crudo=0.1335, p_holm=1.0000 → no significativo
+- e5-a0.3 vs e5-a0.9: p_crudo=0.0830, p_holm=1.0000 → no significativo
+- e5-a0.3 vs e5-a1.0: p_crudo=0.2160, p_holm=1.0000 → no significativo
 - e5-a0.3 vs rrf-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- e5-a0.3 vs rrf-e5: p_crudo=0.0020, p_holm=0.3520 → no significativo
-- e5-a0.3 vs lexico-solo: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- e5-a0.3 vs rrf-e5: p_crudo=0.1385, p_holm=1.0000 → no significativo
+- e5-a0.3 vs lexico-solo: p_crudo=0.0780, p_holm=1.0000 → no significativo
 - e5-a0.3 vs vector-solo-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- e5-a0.3 vs vector-solo-e5: p_crudo=0.2640, p_holm=1.0000 → no significativo
-- e5-a0.4 vs e5-a0.5: p_crudo=0.5400, p_holm=1.0000 → no significativo
-- e5-a0.4 vs e5-a0.6: p_crudo=0.3100, p_holm=1.0000 → no significativo
-- e5-a0.4 vs e5-a0.7: p_crudo=0.0640, p_holm=1.0000 → no significativo
-- e5-a0.4 vs e5-a0.8: p_crudo=0.0280, p_holm=1.0000 → no significativo
-- e5-a0.4 vs e5-a0.9: p_crudo=0.0100, p_holm=1.0000 → no significativo
-- e5-a0.4 vs e5-a1.0: p_crudo=0.4720, p_holm=1.0000 → no significativo
+- e5-a0.3 vs vector-solo-e5: p_crudo=0.9350, p_holm=1.0000 → no significativo
+- e5-a0.4 vs e5-a0.5: p_crudo=1.0000, p_holm=1.0000 → no significativo
+- e5-a0.4 vs e5-a0.6: p_crudo=0.1870, p_holm=1.0000 → no significativo
+- e5-a0.4 vs e5-a0.7: p_crudo=0.2360, p_holm=1.0000 → no significativo
+- e5-a0.4 vs e5-a0.8: p_crudo=0.0740, p_holm=1.0000 → no significativo
+- e5-a0.4 vs e5-a0.9: p_crudo=0.0650, p_holm=1.0000 → no significativo
+- e5-a0.4 vs e5-a1.0: p_crudo=0.1910, p_holm=1.0000 → no significativo
 - e5-a0.4 vs rrf-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- e5-a0.4 vs rrf-e5: p_crudo=0.0220, p_holm=1.0000 → no significativo
-- e5-a0.4 vs lexico-solo: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- e5-a0.4 vs rrf-e5: p_crudo=0.1175, p_holm=1.0000 → no significativo
+- e5-a0.4 vs lexico-solo: p_crudo=0.1305, p_holm=1.0000 → no significativo
 - e5-a0.4 vs vector-solo-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- e5-a0.4 vs vector-solo-e5: p_crudo=0.4880, p_holm=1.0000 → no significativo
-- e5-a0.5 vs e5-a0.6: p_crudo=0.5380, p_holm=1.0000 → no significativo
-- e5-a0.5 vs e5-a0.7: p_crudo=0.1520, p_holm=1.0000 → no significativo
-- e5-a0.5 vs e5-a0.8: p_crudo=0.0480, p_holm=1.0000 → no significativo
-- e5-a0.5 vs e5-a0.9: p_crudo=0.0020, p_holm=0.3520 → no significativo
-- e5-a0.5 vs e5-a1.0: p_crudo=0.5880, p_holm=1.0000 → no significativo
+- e5-a0.4 vs vector-solo-e5: p_crudo=0.9730, p_holm=1.0000 → no significativo
+- e5-a0.5 vs e5-a0.6: p_crudo=0.2480, p_holm=1.0000 → no significativo
+- e5-a0.5 vs e5-a0.7: p_crudo=0.3170, p_holm=1.0000 → no significativo
+- e5-a0.5 vs e5-a0.8: p_crudo=0.0800, p_holm=1.0000 → no significativo
+- e5-a0.5 vs e5-a0.9: p_crudo=0.0750, p_holm=1.0000 → no significativo
+- e5-a0.5 vs e5-a1.0: p_crudo=0.1830, p_holm=1.0000 → no significativo
 - e5-a0.5 vs rrf-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- e5-a0.5 vs rrf-e5: p_crudo=0.0460, p_holm=1.0000 → no significativo
-- e5-a0.5 vs lexico-solo: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- e5-a0.5 vs rrf-e5: p_crudo=0.1290, p_holm=1.0000 → no significativo
+- e5-a0.5 vs lexico-solo: p_crudo=0.1050, p_holm=1.0000 → no significativo
 - e5-a0.5 vs vector-solo-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- e5-a0.5 vs vector-solo-e5: p_crudo=0.5420, p_holm=1.0000 → no significativo
-- e5-a0.6 vs e5-a0.7: p_crudo=0.1300, p_holm=1.0000 → no significativo
-- e5-a0.6 vs e5-a0.8: p_crudo=0.0860, p_holm=1.0000 → no significativo
-- e5-a0.6 vs e5-a0.9: p_crudo=0.0040, p_holm=0.6200 → no significativo
-- e5-a0.6 vs e5-a1.0: p_crudo=0.6400, p_holm=1.0000 → no significativo
+- e5-a0.5 vs vector-solo-e5: p_crudo=0.9230, p_holm=1.0000 → no significativo
+- e5-a0.6 vs e5-a0.7: p_crudo=0.7315, p_holm=1.0000 → no significativo
+- e5-a0.6 vs e5-a0.8: p_crudo=0.1875, p_holm=1.0000 → no significativo
+- e5-a0.6 vs e5-a0.9: p_crudo=0.1340, p_holm=1.0000 → no significativo
+- e5-a0.6 vs e5-a1.0: p_crudo=0.1075, p_holm=1.0000 → no significativo
 - e5-a0.6 vs rrf-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- e5-a0.6 vs rrf-e5: p_crudo=0.0400, p_holm=1.0000 → no significativo
-- e5-a0.6 vs lexico-solo: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- e5-a0.6 vs rrf-e5: p_crudo=0.2620, p_holm=1.0000 → no significativo
+- e5-a0.6 vs lexico-solo: p_crudo=0.0210, p_holm=1.0000 → no significativo
 - e5-a0.6 vs vector-solo-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- e5-a0.6 vs vector-solo-e5: p_crudo=0.6480, p_holm=1.0000 → no significativo
-- e5-a0.7 vs e5-a0.8: p_crudo=0.2180, p_holm=1.0000 → no significativo
-- e5-a0.7 vs e5-a0.9: p_crudo=0.0140, p_holm=1.0000 → no significativo
-- e5-a0.7 vs e5-a1.0: p_crudo=0.8820, p_holm=1.0000 → no significativo
+- e5-a0.6 vs vector-solo-e5: p_crudo=0.6910, p_holm=1.0000 → no significativo
+- e5-a0.7 vs e5-a0.8: p_crudo=0.1355, p_holm=1.0000 → no significativo
+- e5-a0.7 vs e5-a0.9: p_crudo=0.0825, p_holm=1.0000 → no significativo
+- e5-a0.7 vs e5-a1.0: p_crudo=0.0940, p_holm=1.0000 → no significativo
 - e5-a0.7 vs rrf-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- e5-a0.7 vs rrf-e5: p_crudo=0.1020, p_holm=1.0000 → no significativo
-- e5-a0.7 vs lexico-solo: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- e5-a0.7 vs rrf-e5: p_crudo=0.3010, p_holm=1.0000 → no significativo
+- e5-a0.7 vs lexico-solo: p_crudo=0.0605, p_holm=1.0000 → no significativo
 - e5-a0.7 vs vector-solo-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- e5-a0.7 vs vector-solo-e5: p_crudo=0.9080, p_holm=1.0000 → no significativo
-- e5-a0.8 vs e5-a0.9: p_crudo=0.0240, p_holm=1.0000 → no significativo
-- e5-a0.8 vs e5-a1.0: p_crudo=0.7560, p_holm=1.0000 → no significativo
+- e5-a0.7 vs vector-solo-e5: p_crudo=0.6370, p_holm=1.0000 → no significativo
+- e5-a0.8 vs e5-a0.9: p_crudo=0.2775, p_holm=1.0000 → no significativo
+- e5-a0.8 vs e5-a1.0: p_crudo=0.0300, p_holm=1.0000 → no significativo
 - e5-a0.8 vs rrf-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- e5-a0.8 vs rrf-e5: p_crudo=0.2600, p_holm=1.0000 → no significativo
-- e5-a0.8 vs lexico-solo: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- e5-a0.8 vs rrf-e5: p_crudo=0.7525, p_holm=1.0000 → no significativo
+- e5-a0.8 vs lexico-solo: p_crudo=0.0280, p_holm=1.0000 → no significativo
 - e5-a0.8 vs vector-solo-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- e5-a0.8 vs vector-solo-e5: p_crudo=0.7480, p_holm=1.0000 → no significativo
-- e5-a0.9 vs e5-a1.0: p_crudo=0.2060, p_holm=1.0000 → no significativo
+- e5-a0.8 vs vector-solo-e5: p_crudo=0.3090, p_holm=1.0000 → no significativo
+- e5-a0.9 vs e5-a1.0: p_crudo=0.0060, p_holm=1.0000 → no significativo
 - e5-a0.9 vs rrf-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- e5-a0.9 vs rrf-e5: p_crudo=0.9740, p_holm=1.0000 → no significativo
-- e5-a0.9 vs lexico-solo: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- e5-a0.9 vs rrf-e5: p_crudo=0.7070, p_holm=1.0000 → no significativo
+- e5-a0.9 vs lexico-solo: p_crudo=0.0285, p_holm=1.0000 → no significativo
 - e5-a0.9 vs vector-solo-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- e5-a0.9 vs vector-solo-e5: p_crudo=0.2060, p_holm=1.0000 → no significativo
-- e5-a1.0 vs rrf-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- e5-a1.0 vs rrf-e5: p_crudo=0.2180, p_holm=1.0000 → no significativo
-- e5-a1.0 vs lexico-solo: p_crudo=0.1540, p_holm=1.0000 → no significativo
-- e5-a1.0 vs vector-solo-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- e5-a1.0 vs vector-solo-e5: p_crudo=1.0000, p_holm=1.0000 → no significativo
+- e5-a0.9 vs vector-solo-e5: p_crudo=0.1075, p_holm=1.0000 → no significativo
+- e5-a1.0 vs rrf-minilm: p_crudo=0.1780, p_holm=1.0000 → no significativo
+- e5-a1.0 vs rrf-e5: p_crudo=0.0285, p_holm=1.0000 → no significativo
+- e5-a1.0 vs lexico-solo: p_crudo=0.3485, p_holm=1.0000 → no significativo
+- e5-a1.0 vs vector-solo-minilm: p_crudo=0.0005, p_holm=0.1165 → no significativo
+- e5-a1.0 vs vector-solo-e5: p_crudo=0.1030, p_holm=1.0000 → no significativo
 - rrf-minilm vs rrf-e5: p_crudo=0.0000, p_holm=0.0000 → **significativo**
 - rrf-minilm vs lexico-solo: p_crudo=0.0000, p_holm=0.0000 → **significativo**
 - rrf-minilm vs vector-solo-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
 - rrf-minilm vs vector-solo-e5: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- rrf-e5 vs lexico-solo: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- rrf-e5 vs lexico-solo: p_crudo=0.0370, p_holm=1.0000 → no significativo
 - rrf-e5 vs vector-solo-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- rrf-e5 vs vector-solo-e5: p_crudo=0.2360, p_holm=1.0000 → no significativo
+- rrf-e5 vs vector-solo-e5: p_crudo=0.1565, p_holm=1.0000 → no significativo
 - lexico-solo vs vector-solo-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- lexico-solo vs vector-solo-e5: p_crudo=0.1720, p_holm=1.0000 → no significativo
+- lexico-solo vs vector-solo-e5: p_crudo=0.6725, p_holm=1.0000 → no significativo
 - vector-solo-minilm vs vector-solo-e5: p_crudo=0.0000, p_holm=0.0000 → **significativo**
 
-**ndcg@10**
+**recall@10**
 
-- minilm-a0.0 vs minilm-a0.1: p_crudo=0.3200, p_holm=1.0000 → no significativo
-- minilm-a0.0 vs minilm-a0.2: p_crudo=0.2400, p_holm=1.0000 → no significativo
-- minilm-a0.0 vs minilm-a0.3: p_crudo=0.5880, p_holm=1.0000 → no significativo
-- minilm-a0.0 vs minilm-a0.4: p_crudo=0.1920, p_holm=1.0000 → no significativo
-- minilm-a0.0 vs minilm-a0.5: p_crudo=0.0180, p_holm=1.0000 → no significativo
-- minilm-a0.0 vs minilm-a0.6: p_crudo=0.0060, p_holm=0.6180 → no significativo
-- minilm-a0.0 vs minilm-a0.7: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- minilm-a0.0 vs minilm-a0.1: p_crudo=0.1615, p_holm=1.0000 → no significativo
+- minilm-a0.0 vs minilm-a0.2: p_crudo=0.6975, p_holm=1.0000 → no significativo
+- minilm-a0.0 vs minilm-a0.3: p_crudo=0.8375, p_holm=1.0000 → no significativo
+- minilm-a0.0 vs minilm-a0.4: p_crudo=0.0725, p_holm=1.0000 → no significativo
+- minilm-a0.0 vs minilm-a0.5: p_crudo=0.0510, p_holm=1.0000 → no significativo
+- minilm-a0.0 vs minilm-a0.6: p_crudo=0.0015, p_holm=0.2325 → no significativo
+- minilm-a0.0 vs minilm-a0.7: p_crudo=0.0005, p_holm=0.0865 → no significativo
 - minilm-a0.0 vs minilm-a0.8: p_crudo=0.0000, p_holm=0.0000 → **significativo**
 - minilm-a0.0 vs minilm-a0.9: p_crudo=0.0000, p_holm=0.0000 → **significativo**
 - minilm-a0.0 vs minilm-a1.0: p_crudo=0.0000, p_holm=0.0000 → **significativo**
 - minilm-a0.0 vs e5-a0.0: p_crudo=1.0000, p_holm=1.0000 → no significativo
-- minilm-a0.0 vs e5-a0.1: p_crudo=0.0800, p_holm=1.0000 → no significativo
-- minilm-a0.0 vs e5-a0.2: p_crudo=0.0080, p_holm=0.7520 → no significativo
-- minilm-a0.0 vs e5-a0.3: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.0 vs e5-a0.4: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.0 vs e5-a0.5: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- minilm-a0.0 vs e5-a0.1: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- minilm-a0.0 vs e5-a0.2: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- minilm-a0.0 vs e5-a0.3: p_crudo=0.0085, p_holm=1.0000 → no significativo
+- minilm-a0.0 vs e5-a0.4: p_crudo=0.0015, p_holm=0.2325 → no significativo
+- minilm-a0.0 vs e5-a0.5: p_crudo=0.0005, p_holm=0.0865 → no significativo
 - minilm-a0.0 vs e5-a0.6: p_crudo=0.0000, p_holm=0.0000 → **significativo**
 - minilm-a0.0 vs e5-a0.7: p_crudo=0.0000, p_holm=0.0000 → **significativo**
 - minilm-a0.0 vs e5-a0.8: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.0 vs e5-a0.9: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.0 vs e5-a1.0: p_crudo=0.1440, p_holm=1.0000 → no significativo
+- minilm-a0.0 vs e5-a0.9: p_crudo=0.0020, p_holm=0.2860 → no significativo
+- minilm-a0.0 vs e5-a1.0: p_crudo=0.3780, p_holm=1.0000 → no significativo
 - minilm-a0.0 vs rrf-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
 - minilm-a0.0 vs rrf-e5: p_crudo=0.0000, p_holm=0.0000 → **significativo**
 - minilm-a0.0 vs lexico-solo: p_crudo=1.0000, p_holm=1.0000 → no significativo
 - minilm-a0.0 vs vector-solo-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.0 vs vector-solo-e5: p_crudo=0.1520, p_holm=1.0000 → no significativo
-- minilm-a0.1 vs minilm-a0.2: p_crudo=0.0080, p_holm=0.7520 → no significativo
-- minilm-a0.1 vs minilm-a0.3: p_crudo=0.2600, p_holm=1.0000 → no significativo
-- minilm-a0.1 vs minilm-a0.4: p_crudo=0.0620, p_holm=1.0000 → no significativo
-- minilm-a0.1 vs minilm-a0.5: p_crudo=0.0020, p_holm=0.2360 → no significativo
+- minilm-a0.0 vs vector-solo-e5: p_crudo=0.1460, p_holm=1.0000 → no significativo
+- minilm-a0.1 vs minilm-a0.2: p_crudo=0.0980, p_holm=1.0000 → no significativo
+- minilm-a0.1 vs minilm-a0.3: p_crudo=0.3230, p_holm=1.0000 → no significativo
+- minilm-a0.1 vs minilm-a0.4: p_crudo=0.0185, p_holm=1.0000 → no significativo
+- minilm-a0.1 vs minilm-a0.5: p_crudo=0.0160, p_holm=1.0000 → no significativo
 - minilm-a0.1 vs minilm-a0.6: p_crudo=0.0000, p_holm=0.0000 → **significativo**
 - minilm-a0.1 vs minilm-a0.7: p_crudo=0.0000, p_holm=0.0000 → **significativo**
 - minilm-a0.1 vs minilm-a0.8: p_crudo=0.0000, p_holm=0.0000 → **significativo**
 - minilm-a0.1 vs minilm-a0.9: p_crudo=0.0000, p_holm=0.0000 → **significativo**
 - minilm-a0.1 vs minilm-a1.0: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.1 vs e5-a0.0: p_crudo=0.3640, p_holm=1.0000 → no significativo
-- minilm-a0.1 vs e5-a0.1: p_crudo=0.3640, p_holm=1.0000 → no significativo
-- minilm-a0.1 vs e5-a0.2: p_crudo=0.0620, p_holm=1.0000 → no significativo
-- minilm-a0.1 vs e5-a0.3: p_crudo=0.0060, p_holm=0.6180 → no significativo
-- minilm-a0.1 vs e5-a0.4: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.1 vs e5-a0.5: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.1 vs e5-a0.6: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- minilm-a0.1 vs e5-a0.0: p_crudo=0.1445, p_holm=1.0000 → no significativo
+- minilm-a0.1 vs e5-a0.1: p_crudo=0.9795, p_holm=1.0000 → no significativo
+- minilm-a0.1 vs e5-a0.2: p_crudo=0.5800, p_holm=1.0000 → no significativo
+- minilm-a0.1 vs e5-a0.3: p_crudo=0.2435, p_holm=1.0000 → no significativo
+- minilm-a0.1 vs e5-a0.4: p_crudo=0.0900, p_holm=1.0000 → no significativo
+- minilm-a0.1 vs e5-a0.5: p_crudo=0.0380, p_holm=1.0000 → no significativo
+- minilm-a0.1 vs e5-a0.6: p_crudo=0.0035, p_holm=0.4655 → no significativo
 - minilm-a0.1 vs e5-a0.7: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.1 vs e5-a0.8: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.1 vs e5-a0.9: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.1 vs e5-a1.0: p_crudo=0.1860, p_holm=1.0000 → no significativo
-- minilm-a0.1 vs rrf-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.1 vs rrf-e5: p_crudo=0.0020, p_holm=0.2360 → no significativo
-- minilm-a0.1 vs lexico-solo: p_crudo=0.5840, p_holm=1.0000 → no significativo
+- minilm-a0.1 vs e5-a0.8: p_crudo=0.0015, p_holm=0.2325 → no significativo
+- minilm-a0.1 vs e5-a0.9: p_crudo=0.0050, p_holm=0.6250 → no significativo
+- minilm-a0.1 vs e5-a1.0: p_crudo=0.2890, p_holm=1.0000 → no significativo
+- minilm-a0.1 vs rrf-minilm: p_crudo=0.0005, p_holm=0.0865 → no significativo
+- minilm-a0.1 vs rrf-e5: p_crudo=0.0040, p_holm=0.5200 → no significativo
+- minilm-a0.1 vs lexico-solo: p_crudo=0.1620, p_holm=1.0000 → no significativo
 - minilm-a0.1 vs vector-solo-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.1 vs vector-solo-e5: p_crudo=0.1900, p_holm=1.0000 → no significativo
-- minilm-a0.2 vs minilm-a0.3: p_crudo=0.7300, p_holm=1.0000 → no significativo
-- minilm-a0.2 vs minilm-a0.4: p_crudo=0.3780, p_holm=1.0000 → no significativo
-- minilm-a0.2 vs minilm-a0.5: p_crudo=0.0220, p_holm=1.0000 → no significativo
-- minilm-a0.2 vs minilm-a0.6: p_crudo=0.0060, p_holm=0.6180 → no significativo
+- minilm-a0.1 vs vector-solo-e5: p_crudo=0.2300, p_holm=1.0000 → no significativo
+- minilm-a0.2 vs minilm-a0.3: p_crudo=0.8805, p_holm=1.0000 → no significativo
+- minilm-a0.2 vs minilm-a0.4: p_crudo=0.0450, p_holm=1.0000 → no significativo
+- minilm-a0.2 vs minilm-a0.5: p_crudo=0.0270, p_holm=1.0000 → no significativo
+- minilm-a0.2 vs minilm-a0.6: p_crudo=0.0005, p_holm=0.0865 → no significativo
 - minilm-a0.2 vs minilm-a0.7: p_crudo=0.0000, p_holm=0.0000 → **significativo**
 - minilm-a0.2 vs minilm-a0.8: p_crudo=0.0000, p_holm=0.0000 → **significativo**
 - minilm-a0.2 vs minilm-a0.9: p_crudo=0.0000, p_holm=0.0000 → **significativo**
 - minilm-a0.2 vs minilm-a1.0: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.2 vs e5-a0.0: p_crudo=0.2120, p_holm=1.0000 → no significativo
-- minilm-a0.2 vs e5-a0.1: p_crudo=0.0100, p_holm=0.9000 → no significativo
-- minilm-a0.2 vs e5-a0.2: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.2 vs e5-a0.3: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.2 vs e5-a0.4: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.2 vs e5-a0.5: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- minilm-a0.2 vs e5-a0.0: p_crudo=0.7125, p_holm=1.0000 → no significativo
+- minilm-a0.2 vs e5-a0.1: p_crudo=0.2160, p_holm=1.0000 → no significativo
+- minilm-a0.2 vs e5-a0.2: p_crudo=0.1210, p_holm=1.0000 → no significativo
+- minilm-a0.2 vs e5-a0.3: p_crudo=0.0355, p_holm=1.0000 → no significativo
+- minilm-a0.2 vs e5-a0.4: p_crudo=0.0145, p_holm=1.0000 → no significativo
+- minilm-a0.2 vs e5-a0.5: p_crudo=0.0060, p_holm=0.7260 → no significativo
 - minilm-a0.2 vs e5-a0.6: p_crudo=0.0000, p_holm=0.0000 → **significativo**
 - minilm-a0.2 vs e5-a0.7: p_crudo=0.0000, p_holm=0.0000 → **significativo**
 - minilm-a0.2 vs e5-a0.8: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.2 vs e5-a0.9: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.2 vs e5-a1.0: p_crudo=0.0720, p_holm=1.0000 → no significativo
-- minilm-a0.2 vs rrf-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.2 vs rrf-e5: p_crudo=0.0020, p_holm=0.2360 → no significativo
-- minilm-a0.2 vs lexico-solo: p_crudo=0.0780, p_holm=1.0000 → no significativo
+- minilm-a0.2 vs e5-a0.9: p_crudo=0.0010, p_holm=0.1630 → no significativo
+- minilm-a0.2 vs e5-a1.0: p_crudo=0.4455, p_holm=1.0000 → no significativo
+- minilm-a0.2 vs rrf-minilm: p_crudo=0.0010, p_holm=0.1630 → no significativo
+- minilm-a0.2 vs rrf-e5: p_crudo=0.0010, p_holm=0.1630 → no significativo
+- minilm-a0.2 vs lexico-solo: p_crudo=0.7070, p_holm=1.0000 → no significativo
 - minilm-a0.2 vs vector-solo-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.2 vs vector-solo-e5: p_crudo=0.1100, p_holm=1.0000 → no significativo
-- minilm-a0.3 vs minilm-a0.4: p_crudo=0.1000, p_holm=1.0000 → no significativo
-- minilm-a0.3 vs minilm-a0.5: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- minilm-a0.2 vs vector-solo-e5: p_crudo=0.1085, p_holm=1.0000 → no significativo
+- minilm-a0.3 vs minilm-a0.4: p_crudo=0.0085, p_holm=1.0000 → no significativo
+- minilm-a0.3 vs minilm-a0.5: p_crudo=0.0250, p_holm=1.0000 → no significativo
 - minilm-a0.3 vs minilm-a0.6: p_crudo=0.0000, p_holm=0.0000 → **significativo**
 - minilm-a0.3 vs minilm-a0.7: p_crudo=0.0000, p_holm=0.0000 → **significativo**
 - minilm-a0.3 vs minilm-a0.8: p_crudo=0.0000, p_holm=0.0000 → **significativo**
 - minilm-a0.3 vs minilm-a0.9: p_crudo=0.0000, p_holm=0.0000 → **significativo**
 - minilm-a0.3 vs minilm-a1.0: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.3 vs e5-a0.0: p_crudo=0.5480, p_holm=1.0000 → no significativo
-- minilm-a0.3 vs e5-a0.1: p_crudo=0.0920, p_holm=1.0000 → no significativo
-- minilm-a0.3 vs e5-a0.2: p_crudo=0.0080, p_holm=0.7520 → no significativo
-- minilm-a0.3 vs e5-a0.3: p_crudo=0.0120, p_holm=1.0000 → no significativo
-- minilm-a0.3 vs e5-a0.4: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.3 vs e5-a0.5: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.3 vs e5-a0.6: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- minilm-a0.3 vs e5-a0.0: p_crudo=0.8420, p_holm=1.0000 → no significativo
+- minilm-a0.3 vs e5-a0.1: p_crudo=0.3895, p_holm=1.0000 → no significativo
+- minilm-a0.3 vs e5-a0.2: p_crudo=0.2050, p_holm=1.0000 → no significativo
+- minilm-a0.3 vs e5-a0.3: p_crudo=0.0920, p_holm=1.0000 → no significativo
+- minilm-a0.3 vs e5-a0.4: p_crudo=0.0400, p_holm=1.0000 → no significativo
+- minilm-a0.3 vs e5-a0.5: p_crudo=0.0125, p_holm=1.0000 → no significativo
+- minilm-a0.3 vs e5-a0.6: p_crudo=0.0015, p_holm=0.2325 → no significativo
 - minilm-a0.3 vs e5-a0.7: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.3 vs e5-a0.8: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.3 vs e5-a0.9: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.3 vs e5-a1.0: p_crudo=0.1080, p_holm=1.0000 → no significativo
+- minilm-a0.3 vs e5-a0.8: p_crudo=0.0005, p_holm=0.0865 → no significativo
+- minilm-a0.3 vs e5-a0.9: p_crudo=0.0035, p_holm=0.4655 → no significativo
+- minilm-a0.3 vs e5-a1.0: p_crudo=0.4230, p_holm=1.0000 → no significativo
 - minilm-a0.3 vs rrf-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
 - minilm-a0.3 vs rrf-e5: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.3 vs lexico-solo: p_crudo=0.4480, p_holm=1.0000 → no significativo
+- minilm-a0.3 vs lexico-solo: p_crudo=0.8235, p_holm=1.0000 → no significativo
 - minilm-a0.3 vs vector-solo-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.3 vs vector-solo-e5: p_crudo=0.1240, p_holm=1.0000 → no significativo
-- minilm-a0.4 vs minilm-a0.5: p_crudo=0.0020, p_holm=0.2360 → no significativo
-- minilm-a0.4 vs minilm-a0.6: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.4 vs minilm-a0.7: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- minilm-a0.3 vs vector-solo-e5: p_crudo=0.1220, p_holm=1.0000 → no significativo
+- minilm-a0.4 vs minilm-a0.5: p_crudo=0.5710, p_holm=1.0000 → no significativo
+- minilm-a0.4 vs minilm-a0.6: p_crudo=0.0115, p_holm=1.0000 → no significativo
+- minilm-a0.4 vs minilm-a0.7: p_crudo=0.0015, p_holm=0.2325 → no significativo
 - minilm-a0.4 vs minilm-a0.8: p_crudo=0.0000, p_holm=0.0000 → **significativo**
 - minilm-a0.4 vs minilm-a0.9: p_crudo=0.0000, p_holm=0.0000 → **significativo**
 - minilm-a0.4 vs minilm-a1.0: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.4 vs e5-a0.0: p_crudo=0.1920, p_holm=1.0000 → no significativo
-- minilm-a0.4 vs e5-a0.1: p_crudo=0.0300, p_holm=1.0000 → no significativo
-- minilm-a0.4 vs e5-a0.2: p_crudo=0.0060, p_holm=0.6180 → no significativo
-- minilm-a0.4 vs e5-a0.3: p_crudo=0.0060, p_holm=0.6180 → no significativo
-- minilm-a0.4 vs e5-a0.4: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.4 vs e5-a0.5: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- minilm-a0.4 vs e5-a0.0: p_crudo=0.0710, p_holm=1.0000 → no significativo
+- minilm-a0.4 vs e5-a0.1: p_crudo=0.0240, p_holm=1.0000 → no significativo
+- minilm-a0.4 vs e5-a0.2: p_crudo=0.0100, p_holm=1.0000 → no significativo
+- minilm-a0.4 vs e5-a0.3: p_crudo=0.0055, p_holm=0.6820 → no significativo
+- minilm-a0.4 vs e5-a0.4: p_crudo=0.0010, p_holm=0.1630 → no significativo
+- minilm-a0.4 vs e5-a0.5: p_crudo=0.0010, p_holm=0.1630 → no significativo
 - minilm-a0.4 vs e5-a0.6: p_crudo=0.0000, p_holm=0.0000 → **significativo**
 - minilm-a0.4 vs e5-a0.7: p_crudo=0.0000, p_holm=0.0000 → **significativo**
 - minilm-a0.4 vs e5-a0.8: p_crudo=0.0000, p_holm=0.0000 → **significativo**
 - minilm-a0.4 vs e5-a0.9: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.4 vs e5-a1.0: p_crudo=0.0760, p_holm=1.0000 → no significativo
-- minilm-a0.4 vs rrf-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- minilm-a0.4 vs e5-a1.0: p_crudo=0.7440, p_holm=1.0000 → no significativo
+- minilm-a0.4 vs rrf-minilm: p_crudo=0.0025, p_holm=0.3525 → no significativo
 - minilm-a0.4 vs rrf-e5: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.4 vs lexico-solo: p_crudo=0.1440, p_holm=1.0000 → no significativo
+- minilm-a0.4 vs lexico-solo: p_crudo=0.0695, p_holm=1.0000 → no significativo
 - minilm-a0.4 vs vector-solo-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.4 vs vector-solo-e5: p_crudo=0.0560, p_holm=1.0000 → no significativo
-- minilm-a0.5 vs minilm-a0.6: p_crudo=0.1160, p_holm=1.0000 → no significativo
-- minilm-a0.5 vs minilm-a0.7: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- minilm-a0.4 vs vector-solo-e5: p_crudo=0.0225, p_holm=1.0000 → no significativo
+- minilm-a0.5 vs minilm-a0.6: p_crudo=0.0015, p_holm=0.2325 → no significativo
+- minilm-a0.5 vs minilm-a0.7: p_crudo=0.0010, p_holm=0.1630 → no significativo
 - minilm-a0.5 vs minilm-a0.8: p_crudo=0.0000, p_holm=0.0000 → **significativo**
 - minilm-a0.5 vs minilm-a0.9: p_crudo=0.0000, p_holm=0.0000 → **significativo**
 - minilm-a0.5 vs minilm-a1.0: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.5 vs e5-a0.0: p_crudo=0.0200, p_holm=1.0000 → no significativo
-- minilm-a0.5 vs e5-a0.1: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.5 vs e5-a0.2: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.5 vs e5-a0.3: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- minilm-a0.5 vs e5-a0.0: p_crudo=0.0625, p_holm=1.0000 → no significativo
+- minilm-a0.5 vs e5-a0.1: p_crudo=0.0170, p_holm=1.0000 → no significativo
+- minilm-a0.5 vs e5-a0.2: p_crudo=0.0110, p_holm=1.0000 → no significativo
+- minilm-a0.5 vs e5-a0.3: p_crudo=0.0015, p_holm=0.2325 → no significativo
 - minilm-a0.5 vs e5-a0.4: p_crudo=0.0000, p_holm=0.0000 → **significativo**
 - minilm-a0.5 vs e5-a0.5: p_crudo=0.0000, p_holm=0.0000 → **significativo**
 - minilm-a0.5 vs e5-a0.6: p_crudo=0.0000, p_holm=0.0000 → **significativo**
 - minilm-a0.5 vs e5-a0.7: p_crudo=0.0000, p_holm=0.0000 → **significativo**
 - minilm-a0.5 vs e5-a0.8: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.5 vs e5-a0.9: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.5 vs e5-a1.0: p_crudo=0.0440, p_holm=1.0000 → no significativo
-- minilm-a0.5 vs rrf-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- minilm-a0.5 vs e5-a0.9: p_crudo=0.0005, p_holm=0.0865 → no significativo
+- minilm-a0.5 vs e5-a1.0: p_crudo=0.8125, p_holm=1.0000 → no significativo
+- minilm-a0.5 vs rrf-minilm: p_crudo=0.0040, p_holm=0.5200 → no significativo
 - minilm-a0.5 vs rrf-e5: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.5 vs lexico-solo: p_crudo=0.0160, p_holm=1.0000 → no significativo
+- minilm-a0.5 vs lexico-solo: p_crudo=0.0750, p_holm=1.0000 → no significativo
 - minilm-a0.5 vs vector-solo-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.5 vs vector-solo-e5: p_crudo=0.0260, p_holm=1.0000 → no significativo
-- minilm-a0.6 vs minilm-a0.7: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- minilm-a0.5 vs vector-solo-e5: p_crudo=0.0215, p_holm=1.0000 → no significativo
+- minilm-a0.6 vs minilm-a0.7: p_crudo=0.1510, p_holm=1.0000 → no significativo
 - minilm-a0.6 vs minilm-a0.8: p_crudo=0.0000, p_holm=0.0000 → **significativo**
 - minilm-a0.6 vs minilm-a0.9: p_crudo=0.0000, p_holm=0.0000 → **significativo**
 - minilm-a0.6 vs minilm-a1.0: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.6 vs e5-a0.0: p_crudo=0.0060, p_holm=0.6180 → no significativo
+- minilm-a0.6 vs e5-a0.0: p_crudo=0.0010, p_holm=0.1630 → no significativo
 - minilm-a0.6 vs e5-a0.1: p_crudo=0.0000, p_holm=0.0000 → **significativo**
 - minilm-a0.6 vs e5-a0.2: p_crudo=0.0000, p_holm=0.0000 → **significativo**
 - minilm-a0.6 vs e5-a0.3: p_crudo=0.0000, p_holm=0.0000 → **significativo**
@@ -899,16 +545,16 @@ Test de significancia: Fisher's Randomization (`ranx`), corrección de Holm-Bonf
 - minilm-a0.6 vs e5-a0.7: p_crudo=0.0000, p_holm=0.0000 → **significativo**
 - minilm-a0.6 vs e5-a0.8: p_crudo=0.0000, p_holm=0.0000 → **significativo**
 - minilm-a0.6 vs e5-a0.9: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.6 vs e5-a1.0: p_crudo=0.0120, p_holm=1.0000 → no significativo
-- minilm-a0.6 vs rrf-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- minilm-a0.6 vs e5-a1.0: p_crudo=0.6720, p_holm=1.0000 → no significativo
+- minilm-a0.6 vs rrf-minilm: p_crudo=0.0640, p_holm=1.0000 → no significativo
 - minilm-a0.6 vs rrf-e5: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.6 vs lexico-solo: p_crudo=0.0060, p_holm=0.6180 → no significativo
+- minilm-a0.6 vs lexico-solo: p_crudo=0.0015, p_holm=0.2325 → no significativo
 - minilm-a0.6 vs vector-solo-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.6 vs vector-solo-e5: p_crudo=0.0160, p_holm=1.0000 → no significativo
+- minilm-a0.6 vs vector-solo-e5: p_crudo=0.0025, p_holm=0.3525 → no significativo
 - minilm-a0.7 vs minilm-a0.8: p_crudo=0.0000, p_holm=0.0000 → **significativo**
 - minilm-a0.7 vs minilm-a0.9: p_crudo=0.0000, p_holm=0.0000 → **significativo**
 - minilm-a0.7 vs minilm-a1.0: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.7 vs e5-a0.0: p_crudo=0.0020, p_holm=0.2360 → no significativo
+- minilm-a0.7 vs e5-a0.0: p_crudo=0.0015, p_holm=0.2325 → no significativo
 - minilm-a0.7 vs e5-a0.1: p_crudo=0.0000, p_holm=0.0000 → **significativo**
 - minilm-a0.7 vs e5-a0.2: p_crudo=0.0000, p_holm=0.0000 → **significativo**
 - minilm-a0.7 vs e5-a0.3: p_crudo=0.0000, p_holm=0.0000 → **significativo**
@@ -918,8 +564,8 @@ Test de significancia: Fisher's Randomization (`ranx`), corrección de Holm-Bonf
 - minilm-a0.7 vs e5-a0.7: p_crudo=0.0000, p_holm=0.0000 → **significativo**
 - minilm-a0.7 vs e5-a0.8: p_crudo=0.0000, p_holm=0.0000 → **significativo**
 - minilm-a0.7 vs e5-a0.9: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.7 vs e5-a1.0: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.7 vs rrf-minilm: p_crudo=0.0180, p_holm=1.0000 → no significativo
+- minilm-a0.7 vs e5-a1.0: p_crudo=0.4075, p_holm=1.0000 → no significativo
+- minilm-a0.7 vs rrf-minilm: p_crudo=0.1660, p_holm=1.0000 → no significativo
 - minilm-a0.7 vs rrf-e5: p_crudo=0.0000, p_holm=0.0000 → **significativo**
 - minilm-a0.7 vs lexico-solo: p_crudo=0.0000, p_holm=0.0000 → **significativo**
 - minilm-a0.7 vs vector-solo-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
@@ -936,8 +582,8 @@ Test de significancia: Fisher's Randomization (`ranx`), corrección de Holm-Bonf
 - minilm-a0.8 vs e5-a0.7: p_crudo=0.0000, p_holm=0.0000 → **significativo**
 - minilm-a0.8 vs e5-a0.8: p_crudo=0.0000, p_holm=0.0000 → **significativo**
 - minilm-a0.8 vs e5-a0.9: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.8 vs e5-a1.0: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.8 vs rrf-minilm: p_crudo=0.2680, p_holm=1.0000 → no significativo
+- minilm-a0.8 vs e5-a1.0: p_crudo=0.0670, p_holm=1.0000 → no significativo
+- minilm-a0.8 vs rrf-minilm: p_crudo=0.6140, p_holm=1.0000 → no significativo
 - minilm-a0.8 vs rrf-e5: p_crudo=0.0000, p_holm=0.0000 → **significativo**
 - minilm-a0.8 vs lexico-solo: p_crudo=0.0000, p_holm=0.0000 → **significativo**
 - minilm-a0.8 vs vector-solo-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
@@ -953,11 +599,11 @@ Test de significancia: Fisher's Randomization (`ranx`), corrección de Holm-Bonf
 - minilm-a0.9 vs e5-a0.7: p_crudo=0.0000, p_holm=0.0000 → **significativo**
 - minilm-a0.9 vs e5-a0.8: p_crudo=0.0000, p_holm=0.0000 → **significativo**
 - minilm-a0.9 vs e5-a0.9: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.9 vs e5-a1.0: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.9 vs rrf-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- minilm-a0.9 vs e5-a1.0: p_crudo=0.0035, p_holm=0.4655 → no significativo
+- minilm-a0.9 vs rrf-minilm: p_crudo=0.0055, p_holm=0.6820 → no significativo
 - minilm-a0.9 vs rrf-e5: p_crudo=0.0000, p_holm=0.0000 → **significativo**
 - minilm-a0.9 vs lexico-solo: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.9 vs vector-solo-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- minilm-a0.9 vs vector-solo-minilm: p_crudo=0.0230, p_holm=1.0000 → no significativo
 - minilm-a0.9 vs vector-solo-e5: p_crudo=0.0000, p_holm=0.0000 → **significativo**
 - minilm-a1.0 vs e5-a0.0: p_crudo=0.0000, p_holm=0.0000 → **significativo**
 - minilm-a1.0 vs e5-a0.1: p_crudo=0.0000, p_holm=0.0000 → **significativo**
@@ -973,346 +619,346 @@ Test de significancia: Fisher's Randomization (`ranx`), corrección de Holm-Bonf
 - minilm-a1.0 vs rrf-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
 - minilm-a1.0 vs rrf-e5: p_crudo=0.0000, p_holm=0.0000 → **significativo**
 - minilm-a1.0 vs lexico-solo: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a1.0 vs vector-solo-minilm: p_crudo=1.0000, p_holm=1.0000 → no significativo
+- minilm-a1.0 vs vector-solo-minilm: p_crudo=0.7475, p_holm=1.0000 → no significativo
 - minilm-a1.0 vs vector-solo-e5: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- e5-a0.0 vs e5-a0.1: p_crudo=0.0580, p_holm=1.0000 → no significativo
-- e5-a0.0 vs e5-a0.2: p_crudo=0.0040, p_holm=0.4360 → no significativo
-- e5-a0.0 vs e5-a0.3: p_crudo=0.0020, p_holm=0.2360 → no significativo
-- e5-a0.0 vs e5-a0.4: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- e5-a0.0 vs e5-a0.5: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- e5-a0.0 vs e5-a0.1: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- e5-a0.0 vs e5-a0.2: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- e5-a0.0 vs e5-a0.3: p_crudo=0.0045, p_holm=0.5670 → no significativo
+- e5-a0.0 vs e5-a0.4: p_crudo=0.0025, p_holm=0.3525 → no significativo
+- e5-a0.0 vs e5-a0.5: p_crudo=0.0005, p_holm=0.0865 → no significativo
 - e5-a0.0 vs e5-a0.6: p_crudo=0.0000, p_holm=0.0000 → **significativo**
 - e5-a0.0 vs e5-a0.7: p_crudo=0.0000, p_holm=0.0000 → **significativo**
 - e5-a0.0 vs e5-a0.8: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- e5-a0.0 vs e5-a0.9: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- e5-a0.0 vs e5-a1.0: p_crudo=0.1220, p_holm=1.0000 → no significativo
+- e5-a0.0 vs e5-a0.9: p_crudo=0.0015, p_holm=0.2325 → no significativo
+- e5-a0.0 vs e5-a1.0: p_crudo=0.4065, p_holm=1.0000 → no significativo
 - e5-a0.0 vs rrf-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
 - e5-a0.0 vs rrf-e5: p_crudo=0.0000, p_holm=0.0000 → **significativo**
 - e5-a0.0 vs lexico-solo: p_crudo=1.0000, p_holm=1.0000 → no significativo
 - e5-a0.0 vs vector-solo-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- e5-a0.0 vs vector-solo-e5: p_crudo=0.1620, p_holm=1.0000 → no significativo
-- e5-a0.1 vs e5-a0.2: p_crudo=0.0320, p_holm=1.0000 → no significativo
-- e5-a0.1 vs e5-a0.3: p_crudo=0.0020, p_holm=0.2360 → no significativo
-- e5-a0.1 vs e5-a0.4: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- e5-a0.1 vs e5-a0.5: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- e5-a0.0 vs vector-solo-e5: p_crudo=0.1395, p_holm=1.0000 → no significativo
+- e5-a0.1 vs e5-a0.2: p_crudo=0.2425, p_holm=1.0000 → no significativo
+- e5-a0.1 vs e5-a0.3: p_crudo=0.0660, p_holm=1.0000 → no significativo
+- e5-a0.1 vs e5-a0.4: p_crudo=0.0135, p_holm=1.0000 → no significativo
+- e5-a0.1 vs e5-a0.5: p_crudo=0.0055, p_holm=0.6820 → no significativo
 - e5-a0.1 vs e5-a0.6: p_crudo=0.0000, p_holm=0.0000 → **significativo**
 - e5-a0.1 vs e5-a0.7: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- e5-a0.1 vs e5-a0.8: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- e5-a0.1 vs e5-a0.9: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- e5-a0.1 vs e5-a1.0: p_crudo=0.2640, p_holm=1.0000 → no significativo
+- e5-a0.1 vs e5-a0.8: p_crudo=0.0005, p_holm=0.0865 → no significativo
+- e5-a0.1 vs e5-a0.9: p_crudo=0.0015, p_holm=0.2325 → no significativo
+- e5-a0.1 vs e5-a1.0: p_crudo=0.2675, p_holm=1.0000 → no significativo
 - e5-a0.1 vs rrf-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- e5-a0.1 vs rrf-e5: p_crudo=0.0040, p_holm=0.4360 → no significativo
-- e5-a0.1 vs lexico-solo: p_crudo=0.0760, p_holm=1.0000 → no significativo
+- e5-a0.1 vs rrf-e5: p_crudo=0.0025, p_holm=0.3525 → no significativo
+- e5-a0.1 vs lexico-solo: p_crudo=0.0000, p_holm=0.0000 → **significativo**
 - e5-a0.1 vs vector-solo-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- e5-a0.1 vs vector-solo-e5: p_crudo=0.2420, p_holm=1.0000 → no significativo
-- e5-a0.2 vs e5-a0.3: p_crudo=0.0600, p_holm=1.0000 → no significativo
-- e5-a0.2 vs e5-a0.4: p_crudo=0.0100, p_holm=0.9000 → no significativo
-- e5-a0.2 vs e5-a0.5: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- e5-a0.1 vs vector-solo-e5: p_crudo=0.2265, p_holm=1.0000 → no significativo
+- e5-a0.2 vs e5-a0.3: p_crudo=0.1985, p_holm=1.0000 → no significativo
+- e5-a0.2 vs e5-a0.4: p_crudo=0.0280, p_holm=1.0000 → no significativo
+- e5-a0.2 vs e5-a0.5: p_crudo=0.0040, p_holm=0.5200 → no significativo
 - e5-a0.2 vs e5-a0.6: p_crudo=0.0000, p_holm=0.0000 → **significativo**
 - e5-a0.2 vs e5-a0.7: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- e5-a0.2 vs e5-a0.8: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- e5-a0.2 vs e5-a0.9: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- e5-a0.2 vs e5-a1.0: p_crudo=0.2900, p_holm=1.0000 → no significativo
+- e5-a0.2 vs e5-a0.8: p_crudo=0.0020, p_holm=0.2860 → no significativo
+- e5-a0.2 vs e5-a0.9: p_crudo=0.0025, p_holm=0.3525 → no significativo
+- e5-a0.2 vs e5-a1.0: p_crudo=0.2095, p_holm=1.0000 → no significativo
 - e5-a0.2 vs rrf-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- e5-a0.2 vs rrf-e5: p_crudo=0.0020, p_holm=0.2360 → no significativo
-- e5-a0.2 vs lexico-solo: p_crudo=0.0060, p_holm=0.6180 → no significativo
+- e5-a0.2 vs rrf-e5: p_crudo=0.0030, p_holm=0.4020 → no significativo
+- e5-a0.2 vs lexico-solo: p_crudo=0.0000, p_holm=0.0000 → **significativo**
 - e5-a0.2 vs vector-solo-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- e5-a0.2 vs vector-solo-e5: p_crudo=0.2940, p_holm=1.0000 → no significativo
-- e5-a0.3 vs e5-a0.4: p_crudo=0.0080, p_holm=0.7520 → no significativo
-- e5-a0.3 vs e5-a0.5: p_crudo=0.0040, p_holm=0.4360 → no significativo
-- e5-a0.3 vs e5-a0.6: p_crudo=0.0040, p_holm=0.4360 → no significativo
-- e5-a0.3 vs e5-a0.7: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- e5-a0.3 vs e5-a0.8: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- e5-a0.3 vs e5-a0.9: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- e5-a0.3 vs e5-a1.0: p_crudo=0.3260, p_holm=1.0000 → no significativo
+- e5-a0.2 vs vector-solo-e5: p_crudo=0.2795, p_holm=1.0000 → no significativo
+- e5-a0.3 vs e5-a0.4: p_crudo=0.2455, p_holm=1.0000 → no significativo
+- e5-a0.3 vs e5-a0.5: p_crudo=0.0685, p_holm=1.0000 → no significativo
+- e5-a0.3 vs e5-a0.6: p_crudo=0.0070, p_holm=0.8400 → no significativo
+- e5-a0.3 vs e5-a0.7: p_crudo=0.0010, p_holm=0.1630 → no significativo
+- e5-a0.3 vs e5-a0.8: p_crudo=0.0080, p_holm=0.9520 → no significativo
+- e5-a0.3 vs e5-a0.9: p_crudo=0.0085, p_holm=1.0000 → no significativo
+- e5-a0.3 vs e5-a1.0: p_crudo=0.1615, p_holm=1.0000 → no significativo
 - e5-a0.3 vs rrf-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- e5-a0.3 vs rrf-e5: p_crudo=0.0060, p_holm=0.6180 → no significativo
-- e5-a0.3 vs lexico-solo: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- e5-a0.3 vs rrf-e5: p_crudo=0.0130, p_holm=1.0000 → no significativo
+- e5-a0.3 vs lexico-solo: p_crudo=0.0100, p_holm=1.0000 → no significativo
 - e5-a0.3 vs vector-solo-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- e5-a0.3 vs vector-solo-e5: p_crudo=0.3580, p_holm=1.0000 → no significativo
-- e5-a0.4 vs e5-a0.5: p_crudo=0.1320, p_holm=1.0000 → no significativo
-- e5-a0.4 vs e5-a0.6: p_crudo=0.1880, p_holm=1.0000 → no significativo
+- e5-a0.3 vs vector-solo-e5: p_crudo=0.4105, p_holm=1.0000 → no significativo
+- e5-a0.4 vs e5-a0.5: p_crudo=0.3290, p_holm=1.0000 → no significativo
+- e5-a0.4 vs e5-a0.6: p_crudo=0.0315, p_holm=1.0000 → no significativo
 - e5-a0.4 vs e5-a0.7: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- e5-a0.4 vs e5-a0.8: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- e5-a0.4 vs e5-a0.9: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- e5-a0.4 vs e5-a1.0: p_crudo=0.5700, p_holm=1.0000 → no significativo
+- e5-a0.4 vs e5-a0.8: p_crudo=0.0090, p_holm=1.0000 → no significativo
+- e5-a0.4 vs e5-a0.9: p_crudo=0.0170, p_holm=1.0000 → no significativo
+- e5-a0.4 vs e5-a1.0: p_crudo=0.1130, p_holm=1.0000 → no significativo
 - e5-a0.4 vs rrf-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- e5-a0.4 vs rrf-e5: p_crudo=0.0280, p_holm=1.0000 → no significativo
-- e5-a0.4 vs lexico-solo: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- e5-a0.4 vs rrf-e5: p_crudo=0.0190, p_holm=1.0000 → no significativo
+- e5-a0.4 vs lexico-solo: p_crudo=0.0025, p_holm=0.3525 → no significativo
 - e5-a0.4 vs vector-solo-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- e5-a0.4 vs vector-solo-e5: p_crudo=0.5700, p_holm=1.0000 → no significativo
-- e5-a0.5 vs e5-a0.6: p_crudo=0.5360, p_holm=1.0000 → no significativo
-- e5-a0.5 vs e5-a0.7: p_crudo=0.0040, p_holm=0.4360 → no significativo
-- e5-a0.5 vs e5-a0.8: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- e5-a0.5 vs e5-a0.9: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- e5-a0.5 vs e5-a1.0: p_crudo=0.6180, p_holm=1.0000 → no significativo
+- e5-a0.4 vs vector-solo-e5: p_crudo=0.5115, p_holm=1.0000 → no significativo
+- e5-a0.5 vs e5-a0.6: p_crudo=0.0150, p_holm=1.0000 → no significativo
+- e5-a0.5 vs e5-a0.7: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- e5-a0.5 vs e5-a0.8: p_crudo=0.0165, p_holm=1.0000 → no significativo
+- e5-a0.5 vs e5-a0.9: p_crudo=0.0285, p_holm=1.0000 → no significativo
+- e5-a0.5 vs e5-a1.0: p_crudo=0.0765, p_holm=1.0000 → no significativo
 - e5-a0.5 vs rrf-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- e5-a0.5 vs rrf-e5: p_crudo=0.0360, p_holm=1.0000 → no significativo
-- e5-a0.5 vs lexico-solo: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- e5-a0.5 vs rrf-e5: p_crudo=0.0350, p_holm=1.0000 → no significativo
+- e5-a0.5 vs lexico-solo: p_crudo=0.0005, p_holm=0.0865 → no significativo
 - e5-a0.5 vs vector-solo-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- e5-a0.5 vs vector-solo-e5: p_crudo=0.5900, p_holm=1.0000 → no significativo
-- e5-a0.6 vs e5-a0.7: p_crudo=0.0020, p_holm=0.2360 → no significativo
-- e5-a0.6 vs e5-a0.8: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- e5-a0.6 vs e5-a0.9: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- e5-a0.6 vs e5-a1.0: p_crudo=0.6740, p_holm=1.0000 → no significativo
+- e5-a0.5 vs vector-solo-e5: p_crudo=0.6490, p_holm=1.0000 → no significativo
+- e5-a0.6 vs e5-a0.7: p_crudo=0.0040, p_holm=0.5200 → no significativo
+- e5-a0.6 vs e5-a0.8: p_crudo=0.0690, p_holm=1.0000 → no significativo
+- e5-a0.6 vs e5-a0.9: p_crudo=0.1085, p_holm=1.0000 → no significativo
+- e5-a0.6 vs e5-a1.0: p_crudo=0.0190, p_holm=1.0000 → no significativo
 - e5-a0.6 vs rrf-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- e5-a0.6 vs rrf-e5: p_crudo=0.0380, p_holm=1.0000 → no significativo
+- e5-a0.6 vs rrf-e5: p_crudo=0.1765, p_holm=1.0000 → no significativo
 - e5-a0.6 vs lexico-solo: p_crudo=0.0000, p_holm=0.0000 → **significativo**
 - e5-a0.6 vs vector-solo-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- e5-a0.6 vs vector-solo-e5: p_crudo=0.6640, p_holm=1.0000 → no significativo
-- e5-a0.7 vs e5-a0.8: p_crudo=0.0280, p_holm=1.0000 → no significativo
-- e5-a0.7 vs e5-a0.9: p_crudo=0.0040, p_holm=0.4360 → no significativo
-- e5-a0.7 vs e5-a1.0: p_crudo=0.8180, p_holm=1.0000 → no significativo
+- e5-a0.6 vs vector-solo-e5: p_crudo=0.8840, p_holm=1.0000 → no significativo
+- e5-a0.7 vs e5-a0.8: p_crudo=0.8515, p_holm=1.0000 → no significativo
+- e5-a0.7 vs e5-a0.9: p_crudo=0.6405, p_holm=1.0000 → no significativo
+- e5-a0.7 vs e5-a1.0: p_crudo=0.0015, p_holm=0.2325 → no significativo
 - e5-a0.7 vs rrf-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- e5-a0.7 vs rrf-e5: p_crudo=0.1880, p_holm=1.0000 → no significativo
+- e5-a0.7 vs rrf-e5: p_crudo=0.8225, p_holm=1.0000 → no significativo
 - e5-a0.7 vs lexico-solo: p_crudo=0.0000, p_holm=0.0000 → **significativo**
 - e5-a0.7 vs vector-solo-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- e5-a0.7 vs vector-solo-e5: p_crudo=0.8480, p_holm=1.0000 → no significativo
-- e5-a0.8 vs e5-a0.9: p_crudo=0.0100, p_holm=0.9000 → no significativo
-- e5-a0.8 vs e5-a1.0: p_crudo=0.4520, p_holm=1.0000 → no significativo
+- e5-a0.7 vs vector-solo-e5: p_crudo=0.3005, p_holm=1.0000 → no significativo
+- e5-a0.8 vs e5-a0.9: p_crudo=0.6190, p_holm=1.0000 → no significativo
+- e5-a0.8 vs e5-a1.0: p_crudo=0.0005, p_holm=0.0865 → no significativo
 - e5-a0.8 vs rrf-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- e5-a0.8 vs rrf-e5: p_crudo=0.5640, p_holm=1.0000 → no significativo
+- e5-a0.8 vs rrf-e5: p_crudo=0.8925, p_holm=1.0000 → no significativo
 - e5-a0.8 vs lexico-solo: p_crudo=0.0000, p_holm=0.0000 → **significativo**
 - e5-a0.8 vs vector-solo-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- e5-a0.8 vs vector-solo-e5: p_crudo=0.4080, p_holm=1.0000 → no significativo
-- e5-a0.9 vs e5-a1.0: p_crudo=0.0460, p_holm=1.0000 → no significativo
+- e5-a0.8 vs vector-solo-e5: p_crudo=0.2905, p_holm=1.0000 → no significativo
+- e5-a0.9 vs e5-a1.0: p_crudo=0.0000, p_holm=0.0000 → **significativo**
 - e5-a0.9 vs rrf-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- e5-a0.9 vs rrf-e5: p_crudo=0.4040, p_holm=1.0000 → no significativo
+- e5-a0.9 vs rrf-e5: p_crudo=0.8665, p_holm=1.0000 → no significativo
 - e5-a0.9 vs lexico-solo: p_crudo=0.0000, p_holm=0.0000 → **significativo**
 - e5-a0.9 vs vector-solo-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- e5-a0.9 vs vector-solo-e5: p_crudo=0.0360, p_holm=1.0000 → no significativo
-- e5-a1.0 vs rrf-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- e5-a1.0 vs rrf-e5: p_crudo=0.1740, p_holm=1.0000 → no significativo
-- e5-a1.0 vs lexico-solo: p_crudo=0.1880, p_holm=1.0000 → no significativo
+- e5-a0.9 vs vector-solo-e5: p_crudo=0.2065, p_holm=1.0000 → no significativo
+- e5-a1.0 vs rrf-minilm: p_crudo=0.1150, p_holm=1.0000 → no significativo
+- e5-a1.0 vs rrf-e5: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- e5-a1.0 vs lexico-solo: p_crudo=0.3910, p_holm=1.0000 → no significativo
 - e5-a1.0 vs vector-solo-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- e5-a1.0 vs vector-solo-e5: p_crudo=1.0000, p_holm=1.0000 → no significativo
+- e5-a1.0 vs vector-solo-e5: p_crudo=0.0025, p_holm=0.3525 → no significativo
 - rrf-minilm vs rrf-e5: p_crudo=0.0000, p_holm=0.0000 → **significativo**
 - rrf-minilm vs lexico-solo: p_crudo=0.0000, p_holm=0.0000 → **significativo**
 - rrf-minilm vs vector-solo-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
 - rrf-minilm vs vector-solo-e5: p_crudo=0.0000, p_holm=0.0000 → **significativo**
 - rrf-e5 vs lexico-solo: p_crudo=0.0000, p_holm=0.0000 → **significativo**
 - rrf-e5 vs vector-solo-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- rrf-e5 vs vector-solo-e5: p_crudo=0.1580, p_holm=1.0000 → no significativo
+- rrf-e5 vs vector-solo-e5: p_crudo=0.2230, p_holm=1.0000 → no significativo
 - lexico-solo vs vector-solo-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- lexico-solo vs vector-solo-e5: p_crudo=0.1500, p_holm=1.0000 → no significativo
+- lexico-solo vs vector-solo-e5: p_crudo=0.1535, p_holm=1.0000 → no significativo
 - vector-solo-minilm vs vector-solo-e5: p_crudo=0.0000, p_holm=0.0000 → **significativo**
 
-**mrr@10**
+**ndcg@10**
 
-- minilm-a0.0 vs minilm-a0.1: p_crudo=0.6500, p_holm=1.0000 → no significativo
-- minilm-a0.0 vs minilm-a0.2: p_crudo=0.9660, p_holm=1.0000 → no significativo
-- minilm-a0.0 vs minilm-a0.3: p_crudo=1.0000, p_holm=1.0000 → no significativo
-- minilm-a0.0 vs minilm-a0.4: p_crudo=0.6560, p_holm=1.0000 → no significativo
-- minilm-a0.0 vs minilm-a0.5: p_crudo=0.2500, p_holm=1.0000 → no significativo
-- minilm-a0.0 vs minilm-a0.6: p_crudo=0.1560, p_holm=1.0000 → no significativo
-- minilm-a0.0 vs minilm-a0.7: p_crudo=0.0820, p_holm=1.0000 → no significativo
-- minilm-a0.0 vs minilm-a0.8: p_crudo=0.0120, p_holm=1.0000 → no significativo
-- minilm-a0.0 vs minilm-a0.9: p_crudo=0.0080, p_holm=1.0000 → no significativo
+- minilm-a0.0 vs minilm-a0.1: p_crudo=0.0860, p_holm=1.0000 → no significativo
+- minilm-a0.0 vs minilm-a0.2: p_crudo=0.6610, p_holm=1.0000 → no significativo
+- minilm-a0.0 vs minilm-a0.3: p_crudo=0.6950, p_holm=1.0000 → no significativo
+- minilm-a0.0 vs minilm-a0.4: p_crudo=0.1120, p_holm=1.0000 → no significativo
+- minilm-a0.0 vs minilm-a0.5: p_crudo=0.0515, p_holm=1.0000 → no significativo
+- minilm-a0.0 vs minilm-a0.6: p_crudo=0.0010, p_holm=0.1290 → no significativo
+- minilm-a0.0 vs minilm-a0.7: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- minilm-a0.0 vs minilm-a0.8: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- minilm-a0.0 vs minilm-a0.9: p_crudo=0.0000, p_holm=0.0000 → **significativo**
 - minilm-a0.0 vs minilm-a1.0: p_crudo=0.0000, p_holm=0.0000 → **significativo**
 - minilm-a0.0 vs e5-a0.0: p_crudo=1.0000, p_holm=1.0000 → no significativo
-- minilm-a0.0 vs e5-a0.1: p_crudo=1.0000, p_holm=1.0000 → no significativo
-- minilm-a0.0 vs e5-a0.2: p_crudo=1.0000, p_holm=1.0000 → no significativo
-- minilm-a0.0 vs e5-a0.3: p_crudo=0.6540, p_holm=1.0000 → no significativo
-- minilm-a0.0 vs e5-a0.4: p_crudo=0.3840, p_holm=1.0000 → no significativo
-- minilm-a0.0 vs e5-a0.5: p_crudo=0.3360, p_holm=1.0000 → no significativo
-- minilm-a0.0 vs e5-a0.6: p_crudo=0.2800, p_holm=1.0000 → no significativo
-- minilm-a0.0 vs e5-a0.7: p_crudo=0.0920, p_holm=1.0000 → no significativo
-- minilm-a0.0 vs e5-a0.8: p_crudo=0.0300, p_holm=1.0000 → no significativo
-- minilm-a0.0 vs e5-a0.9: p_crudo=0.0060, p_holm=1.0000 → no significativo
-- minilm-a0.0 vs e5-a1.0: p_crudo=1.0000, p_holm=1.0000 → no significativo
-- minilm-a0.0 vs rrf-minilm: p_crudo=0.2020, p_holm=1.0000 → no significativo
-- minilm-a0.0 vs rrf-e5: p_crudo=0.1980, p_holm=1.0000 → no significativo
+- minilm-a0.0 vs e5-a0.1: p_crudo=0.2675, p_holm=1.0000 → no significativo
+- minilm-a0.0 vs e5-a0.2: p_crudo=0.0210, p_holm=1.0000 → no significativo
+- minilm-a0.0 vs e5-a0.3: p_crudo=0.0010, p_holm=0.1290 → no significativo
+- minilm-a0.0 vs e5-a0.4: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- minilm-a0.0 vs e5-a0.5: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- minilm-a0.0 vs e5-a0.6: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- minilm-a0.0 vs e5-a0.7: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- minilm-a0.0 vs e5-a0.8: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- minilm-a0.0 vs e5-a0.9: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- minilm-a0.0 vs e5-a1.0: p_crudo=0.3750, p_holm=1.0000 → no significativo
+- minilm-a0.0 vs rrf-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- minilm-a0.0 vs rrf-e5: p_crudo=0.0010, p_holm=0.1290 → no significativo
 - minilm-a0.0 vs lexico-solo: p_crudo=1.0000, p_holm=1.0000 → no significativo
 - minilm-a0.0 vs vector-solo-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.0 vs vector-solo-e5: p_crudo=1.0000, p_holm=1.0000 → no significativo
-- minilm-a0.1 vs minilm-a0.2: p_crudo=0.4740, p_holm=1.0000 → no significativo
-- minilm-a0.1 vs minilm-a0.3: p_crudo=0.3820, p_holm=1.0000 → no significativo
-- minilm-a0.1 vs minilm-a0.4: p_crudo=0.1280, p_holm=1.0000 → no significativo
-- minilm-a0.1 vs minilm-a0.5: p_crudo=0.0380, p_holm=1.0000 → no significativo
-- minilm-a0.1 vs minilm-a0.6: p_crudo=0.0340, p_holm=1.0000 → no significativo
-- minilm-a0.1 vs minilm-a0.7: p_crudo=0.0200, p_holm=1.0000 → no significativo
-- minilm-a0.1 vs minilm-a0.8: p_crudo=0.0020, p_holm=0.5580 → no significativo
+- minilm-a0.0 vs vector-solo-e5: p_crudo=0.1600, p_holm=1.0000 → no significativo
+- minilm-a0.1 vs minilm-a0.2: p_crudo=0.2705, p_holm=1.0000 → no significativo
+- minilm-a0.1 vs minilm-a0.3: p_crudo=0.4385, p_holm=1.0000 → no significativo
+- minilm-a0.1 vs minilm-a0.4: p_crudo=0.0145, p_holm=1.0000 → no significativo
+- minilm-a0.1 vs minilm-a0.5: p_crudo=0.0050, p_holm=0.5050 → no significativo
+- minilm-a0.1 vs minilm-a0.6: p_crudo=0.0005, p_holm=0.0715 → no significativo
+- minilm-a0.1 vs minilm-a0.7: p_crudo=0.0005, p_holm=0.0715 → no significativo
+- minilm-a0.1 vs minilm-a0.8: p_crudo=0.0000, p_holm=0.0000 → **significativo**
 - minilm-a0.1 vs minilm-a0.9: p_crudo=0.0000, p_holm=0.0000 → **significativo**
 - minilm-a0.1 vs minilm-a1.0: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.1 vs e5-a0.0: p_crudo=0.6520, p_holm=1.0000 → no significativo
-- minilm-a0.1 vs e5-a0.1: p_crudo=0.3020, p_holm=1.0000 → no significativo
-- minilm-a0.1 vs e5-a0.2: p_crudo=0.6340, p_holm=1.0000 → no significativo
-- minilm-a0.1 vs e5-a0.3: p_crudo=0.8000, p_holm=1.0000 → no significativo
-- minilm-a0.1 vs e5-a0.4: p_crudo=0.7540, p_holm=1.0000 → no significativo
-- minilm-a0.1 vs e5-a0.5: p_crudo=0.7700, p_holm=1.0000 → no significativo
-- minilm-a0.1 vs e5-a0.6: p_crudo=0.6020, p_holm=1.0000 → no significativo
-- minilm-a0.1 vs e5-a0.7: p_crudo=0.2140, p_holm=1.0000 → no significativo
-- minilm-a0.1 vs e5-a0.8: p_crudo=0.0780, p_holm=1.0000 → no significativo
-- minilm-a0.1 vs e5-a0.9: p_crudo=0.0080, p_holm=1.0000 → no significativo
-- minilm-a0.1 vs e5-a1.0: p_crudo=0.7840, p_holm=1.0000 → no significativo
-- minilm-a0.1 vs rrf-minilm: p_crudo=0.0760, p_holm=1.0000 → no significativo
-- minilm-a0.1 vs rrf-e5: p_crudo=0.3540, p_holm=1.0000 → no significativo
-- minilm-a0.1 vs lexico-solo: p_crudo=0.6160, p_holm=1.0000 → no significativo
+- minilm-a0.1 vs e5-a0.0: p_crudo=0.0965, p_holm=1.0000 → no significativo
+- minilm-a0.1 vs e5-a0.1: p_crudo=0.7270, p_holm=1.0000 → no significativo
+- minilm-a0.1 vs e5-a0.2: p_crudo=0.5235, p_holm=1.0000 → no significativo
+- minilm-a0.1 vs e5-a0.3: p_crudo=0.0710, p_holm=1.0000 → no significativo
+- minilm-a0.1 vs e5-a0.4: p_crudo=0.0015, p_holm=0.1770 → no significativo
+- minilm-a0.1 vs e5-a0.5: p_crudo=0.0010, p_holm=0.1290 → no significativo
+- minilm-a0.1 vs e5-a0.6: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- minilm-a0.1 vs e5-a0.7: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- minilm-a0.1 vs e5-a0.8: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- minilm-a0.1 vs e5-a0.9: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- minilm-a0.1 vs e5-a1.0: p_crudo=0.2890, p_holm=1.0000 → no significativo
+- minilm-a0.1 vs rrf-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- minilm-a0.1 vs rrf-e5: p_crudo=0.0005, p_holm=0.0715 → no significativo
+- minilm-a0.1 vs lexico-solo: p_crudo=0.0920, p_holm=1.0000 → no significativo
 - minilm-a0.1 vs vector-solo-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.1 vs vector-solo-e5: p_crudo=0.7980, p_holm=1.0000 → no significativo
-- minilm-a0.2 vs minilm-a0.3: p_crudo=1.0000, p_holm=1.0000 → no significativo
-- minilm-a0.2 vs minilm-a0.4: p_crudo=0.2780, p_holm=1.0000 → no significativo
-- minilm-a0.2 vs minilm-a0.5: p_crudo=0.0500, p_holm=1.0000 → no significativo
-- minilm-a0.2 vs minilm-a0.6: p_crudo=0.0800, p_holm=1.0000 → no significativo
-- minilm-a0.2 vs minilm-a0.7: p_crudo=0.0500, p_holm=1.0000 → no significativo
+- minilm-a0.1 vs vector-solo-e5: p_crudo=0.2575, p_holm=1.0000 → no significativo
+- minilm-a0.2 vs minilm-a0.3: p_crudo=0.9445, p_holm=1.0000 → no significativo
+- minilm-a0.2 vs minilm-a0.4: p_crudo=0.0070, p_holm=0.6860 → no significativo
+- minilm-a0.2 vs minilm-a0.5: p_crudo=0.0025, p_holm=0.2750 → no significativo
+- minilm-a0.2 vs minilm-a0.6: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- minilm-a0.2 vs minilm-a0.7: p_crudo=0.0000, p_holm=0.0000 → **significativo**
 - minilm-a0.2 vs minilm-a0.8: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.2 vs minilm-a0.9: p_crudo=0.0020, p_holm=0.5580 → no significativo
+- minilm-a0.2 vs minilm-a0.9: p_crudo=0.0000, p_holm=0.0000 → **significativo**
 - minilm-a0.2 vs minilm-a1.0: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.2 vs e5-a0.0: p_crudo=0.9460, p_holm=1.0000 → no significativo
-- minilm-a0.2 vs e5-a0.1: p_crudo=0.7480, p_holm=1.0000 → no significativo
-- minilm-a0.2 vs e5-a0.2: p_crudo=0.9020, p_holm=1.0000 → no significativo
-- minilm-a0.2 vs e5-a0.3: p_crudo=0.7320, p_holm=1.0000 → no significativo
-- minilm-a0.2 vs e5-a0.4: p_crudo=0.4860, p_holm=1.0000 → no significativo
-- minilm-a0.2 vs e5-a0.5: p_crudo=0.4700, p_holm=1.0000 → no significativo
-- minilm-a0.2 vs e5-a0.6: p_crudo=0.3860, p_holm=1.0000 → no significativo
-- minilm-a0.2 vs e5-a0.7: p_crudo=0.1300, p_holm=1.0000 → no significativo
-- minilm-a0.2 vs e5-a0.8: p_crudo=0.0420, p_holm=1.0000 → no significativo
+- minilm-a0.2 vs e5-a0.0: p_crudo=0.6395, p_holm=1.0000 → no significativo
+- minilm-a0.2 vs e5-a0.1: p_crudo=0.6305, p_holm=1.0000 → no significativo
+- minilm-a0.2 vs e5-a0.2: p_crudo=0.2155, p_holm=1.0000 → no significativo
+- minilm-a0.2 vs e5-a0.3: p_crudo=0.0290, p_holm=1.0000 → no significativo
+- minilm-a0.2 vs e5-a0.4: p_crudo=0.0015, p_holm=0.1770 → no significativo
+- minilm-a0.2 vs e5-a0.5: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- minilm-a0.2 vs e5-a0.6: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- minilm-a0.2 vs e5-a0.7: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- minilm-a0.2 vs e5-a0.8: p_crudo=0.0000, p_holm=0.0000 → **significativo**
 - minilm-a0.2 vs e5-a0.9: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.2 vs e5-a1.0: p_crudo=0.9980, p_holm=1.0000 → no significativo
-- minilm-a0.2 vs rrf-minilm: p_crudo=0.1320, p_holm=1.0000 → no significativo
-- minilm-a0.2 vs rrf-e5: p_crudo=0.2020, p_holm=1.0000 → no significativo
-- minilm-a0.2 vs lexico-solo: p_crudo=0.9520, p_holm=1.0000 → no significativo
+- minilm-a0.2 vs e5-a1.0: p_crudo=0.3155, p_holm=1.0000 → no significativo
+- minilm-a0.2 vs rrf-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- minilm-a0.2 vs rrf-e5: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- minilm-a0.2 vs lexico-solo: p_crudo=0.6440, p_holm=1.0000 → no significativo
 - minilm-a0.2 vs vector-solo-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.2 vs vector-solo-e5: p_crudo=0.9900, p_holm=1.0000 → no significativo
-- minilm-a0.3 vs minilm-a0.4: p_crudo=0.4340, p_holm=1.0000 → no significativo
-- minilm-a0.3 vs minilm-a0.5: p_crudo=0.0540, p_holm=1.0000 → no significativo
-- minilm-a0.3 vs minilm-a0.6: p_crudo=0.0580, p_holm=1.0000 → no significativo
-- minilm-a0.3 vs minilm-a0.7: p_crudo=0.0400, p_holm=1.0000 → no significativo
-- minilm-a0.3 vs minilm-a0.8: p_crudo=0.0020, p_holm=0.5580 → no significativo
-- minilm-a0.3 vs minilm-a0.9: p_crudo=0.0020, p_holm=0.5580 → no significativo
+- minilm-a0.2 vs vector-solo-e5: p_crudo=0.1885, p_holm=1.0000 → no significativo
+- minilm-a0.3 vs minilm-a0.4: p_crudo=0.0010, p_holm=0.1290 → no significativo
+- minilm-a0.3 vs minilm-a0.5: p_crudo=0.0005, p_holm=0.0715 → no significativo
+- minilm-a0.3 vs minilm-a0.6: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- minilm-a0.3 vs minilm-a0.7: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- minilm-a0.3 vs minilm-a0.8: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- minilm-a0.3 vs minilm-a0.9: p_crudo=0.0000, p_holm=0.0000 → **significativo**
 - minilm-a0.3 vs minilm-a1.0: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.3 vs e5-a0.0: p_crudo=1.0000, p_holm=1.0000 → no significativo
-- minilm-a0.3 vs e5-a0.1: p_crudo=0.7500, p_holm=1.0000 → no significativo
-- minilm-a0.3 vs e5-a0.2: p_crudo=0.8620, p_holm=1.0000 → no significativo
-- minilm-a0.3 vs e5-a0.3: p_crudo=0.6860, p_holm=1.0000 → no significativo
-- minilm-a0.3 vs e5-a0.4: p_crudo=0.4660, p_holm=1.0000 → no significativo
-- minilm-a0.3 vs e5-a0.5: p_crudo=0.4700, p_holm=1.0000 → no significativo
-- minilm-a0.3 vs e5-a0.6: p_crudo=0.3460, p_holm=1.0000 → no significativo
-- minilm-a0.3 vs e5-a0.7: p_crudo=0.0940, p_holm=1.0000 → no significativo
-- minilm-a0.3 vs e5-a0.8: p_crudo=0.0600, p_holm=1.0000 → no significativo
+- minilm-a0.3 vs e5-a0.0: p_crudo=0.6880, p_holm=1.0000 → no significativo
+- minilm-a0.3 vs e5-a0.1: p_crudo=0.6965, p_holm=1.0000 → no significativo
+- minilm-a0.3 vs e5-a0.2: p_crudo=0.2755, p_holm=1.0000 → no significativo
+- minilm-a0.3 vs e5-a0.3: p_crudo=0.0550, p_holm=1.0000 → no significativo
+- minilm-a0.3 vs e5-a0.4: p_crudo=0.0045, p_holm=0.4680 → no significativo
+- minilm-a0.3 vs e5-a0.5: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- minilm-a0.3 vs e5-a0.6: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- minilm-a0.3 vs e5-a0.7: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- minilm-a0.3 vs e5-a0.8: p_crudo=0.0000, p_holm=0.0000 → **significativo**
 - minilm-a0.3 vs e5-a0.9: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.3 vs e5-a1.0: p_crudo=1.0000, p_holm=1.0000 → no significativo
-- minilm-a0.3 vs rrf-minilm: p_crudo=0.1460, p_holm=1.0000 → no significativo
-- minilm-a0.3 vs rrf-e5: p_crudo=0.1840, p_holm=1.0000 → no significativo
-- minilm-a0.3 vs lexico-solo: p_crudo=1.0000, p_holm=1.0000 → no significativo
+- minilm-a0.3 vs e5-a1.0: p_crudo=0.3300, p_holm=1.0000 → no significativo
+- minilm-a0.3 vs rrf-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- minilm-a0.3 vs rrf-e5: p_crudo=0.0020, p_holm=0.2240 → no significativo
+- minilm-a0.3 vs lexico-solo: p_crudo=0.7105, p_holm=1.0000 → no significativo
 - minilm-a0.3 vs vector-solo-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.3 vs vector-solo-e5: p_crudo=1.0000, p_holm=1.0000 → no significativo
-- minilm-a0.4 vs minilm-a0.5: p_crudo=0.0560, p_holm=1.0000 → no significativo
-- minilm-a0.4 vs minilm-a0.6: p_crudo=0.0960, p_holm=1.0000 → no significativo
-- minilm-a0.4 vs minilm-a0.7: p_crudo=0.0420, p_holm=1.0000 → no significativo
-- minilm-a0.4 vs minilm-a0.8: p_crudo=0.0020, p_holm=0.5580 → no significativo
+- minilm-a0.3 vs vector-solo-e5: p_crudo=0.2055, p_holm=1.0000 → no significativo
+- minilm-a0.4 vs minilm-a0.5: p_crudo=0.1585, p_holm=1.0000 → no significativo
+- minilm-a0.4 vs minilm-a0.6: p_crudo=0.0005, p_holm=0.0715 → no significativo
+- minilm-a0.4 vs minilm-a0.7: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- minilm-a0.4 vs minilm-a0.8: p_crudo=0.0000, p_holm=0.0000 → **significativo**
 - minilm-a0.4 vs minilm-a0.9: p_crudo=0.0000, p_holm=0.0000 → **significativo**
 - minilm-a0.4 vs minilm-a1.0: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.4 vs e5-a0.0: p_crudo=0.6240, p_holm=1.0000 → no significativo
-- minilm-a0.4 vs e5-a0.1: p_crudo=0.7900, p_holm=1.0000 → no significativo
-- minilm-a0.4 vs e5-a0.2: p_crudo=0.4160, p_holm=1.0000 → no significativo
-- minilm-a0.4 vs e5-a0.3: p_crudo=0.3180, p_holm=1.0000 → no significativo
-- minilm-a0.4 vs e5-a0.4: p_crudo=0.2300, p_holm=1.0000 → no significativo
-- minilm-a0.4 vs e5-a0.5: p_crudo=0.2760, p_holm=1.0000 → no significativo
-- minilm-a0.4 vs e5-a0.6: p_crudo=0.1620, p_holm=1.0000 → no significativo
-- minilm-a0.4 vs e5-a0.7: p_crudo=0.0440, p_holm=1.0000 → no significativo
-- minilm-a0.4 vs e5-a0.8: p_crudo=0.0340, p_holm=1.0000 → no significativo
+- minilm-a0.4 vs e5-a0.0: p_crudo=0.1155, p_holm=1.0000 → no significativo
+- minilm-a0.4 vs e5-a0.1: p_crudo=0.0570, p_holm=1.0000 → no significativo
+- minilm-a0.4 vs e5-a0.2: p_crudo=0.0240, p_holm=1.0000 → no significativo
+- minilm-a0.4 vs e5-a0.3: p_crudo=0.0045, p_holm=0.4680 → no significativo
+- minilm-a0.4 vs e5-a0.4: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- minilm-a0.4 vs e5-a0.5: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- minilm-a0.4 vs e5-a0.6: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- minilm-a0.4 vs e5-a0.7: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- minilm-a0.4 vs e5-a0.8: p_crudo=0.0000, p_holm=0.0000 → **significativo**
 - minilm-a0.4 vs e5-a0.9: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.4 vs e5-a1.0: p_crudo=0.7520, p_holm=1.0000 → no significativo
-- minilm-a0.4 vs rrf-minilm: p_crudo=0.2240, p_holm=1.0000 → no significativo
-- minilm-a0.4 vs rrf-e5: p_crudo=0.1000, p_holm=1.0000 → no significativo
-- minilm-a0.4 vs lexico-solo: p_crudo=0.6260, p_holm=1.0000 → no significativo
+- minilm-a0.4 vs e5-a1.0: p_crudo=0.5765, p_holm=1.0000 → no significativo
+- minilm-a0.4 vs rrf-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- minilm-a0.4 vs rrf-e5: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- minilm-a0.4 vs lexico-solo: p_crudo=0.1280, p_holm=1.0000 → no significativo
 - minilm-a0.4 vs vector-solo-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.4 vs vector-solo-e5: p_crudo=0.7840, p_holm=1.0000 → no significativo
-- minilm-a0.5 vs minilm-a0.6: p_crudo=0.6100, p_holm=1.0000 → no significativo
-- minilm-a0.5 vs minilm-a0.7: p_crudo=0.1540, p_holm=1.0000 → no significativo
-- minilm-a0.5 vs minilm-a0.8: p_crudo=0.0120, p_holm=1.0000 → no significativo
-- minilm-a0.5 vs minilm-a0.9: p_crudo=0.0040, p_holm=1.0000 → no significativo
+- minilm-a0.4 vs vector-solo-e5: p_crudo=0.0635, p_holm=1.0000 → no significativo
+- minilm-a0.5 vs minilm-a0.6: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- minilm-a0.5 vs minilm-a0.7: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- minilm-a0.5 vs minilm-a0.8: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- minilm-a0.5 vs minilm-a0.9: p_crudo=0.0000, p_holm=0.0000 → **significativo**
 - minilm-a0.5 vs minilm-a1.0: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.5 vs e5-a0.0: p_crudo=0.2200, p_holm=1.0000 → no significativo
-- minilm-a0.5 vs e5-a0.1: p_crudo=0.2740, p_holm=1.0000 → no significativo
-- minilm-a0.5 vs e5-a0.2: p_crudo=0.1040, p_holm=1.0000 → no significativo
-- minilm-a0.5 vs e5-a0.3: p_crudo=0.0920, p_holm=1.0000 → no significativo
-- minilm-a0.5 vs e5-a0.4: p_crudo=0.0660, p_holm=1.0000 → no significativo
-- minilm-a0.5 vs e5-a0.5: p_crudo=0.0780, p_holm=1.0000 → no significativo
-- minilm-a0.5 vs e5-a0.6: p_crudo=0.0640, p_holm=1.0000 → no significativo
-- minilm-a0.5 vs e5-a0.7: p_crudo=0.0300, p_holm=1.0000 → no significativo
-- minilm-a0.5 vs e5-a0.8: p_crudo=0.0100, p_holm=1.0000 → no significativo
+- minilm-a0.5 vs e5-a0.0: p_crudo=0.0535, p_holm=1.0000 → no significativo
+- minilm-a0.5 vs e5-a0.1: p_crudo=0.0205, p_holm=1.0000 → no significativo
+- minilm-a0.5 vs e5-a0.2: p_crudo=0.0115, p_holm=1.0000 → no significativo
+- minilm-a0.5 vs e5-a0.3: p_crudo=0.0010, p_holm=0.1290 → no significativo
+- minilm-a0.5 vs e5-a0.4: p_crudo=0.0005, p_holm=0.0715 → no significativo
+- minilm-a0.5 vs e5-a0.5: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- minilm-a0.5 vs e5-a0.6: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- minilm-a0.5 vs e5-a0.7: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- minilm-a0.5 vs e5-a0.8: p_crudo=0.0000, p_holm=0.0000 → **significativo**
 - minilm-a0.5 vs e5-a0.9: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.5 vs e5-a1.0: p_crudo=0.4140, p_holm=1.0000 → no significativo
-- minilm-a0.5 vs rrf-minilm: p_crudo=0.5140, p_holm=1.0000 → no significativo
-- minilm-a0.5 vs rrf-e5: p_crudo=0.0320, p_holm=1.0000 → no significativo
-- minilm-a0.5 vs lexico-solo: p_crudo=0.2640, p_holm=1.0000 → no significativo
+- minilm-a0.5 vs e5-a1.0: p_crudo=0.6785, p_holm=1.0000 → no significativo
+- minilm-a0.5 vs rrf-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- minilm-a0.5 vs rrf-e5: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- minilm-a0.5 vs lexico-solo: p_crudo=0.0505, p_holm=1.0000 → no significativo
 - minilm-a0.5 vs vector-solo-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.5 vs vector-solo-e5: p_crudo=0.4100, p_holm=1.0000 → no significativo
-- minilm-a0.6 vs minilm-a0.7: p_crudo=0.1920, p_holm=1.0000 → no significativo
-- minilm-a0.6 vs minilm-a0.8: p_crudo=0.0020, p_holm=0.5580 → no significativo
-- minilm-a0.6 vs minilm-a0.9: p_crudo=0.0100, p_holm=1.0000 → no significativo
+- minilm-a0.5 vs vector-solo-e5: p_crudo=0.0470, p_holm=1.0000 → no significativo
+- minilm-a0.6 vs minilm-a0.7: p_crudo=0.0010, p_holm=0.1290 → no significativo
+- minilm-a0.6 vs minilm-a0.8: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- minilm-a0.6 vs minilm-a0.9: p_crudo=0.0000, p_holm=0.0000 → **significativo**
 - minilm-a0.6 vs minilm-a1.0: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.6 vs e5-a0.0: p_crudo=0.1440, p_holm=1.0000 → no significativo
-- minilm-a0.6 vs e5-a0.1: p_crudo=0.1680, p_holm=1.0000 → no significativo
-- minilm-a0.6 vs e5-a0.2: p_crudo=0.1120, p_holm=1.0000 → no significativo
-- minilm-a0.6 vs e5-a0.3: p_crudo=0.0760, p_holm=1.0000 → no significativo
-- minilm-a0.6 vs e5-a0.4: p_crudo=0.0400, p_holm=1.0000 → no significativo
-- minilm-a0.6 vs e5-a0.5: p_crudo=0.0620, p_holm=1.0000 → no significativo
-- minilm-a0.6 vs e5-a0.6: p_crudo=0.0340, p_holm=1.0000 → no significativo
-- minilm-a0.6 vs e5-a0.7: p_crudo=0.0160, p_holm=1.0000 → no significativo
+- minilm-a0.6 vs e5-a0.0: p_crudo=0.0015, p_holm=0.1770 → no significativo
+- minilm-a0.6 vs e5-a0.1: p_crudo=0.0005, p_holm=0.0715 → no significativo
+- minilm-a0.6 vs e5-a0.2: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- minilm-a0.6 vs e5-a0.3: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- minilm-a0.6 vs e5-a0.4: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- minilm-a0.6 vs e5-a0.5: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- minilm-a0.6 vs e5-a0.6: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- minilm-a0.6 vs e5-a0.7: p_crudo=0.0000, p_holm=0.0000 → **significativo**
 - minilm-a0.6 vs e5-a0.8: p_crudo=0.0000, p_holm=0.0000 → **significativo**
 - minilm-a0.6 vs e5-a0.9: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.6 vs e5-a1.0: p_crudo=0.3060, p_holm=1.0000 → no significativo
-- minilm-a0.6 vs rrf-minilm: p_crudo=0.7000, p_holm=1.0000 → no significativo
-- minilm-a0.6 vs rrf-e5: p_crudo=0.0240, p_holm=1.0000 → no significativo
-- minilm-a0.6 vs lexico-solo: p_crudo=0.1420, p_holm=1.0000 → no significativo
+- minilm-a0.6 vs e5-a1.0: p_crudo=0.8965, p_holm=1.0000 → no significativo
+- minilm-a0.6 vs rrf-minilm: p_crudo=0.0040, p_holm=0.4240 → no significativo
+- minilm-a0.6 vs rrf-e5: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- minilm-a0.6 vs lexico-solo: p_crudo=0.0010, p_holm=0.1290 → no significativo
 - minilm-a0.6 vs vector-solo-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.6 vs vector-solo-e5: p_crudo=0.3120, p_holm=1.0000 → no significativo
-- minilm-a0.7 vs minilm-a0.8: p_crudo=0.0080, p_holm=1.0000 → no significativo
-- minilm-a0.7 vs minilm-a0.9: p_crudo=0.0200, p_holm=1.0000 → no significativo
+- minilm-a0.6 vs vector-solo-e5: p_crudo=0.0060, p_holm=0.5940 → no significativo
+- minilm-a0.7 vs minilm-a0.8: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- minilm-a0.7 vs minilm-a0.9: p_crudo=0.0000, p_holm=0.0000 → **significativo**
 - minilm-a0.7 vs minilm-a1.0: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.7 vs e5-a0.0: p_crudo=0.0860, p_holm=1.0000 → no significativo
-- minilm-a0.7 vs e5-a0.1: p_crudo=0.0820, p_holm=1.0000 → no significativo
-- minilm-a0.7 vs e5-a0.2: p_crudo=0.0700, p_holm=1.0000 → no significativo
-- minilm-a0.7 vs e5-a0.3: p_crudo=0.0480, p_holm=1.0000 → no significativo
-- minilm-a0.7 vs e5-a0.4: p_crudo=0.0320, p_holm=1.0000 → no significativo
-- minilm-a0.7 vs e5-a0.5: p_crudo=0.0240, p_holm=1.0000 → no significativo
-- minilm-a0.7 vs e5-a0.6: p_crudo=0.0160, p_holm=1.0000 → no significativo
-- minilm-a0.7 vs e5-a0.7: p_crudo=0.0120, p_holm=1.0000 → no significativo
-- minilm-a0.7 vs e5-a0.8: p_crudo=0.0040, p_holm=1.0000 → no significativo
+- minilm-a0.7 vs e5-a0.0: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- minilm-a0.7 vs e5-a0.1: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- minilm-a0.7 vs e5-a0.2: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- minilm-a0.7 vs e5-a0.3: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- minilm-a0.7 vs e5-a0.4: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- minilm-a0.7 vs e5-a0.5: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- minilm-a0.7 vs e5-a0.6: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- minilm-a0.7 vs e5-a0.7: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- minilm-a0.7 vs e5-a0.8: p_crudo=0.0000, p_holm=0.0000 → **significativo**
 - minilm-a0.7 vs e5-a0.9: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.7 vs e5-a1.0: p_crudo=0.1940, p_holm=1.0000 → no significativo
-- minilm-a0.7 vs rrf-minilm: p_crudo=0.9440, p_holm=1.0000 → no significativo
-- minilm-a0.7 vs rrf-e5: p_crudo=0.0160, p_holm=1.0000 → no significativo
-- minilm-a0.7 vs lexico-solo: p_crudo=0.1140, p_holm=1.0000 → no significativo
+- minilm-a0.7 vs e5-a1.0: p_crudo=0.5125, p_holm=1.0000 → no significativo
+- minilm-a0.7 vs rrf-minilm: p_crudo=0.0535, p_holm=1.0000 → no significativo
+- minilm-a0.7 vs rrf-e5: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- minilm-a0.7 vs lexico-solo: p_crudo=0.0000, p_holm=0.0000 → **significativo**
 - minilm-a0.7 vs vector-solo-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.7 vs vector-solo-e5: p_crudo=0.1880, p_holm=1.0000 → no significativo
-- minilm-a0.8 vs minilm-a0.9: p_crudo=0.1220, p_holm=1.0000 → no significativo
-- minilm-a0.8 vs minilm-a1.0: p_crudo=0.0040, p_holm=1.0000 → no significativo
-- minilm-a0.8 vs e5-a0.0: p_crudo=0.0120, p_holm=1.0000 → no significativo
-- minilm-a0.8 vs e5-a0.1: p_crudo=0.0140, p_holm=1.0000 → no significativo
-- minilm-a0.8 vs e5-a0.2: p_crudo=0.0060, p_holm=1.0000 → no significativo
-- minilm-a0.8 vs e5-a0.3: p_crudo=0.0060, p_holm=1.0000 → no significativo
-- minilm-a0.8 vs e5-a0.4: p_crudo=0.0020, p_holm=0.5580 → no significativo
-- minilm-a0.8 vs e5-a0.5: p_crudo=0.0060, p_holm=1.0000 → no significativo
+- minilm-a0.7 vs vector-solo-e5: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- minilm-a0.8 vs minilm-a0.9: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- minilm-a0.8 vs minilm-a1.0: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- minilm-a0.8 vs e5-a0.0: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- minilm-a0.8 vs e5-a0.1: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- minilm-a0.8 vs e5-a0.2: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- minilm-a0.8 vs e5-a0.3: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- minilm-a0.8 vs e5-a0.4: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- minilm-a0.8 vs e5-a0.5: p_crudo=0.0000, p_holm=0.0000 → **significativo**
 - minilm-a0.8 vs e5-a0.6: p_crudo=0.0000, p_holm=0.0000 → **significativo**
 - minilm-a0.8 vs e5-a0.7: p_crudo=0.0000, p_holm=0.0000 → **significativo**
 - minilm-a0.8 vs e5-a0.8: p_crudo=0.0000, p_holm=0.0000 → **significativo**
 - minilm-a0.8 vs e5-a0.9: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.8 vs e5-a1.0: p_crudo=0.0280, p_holm=1.0000 → no significativo
-- minilm-a0.8 vs rrf-minilm: p_crudo=0.1420, p_holm=1.0000 → no significativo
-- minilm-a0.8 vs rrf-e5: p_crudo=0.0020, p_holm=0.5580 → no significativo
-- minilm-a0.8 vs lexico-solo: p_crudo=0.0080, p_holm=1.0000 → no significativo
-- minilm-a0.8 vs vector-solo-minilm: p_crudo=0.0020, p_holm=0.5580 → no significativo
-- minilm-a0.8 vs vector-solo-e5: p_crudo=0.0440, p_holm=1.0000 → no significativo
+- minilm-a0.8 vs e5-a1.0: p_crudo=0.0865, p_holm=1.0000 → no significativo
+- minilm-a0.8 vs rrf-minilm: p_crudo=0.7450, p_holm=1.0000 → no significativo
+- minilm-a0.8 vs rrf-e5: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- minilm-a0.8 vs lexico-solo: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- minilm-a0.8 vs vector-solo-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- minilm-a0.8 vs vector-solo-e5: p_crudo=0.0000, p_holm=0.0000 → **significativo**
 - minilm-a0.9 vs minilm-a1.0: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.9 vs e5-a0.0: p_crudo=0.0040, p_holm=1.0000 → no significativo
-- minilm-a0.9 vs e5-a0.1: p_crudo=0.0020, p_holm=0.5580 → no significativo
+- minilm-a0.9 vs e5-a0.0: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- minilm-a0.9 vs e5-a0.1: p_crudo=0.0000, p_holm=0.0000 → **significativo**
 - minilm-a0.9 vs e5-a0.2: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.9 vs e5-a0.3: p_crudo=0.0020, p_holm=0.5580 → no significativo
+- minilm-a0.9 vs e5-a0.3: p_crudo=0.0000, p_holm=0.0000 → **significativo**
 - minilm-a0.9 vs e5-a0.4: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.9 vs e5-a0.5: p_crudo=0.0040, p_holm=1.0000 → no significativo
+- minilm-a0.9 vs e5-a0.5: p_crudo=0.0000, p_holm=0.0000 → **significativo**
 - minilm-a0.9 vs e5-a0.6: p_crudo=0.0000, p_holm=0.0000 → **significativo**
 - minilm-a0.9 vs e5-a0.7: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.9 vs e5-a0.8: p_crudo=0.0020, p_holm=0.5580 → no significativo
+- minilm-a0.9 vs e5-a0.8: p_crudo=0.0000, p_holm=0.0000 → **significativo**
 - minilm-a0.9 vs e5-a0.9: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.9 vs e5-a1.0: p_crudo=0.0180, p_holm=1.0000 → no significativo
-- minilm-a0.9 vs rrf-minilm: p_crudo=0.0160, p_holm=1.0000 → no significativo
+- minilm-a0.9 vs e5-a1.0: p_crudo=0.0070, p_holm=0.6860 → no significativo
+- minilm-a0.9 vs rrf-minilm: p_crudo=0.0080, p_holm=0.7520 → no significativo
 - minilm-a0.9 vs rrf-e5: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.9 vs lexico-solo: p_crudo=0.0040, p_holm=1.0000 → no significativo
-- minilm-a0.9 vs vector-solo-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a0.9 vs vector-solo-e5: p_crudo=0.0060, p_holm=1.0000 → no significativo
+- minilm-a0.9 vs lexico-solo: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- minilm-a0.9 vs vector-solo-minilm: p_crudo=0.0015, p_holm=0.1770 → no significativo
+- minilm-a0.9 vs vector-solo-e5: p_crudo=0.0000, p_holm=0.0000 → **significativo**
 - minilm-a1.0 vs e5-a0.0: p_crudo=0.0000, p_holm=0.0000 → **significativo**
 - minilm-a1.0 vs e5-a0.1: p_crudo=0.0000, p_holm=0.0000 → **significativo**
 - minilm-a1.0 vs e5-a0.2: p_crudo=0.0000, p_holm=0.0000 → **significativo**
@@ -1327,125 +973,479 @@ Test de significancia: Fisher's Randomization (`ranx`), corrección de Holm-Bonf
 - minilm-a1.0 vs rrf-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
 - minilm-a1.0 vs rrf-e5: p_crudo=0.0000, p_holm=0.0000 → **significativo**
 - minilm-a1.0 vs lexico-solo: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- minilm-a1.0 vs vector-solo-minilm: p_crudo=1.0000, p_holm=1.0000 → no significativo
+- minilm-a1.0 vs vector-solo-minilm: p_crudo=0.7080, p_holm=1.0000 → no significativo
 - minilm-a1.0 vs vector-solo-e5: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- e5-a0.0 vs e5-a0.1: p_crudo=1.0000, p_holm=1.0000 → no significativo
-- e5-a0.0 vs e5-a0.2: p_crudo=1.0000, p_holm=1.0000 → no significativo
-- e5-a0.0 vs e5-a0.3: p_crudo=0.6220, p_holm=1.0000 → no significativo
-- e5-a0.0 vs e5-a0.4: p_crudo=0.3800, p_holm=1.0000 → no significativo
-- e5-a0.0 vs e5-a0.5: p_crudo=0.3160, p_holm=1.0000 → no significativo
-- e5-a0.0 vs e5-a0.6: p_crudo=0.2500, p_holm=1.0000 → no significativo
-- e5-a0.0 vs e5-a0.7: p_crudo=0.0960, p_holm=1.0000 → no significativo
-- e5-a0.0 vs e5-a0.8: p_crudo=0.0180, p_holm=1.0000 → no significativo
-- e5-a0.0 vs e5-a0.9: p_crudo=0.0080, p_holm=1.0000 → no significativo
-- e5-a0.0 vs e5-a1.0: p_crudo=0.9980, p_holm=1.0000 → no significativo
-- e5-a0.0 vs rrf-minilm: p_crudo=0.1980, p_holm=1.0000 → no significativo
-- e5-a0.0 vs rrf-e5: p_crudo=0.2060, p_holm=1.0000 → no significativo
+- e5-a0.0 vs e5-a0.1: p_crudo=0.2490, p_holm=1.0000 → no significativo
+- e5-a0.0 vs e5-a0.2: p_crudo=0.0150, p_holm=1.0000 → no significativo
+- e5-a0.0 vs e5-a0.3: p_crudo=0.0005, p_holm=0.0715 → no significativo
+- e5-a0.0 vs e5-a0.4: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- e5-a0.0 vs e5-a0.5: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- e5-a0.0 vs e5-a0.6: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- e5-a0.0 vs e5-a0.7: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- e5-a0.0 vs e5-a0.8: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- e5-a0.0 vs e5-a0.9: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- e5-a0.0 vs e5-a1.0: p_crudo=0.3685, p_holm=1.0000 → no significativo
+- e5-a0.0 vs rrf-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- e5-a0.0 vs rrf-e5: p_crudo=0.0000, p_holm=0.0000 → **significativo**
 - e5-a0.0 vs lexico-solo: p_crudo=1.0000, p_holm=1.0000 → no significativo
 - e5-a0.0 vs vector-solo-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- e5-a0.0 vs vector-solo-e5: p_crudo=0.9980, p_holm=1.0000 → no significativo
-- e5-a0.1 vs e5-a0.2: p_crudo=1.0000, p_holm=1.0000 → no significativo
-- e5-a0.1 vs e5-a0.3: p_crudo=0.2720, p_holm=1.0000 → no significativo
-- e5-a0.1 vs e5-a0.4: p_crudo=0.2460, p_holm=1.0000 → no significativo
-- e5-a0.1 vs e5-a0.5: p_crudo=0.1200, p_holm=1.0000 → no significativo
-- e5-a0.1 vs e5-a0.6: p_crudo=0.0440, p_holm=1.0000 → no significativo
-- e5-a0.1 vs e5-a0.7: p_crudo=0.0060, p_holm=1.0000 → no significativo
-- e5-a0.1 vs e5-a0.8: p_crudo=0.0020, p_holm=0.5580 → no significativo
+- e5-a0.0 vs vector-solo-e5: p_crudo=0.1595, p_holm=1.0000 → no significativo
+- e5-a0.1 vs e5-a0.2: p_crudo=0.0370, p_holm=1.0000 → no significativo
+- e5-a0.1 vs e5-a0.3: p_crudo=0.0020, p_holm=0.2240 → no significativo
+- e5-a0.1 vs e5-a0.4: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- e5-a0.1 vs e5-a0.5: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- e5-a0.1 vs e5-a0.6: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- e5-a0.1 vs e5-a0.7: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- e5-a0.1 vs e5-a0.8: p_crudo=0.0000, p_holm=0.0000 → **significativo**
 - e5-a0.1 vs e5-a0.9: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- e5-a0.1 vs e5-a1.0: p_crudo=0.8920, p_holm=1.0000 → no significativo
-- e5-a0.1 vs rrf-minilm: p_crudo=0.2240, p_holm=1.0000 → no significativo
-- e5-a0.1 vs rrf-e5: p_crudo=0.1320, p_holm=1.0000 → no significativo
-- e5-a0.1 vs lexico-solo: p_crudo=1.0000, p_holm=1.0000 → no significativo
+- e5-a0.1 vs e5-a1.0: p_crudo=0.2860, p_holm=1.0000 → no significativo
+- e5-a0.1 vs rrf-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- e5-a0.1 vs rrf-e5: p_crudo=0.0025, p_holm=0.2750 → no significativo
+- e5-a0.1 vs lexico-solo: p_crudo=0.2720, p_holm=1.0000 → no significativo
 - e5-a0.1 vs vector-solo-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- e5-a0.1 vs vector-solo-e5: p_crudo=0.9100, p_holm=1.0000 → no significativo
-- e5-a0.2 vs e5-a0.3: p_crudo=0.5360, p_holm=1.0000 → no significativo
-- e5-a0.2 vs e5-a0.4: p_crudo=0.4860, p_holm=1.0000 → no significativo
-- e5-a0.2 vs e5-a0.5: p_crudo=0.2460, p_holm=1.0000 → no significativo
-- e5-a0.2 vs e5-a0.6: p_crudo=0.1160, p_holm=1.0000 → no significativo
-- e5-a0.2 vs e5-a0.7: p_crudo=0.0160, p_holm=1.0000 → no significativo
-- e5-a0.2 vs e5-a0.8: p_crudo=0.0060, p_holm=1.0000 → no significativo
+- e5-a0.1 vs vector-solo-e5: p_crudo=0.2275, p_holm=1.0000 → no significativo
+- e5-a0.2 vs e5-a0.3: p_crudo=0.0165, p_holm=1.0000 → no significativo
+- e5-a0.2 vs e5-a0.4: p_crudo=0.0005, p_holm=0.0715 → no significativo
+- e5-a0.2 vs e5-a0.5: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- e5-a0.2 vs e5-a0.6: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- e5-a0.2 vs e5-a0.7: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- e5-a0.2 vs e5-a0.8: p_crudo=0.0000, p_holm=0.0000 → **significativo**
 - e5-a0.2 vs e5-a0.9: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- e5-a0.2 vs e5-a1.0: p_crudo=0.9300, p_holm=1.0000 → no significativo
-- e5-a0.2 vs rrf-minilm: p_crudo=0.1540, p_holm=1.0000 → no significativo
-- e5-a0.2 vs rrf-e5: p_crudo=0.2100, p_holm=1.0000 → no significativo
-- e5-a0.2 vs lexico-solo: p_crudo=1.0000, p_holm=1.0000 → no significativo
+- e5-a0.2 vs e5-a1.0: p_crudo=0.2225, p_holm=1.0000 → no significativo
+- e5-a0.2 vs rrf-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- e5-a0.2 vs rrf-e5: p_crudo=0.0015, p_holm=0.1770 → no significativo
+- e5-a0.2 vs lexico-solo: p_crudo=0.0220, p_holm=1.0000 → no significativo
 - e5-a0.2 vs vector-solo-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- e5-a0.2 vs vector-solo-e5: p_crudo=0.9220, p_holm=1.0000 → no significativo
-- e5-a0.3 vs e5-a0.4: p_crudo=1.0000, p_holm=1.0000 → no significativo
-- e5-a0.3 vs e5-a0.5: p_crudo=0.4800, p_holm=1.0000 → no significativo
-- e5-a0.3 vs e5-a0.6: p_crudo=0.0820, p_holm=1.0000 → no significativo
-- e5-a0.3 vs e5-a0.7: p_crudo=0.0080, p_holm=1.0000 → no significativo
-- e5-a0.3 vs e5-a0.8: p_crudo=0.0160, p_holm=1.0000 → no significativo
-- e5-a0.3 vs e5-a0.9: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- e5-a0.3 vs e5-a1.0: p_crudo=0.8620, p_holm=1.0000 → no significativo
-- e5-a0.3 vs rrf-minilm: p_crudo=0.0840, p_holm=1.0000 → no significativo
-- e5-a0.3 vs rrf-e5: p_crudo=0.2160, p_holm=1.0000 → no significativo
-- e5-a0.3 vs lexico-solo: p_crudo=0.6420, p_holm=1.0000 → no significativo
+- e5-a0.2 vs vector-solo-e5: p_crudo=0.2955, p_holm=1.0000 → no significativo
+- e5-a0.3 vs e5-a0.4: p_crudo=0.0040, p_holm=0.4240 → no significativo
+- e5-a0.3 vs e5-a0.5: p_crudo=0.0070, p_holm=0.6860 → no significativo
+- e5-a0.3 vs e5-a0.6: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- e5-a0.3 vs e5-a0.7: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- e5-a0.3 vs e5-a0.8: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- e5-a0.3 vs e5-a0.9: p_crudo=0.0010, p_holm=0.1290 → no significativo
+- e5-a0.3 vs e5-a1.0: p_crudo=0.1545, p_holm=1.0000 → no significativo
+- e5-a0.3 vs rrf-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- e5-a0.3 vs rrf-e5: p_crudo=0.0050, p_holm=0.5050 → no significativo
+- e5-a0.3 vs lexico-solo: p_crudo=0.0000, p_holm=0.0000 → **significativo**
 - e5-a0.3 vs vector-solo-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- e5-a0.3 vs vector-solo-e5: p_crudo=0.8760, p_holm=1.0000 → no significativo
-- e5-a0.4 vs e5-a0.5: p_crudo=1.0000, p_holm=1.0000 → no significativo
-- e5-a0.4 vs e5-a0.6: p_crudo=0.1960, p_holm=1.0000 → no significativo
-- e5-a0.4 vs e5-a0.7: p_crudo=0.0120, p_holm=1.0000 → no significativo
-- e5-a0.4 vs e5-a0.8: p_crudo=0.0100, p_holm=1.0000 → no significativo
-- e5-a0.4 vs e5-a0.9: p_crudo=0.0220, p_holm=1.0000 → no significativo
-- e5-a0.4 vs e5-a1.0: p_crudo=0.6820, p_holm=1.0000 → no significativo
-- e5-a0.4 vs rrf-minilm: p_crudo=0.0620, p_holm=1.0000 → no significativo
-- e5-a0.4 vs rrf-e5: p_crudo=0.4100, p_holm=1.0000 → no significativo
-- e5-a0.4 vs lexico-solo: p_crudo=0.3780, p_holm=1.0000 → no significativo
+- e5-a0.3 vs vector-solo-e5: p_crudo=0.4475, p_holm=1.0000 → no significativo
+- e5-a0.4 vs e5-a0.5: p_crudo=0.0950, p_holm=1.0000 → no significativo
+- e5-a0.4 vs e5-a0.6: p_crudo=0.0005, p_holm=0.0715 → no significativo
+- e5-a0.4 vs e5-a0.7: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- e5-a0.4 vs e5-a0.8: p_crudo=0.0005, p_holm=0.0715 → no significativo
+- e5-a0.4 vs e5-a0.9: p_crudo=0.0005, p_holm=0.0715 → no significativo
+- e5-a0.4 vs e5-a1.0: p_crudo=0.0960, p_holm=1.0000 → no significativo
+- e5-a0.4 vs rrf-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- e5-a0.4 vs rrf-e5: p_crudo=0.0285, p_holm=1.0000 → no significativo
+- e5-a0.4 vs lexico-solo: p_crudo=0.0000, p_holm=0.0000 → **significativo**
 - e5-a0.4 vs vector-solo-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- e5-a0.4 vs vector-solo-e5: p_crudo=0.7160, p_holm=1.0000 → no significativo
-- e5-a0.5 vs e5-a0.6: p_crudo=0.2880, p_holm=1.0000 → no significativo
-- e5-a0.5 vs e5-a0.7: p_crudo=0.0320, p_holm=1.0000 → no significativo
-- e5-a0.5 vs e5-a0.8: p_crudo=0.0320, p_holm=1.0000 → no significativo
-- e5-a0.5 vs e5-a0.9: p_crudo=0.0120, p_holm=1.0000 → no significativo
-- e5-a0.5 vs e5-a1.0: p_crudo=0.6560, p_holm=1.0000 → no significativo
-- e5-a0.5 vs rrf-minilm: p_crudo=0.0440, p_holm=1.0000 → no significativo
-- e5-a0.5 vs rrf-e5: p_crudo=0.4220, p_holm=1.0000 → no significativo
-- e5-a0.5 vs lexico-solo: p_crudo=0.3340, p_holm=1.0000 → no significativo
+- e5-a0.4 vs vector-solo-e5: p_crudo=0.6405, p_holm=1.0000 → no significativo
+- e5-a0.5 vs e5-a0.6: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- e5-a0.5 vs e5-a0.7: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- e5-a0.5 vs e5-a0.8: p_crudo=0.0005, p_holm=0.0715 → no significativo
+- e5-a0.5 vs e5-a0.9: p_crudo=0.0015, p_holm=0.1770 → no significativo
+- e5-a0.5 vs e5-a1.0: p_crudo=0.0490, p_holm=1.0000 → no significativo
+- e5-a0.5 vs rrf-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- e5-a0.5 vs rrf-e5: p_crudo=0.0440, p_holm=1.0000 → no significativo
+- e5-a0.5 vs lexico-solo: p_crudo=0.0000, p_holm=0.0000 → **significativo**
 - e5-a0.5 vs vector-solo-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- e5-a0.5 vs vector-solo-e5: p_crudo=0.6920, p_holm=1.0000 → no significativo
-- e5-a0.6 vs e5-a0.7: p_crudo=0.1340, p_holm=1.0000 → no significativo
-- e5-a0.6 vs e5-a0.8: p_crudo=0.0680, p_holm=1.0000 → no significativo
-- e5-a0.6 vs e5-a0.9: p_crudo=0.0220, p_holm=1.0000 → no significativo
-- e5-a0.6 vs e5-a1.0: p_crudo=0.6480, p_holm=1.0000 → no significativo
-- e5-a0.6 vs rrf-minilm: p_crudo=0.0320, p_holm=1.0000 → no significativo
-- e5-a0.6 vs rrf-e5: p_crudo=0.4340, p_holm=1.0000 → no significativo
-- e5-a0.6 vs lexico-solo: p_crudo=0.2760, p_holm=1.0000 → no significativo
+- e5-a0.5 vs vector-solo-e5: p_crudo=0.8145, p_holm=1.0000 → no significativo
+- e5-a0.6 vs e5-a0.7: p_crudo=0.0005, p_holm=0.0715 → no significativo
+- e5-a0.6 vs e5-a0.8: p_crudo=0.0045, p_holm=0.4680 → no significativo
+- e5-a0.6 vs e5-a0.9: p_crudo=0.0070, p_holm=0.6860 → no significativo
+- e5-a0.6 vs e5-a1.0: p_crudo=0.0160, p_holm=1.0000 → no significativo
+- e5-a0.6 vs rrf-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- e5-a0.6 vs rrf-e5: p_crudo=0.1975, p_holm=1.0000 → no significativo
+- e5-a0.6 vs lexico-solo: p_crudo=0.0000, p_holm=0.0000 → **significativo**
 - e5-a0.6 vs vector-solo-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- e5-a0.6 vs vector-solo-e5: p_crudo=0.5860, p_holm=1.0000 → no significativo
-- e5-a0.7 vs e5-a0.8: p_crudo=0.2580, p_holm=1.0000 → no significativo
-- e5-a0.7 vs e5-a0.9: p_crudo=0.0780, p_holm=1.0000 → no significativo
-- e5-a0.7 vs e5-a1.0: p_crudo=0.3940, p_holm=1.0000 → no significativo
-- e5-a0.7 vs rrf-minilm: p_crudo=0.0220, p_holm=1.0000 → no significativo
-- e5-a0.7 vs rrf-e5: p_crudo=0.7880, p_holm=1.0000 → no significativo
-- e5-a0.7 vs lexico-solo: p_crudo=0.0820, p_holm=1.0000 → no significativo
+- e5-a0.6 vs vector-solo-e5: p_crudo=0.7865, p_holm=1.0000 → no significativo
+- e5-a0.7 vs e5-a0.8: p_crudo=0.2490, p_holm=1.0000 → no significativo
+- e5-a0.7 vs e5-a0.9: p_crudo=0.0515, p_holm=1.0000 → no significativo
+- e5-a0.7 vs e5-a1.0: p_crudo=0.0035, p_holm=0.3745 → no significativo
+- e5-a0.7 vs rrf-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- e5-a0.7 vs rrf-e5: p_crudo=0.7320, p_holm=1.0000 → no significativo
+- e5-a0.7 vs lexico-solo: p_crudo=0.0000, p_holm=0.0000 → **significativo**
 - e5-a0.7 vs vector-solo-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- e5-a0.7 vs vector-solo-e5: p_crudo=0.3880, p_holm=1.0000 → no significativo
-- e5-a0.8 vs e5-a0.9: p_crudo=0.2440, p_holm=1.0000 → no significativo
-- e5-a0.8 vs e5-a1.0: p_crudo=0.1520, p_holm=1.0000 → no significativo
-- e5-a0.8 vs rrf-minilm: p_crudo=0.0080, p_holm=1.0000 → no significativo
-- e5-a0.8 vs rrf-e5: p_crudo=0.7080, p_holm=1.0000 → no significativo
-- e5-a0.8 vs lexico-solo: p_crudo=0.0300, p_holm=1.0000 → no significativo
+- e5-a0.7 vs vector-solo-e5: p_crudo=0.3890, p_holm=1.0000 → no significativo
+- e5-a0.8 vs e5-a0.9: p_crudo=0.0695, p_holm=1.0000 → no significativo
+- e5-a0.8 vs e5-a1.0: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- e5-a0.8 vs rrf-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- e5-a0.8 vs rrf-e5: p_crudo=0.8855, p_holm=1.0000 → no significativo
+- e5-a0.8 vs lexico-solo: p_crudo=0.0000, p_holm=0.0000 → **significativo**
 - e5-a0.8 vs vector-solo-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- e5-a0.8 vs vector-solo-e5: p_crudo=0.1360, p_holm=1.0000 → no significativo
-- e5-a0.9 vs e5-a1.0: p_crudo=0.0100, p_holm=1.0000 → no significativo
+- e5-a0.8 vs vector-solo-e5: p_crudo=0.2515, p_holm=1.0000 → no significativo
+- e5-a0.9 vs e5-a1.0: p_crudo=0.0000, p_holm=0.0000 → **significativo**
 - e5-a0.9 vs rrf-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- e5-a0.9 vs rrf-e5: p_crudo=0.2520, p_holm=1.0000 → no significativo
-- e5-a0.9 vs lexico-solo: p_crudo=0.0020, p_holm=0.5580 → no significativo
+- e5-a0.9 vs rrf-e5: p_crudo=0.2435, p_holm=1.0000 → no significativo
+- e5-a0.9 vs lexico-solo: p_crudo=0.0000, p_holm=0.0000 → **significativo**
 - e5-a0.9 vs vector-solo-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- e5-a0.9 vs vector-solo-e5: p_crudo=0.0080, p_holm=1.0000 → no significativo
-- e5-a1.0 vs rrf-minilm: p_crudo=0.2600, p_holm=1.0000 → no significativo
-- e5-a1.0 vs rrf-e5: p_crudo=0.1640, p_holm=1.0000 → no significativo
-- e5-a1.0 vs lexico-solo: p_crudo=0.9960, p_holm=1.0000 → no significativo
+- e5-a0.9 vs vector-solo-e5: p_crudo=0.0430, p_holm=1.0000 → no significativo
+- e5-a1.0 vs rrf-minilm: p_crudo=0.1060, p_holm=1.0000 → no significativo
+- e5-a1.0 vs rrf-e5: p_crudo=0.0010, p_holm=0.1290 → no significativo
+- e5-a1.0 vs lexico-solo: p_crudo=0.3745, p_holm=1.0000 → no significativo
 - e5-a1.0 vs vector-solo-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- e5-a1.0 vs vector-solo-e5: p_crudo=1.0000, p_holm=1.0000 → no significativo
-- rrf-minilm vs rrf-e5: p_crudo=0.0120, p_holm=1.0000 → no significativo
-- rrf-minilm vs lexico-solo: p_crudo=0.1680, p_holm=1.0000 → no significativo
+- e5-a1.0 vs vector-solo-e5: p_crudo=0.0025, p_holm=0.2750 → no significativo
+- rrf-minilm vs rrf-e5: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- rrf-minilm vs lexico-solo: p_crudo=0.0000, p_holm=0.0000 → **significativo**
 - rrf-minilm vs vector-solo-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- rrf-minilm vs vector-solo-e5: p_crudo=0.2560, p_holm=1.0000 → no significativo
-- rrf-e5 vs lexico-solo: p_crudo=0.2120, p_holm=1.0000 → no significativo
+- rrf-minilm vs vector-solo-e5: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- rrf-e5 vs lexico-solo: p_crudo=0.0010, p_holm=0.1290 → no significativo
 - rrf-e5 vs vector-solo-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- rrf-e5 vs vector-solo-e5: p_crudo=0.1700, p_holm=1.0000 → no significativo
+- rrf-e5 vs vector-solo-e5: p_crudo=0.1845, p_holm=1.0000 → no significativo
 - lexico-solo vs vector-solo-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
-- lexico-solo vs vector-solo-e5: p_crudo=1.0000, p_holm=1.0000 → no significativo
+- lexico-solo vs vector-solo-e5: p_crudo=0.1765, p_holm=1.0000 → no significativo
+- vector-solo-minilm vs vector-solo-e5: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+
+**mrr@10**
+
+- minilm-a0.0 vs minilm-a0.1: p_crudo=0.5320, p_holm=1.0000 → no significativo
+- minilm-a0.0 vs minilm-a0.2: p_crudo=0.8115, p_holm=1.0000 → no significativo
+- minilm-a0.0 vs minilm-a0.3: p_crudo=0.8465, p_holm=1.0000 → no significativo
+- minilm-a0.0 vs minilm-a0.4: p_crudo=0.6095, p_holm=1.0000 → no significativo
+- minilm-a0.0 vs minilm-a0.5: p_crudo=0.3460, p_holm=1.0000 → no significativo
+- minilm-a0.0 vs minilm-a0.6: p_crudo=0.1830, p_holm=1.0000 → no significativo
+- minilm-a0.0 vs minilm-a0.7: p_crudo=0.0835, p_holm=1.0000 → no significativo
+- minilm-a0.0 vs minilm-a0.8: p_crudo=0.0045, p_holm=1.0000 → no significativo
+- minilm-a0.0 vs minilm-a0.9: p_crudo=0.0005, p_holm=0.1455 → no significativo
+- minilm-a0.0 vs minilm-a1.0: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- minilm-a0.0 vs e5-a0.0: p_crudo=1.0000, p_holm=1.0000 → no significativo
+- minilm-a0.0 vs e5-a0.1: p_crudo=0.7430, p_holm=1.0000 → no significativo
+- minilm-a0.0 vs e5-a0.2: p_crudo=0.8745, p_holm=1.0000 → no significativo
+- minilm-a0.0 vs e5-a0.3: p_crudo=0.2395, p_holm=1.0000 → no significativo
+- minilm-a0.0 vs e5-a0.4: p_crudo=0.2450, p_holm=1.0000 → no significativo
+- minilm-a0.0 vs e5-a0.5: p_crudo=0.1090, p_holm=1.0000 → no significativo
+- minilm-a0.0 vs e5-a0.6: p_crudo=0.0255, p_holm=1.0000 → no significativo
+- minilm-a0.0 vs e5-a0.7: p_crudo=0.0155, p_holm=1.0000 → no significativo
+- minilm-a0.0 vs e5-a0.8: p_crudo=0.0030, p_holm=0.7770 → no significativo
+- minilm-a0.0 vs e5-a0.9: p_crudo=0.0060, p_holm=1.0000 → no significativo
+- minilm-a0.0 vs e5-a1.0: p_crudo=0.0390, p_holm=1.0000 → no significativo
+- minilm-a0.0 vs rrf-minilm: p_crudo=0.1820, p_holm=1.0000 → no significativo
+- minilm-a0.0 vs rrf-e5: p_crudo=0.1920, p_holm=1.0000 → no significativo
+- minilm-a0.0 vs lexico-solo: p_crudo=1.0000, p_holm=1.0000 → no significativo
+- minilm-a0.0 vs vector-solo-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- minilm-a0.0 vs vector-solo-e5: p_crudo=0.9975, p_holm=1.0000 → no significativo
+- minilm-a0.1 vs minilm-a0.2: p_crudo=0.4855, p_holm=1.0000 → no significativo
+- minilm-a0.1 vs minilm-a0.3: p_crudo=0.4810, p_holm=1.0000 → no significativo
+- minilm-a0.1 vs minilm-a0.4: p_crudo=0.1490, p_holm=1.0000 → no significativo
+- minilm-a0.1 vs minilm-a0.5: p_crudo=0.0640, p_holm=1.0000 → no significativo
+- minilm-a0.1 vs minilm-a0.6: p_crudo=0.0290, p_holm=1.0000 → no significativo
+- minilm-a0.1 vs minilm-a0.7: p_crudo=0.0120, p_holm=1.0000 → no significativo
+- minilm-a0.1 vs minilm-a0.8: p_crudo=0.0010, p_holm=0.2810 → no significativo
+- minilm-a0.1 vs minilm-a0.9: p_crudo=0.0005, p_holm=0.1455 → no significativo
+- minilm-a0.1 vs minilm-a1.0: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- minilm-a0.1 vs e5-a0.0: p_crudo=0.5170, p_holm=1.0000 → no significativo
+- minilm-a0.1 vs e5-a0.1: p_crudo=0.1380, p_holm=1.0000 → no significativo
+- minilm-a0.1 vs e5-a0.2: p_crudo=0.2095, p_holm=1.0000 → no significativo
+- minilm-a0.1 vs e5-a0.3: p_crudo=1.0000, p_holm=1.0000 → no significativo
+- minilm-a0.1 vs e5-a0.4: p_crudo=1.0000, p_holm=1.0000 → no significativo
+- minilm-a0.1 vs e5-a0.5: p_crudo=0.6210, p_holm=1.0000 → no significativo
+- minilm-a0.1 vs e5-a0.6: p_crudo=0.5160, p_holm=1.0000 → no significativo
+- minilm-a0.1 vs e5-a0.7: p_crudo=0.3845, p_holm=1.0000 → no significativo
+- minilm-a0.1 vs e5-a0.8: p_crudo=0.1625, p_holm=1.0000 → no significativo
+- minilm-a0.1 vs e5-a0.9: p_crudo=0.0285, p_holm=1.0000 → no significativo
+- minilm-a0.1 vs e5-a1.0: p_crudo=0.0250, p_holm=1.0000 → no significativo
+- minilm-a0.1 vs rrf-minilm: p_crudo=0.0695, p_holm=1.0000 → no significativo
+- minilm-a0.1 vs rrf-e5: p_crudo=0.3670, p_holm=1.0000 → no significativo
+- minilm-a0.1 vs lexico-solo: p_crudo=0.5275, p_holm=1.0000 → no significativo
+- minilm-a0.1 vs vector-solo-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- minilm-a0.1 vs vector-solo-e5: p_crudo=0.7440, p_holm=1.0000 → no significativo
+- minilm-a0.2 vs minilm-a0.3: p_crudo=1.0000, p_holm=1.0000 → no significativo
+- minilm-a0.2 vs minilm-a0.4: p_crudo=0.2495, p_holm=1.0000 → no significativo
+- minilm-a0.2 vs minilm-a0.5: p_crudo=0.1165, p_holm=1.0000 → no significativo
+- minilm-a0.2 vs minilm-a0.6: p_crudo=0.0450, p_holm=1.0000 → no significativo
+- minilm-a0.2 vs minilm-a0.7: p_crudo=0.0240, p_holm=1.0000 → no significativo
+- minilm-a0.2 vs minilm-a0.8: p_crudo=0.0020, p_holm=0.5320 → no significativo
+- minilm-a0.2 vs minilm-a0.9: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- minilm-a0.2 vs minilm-a1.0: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- minilm-a0.2 vs e5-a0.0: p_crudo=0.8185, p_holm=1.0000 → no significativo
+- minilm-a0.2 vs e5-a0.1: p_crudo=0.4670, p_holm=1.0000 → no significativo
+- minilm-a0.2 vs e5-a0.2: p_crudo=0.5905, p_holm=1.0000 → no significativo
+- minilm-a0.2 vs e5-a0.3: p_crudo=0.5370, p_holm=1.0000 → no significativo
+- minilm-a0.2 vs e5-a0.4: p_crudo=0.5455, p_holm=1.0000 → no significativo
+- minilm-a0.2 vs e5-a0.5: p_crudo=0.3535, p_holm=1.0000 → no significativo
+- minilm-a0.2 vs e5-a0.6: p_crudo=0.2880, p_holm=1.0000 → no significativo
+- minilm-a0.2 vs e5-a0.7: p_crudo=0.1860, p_holm=1.0000 → no significativo
+- minilm-a0.2 vs e5-a0.8: p_crudo=0.0890, p_holm=1.0000 → no significativo
+- minilm-a0.2 vs e5-a0.9: p_crudo=0.0135, p_holm=1.0000 → no significativo
+- minilm-a0.2 vs e5-a1.0: p_crudo=0.0455, p_holm=1.0000 → no significativo
+- minilm-a0.2 vs rrf-minilm: p_crudo=0.1110, p_holm=1.0000 → no significativo
+- minilm-a0.2 vs rrf-e5: p_crudo=0.2610, p_holm=1.0000 → no significativo
+- minilm-a0.2 vs lexico-solo: p_crudo=0.8100, p_holm=1.0000 → no significativo
+- minilm-a0.2 vs vector-solo-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- minilm-a0.2 vs vector-solo-e5: p_crudo=0.9275, p_holm=1.0000 → no significativo
+- minilm-a0.3 vs minilm-a0.4: p_crudo=0.3705, p_holm=1.0000 → no significativo
+- minilm-a0.3 vs minilm-a0.5: p_crudo=0.1015, p_holm=1.0000 → no significativo
+- minilm-a0.3 vs minilm-a0.6: p_crudo=0.0425, p_holm=1.0000 → no significativo
+- minilm-a0.3 vs minilm-a0.7: p_crudo=0.0150, p_holm=1.0000 → no significativo
+- minilm-a0.3 vs minilm-a0.8: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- minilm-a0.3 vs minilm-a0.9: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- minilm-a0.3 vs minilm-a1.0: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- minilm-a0.3 vs e5-a0.0: p_crudo=0.8520, p_holm=1.0000 → no significativo
+- minilm-a0.3 vs e5-a0.1: p_crudo=0.4750, p_holm=1.0000 → no significativo
+- minilm-a0.3 vs e5-a0.2: p_crudo=0.5715, p_holm=1.0000 → no significativo
+- minilm-a0.3 vs e5-a0.3: p_crudo=0.5920, p_holm=1.0000 → no significativo
+- minilm-a0.3 vs e5-a0.4: p_crudo=0.6160, p_holm=1.0000 → no significativo
+- minilm-a0.3 vs e5-a0.5: p_crudo=0.4160, p_holm=1.0000 → no significativo
+- minilm-a0.3 vs e5-a0.6: p_crudo=0.3240, p_holm=1.0000 → no significativo
+- minilm-a0.3 vs e5-a0.7: p_crudo=0.2440, p_holm=1.0000 → no significativo
+- minilm-a0.3 vs e5-a0.8: p_crudo=0.1245, p_holm=1.0000 → no significativo
+- minilm-a0.3 vs e5-a0.9: p_crudo=0.0110, p_holm=1.0000 → no significativo
+- minilm-a0.3 vs e5-a1.0: p_crudo=0.0420, p_holm=1.0000 → no significativo
+- minilm-a0.3 vs rrf-minilm: p_crudo=0.1120, p_holm=1.0000 → no significativo
+- minilm-a0.3 vs rrf-e5: p_crudo=0.2210, p_holm=1.0000 → no significativo
+- minilm-a0.3 vs lexico-solo: p_crudo=0.8550, p_holm=1.0000 → no significativo
+- minilm-a0.3 vs vector-solo-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- minilm-a0.3 vs vector-solo-e5: p_crudo=0.9050, p_holm=1.0000 → no significativo
+- minilm-a0.4 vs minilm-a0.5: p_crudo=0.2480, p_holm=1.0000 → no significativo
+- minilm-a0.4 vs minilm-a0.6: p_crudo=0.0870, p_holm=1.0000 → no significativo
+- minilm-a0.4 vs minilm-a0.7: p_crudo=0.0325, p_holm=1.0000 → no significativo
+- minilm-a0.4 vs minilm-a0.8: p_crudo=0.0010, p_holm=0.2810 → no significativo
+- minilm-a0.4 vs minilm-a0.9: p_crudo=0.0010, p_holm=0.2810 → no significativo
+- minilm-a0.4 vs minilm-a1.0: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- minilm-a0.4 vs e5-a0.0: p_crudo=0.5965, p_holm=1.0000 → no significativo
+- minilm-a0.4 vs e5-a0.1: p_crudo=0.8735, p_holm=1.0000 → no significativo
+- minilm-a0.4 vs e5-a0.2: p_crudo=0.7775, p_holm=1.0000 → no significativo
+- minilm-a0.4 vs e5-a0.3: p_crudo=0.2620, p_holm=1.0000 → no significativo
+- minilm-a0.4 vs e5-a0.4: p_crudo=0.2540, p_holm=1.0000 → no significativo
+- minilm-a0.4 vs e5-a0.5: p_crudo=0.1670, p_holm=1.0000 → no significativo
+- minilm-a0.4 vs e5-a0.6: p_crudo=0.1160, p_holm=1.0000 → no significativo
+- minilm-a0.4 vs e5-a0.7: p_crudo=0.0885, p_holm=1.0000 → no significativo
+- minilm-a0.4 vs e5-a0.8: p_crudo=0.0355, p_holm=1.0000 → no significativo
+- minilm-a0.4 vs e5-a0.9: p_crudo=0.0040, p_holm=1.0000 → no significativo
+- minilm-a0.4 vs e5-a1.0: p_crudo=0.1015, p_holm=1.0000 → no significativo
+- minilm-a0.4 vs rrf-minilm: p_crudo=0.2265, p_holm=1.0000 → no significativo
+- minilm-a0.4 vs rrf-e5: p_crudo=0.0745, p_holm=1.0000 → no significativo
+- minilm-a0.4 vs lexico-solo: p_crudo=0.6115, p_holm=1.0000 → no significativo
+- minilm-a0.4 vs vector-solo-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- minilm-a0.4 vs vector-solo-e5: p_crudo=0.7280, p_holm=1.0000 → no significativo
+- minilm-a0.5 vs minilm-a0.6: p_crudo=0.1940, p_holm=1.0000 → no significativo
+- minilm-a0.5 vs minilm-a0.7: p_crudo=0.0465, p_holm=1.0000 → no significativo
+- minilm-a0.5 vs minilm-a0.8: p_crudo=0.0005, p_holm=0.1455 → no significativo
+- minilm-a0.5 vs minilm-a0.9: p_crudo=0.0010, p_holm=0.2810 → no significativo
+- minilm-a0.5 vs minilm-a1.0: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- minilm-a0.5 vs e5-a0.0: p_crudo=0.3405, p_holm=1.0000 → no significativo
+- minilm-a0.5 vs e5-a0.1: p_crudo=0.4900, p_holm=1.0000 → no significativo
+- minilm-a0.5 vs e5-a0.2: p_crudo=0.4335, p_holm=1.0000 → no significativo
+- minilm-a0.5 vs e5-a0.3: p_crudo=0.1335, p_holm=1.0000 → no significativo
+- minilm-a0.5 vs e5-a0.4: p_crudo=0.1260, p_holm=1.0000 → no significativo
+- minilm-a0.5 vs e5-a0.5: p_crudo=0.1015, p_holm=1.0000 → no significativo
+- minilm-a0.5 vs e5-a0.6: p_crudo=0.0790, p_holm=1.0000 → no significativo
+- minilm-a0.5 vs e5-a0.7: p_crudo=0.0460, p_holm=1.0000 → no significativo
+- minilm-a0.5 vs e5-a0.8: p_crudo=0.0250, p_holm=1.0000 → no significativo
+- minilm-a0.5 vs e5-a0.9: p_crudo=0.0050, p_holm=1.0000 → no significativo
+- minilm-a0.5 vs e5-a1.0: p_crudo=0.1790, p_holm=1.0000 → no significativo
+- minilm-a0.5 vs rrf-minilm: p_crudo=0.3790, p_holm=1.0000 → no significativo
+- minilm-a0.5 vs rrf-e5: p_crudo=0.0340, p_holm=1.0000 → no significativo
+- minilm-a0.5 vs lexico-solo: p_crudo=0.3445, p_holm=1.0000 → no significativo
+- minilm-a0.5 vs vector-solo-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- minilm-a0.5 vs vector-solo-e5: p_crudo=0.4775, p_holm=1.0000 → no significativo
+- minilm-a0.6 vs minilm-a0.7: p_crudo=0.0910, p_holm=1.0000 → no significativo
+- minilm-a0.6 vs minilm-a0.8: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- minilm-a0.6 vs minilm-a0.9: p_crudo=0.0010, p_holm=0.2810 → no significativo
+- minilm-a0.6 vs minilm-a1.0: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- minilm-a0.6 vs e5-a0.0: p_crudo=0.1640, p_holm=1.0000 → no significativo
+- minilm-a0.6 vs e5-a0.1: p_crudo=0.2290, p_holm=1.0000 → no significativo
+- minilm-a0.6 vs e5-a0.2: p_crudo=0.2035, p_holm=1.0000 → no significativo
+- minilm-a0.6 vs e5-a0.3: p_crudo=0.0780, p_holm=1.0000 → no significativo
+- minilm-a0.6 vs e5-a0.4: p_crudo=0.0675, p_holm=1.0000 → no significativo
+- minilm-a0.6 vs e5-a0.5: p_crudo=0.0470, p_holm=1.0000 → no significativo
+- minilm-a0.6 vs e5-a0.6: p_crudo=0.0330, p_holm=1.0000 → no significativo
+- minilm-a0.6 vs e5-a0.7: p_crudo=0.0285, p_holm=1.0000 → no significativo
+- minilm-a0.6 vs e5-a0.8: p_crudo=0.0165, p_holm=1.0000 → no significativo
+- minilm-a0.6 vs e5-a0.9: p_crudo=0.0005, p_holm=0.1455 → no significativo
+- minilm-a0.6 vs e5-a1.0: p_crudo=0.2595, p_holm=1.0000 → no significativo
+- minilm-a0.6 vs rrf-minilm: p_crudo=0.6555, p_holm=1.0000 → no significativo
+- minilm-a0.6 vs rrf-e5: p_crudo=0.0145, p_holm=1.0000 → no significativo
+- minilm-a0.6 vs lexico-solo: p_crudo=0.1680, p_holm=1.0000 → no significativo
+- minilm-a0.6 vs vector-solo-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- minilm-a0.6 vs vector-solo-e5: p_crudo=0.3340, p_holm=1.0000 → no significativo
+- minilm-a0.7 vs minilm-a0.8: p_crudo=0.0005, p_holm=0.1455 → no significativo
+- minilm-a0.7 vs minilm-a0.9: p_crudo=0.0030, p_holm=0.7770 → no significativo
+- minilm-a0.7 vs minilm-a1.0: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- minilm-a0.7 vs e5-a0.0: p_crudo=0.0905, p_holm=1.0000 → no significativo
+- minilm-a0.7 vs e5-a0.1: p_crudo=0.1150, p_holm=1.0000 → no significativo
+- minilm-a0.7 vs e5-a0.2: p_crudo=0.0995, p_holm=1.0000 → no significativo
+- minilm-a0.7 vs e5-a0.3: p_crudo=0.0305, p_holm=1.0000 → no significativo
+- minilm-a0.7 vs e5-a0.4: p_crudo=0.0390, p_holm=1.0000 → no significativo
+- minilm-a0.7 vs e5-a0.5: p_crudo=0.0245, p_holm=1.0000 → no significativo
+- minilm-a0.7 vs e5-a0.6: p_crudo=0.0245, p_holm=1.0000 → no significativo
+- minilm-a0.7 vs e5-a0.7: p_crudo=0.0145, p_holm=1.0000 → no significativo
+- minilm-a0.7 vs e5-a0.8: p_crudo=0.0105, p_holm=1.0000 → no significativo
+- minilm-a0.7 vs e5-a0.9: p_crudo=0.0010, p_holm=0.2810 → no significativo
+- minilm-a0.7 vs e5-a1.0: p_crudo=0.3905, p_holm=1.0000 → no significativo
+- minilm-a0.7 vs rrf-minilm: p_crudo=0.9280, p_holm=1.0000 → no significativo
+- minilm-a0.7 vs rrf-e5: p_crudo=0.0130, p_holm=1.0000 → no significativo
+- minilm-a0.7 vs lexico-solo: p_crudo=0.0870, p_holm=1.0000 → no significativo
+- minilm-a0.7 vs vector-solo-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- minilm-a0.7 vs vector-solo-e5: p_crudo=0.1720, p_holm=1.0000 → no significativo
+- minilm-a0.8 vs minilm-a0.9: p_crudo=0.0525, p_holm=1.0000 → no significativo
+- minilm-a0.8 vs minilm-a1.0: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- minilm-a0.8 vs e5-a0.0: p_crudo=0.0045, p_holm=1.0000 → no significativo
+- minilm-a0.8 vs e5-a0.1: p_crudo=0.0080, p_holm=1.0000 → no significativo
+- minilm-a0.8 vs e5-a0.2: p_crudo=0.0030, p_holm=0.7770 → no significativo
+- minilm-a0.8 vs e5-a0.3: p_crudo=0.0020, p_holm=0.5320 → no significativo
+- minilm-a0.8 vs e5-a0.4: p_crudo=0.0010, p_holm=0.2810 → no significativo
+- minilm-a0.8 vs e5-a0.5: p_crudo=0.0015, p_holm=0.4035 → no significativo
+- minilm-a0.8 vs e5-a0.6: p_crudo=0.0010, p_holm=0.2810 → no significativo
+- minilm-a0.8 vs e5-a0.7: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- minilm-a0.8 vs e5-a0.8: p_crudo=0.0005, p_holm=0.1455 → no significativo
+- minilm-a0.8 vs e5-a0.9: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- minilm-a0.8 vs e5-a1.0: p_crudo=0.9850, p_holm=1.0000 → no significativo
+- minilm-a0.8 vs rrf-minilm: p_crudo=0.0670, p_holm=1.0000 → no significativo
+- minilm-a0.8 vs rrf-e5: p_crudo=0.0005, p_holm=0.1455 → no significativo
+- minilm-a0.8 vs lexico-solo: p_crudo=0.0025, p_holm=0.6550 → no significativo
+- minilm-a0.8 vs vector-solo-minilm: p_crudo=0.0030, p_holm=0.7770 → no significativo
+- minilm-a0.8 vs vector-solo-e5: p_crudo=0.0150, p_holm=1.0000 → no significativo
+- minilm-a0.9 vs minilm-a1.0: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- minilm-a0.9 vs e5-a0.0: p_crudo=0.0010, p_holm=0.2810 → no significativo
+- minilm-a0.9 vs e5-a0.1: p_crudo=0.0005, p_holm=0.1455 → no significativo
+- minilm-a0.9 vs e5-a0.2: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- minilm-a0.9 vs e5-a0.3: p_crudo=0.0010, p_holm=0.2810 → no significativo
+- minilm-a0.9 vs e5-a0.4: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- minilm-a0.9 vs e5-a0.5: p_crudo=0.0005, p_holm=0.1455 → no significativo
+- minilm-a0.9 vs e5-a0.6: p_crudo=0.0005, p_holm=0.1455 → no significativo
+- minilm-a0.9 vs e5-a0.7: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- minilm-a0.9 vs e5-a0.8: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- minilm-a0.9 vs e5-a0.9: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- minilm-a0.9 vs e5-a1.0: p_crudo=0.4430, p_holm=1.0000 → no significativo
+- minilm-a0.9 vs rrf-minilm: p_crudo=0.0050, p_holm=1.0000 → no significativo
+- minilm-a0.9 vs rrf-e5: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- minilm-a0.9 vs lexico-solo: p_crudo=0.0015, p_holm=0.4035 → no significativo
+- minilm-a0.9 vs vector-solo-minilm: p_crudo=0.0730, p_holm=1.0000 → no significativo
+- minilm-a0.9 vs vector-solo-e5: p_crudo=0.0020, p_holm=0.5320 → no significativo
+- minilm-a1.0 vs e5-a0.0: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- minilm-a1.0 vs e5-a0.1: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- minilm-a1.0 vs e5-a0.2: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- minilm-a1.0 vs e5-a0.3: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- minilm-a1.0 vs e5-a0.4: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- minilm-a1.0 vs e5-a0.5: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- minilm-a1.0 vs e5-a0.6: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- minilm-a1.0 vs e5-a0.7: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- minilm-a1.0 vs e5-a0.8: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- minilm-a1.0 vs e5-a0.9: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- minilm-a1.0 vs e5-a1.0: p_crudo=0.0125, p_holm=1.0000 → no significativo
+- minilm-a1.0 vs rrf-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- minilm-a1.0 vs rrf-e5: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- minilm-a1.0 vs lexico-solo: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- minilm-a1.0 vs vector-solo-minilm: p_crudo=0.1340, p_holm=1.0000 → no significativo
+- minilm-a1.0 vs vector-solo-e5: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- e5-a0.0 vs e5-a0.1: p_crudo=0.7610, p_holm=1.0000 → no significativo
+- e5-a0.0 vs e5-a0.2: p_crudo=0.8845, p_holm=1.0000 → no significativo
+- e5-a0.0 vs e5-a0.3: p_crudo=0.2490, p_holm=1.0000 → no significativo
+- e5-a0.0 vs e5-a0.4: p_crudo=0.2645, p_holm=1.0000 → no significativo
+- e5-a0.0 vs e5-a0.5: p_crudo=0.1070, p_holm=1.0000 → no significativo
+- e5-a0.0 vs e5-a0.6: p_crudo=0.0200, p_holm=1.0000 → no significativo
+- e5-a0.0 vs e5-a0.7: p_crudo=0.0095, p_holm=1.0000 → no significativo
+- e5-a0.0 vs e5-a0.8: p_crudo=0.0015, p_holm=0.4035 → no significativo
+- e5-a0.0 vs e5-a0.9: p_crudo=0.0035, p_holm=0.8890 → no significativo
+- e5-a0.0 vs e5-a1.0: p_crudo=0.0340, p_holm=1.0000 → no significativo
+- e5-a0.0 vs rrf-minilm: p_crudo=0.1830, p_holm=1.0000 → no significativo
+- e5-a0.0 vs rrf-e5: p_crudo=0.2015, p_holm=1.0000 → no significativo
+- e5-a0.0 vs lexico-solo: p_crudo=1.0000, p_holm=1.0000 → no significativo
+- e5-a0.0 vs vector-solo-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- e5-a0.0 vs vector-solo-e5: p_crudo=0.9965, p_holm=1.0000 → no significativo
+- e5-a0.1 vs e5-a0.2: p_crudo=1.0000, p_holm=1.0000 → no significativo
+- e5-a0.1 vs e5-a0.3: p_crudo=0.1155, p_holm=1.0000 → no significativo
+- e5-a0.1 vs e5-a0.4: p_crudo=0.1195, p_holm=1.0000 → no significativo
+- e5-a0.1 vs e5-a0.5: p_crudo=0.0775, p_holm=1.0000 → no significativo
+- e5-a0.1 vs e5-a0.6: p_crudo=0.0235, p_holm=1.0000 → no significativo
+- e5-a0.1 vs e5-a0.7: p_crudo=0.0100, p_holm=1.0000 → no significativo
+- e5-a0.1 vs e5-a0.8: p_crudo=0.0010, p_holm=0.2810 → no significativo
+- e5-a0.1 vs e5-a0.9: p_crudo=0.0020, p_holm=0.5320 → no significativo
+- e5-a0.1 vs e5-a1.0: p_crudo=0.0655, p_holm=1.0000 → no significativo
+- e5-a0.1 vs rrf-minilm: p_crudo=0.2415, p_holm=1.0000 → no significativo
+- e5-a0.1 vs rrf-e5: p_crudo=0.1025, p_holm=1.0000 → no significativo
+- e5-a0.1 vs lexico-solo: p_crudo=0.7405, p_holm=1.0000 → no significativo
+- e5-a0.1 vs vector-solo-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- e5-a0.1 vs vector-solo-e5: p_crudo=0.8305, p_holm=1.0000 → no significativo
+- e5-a0.2 vs e5-a0.3: p_crudo=0.2520, p_holm=1.0000 → no significativo
+- e5-a0.2 vs e5-a0.4: p_crudo=0.2465, p_holm=1.0000 → no significativo
+- e5-a0.2 vs e5-a0.5: p_crudo=0.1680, p_holm=1.0000 → no significativo
+- e5-a0.2 vs e5-a0.6: p_crudo=0.0370, p_holm=1.0000 → no significativo
+- e5-a0.2 vs e5-a0.7: p_crudo=0.0220, p_holm=1.0000 → no significativo
+- e5-a0.2 vs e5-a0.8: p_crudo=0.0025, p_holm=0.6550 → no significativo
+- e5-a0.2 vs e5-a0.9: p_crudo=0.0035, p_holm=0.8890 → no significativo
+- e5-a0.2 vs e5-a1.0: p_crudo=0.0465, p_holm=1.0000 → no significativo
+- e5-a0.2 vs rrf-minilm: p_crudo=0.2125, p_holm=1.0000 → no significativo
+- e5-a0.2 vs rrf-e5: p_crudo=0.1210, p_holm=1.0000 → no significativo
+- e5-a0.2 vs lexico-solo: p_crudo=0.8795, p_holm=1.0000 → no significativo
+- e5-a0.2 vs vector-solo-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- e5-a0.2 vs vector-solo-e5: p_crudo=0.8880, p_holm=1.0000 → no significativo
+- e5-a0.3 vs e5-a0.4: p_crudo=1.0000, p_holm=1.0000 → no significativo
+- e5-a0.3 vs e5-a0.5: p_crudo=0.7470, p_holm=1.0000 → no significativo
+- e5-a0.3 vs e5-a0.6: p_crudo=0.2395, p_holm=1.0000 → no significativo
+- e5-a0.3 vs e5-a0.7: p_crudo=0.0765, p_holm=1.0000 → no significativo
+- e5-a0.3 vs e5-a0.8: p_crudo=0.0195, p_holm=1.0000 → no significativo
+- e5-a0.3 vs e5-a0.9: p_crudo=0.0185, p_holm=1.0000 → no significativo
+- e5-a0.3 vs e5-a1.0: p_crudo=0.0230, p_holm=1.0000 → no significativo
+- e5-a0.3 vs rrf-minilm: p_crudo=0.0770, p_holm=1.0000 → no significativo
+- e5-a0.3 vs rrf-e5: p_crudo=0.4045, p_holm=1.0000 → no significativo
+- e5-a0.3 vs lexico-solo: p_crudo=0.2450, p_holm=1.0000 → no significativo
+- e5-a0.3 vs vector-solo-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- e5-a0.3 vs vector-solo-e5: p_crudo=0.7395, p_holm=1.0000 → no significativo
+- e5-a0.4 vs e5-a0.5: p_crudo=0.7505, p_holm=1.0000 → no significativo
+- e5-a0.4 vs e5-a0.6: p_crudo=0.2210, p_holm=1.0000 → no significativo
+- e5-a0.4 vs e5-a0.7: p_crudo=0.0855, p_holm=1.0000 → no significativo
+- e5-a0.4 vs e5-a0.8: p_crudo=0.0195, p_holm=1.0000 → no significativo
+- e5-a0.4 vs e5-a0.9: p_crudo=0.0165, p_holm=1.0000 → no significativo
+- e5-a0.4 vs e5-a1.0: p_crudo=0.0150, p_holm=1.0000 → no significativo
+- e5-a0.4 vs rrf-minilm: p_crudo=0.0750, p_holm=1.0000 → no significativo
+- e5-a0.4 vs rrf-e5: p_crudo=0.3870, p_holm=1.0000 → no significativo
+- e5-a0.4 vs lexico-solo: p_crudo=0.2500, p_holm=1.0000 → no significativo
+- e5-a0.4 vs vector-solo-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- e5-a0.4 vs vector-solo-e5: p_crudo=0.7250, p_holm=1.0000 → no significativo
+- e5-a0.5 vs e5-a0.6: p_crudo=0.2685, p_holm=1.0000 → no significativo
+- e5-a0.5 vs e5-a0.7: p_crudo=0.0625, p_holm=1.0000 → no significativo
+- e5-a0.5 vs e5-a0.8: p_crudo=0.0120, p_holm=1.0000 → no significativo
+- e5-a0.5 vs e5-a0.9: p_crudo=0.0335, p_holm=1.0000 → no significativo
+- e5-a0.5 vs e5-a1.0: p_crudo=0.0045, p_holm=1.0000 → no significativo
+- e5-a0.5 vs rrf-minilm: p_crudo=0.0495, p_holm=1.0000 → no significativo
+- e5-a0.5 vs rrf-e5: p_crudo=0.5340, p_holm=1.0000 → no significativo
+- e5-a0.5 vs lexico-solo: p_crudo=0.0875, p_holm=1.0000 → no significativo
+- e5-a0.5 vs vector-solo-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- e5-a0.5 vs vector-solo-e5: p_crudo=0.5745, p_holm=1.0000 → no significativo
+- e5-a0.6 vs e5-a0.7: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- e5-a0.6 vs e5-a0.8: p_crudo=0.0360, p_holm=1.0000 → no significativo
+- e5-a0.6 vs e5-a0.9: p_crudo=0.0390, p_holm=1.0000 → no significativo
+- e5-a0.6 vs e5-a1.0: p_crudo=0.0075, p_holm=1.0000 → no significativo
+- e5-a0.6 vs rrf-minilm: p_crudo=0.0500, p_holm=1.0000 → no significativo
+- e5-a0.6 vs rrf-e5: p_crudo=0.6135, p_holm=1.0000 → no significativo
+- e5-a0.6 vs lexico-solo: p_crudo=0.0295, p_holm=1.0000 → no significativo
+- e5-a0.6 vs vector-solo-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- e5-a0.6 vs vector-solo-e5: p_crudo=0.5100, p_holm=1.0000 → no significativo
+- e5-a0.7 vs e5-a0.8: p_crudo=0.1475, p_holm=1.0000 → no significativo
+- e5-a0.7 vs e5-a0.9: p_crudo=0.0665, p_holm=1.0000 → no significativo
+- e5-a0.7 vs e5-a1.0: p_crudo=0.0060, p_holm=1.0000 → no significativo
+- e5-a0.7 vs rrf-minilm: p_crudo=0.0380, p_holm=1.0000 → no significativo
+- e5-a0.7 vs rrf-e5: p_crudo=0.6885, p_holm=1.0000 → no significativo
+- e5-a0.7 vs lexico-solo: p_crudo=0.0075, p_holm=1.0000 → no significativo
+- e5-a0.7 vs vector-solo-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- e5-a0.7 vs vector-solo-e5: p_crudo=0.4440, p_holm=1.0000 → no significativo
+- e5-a0.8 vs e5-a0.9: p_crudo=0.1670, p_holm=1.0000 → no significativo
+- e5-a0.8 vs e5-a1.0: p_crudo=0.0010, p_holm=0.2810 → no significativo
+- e5-a0.8 vs rrf-minilm: p_crudo=0.0140, p_holm=1.0000 → no significativo
+- e5-a0.8 vs rrf-e5: p_crudo=0.9920, p_holm=1.0000 → no significativo
+- e5-a0.8 vs lexico-solo: p_crudo=0.0025, p_holm=0.6550 → no significativo
+- e5-a0.8 vs vector-solo-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- e5-a0.8 vs vector-solo-e5: p_crudo=0.2715, p_holm=1.0000 → no significativo
+- e5-a0.9 vs e5-a1.0: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- e5-a0.9 vs rrf-minilm: p_crudo=0.0095, p_holm=1.0000 → no significativo
+- e5-a0.9 vs rrf-e5: p_crudo=0.4215, p_holm=1.0000 → no significativo
+- e5-a0.9 vs lexico-solo: p_crudo=0.0045, p_holm=1.0000 → no significativo
+- e5-a0.9 vs vector-solo-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- e5-a0.9 vs vector-solo-e5: p_crudo=0.0305, p_holm=1.0000 → no significativo
+- e5-a1.0 vs rrf-minilm: p_crudo=0.3875, p_holm=1.0000 → no significativo
+- e5-a1.0 vs rrf-e5: p_crudo=0.0030, p_holm=0.7770 → no significativo
+- e5-a1.0 vs lexico-solo: p_crudo=0.0350, p_holm=1.0000 → no significativo
+- e5-a1.0 vs vector-solo-minilm: p_crudo=0.0835, p_holm=1.0000 → no significativo
+- e5-a1.0 vs vector-solo-e5: p_crudo=0.0060, p_holm=1.0000 → no significativo
+- rrf-minilm vs rrf-e5: p_crudo=0.0155, p_holm=1.0000 → no significativo
+- rrf-minilm vs lexico-solo: p_crudo=0.1940, p_holm=1.0000 → no significativo
+- rrf-minilm vs vector-solo-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- rrf-minilm vs vector-solo-e5: p_crudo=0.2600, p_holm=1.0000 → no significativo
+- rrf-e5 vs lexico-solo: p_crudo=0.1965, p_holm=1.0000 → no significativo
+- rrf-e5 vs vector-solo-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- rrf-e5 vs vector-solo-e5: p_crudo=0.1800, p_holm=1.0000 → no significativo
+- lexico-solo vs vector-solo-minilm: p_crudo=0.0000, p_holm=0.0000 → **significativo**
+- lexico-solo vs vector-solo-e5: p_crudo=0.9955, p_holm=1.0000 → no significativo
 - vector-solo-minilm vs vector-solo-e5: p_crudo=0.0000, p_holm=0.0000 → **significativo**

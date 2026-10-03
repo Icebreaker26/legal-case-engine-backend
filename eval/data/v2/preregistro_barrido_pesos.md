@@ -61,6 +61,53 @@ Alejandro preguntó si se podía conseguir una muestra con potencia suficiente. 
 
 **Conclusión final de este ciclo (Fase D, cerrado)**: con dos diseños experimentales independientes (v1 y v2) y dos instrumentos de medición distintos (etiquetado ciego real y relevancia mecánica), el punto estimado favorece consistentemente a la híbrida bien configurada (e5-small, α=0.9) sobre léxico-solo. La única medición con relevancia real (test de v1, n=25) no alcanza significancia, y el n que exigiría la diferencia mínima que el proyecto mismo definió como relevante (417) está fuera de alcance. **No se persigue más esta pregunta con más datos.** Hallazgo sustantivo que sí queda firme, sin depender de ningún test de significancia: **el modelo de embeddings importa más que la elección de fusión** — con MiniLM (solo-inglés) más peso vectorial siempre empeora; con e5-small (multilingüe) la fusión vuelve a tener sentido. Si la fusión híbrida ayuda o no depende de si el modelo de embeddings maneja bien el español, no solo de los pesos.
 
+## Erratum (2026-10-03): corrección de código, post-auditoría adversarial
+
+Después de mergear el resultado de arriba a `rag/integracion` (PR #119), Alejandro le pidió a un agente de Opus 5.5 que intentara refutar activamente el análisis. La auditoría (ronda 2, con acceso de lectura al repo real) encontró dos problemas reales de código, no solo de redacción (detalle completo en el cierre de sesión de `#115`, PR #120):
+
+1. **`eval/scripts/v2_barrido_pesos.js` usaba solo `embedding_local`** para la señal vectorial (`CANDIDATOS_SQL`), pero producción (`vectorService.js:29`, `buildScoringCTE`) usa `COALESCE(embedding_comprension, embedding_local)`. Verificado contra el repo: 63/90 documentos de v2 y 25/40 de v1 tienen `embedding_comprension` poblado — el barrido midió una señal vectorial distinta a la de producción para ~70% de los documentos. La comparación relativa entre las 24 configuraciones del barrido seguía siendo válida (todas usaban la misma señal, consistente entre sí), pero llamarla "la fórmula de producción con otro peso" era impreciso.
+2. **`eval/scripts/00_ablation.js` tenía el mismo bug de no determinismo** que ya se había corregido en producción desde `#95`: `ORDER BY score DESC` sin desempate secundario. Verificado: `ablation-lexical-only.trec` y `v2-barrido-minilm-a0.0.trec` (deberían ser idénticos, ambos 100% léxico) diferían en 6 consultas de v2-dev — magnitud ~0.001 en nDCG@10, no cambiaba ninguna decisión ya tomada, pero es un bug real de reproducibilidad.
+
+Siguiendo el mismo precedente que `#113` (arreglar el código y re-correr, no documentar la imprecisión como limitación), se corrigieron ambos scripts (commits `8cb67d7` y el de `v2_barrido_pesos.js` en PR #120) y se repitió **todo** el barrido sobre dev de v2 (61 consultas) y la corrida confirmatoria sobre el test de v1 ya etiquetado (25 consultas, cero etiquetado nuevo).
+
+### Resultado corregido
+
+| | Dev v2 — mejor config | Dev v2 — léxico-solo | Δ dev | Test v1 — mejor config | Test v1 — léxico-solo | p_holm nDCG@10 (test v1) |
+| --- | --- | --- | --- | --- | --- | --- |
+| **Original (con el bug)** | e5-small α=0.9: 0.5653 | 0.4908 | 0.0746 | 0.706 [0.620, 0.784] | 0.656 [0.552, 0.753] | 0.1010 |
+| **Corregido** | e5-small α=0.9: **0.5724** | 0.4903 | **0.0821** | **0.723** [0.633, 0.803] | 0.656 [0.552, 0.753] (sin cambios) | **0.0630** |
+
+**Se verificó explícitamente que `e5-small, α=0.9` sigue siendo el máximo de las 24 configuraciones con el código corregido** — no cambió la configuración ganadora, cambiaron los números. Curva completa corregida en `eval/data/v2/metricas_v2_barrido.md`/`.json` (sobrescritos con la corrida corregida; los archivos `.trec` en `eval/data/v2/runs/` también se regeneraron).
+
+**La regla de parada sigue disparando** (Δ=0.0821 ≥ 0.02) y **la corrida confirmatoria sobre el test de v1 sigue sin alcanzar significancia** con el test pre-registrado (Fisher + Holm, p=0.063 contra el umbral 0.05) — más cerca del umbral que antes (0.101), pero no lo cruza. La conclusión cualitativa del ciclo no cambia; los números sí, y los originales quedan superados, no simplemente anotados con una limitación al lado.
+
+### Análisis de potencia, corregido
+
+Recalculado con los per-query de la corrida confirmatoria corregida: media de la diferencia pareada nDCG@10 = 0.0672 (antes 0.0507), sd=0.1697 (antes 0.1454), dz=0.3962 (antes 0.3487).
+
+**Corrección de la objeción O4b (revisión adversarial, aceptada sin matices)**: el umbral 0.02 de la regla de parada de este documento (una decisión operativa sobre dev) se había reusado sin nueva justificación como "diferencia mínima clínicamente relevante" del cálculo de potencia, dando n=417. Son dos decisiones distintas que no deberían compartir el mismo número. Separados:
+
+| Escenario | n necesario para potencia 80% (α=0.05, dos colas) |
+| --- | --- |
+| Efecto igual al observado (dz=0.396) | 52 (antes 67) |
+| Efecto a la mitad del observado (dz=0.198) | 202 (antes 261) |
+| **Diferencia mínima independiente de 0.05 nDCG@10** (no el 0.02 del barrido) | **93** (antes ~417, mal calculado) |
+
+Intervalos de confianza de la diferencia pareada (objeción O3 aceptada: reportar también el IC por t de Student, no solo el bootstrap — son los dos, y no coinciden en si excluyen cero):
+
+- IC95% bootstrap (percentil, 2000 resamples, semilla 42): **[0.0047, 0.1336]** — excluye cero.
+- IC95% t de Student (paramétrico, pareado): **[-0.0028, 0.1373]** — no excluye cero.
+
+No se declara "no-inferioridad" en el sentido formal (exige un margen pre-especificado *antes* de ver los datos, nunca fijado en este proyecto) — se reporta la estimación del efecto con su incertidumbre. Dado que la superioridad no está confirmada con significancia y léxico-solo es la alternativa más simple y barata, el argumento de parsimonia favorece *quedarse* con léxico-solo salvo razón adicional para adoptar la híbrida (objeción O3 aceptada: la lógica de no-inferioridad original estaba invertida).
+
+**No se persigue esta pregunta con más datos** — ninguno de los tres escenarios (52, 202, 93) es alcanzable en el tiempo de un trabajo de grado.
+
+### Correcciones de redacción aplicadas (ronda 1 de la revisión adversarial, O1/O2/O6)
+
+- **O1**: en todo este documento y en `README.md`/`RESULTADOS_TESIS.md`, "la híbrida bien configurada" se acota a la configuración puntual `e5-small, ponderado, α=0.9` — no es una propiedad general de "la híbrida".
+- **O2**: el chequeo gratuito sobre v2-test (sección "Addendum" arriba) se reclasifica como **anexo exploratorio**, no una segunda confirmación independiente — dev/test de v2 comparten el mismo corpus de 90 documentos, y el diagnóstico de contaminación de negativos difíciles ya había mirado las 85 consultas completas antes de este barrido. La conclusión de esta investigación se apoya únicamente en el test de v1 (n=25, etiquetado ciego real).
+- **O6**: "el modelo de embeddings importa más que los pesos de fusión" baja de hallazgo firme a **hipótesis** — es una comparación de un solo modelo por clase (MiniLM vs. e5-small), con factores confundidos (datos de entrenamiento de cada modelo, prefijos `query:`/`passage:` específicos de e5, escala relativa de los scores) que este barrido no aisló.
+
 ## Nota de transparencia (disciplina ya establecida en este proyecto)
 
 El diagnóstico de contaminación por negativos difíciles de la sesión anterior (documentado en `eval/data/v2/README.md`) corrió sobre las 85 consultas completas de v2, no solo sobre las 61 de dev — es decir, tocó las 24 consultas del split de test de v2 de forma puramente diagnóstica (contar apariciones de negativos difíciles en el top-10), sin que ese número influyera en ninguna decisión de diseño de este barrido ni de la regla de parada de arriba. Se declara por la misma disciplina que ya se usa en `preregistro_77.md`.

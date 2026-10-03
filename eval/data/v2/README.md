@@ -137,6 +137,29 @@ No se poolea ni se etiqueta el split de test de v2 bajo ningún escenario de est
 
 ¿Alcanzaría con más consultas de test? El n necesario para 80% de potencia es 67 si el efecto real es igual al observado en v1-test (dz=0.349), 261 si es la mitad (plausible — en dev el efecto fue 0.0746, en test independiente se encogió a 0.0507), y **417 para la diferencia mínima que este mismo documento definió como relevante antes de ver resultados (0.02)** — un orden de magnitud fuera de alcance. Se cierra la pregunta sin perseguir más datos, reencuadrada como **no-inferioridad + estimación**: el IC95% bootstrap de la diferencia ([-0.0020, 0.1087]) tiene el límite inferior casi en cero. Chequeo adicional gratuito (sin etiquetar nada, relevancia mecánica ya calculada) sobre v2-test: significativo (p_holm=0.0005), declarado como segunda réplica parcial con el límite epistemológico ya conocido de la relevancia mecánica, no como confirmación. Detalle completo del cálculo de potencia y la decisión de cierre en `eval/data/v2/preregistro_barrido_pesos.md` (sección "Addendum").
 
+## Erratum (2026-10-03): corrección de código, post-auditoría adversarial
+
+Tras mergear el barrido y el análisis de potencia de arriba a `rag/integracion` (PR #119), una auditoría adversarial encontró dos bugs de código reales (no solo de redacción): `v2_barrido_pesos.js` usaba solo `embedding_local` en vez de `COALESCE(embedding_comprension, embedding_local)` como producción (señal distinta para ~70% de los documentos de v1/v2), y `00_ablation.js` tenía un bug de no determinismo heredado desde `#95` (sin desempate secundario en el `ORDER BY`). Siguiendo el precedente de `#113`, se corrigió el código y se repitió todo el barrido + la confirmatoria sobre test de v1.
+
+**La conclusión cualitativa no cambia, los números sí (quedan superados, no solo anotados con una limitación al lado)**:
+
+| | Original (con el bug) | Corregido |
+| --- | --- | --- |
+| Mejor config en dev v2 | e5-small, α=0.9: nDCG@10=0.5653 | e5-small, α=0.9: nDCG@10=**0.5724** (misma configuración ganadora, verificado) |
+| Δ sobre léxico-solo (dev) | 0.0746 | **0.0821** |
+| Confirmatoria test v1 | 0.706 vs. 0.656, p_holm=0.1010 | **0.723** vs. 0.656, p_holm=**0.0630** (más cerca del umbral, sigue sin significancia) |
+| n necesario (diferencia mínima independiente, no el 0.02 del barrido reusado) | ~417 (mal calculado — reusaba el umbral del barrido como si fuera la diferencia mínima relevante) | **93** (diferencia mínima de 0.05, justificada aparte) |
+
+Detalle completo del erratum (incluyendo los dos intervalos de confianza — bootstrap y t de Student, que no coinciden en si excluyen cero — y las correcciones de redacción O1/O2/O3/O4b/O6 de la revisión adversarial) en `eval/data/v2/preregistro_barrido_pesos.md`.
+
+Por la misma corrección del desempate determinista, también se refrescó `metricas_v2_dev.md`/`.json` (la línea base de la sección "Indexado y línea base" arriba) — cambio cosmético (~0.001 en nDCG@10, lexico-solo 0.491→0.490), no cambia ninguna conclusión de esa sección ni su significancia.
+
+**Anexo exploratorio, no una segunda confirmación** (corrección O2, aceptada): el chequeo gratuito sobre v2-test mencionado en la sección anterior usa relevancia **mecánica** (categoría+subtema, no lectura del texto) sobre el mismo corpus de 90 documentos del split dev — no es un diseño independiente. La conclusión de esta investigación se apoya únicamente en el test de v1 (n=25, etiquetado ciego real).
+
+**Hipótesis, no hallazgo firme** (corrección O6, aceptada): "el modelo de embeddings importa más que los pesos de fusión" es consistente con los datos (MiniLM resta, e5-small permite que la fusión tenga sentido, en ambos corpus), pero es una comparación de un solo modelo por clase con factores confundidos (datos de entrenamiento, prefijos `query:`/`passage:` de e5, escala de los scores) — no se aisló ninguno de esos factores.
+
+**Pendiente, no bloqueante**: nunca se midió el acuerdo (Cohen's κ) entre la relevancia mecánica (`gradoRelevancia`, `eval/lib/qrels.js`) y el etiquetado real por IA del protocolo ciego de `#75`/`#113` — si estuviera sesgada hacia algún sistema, el anexo exploratorio de v2-test (no la conclusión principal, que depende solo del test de v1) perdería validez.
+
 ## Fuera de alcance de esta sesión (próximos pasos)
 
 Indexar en una base de evaluación (posiblemente una tabla/BD separada de `rag_eval_minilm`, o un flag de "versión de corpus" — a decidir), correr línea base (equivalente a E01/E02 de v1) para confirmar que el corpus v2 no es degenerado, poolear y etiquetar el split de test con el protocolo ciego de `#75` (dos sesiones de IA aisladas, igual que se hizo para completar `#113`), pre-registrar y correr la comparación confirmatoria (E03 sin filtro vs. léxico-solo — la variante que decidió la Fase A de `#114`), y documentar el resultado en una sección propia de `eval/RESULTADOS_TESIS.md`, marcada explícitamente como estudio separado de `#77`/`#114`.

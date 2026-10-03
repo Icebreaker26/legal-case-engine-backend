@@ -53,15 +53,15 @@
         "n": 61
       },
       "recall@10": {
-        "media": 0.38399833317866106,
-        "ci95_lo": 0.32872403211542556,
-        "ci95_hi": 0.44285079560694324,
+        "media": 0.3828273729913074,
+        "ci95_lo": 0.3278250040032826,
+        "ci95_hi": 0.44237896893634593,
         "n": 61
       },
       "ndcg@10": {
-        "media": 0.4907652070675249,
-        "ci95_lo": 0.4223451829225768,
-        "ci95_hi": 0.5601651385685931,
+        "media": 0.490347716638309,
+        "ci95_lo": 0.42235030878186713,
+        "ci95_hi": 0.560025468194832,
         "n": 61
       },
       "mrr@10": {
@@ -101,9 +101,9 @@
   "significancia": {
     "recall@5": {
       "hibrida-sin-filtro vs lexico-solo": {
-        "p_crudo": 0.098,
+        "p_crudo": 0.093,
         "n": 61,
-        "p_holm": 0.098,
+        "p_holm": 0.093,
         "significativo_holm": false
       },
       "hibrida-sin-filtro vs vector-solo": {
@@ -120,6 +120,26 @@
       }
     },
     "recall@10": {
+      "hibrida-sin-filtro vs lexico-solo": {
+        "p_crudo": 0.001,
+        "n": 61,
+        "p_holm": 0.001,
+        "significativo_holm": true
+      },
+      "hibrida-sin-filtro vs vector-solo": {
+        "p_crudo": 0.0,
+        "n": 61,
+        "p_holm": 0.0,
+        "significativo_holm": true
+      },
+      "lexico-solo vs vector-solo": {
+        "p_crudo": 0.0,
+        "n": 61,
+        "p_holm": 0.0,
+        "significativo_holm": true
+      }
+    },
+    "ndcg@10": {
       "hibrida-sin-filtro vs lexico-solo": {
         "p_crudo": 0.0005,
         "n": 61,
@@ -139,37 +159,17 @@
         "significativo_holm": true
       }
     },
-    "ndcg@10": {
-      "hibrida-sin-filtro vs lexico-solo": {
-        "p_crudo": 0.0015,
-        "n": 61,
-        "p_holm": 0.0015,
-        "significativo_holm": true
-      },
-      "hibrida-sin-filtro vs vector-solo": {
-        "p_crudo": 0.0,
-        "n": 61,
-        "p_holm": 0.0,
-        "significativo_holm": true
-      },
-      "lexico-solo vs vector-solo": {
-        "p_crudo": 0.0,
-        "n": 61,
-        "p_holm": 0.0,
-        "significativo_holm": true
-      }
-    },
     "mrr@10": {
       "hibrida-sin-filtro vs lexico-solo": {
-        "p_crudo": 0.2,
+        "p_crudo": 0.193,
         "n": 61,
-        "p_holm": 0.2,
+        "p_holm": 0.193,
         "significativo_holm": false
       },
       "hibrida-sin-filtro vs vector-solo": {
-        "p_crudo": 0.0,
+        "p_crudo": 0.0005,
         "n": 61,
-        "p_holm": 0.0,
+        "p_holm": 0.001,
         "significativo_holm": true
       },
       "lexico-solo vs vector-solo": {
