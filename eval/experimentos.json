@@ -46,5 +46,13 @@
     "comprensionQuery": false,
     "categoria": "ninguna",
     "limit": 10
+  },
+  {
+    "id": "E07-e5-rrf-sin-filtro",
+    "fusion": "rrf",
+    "estrategia": "actual",
+    "comprensionQuery": false,
+    "categoria": "ninguna",
+    "limit": 10
   }
 ]
