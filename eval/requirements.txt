@@ -1,0 +1,7 @@
+# Entorno Python aislado para #76 — nunca mezclar con las dependencias de
+# producción (Node). Instalar en un venv dedicado:
+#
+#   python -m venv eval/.venv
+#   eval/.venv/Scripts/python.exe -m pip install -r eval/requirements.txt   (Windows)
+#   eval/.venv/bin/python -m pip install -r eval/requirements.txt           (Unix)
+ranx==0.3.21

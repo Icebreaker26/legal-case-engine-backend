@@ -15,6 +15,7 @@ Todo en esta carpeta, salvo lo listado abajo como excluido, se versiona en el re
   - `ablation-*.trec` — diagnósticos de `#95` y `#98` (ver esos issues y el [doc de seguimiento](https://claude.ai/code/artifact/a0d63867-88c7-4b4b-8ffa-d3df27ccba1c)).
   - Cada `.meta.json` trae `git_sha`, `embedding_model`, `corpus_sha256` y los scores reales por query — así el resultado es auditable y reproducible exactamente. **Ninguno de estos runs se recalculó sobre las 120 queries** — son el baseline histórico de 40, intacto.
   - `E03`-`E06-*.trec`/`.meta.json` — diagnóstico de `#106` (sin filtro / filtro actual / filtro-oráculo de categoría, e5-small y MiniLM) sobre las 120 queries. Experimentos correspondientes en `experimentos.json`.
+- `metricas_dev.md`/`.json` — salida de `eval/scripts/04_evaluar.py` (`#76`): métricas formales + significancia (Holm) + IC bootstrap sobre el split dev. Reproducible con el comando documentado en la sección de `#76` más abajo.
 
 ## Ampliación del corpus de consultas (`#96`, 2026-10-02)
 
@@ -115,6 +116,42 @@ Total dev: sin filtro 0.451/0.508 vs. filtro actual 0.438/0.464. Modo DIS (el m�
 
 **Fuera de alcance de `#106`** (issues de seguimiento): arreglos del extractor en sí (el `SELECT` de categorías no tiene `ORDER BY`, el regex de keywords no escapa caracteres especiales, `\b` no es Unicode-aware), el lazo de retroalimentación etiqueta↔corpus, y el re-tuneo de los pesos de fusión 0.55/0.35/0.10.
 
+## Pipeline de métricas formales con `ranx` (`#76`, 2026-10-03)
+
+`eval/scripts/04_evaluar.py` (Python, entorno aislado en `eval/.venv/` — ver `eval/requirements.txt`, nunca mezclado con las dependencias de producción) reemplaza al script informal `_sanity_metrics.mjs` para resultados citables:
+
+- **Métricas**: recall@5, recall@10, nDCG@10 (primaria), MRR@10.
+- **Significancia**: test de randomización de Fisher (`ranx`), con **corrección de Holm-Bonferroni implementada a mano** — `ranx` no la aplica nativamente, solo da p-valores crudos por par.
+- **Intervalos de confianza**: bootstrap por consulta (percentil 95%, 2000 resamples).
+- **Validación cruzada obligatoria**: antes de confiar en los resultados, el script recalcula recall@5 "a mano" (sin `ranx`) para 3 consultas de muestra y aborta si no coincide exactamente. Confirmado: coincide dígito a dígito.
+- **Guardrail de test**: corre sobre `--subset dev` por default; `--subset test` exige el flag explícito `--confirmo-uso-de-test`, para que tocar el split congelado sea una decisión deliberada, no un default accidental.
+
+Reproducir la tabla de dev:
+```bash
+python -m venv eval/.venv
+eval/.venv/Scripts/python.exe -m pip install -r eval/requirements.txt   # Windows; eval/.venv/bin/python en Unix
+eval/.venv/Scripts/python.exe eval/scripts/04_evaluar.py --subset dev \
+  --runs minilm-filtro=eval/data/runs/pool-minilm-ponderado.trec \
+         minilm-sin-filtro=eval/data/runs/E06-minilm-ponderado-sin-filtro.trec \
+         e5-filtro=eval/data/runs/pool-e5-ponderado.trec \
+         e5-rrf=eval/data/runs/pool-e5-rrf.trec \
+         e5-sin-filtro=eval/data/runs/pool-e5-ponderado-normalizado.trec
+```
+
+**Verificación adicional** (no citable, se corrió y se descartó el archivo — ver nota de transparencia en el comentario de cierre de `#76`): se confirmó que `ranx` es inmune al bug de duplicados de `#104` — indexa por `doc_id` en un diccionario, no por posición en una lista, así que un documento repetido en el `.trec` no se cuenta dos veces. El recall@5 de `pool-lexico-solo.trec` (el archivo original, nunca corregido por la razón documentada arriba) salió ~idéntico (0.525) al valor deduplicado a mano en `#104` (0.527/0.632 nDCG) — el pipeline nuevo no necesita que los `.trec` estén deduplicados para dar un número correcto.
+
+**Resultado en dev (95 consultas), con significancia real** — ver `eval/data/metricas_dev.md`/`.json` para el detalle completo:
+
+| Sistema | recall@5 | recall@10 | nDCG@10 | MRR@10 |
+| --- | --- | --- | --- | --- |
+| MiniLM, filtro (producción actual) | 0.413 [0.342, 0.486] | 0.471 [0.396, 0.542] | 0.456 [0.384, 0.530] | 0.584 [0.499, 0.672] |
+| MiniLM, sin filtro | 0.389 [0.347, 0.432] | 0.551 [0.505, 0.597] | 0.515 [0.473, 0.557] | 0.748 [0.676, 0.814] |
+| e5-small, filtro | 0.438 [0.368, 0.509] | 0.526 [0.452, 0.599] | 0.502 [0.430, 0.574] | 0.618 [0.530, 0.704] |
+| e5-small, RRF, filtro | 0.437 [0.365, 0.509] | 0.523 [0.451, 0.596] | 0.477 [0.406, 0.553] | 0.562 [0.477, 0.650] |
+| **e5-small, ponderado, SIN filtro** | **0.456** [0.414, 0.498] | **0.621** [0.581, 0.660] | **0.584** [0.540, 0.626] | **0.808** [0.743, 0.868] |
+
+`e5-sin-filtro` le gana a la línea base de producción (MiniLM con filtro) de forma estadísticamente significativa (Holm) en recall@10, nDCG@10 y MRR@10 — no en recall@5 (p_holm=1.000, no significativo con este tamaño de muestra). Confirma con rigor lo que `#104`/`#106` ya habían encontrado por diagnóstico.
+
 ## Estado y siguiente paso (actualizado 2026-10-03)
 
-Fase 4 (`#64`-`#67`), `#95`, `#98`, `#96`, `#75`, `#104` y `#106` completos. El prefiltro de categoría —no los pesos de fusión— era la causa real de la brecha medida en `#75`. Sigue: `#76` (métricas formales con `ranx`, significancia) → `#77` (confirmación en test de la configuración final: fusión elegida + sin prefiltro, vs. línea base de producción — con hipótesis pre-registradas, ya que la comparación filtro/sin-filtro en DIS se observó en test durante `#104`/`#106` y debe reportarse como hallazgo post-hoc, no confirmatorio).
+Fase 4 (`#64`-`#67`), `#95`, `#98`, `#96`, `#75`, `#104`, `#106` y `#76` completos. El prefiltro de categoría —no los pesos de fusión— era la causa real de la brecha medida en `#75`, y ahora está confirmado con significancia estadística real (no solo diferencias puntuales sobre 40-95 consultas). Sigue: `#77` (confirmación en el split de **test**, congelado, con hipótesis pre-registradas usando `04_evaluar.py --subset test --confirmo-uso-de-test` — ya no hay que construir el pipeline de métricas, solo correrlo una vez). La comparación filtro/sin-filtro en modo DIS, y la comparación léxico-solo vs. fusión, ya se miraron en test durante `#104`/`#106`/`#76` — deben reportarse como hallazgo post-hoc, no confirmatorio; `#77` pre-registra qué compara antes de correr.

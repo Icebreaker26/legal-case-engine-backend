@@ -42,3 +42,9 @@ eval/.env.eval
 eval/data/*.produccion.json
 eval/data/*.real.json
 eval/results/
+
+# Entorno Python aislado para #76 (ranx) — requirements.txt sí se versiona,
+# el venv en sí nunca (es local, pesado y específico de la plataforma).
+eval/.venv/
+__pycache__/
+*.pyc
