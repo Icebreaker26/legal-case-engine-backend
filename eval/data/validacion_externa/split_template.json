@@ -1,0 +1,7 @@
+{
+  "_comentario": "Con n=10-15 no hace falta split dev/test real — todas las qids van a 'test' (ver README.md de esta carpeta: con esta muestra no se espera significancia estadística, es inspección cualitativa). Reemplazar la lista 'test' por los qids reales de queries.jsonl antes de correr 03d_fusionar_qrels.js / 04_evaluar.py.",
+  "test": [
+    "Q-REAL-001"
+  ],
+  "dev": []
+}
