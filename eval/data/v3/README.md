@@ -9,6 +9,10 @@
 - `split_v3.json` — **todas las 71 consultas van a test, dev vacío** — la configuración (e5-small, ponderado, α=0.9) ya está congelada de antemano; v3 nunca se usa para tunear nada.
 - `qrels_v3.trec` — relevancia **mecánica** (355 pares, grado 2: 74, grado 1: 281), derivada de `eval/lib/qrels.js` sin modificar — **solo un sanity check de que el corpus no es degenerado, nunca la relevancia final de la prueba confirmatoria**. La relevancia real vendrá del etiquetado ciego (pendiente, ver "Siguiente paso" abajo).
 - `preregistro_diseno_dos_etapas.md` — pre-registro completo del diseño de combinación de dos etapas (Lehmacher-Wassmer/inverse-normal), commiteado antes de generar nada de este corpus.
+- `pool_etiquetado_v3.csv` — pool de 1214 pares (consulta, documento) de 4 sistemas candidatos, sobre las 71 consultas originales (antes de descartar duplicados).
+- `grados_anotador1_v3.csv` / `grados_anotador2_v3.csv` — juicios de relevancia 0-3 con razón breve de los dos anotadores ciegos (1214 y 256 pares respectivamente), mismo formato que `eval/data/grados_anotador1.csv`/`grados_anotador2.csv` de v1 — quedan versionados como rastro de auditoría.
+- `metricas_v3_confirmatoria.md`/`.json` — resultado de la comparación confirmatoria (Fisher, nDCG@10) sobre las 62 consultas válidas.
+- `runs/` — corridas en formato TREC: `ablation-lexical-only.trec` (léxico-solo), `ablation-vector-only.trec` (vector-solo), `v3-hibrida-congelada-e5-a0.9.trec` (la configuración congelada), `v3-rrf-e5.trec` (diversidad para el pool).
 
 ## Composición (45 documentos, mismas 9 categorías de producción)
 
@@ -48,11 +52,25 @@ Cada lote reportó validación Zod exitosa de forma independiente. Total 71, no 
 5. **Qrels mecánicos sanos**: las 71 consultas tienen al menos 1 documento relevante (grado ≥1) según la regla mecánica — 0 consultas sin relevante.
 6. Inspección manual de muestra: contenido coherente con el dominio, sin artefactos evidentes de generación.
 
-## Siguiente paso (pendiente, este mismo issue)
+## Corrección: 9 consultas descartadas por duplicado exacto antes de evaluar
 
-1. Indexar en una base de evaluación propia `rag_eval_v3` (nunca mezclada con `rag_eval_minilm`/`rag_eval_v2`).
-2. Correr léxico-solo + la híbrida congelada (e5-small, ponderado, α=0.9, `COALESCE`, desempate determinista) + 1-2 sistemas de diversidad, sobre las 71 consultas.
-3. Poolear el top-10 de cada sistema (protocolo de `#75`/`#113`) y etiquetar a ciegas con dos sesiones de IA completamente aisladas (sin ver qué sistema recuperó cada documento), calcular Cohen's kappa.
-4. Fusionar en `qrels_v3.trec` (reemplazando la porción mecánica por la relevancia real).
-5. Correr la comparación confirmatoria (Fisher, nDCG@10) → Z2.
-6. Combinar con Z1=1.8592 (test de v1, ya conocido) usando los pesos pre-registrados (w1=0.5103, w2=0.8600) → decisión final, última mirada.
+Durante el etiquetado ciego, varios de los agentes anotadores reportaron de forma independiente pares de consultas con texto idéntico. Auditoría completa: **9 de las 71 consultas eran copias exactas** de otra consulta del mismo lote de generación (bug de los sub-agentes Haiku, no detectado por la verificación inicial porque solo chequeaba duplicados de `qid`, no de contenido) — 8 grupos: `ISA-001/008`, `DIN-002/008`, `DIN-003/007`, `DIN-004/005`, `ACP-002/005`, `ACP-006/007`, `FAC-003/007/008`, `FAC-005/006`. Se descartaron del split de test (`split_v3.json`, campo `descartadas_por_duplicado`) **antes de calcular cualquier métrica de retrieval** — no se borraron de `corpus_v3.jsonl`/`queries_v3.jsonl` (siguen siendo datos válidos, solo no independientes). **n₂: 71 → 62.** Detalle completo y el recálculo de potencia en `preregistro_diseno_dos_etapas.md` (enmienda 2).
+
+## Indexado, pooling y etiquetado ciego (2026-10-03)
+
+Indexado en `rag_eval_v3` (base aislada, modelo `multilingual-e5-small` — el de la configuración congelada). Corridas: léxico-solo, híbrida congelada (e5-small, ponderado, α=0.9), vector-solo (e5-small), RRF (e5-small) — pool de **1214 pares** (consulta, documento) sobre las 71 consultas originales (antes de descartar duplicados).
+
+Etiquetado ciego idéntico al protocolo de `#75`/`#113`: **6 sesiones de IA completamente aisladas** entre sí y sin contexto de esta investigación — 5 cubriendo el pool completo (1214 pares, "anotador 1"), 1 cubriendo el 20% de doble anotación (256 pares, "anotador 2", 15 consultas). Ninguna vio qué sistema recuperó cada documento (columnas `sistemas`/`n_sistemas_que_lo_recuperaron` ocultas durante el etiquetado, igual que en `#75`).
+
+**Cohen's κ = 0.714** ("acuerdo sustancial") entre los dos anotadores — más bajo que el 0.895 de v1, lo cual es una señal más sana (dos instancias del mismo modelo acordando "demasiado" es indicio de convergencia artificial, no de validez externa — ver la discusión de este mismo punto en `eval/data/README.md`).
+
+## Resultado confirmatorio (etapa 2 del diseño de `#121`)
+
+| Sistema | Recall@5 | Recall@10 | **nDCG@10** | MRR@10 |
+| --- | --- | --- | --- | --- |
+| léxico-solo | 0.508 [0.464, 0.557] | 0.728 [0.688, 0.771] | 0.758 [0.725, 0.791] | 0.941 [0.895, 0.976] |
+| **e5-small, ponderado, α=0.9** | 0.569 [0.523, 0.617] | 0.805 [0.764, 0.847] | **0.815** [0.785, 0.842] | 0.973 [0.938, 1.000] |
+
+**nDCG@10 p_holm < 0.0005** (dos colas, sobre las 62 consultas válidas). Chequeo de sanidad: 44/62 consultas favorecen a la híbrida, 16 a léxico-solo, 2 empatan — no es un barrido unánime, consistente con un mecanismo real, no un artefacto.
+
+**Combinado con la etapa 1** (test de v1, n=25, Z₁=1.8592) usando los pesos pre-registrados (w1=0.5361, w2=0.8442): **Z combinado > 3.94 ≥ 1.96 → significativo** (p combinado ≈ 0.00008). Detalle completo en `preregistro_diseno_dos_etapas.md`. Esta es la **última mirada** de este diseño — no se agregan más etapas. Resultado trasladado a `eval/RESULTADOS_TESIS.md` (sección 4.6), que reemplaza la conclusión "no se puede confirmar ni descartar" de la sección 4.5.

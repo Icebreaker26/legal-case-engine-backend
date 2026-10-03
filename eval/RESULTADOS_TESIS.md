@@ -182,6 +182,46 @@ Los dos intervalos no coinciden en si excluyen cero — consistente con que el t
 
 Detalle completo, con la curva de 24 configuraciones corregida y el chequeo exploratorio de v2-test, en `eval/data/v2/README.md` y `eval/data/v2/preregistro_barrido_pesos.md`.
 
+> **Esta conclusión ("no se puede confirmar ni descartar") queda superada por la sección 4.6** — un segundo test independiente, pre-registrado antes de generar nada, sí alcanza significancia.
+
+---
+
+## 4.6 Capa 5 — Confirmación con potencia adecuada: diseño en dos etapas (`#121`)
+
+La sección 4.5 cerró sin poder confirmar ni descartar la superioridad de la híbrida congelada (e5-small, ponderado, α=0.9) sobre léxico-solo — el único test con relevancia real (v1, n=25) no tenía potencia estadística suficiente (p=0.063), y el n necesario para una diferencia mínima independientemente justificada de 0.05 nDCG@10 era 93, calculado como fuera de alcance para un trabajo de grado en ese momento.
+
+Alejandro decidió invertir el esfuerzo de etiquetado real para intentar llegar a ese n. Una consulta a un agente de Opus 5.5 sobre cómo hacerlo encontró que sumar directamente preguntas nuevas sobre los corpus v1/v2 ya existentes tendría **circularidad de colección** (esos documentos ya habían sido usados para elegir la configuración `α=0.9`) y que agregar datos porque el resultado anterior "casi dio" sería **optional stopping** sin control de error tipo I. Recomendó en cambio un **diseño confirmatorio en dos etapas independientes**, con combinación inverse-normal (Lehmacher-Wassmer), pre-registrado por completo antes de generar ningún dato nuevo (`eval/data/v3/preregistro_diseno_dos_etapas.md`):
+
+- **Etapa 1** (ya ocurrida, congelada): test de v1, n=25, Z₁=1.8592 (de p=0.063).
+- **Etapa 2** (nueva): corpus **v3** — 45 documentos y consultas completamente nuevos, nunca vistos por ninguna configuración anterior, generados por sub-agentes (Haiku, sin contexto de esta investigación) sobre las mismas 9 categorías de producción, sin negativos difíciles deliberados. De 71 consultas generadas, 9 resultaron ser copias exactas de texto de otra consulta del mismo lote (bug de generación, descubierto durante el etiquetado, corregido antes de calcular cualquier métrica de retrieval — ver el pre-registro para el detalle) → **n₂=62 consultas independientes**.
+- **Etiquetado ciego** idéntico al protocolo de `#75`/`#113`: pool de 4 sistemas (léxico-solo, híbrida congelada, vector-solo, RRF) sobre las 62 consultas, 6 sesiones de IA completamente aisladas (5 cubriendo el pool completo, 1 cubriendo el 20% de doble anotación) — **Cohen's κ=0.714** ("acuerdo sustancial", más bajo que el 0.895 de v1 — consistente con una medición menos artificialmente convergente entre dos instancias del mismo modelo).
+
+**Resultado de la etapa 2** (`eval/data/v3/metricas_v3_confirmatoria.md`):
+
+| Sistema | Recall@5 | Recall@10 | **nDCG@10** | MRR@10 |
+| --- | --- | --- | --- | --- |
+| léxico-solo | 0.508 [0.464, 0.557] | 0.728 [0.688, 0.771] | 0.758 [0.725, 0.791] | 0.941 [0.895, 0.976] |
+| **e5-small, ponderado, α=0.9** | 0.569 [0.523, 0.617] | 0.805 [0.764, 0.847] | **0.815** [0.785, 0.842] | 0.973 [0.938, 1.000] |
+
+**nDCG@10 p_holm < 0.0005** (dos colas; con 2000 permutaciones, un p crudo de 0 se reporta de forma conservadora como "menor que la resolución del test", no como cero literal). Chequeo de sanidad antes de aceptar el resultado: 44 de las 62 consultas favorecen a la híbrida, 16 favorecen a léxico-solo, 2 empatan — no es un barrido unánime. La diferencia pareada media (0.0573) es similar en magnitud a la de v1-test (0.0672), pero con **menos variabilidad entre consultas** (sd=0.1068 vs. 0.1697) — eso, no un efecto más grande, explica la significancia fuerte con relativamente pocas consultas.
+
+### Combinación final (última mirada, sin más etapas después de esta)
+
+```
+Z1 = 1.8592 (test de v1, n=25, p=0.063)
+Z2 > 3.48  (test de v3, n=62, p < 0.0005 — cota conservadora)
+w1 = 0.5361, w2 = 0.8442  (pesos fijos, pre-registrados antes de ver resultados de la etapa 2)
+
+Z combinado = w1·Z1 + w2·Z2 > 3.94  ≥  1.96 (umbral, dos colas, α=0.05)
+p combinado (cota conservadora) ≈ 0.00008
+```
+
+**Confirmado, con rigor estadístico completo**: la híbrida congelada (e5-small, ponderado, α=0.9, sin filtro de categoría) le gana a léxico-solo en nDCG@10. Esta es la **última mirada** de este diseño — no se agregan más etapas, pase lo que pase. Esta conclusión reemplaza, no complementa, el "no se puede confirmar ni descartar" de la sección 4.5.
+
+**Qué sigue sin decir este resultado**: sigue siendo una conclusión sobre corpus 100% sintéticos, con relevancia etiquetada por IA (dos sesiones aisladas, no un abogado — misma limitación declarada desde `#75`), y no dice nada sobre si conviene promover `e5-small`/`α=0.9` a producción — esa sigue siendo una decisión de ingeniería aparte, exclusiva de Alejandro, con sus propios costos (modelo adicional, latencia, reindexado) a evaluar independientemente de este resultado.
+
+Detalle completo, incluyendo el pre-registro completo con las dos enmiendas (n₂: 68→71→62) y el chequeo de sanidad por consulta, en `eval/data/v3/README.md` y `eval/data/v3/preregistro_diseno_dos_etapas.md`.
+
 ---
 
 ## 5. Nomenclatura: "RAG con generación mediada por humano"
@@ -206,13 +246,14 @@ Esta decisión de diseño es deliberada, no una limitación técnica a resolver 
 4. **Parafraseo humano de las consultas nuevas, pendiente** (`#96`) — las 80 consultas que ampliaron el corpus de 40 a 120 son 100% generadas por IA; la mitigación de circularidad recomendada (que una persona parafraseara al menos parte sin ver el corpus) no se ejecutó.
 5. **Solo se mide retrieval, no generación** — ver sección 5. La calidad final de la contestación que el abogado produce con ayuda de la herramienta corporativa de LLM está fuera del alcance de esta evaluación.
 6. **Sesgo residual en el pool de `#75` por el bug de duplicados de `#104`, ya resuelto (`#113`)**: `#106` solo había revisado el top-5 (0.8% de pares sin juicio, considerado despreciable); el top-10 completo del run corregido tenía en realidad 17/250 pares (6.8%) sin etiquetar — `#113` completó ese etiquetado con el mismo protocolo ciego de `#75` y recalculó el control léxico-solo (ver sección 4.3) — el empate con la híbrida se sostiene con el número ya corregido y completo, no con una cota conservadora.
-7. **El modelo de embeddings específico (e5-small) no está confirmado con la misma fuerza que "eliminar el prefiltro"** — ver sección 4.3, el control léxico-solo compite de cerca con la fusión completa en el split de test.
-8. **El límite de potencia estadística de la limitación 2 se cuantificó explícitamente** (`#115`, sección 4.5, números corregidos por el erratum del 2026-10-03): el n necesario para detectar con 80% de potencia una diferencia mínima independientemente justificada de 0.05 nDCG@10 es 93 consultas — fuera de alcance para un trabajo de grado, aunque un orden de magnitud por debajo de la cifra original (417), que mezclaba sin justificación aparte el umbral de decisión del barrido con la diferencia mínima del cálculo de potencia (objeción O4b de la revisión adversarial, aceptada). Esta pregunta (¿la híbrida le gana al léxico?) no se persigue con más datos, y se reporta como estimación del efecto con intervalos de confianza (bootstrap y t de Student, que no coinciden en si excluyen cero) — no como no-inferioridad formal (nunca se pre-especificó un margen antes de ver los datos) ni como superioridad confirmada o descartada.
-9. **Nunca se midió el acuerdo (Cohen's κ) entre la relevancia mecánica** (`gradoRelevancia`, `eval/lib/qrels.js` — deriva de categoría+subtema, no lee el texto) **y el etiquetado real por IA** (el protocolo ciego de `#75`/`#113`). Es un chequeo barato pendiente, no bloqueante: si la relevancia mecánica estuviera sistemáticamente sesgada hacia alguno de los sistemas comparados, los chequeos "gratuitos" que la usan (como el anexo exploratorio de v2-test en la sección 4.5) perderían validez — aunque la conclusión principal de esta tesis nunca dependió de ellos, solo del etiquetado ciego real en el test de v1.
+7. **El modelo de embeddings específico (e5-small, α=0.9) ya está confirmado con significancia estadística** (sección 4.6, diseño de dos etapas, `#121`) — esta limitación, tal como estaba escrita hasta el erratum de `#115`, queda superada. Sigue habiendo una limitación real distinta: la confirmación es sobre una configuración puntual (α=0.9), no sobre "la fusión híbrida" como categoría general.
+8. **Superado por la sección 4.6**: el análisis de potencia de `#115` (erratum) calculó que hacían falta 93 consultas con relevancia real para confirmar o descartar la superioridad de la híbrida, fuera de alcance en ese momento. `#121` invirtió ese esfuerzo con un diseño de dos etapas (combinación inverse-normal, pre-registrado) y sí alcanzó significancia (p combinado ≈ 0.00008) con n efectivo de 25+62=87 consultas reales — menos de las 93 originalmente calculadas, porque el n=93 asumía una sola etapa con el tamaño de efecto más conservador, mientras que la etapa 2 (v3) resultó tener menos variabilidad entre consultas de la asumida, lo que redujo el n efectivamente necesario. Ver sección 4.6 para el detalle completo.
+9. **Nunca se midió el acuerdo (Cohen's κ) entre la relevancia mecánica** (`gradoRelevancia`, `eval/lib/qrels.js` — deriva de categoría+subtema, no lee el texto) **y el etiquetado real por IA** (el protocolo ciego de `#75`/`#113`/`#121`). Es un chequeo barato pendiente, no bloqueante: si la relevancia mecánica estuviera sistemáticamente sesgada hacia alguno de los sistemas comparados, los chequeos "gratuitos" que la usan (como el anexo exploratorio de v2-test en la sección 4.5) perderían validez — aunque la conclusión principal de la sección 4.6 nunca dependió de ellos, solo del etiquetado ciego real en los tests de v1 y v3.
+10. **El etiquetado ciego de v3 (`#121`) encontró un bug de generación** (9 de 71 consultas con texto exactamente duplicado, descubierto por los propios agentes etiquetadores) que obligó a reducir n₂ de 71 a 62 antes de calcular cualquier métrica — corregido como defecto de datos, no como limitación a vivir con ella, pero deja constancia de que la generación sintética por sub-agentes de IA puede producir duplicados no detectados por una verificación de esquema/IDs — futuras generaciones deberían agregar un chequeo explícito de duplicados de texto, no solo de IDs.
 
 ## 7. Sin afirmación de producción
 
-Nada de lo medido en este capítulo describe el sistema que usa Enel hoy. El código corregido (`#104`→`#106`) vive en la rama `rag/integracion`, no en `main` — Railway, donde corre la instancia real, solo despliega desde `main`. La promoción de `rag/integracion` a `main` es una decisión exclusiva del autor (como responsable técnico del sistema en producción), tomada por fuera de este protocolo de investigación, con backup previo y sin agentes de IA ejecutando el paso final. Esta tesis puede afirmar **"esto mejora el sistema medido en un entorno de evaluación aislado, con significancia estadística real sobre el split de test"** — no puede afirmar **"esto ya mejora el sistema que usa Enel"**.
+Nada de lo medido en este capítulo describe el sistema que usa Enel hoy. El código corregido (`#104`→`#106`) vive en la rama `rag/integracion`, no en `main` — Railway, donde corre la instancia real, solo despliega desde `main`. La promoción de `rag/integracion` a `main` es una decisión exclusiva del autor (como responsable técnico del sistema en producción), tomada por fuera de este protocolo de investigación, con backup previo y sin agentes de IA ejecutando el paso final. Esta tesis puede afirmar **"eliminar el prefiltro de categoría mejora el sistema con significancia estadística real (sección 4.3)"** y, ahora con la sección 4.6, **"la configuración e5-small/ponderado/α=0.9 le gana a la búsqueda léxica pura, también con significancia estadística real"** — ambas medidas en un entorno de evaluación aislado. Ninguna de las dos afirma **"esto ya mejora el sistema que usa Enel"**: esa promoción, incluyendo si vale la pena el costo de un modelo de embeddings adicional, sigue siendo una decisión de ingeniería exclusiva del autor, no derivada automáticamente de este capítulo.
 
 ---
 

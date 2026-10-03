@@ -67,13 +67,35 @@ Con n₂=62 y asumiendo que el efecto real tiene el tamaño mínimo que el proye
 - **Sin PII real, sin datos de Enel reales** — mismas reglas que v1/v2, verificación independiente obligatoria antes de usar nada (schema Zod, cobertura de IDs, ausencia de patrones de correo/teléfono/cédula).
 - Generado en 3 lotes por sub-agentes Haiku en paralelo, cada uno sin contexto de esta conversación ni de ningún hallazgo de `#95`-`#120`, solo con la especificación de dominio y el contrato Zod exacto (mismo principio que `#74`/`#115`).
 
-## Siguiente paso exacto
+## Resultado de la etapa 2 (2026-10-03) — y decisión final
 
-1. Generar los 3 lotes del corpus v3 (sub-agentes Haiku, en paralelo).
-2. Verificación independiente (schema, cobertura de IDs, sin PII, qrels mecánicos sanos — solo como sanity check, nunca como relevancia final de test).
-3. Indexar v3 en una base de evaluación propia (`rag_eval_v3`, nunca mezclada con v1/v2).
-4. Correr léxico-solo + híbrida congelada (e5-small, α=0.9) sobre las 68 consultas, más sistemas de diversidad para el pool.
-5. Poolear top-10 y etiquetar a ciegas con dos sesiones de IA aisladas (protocolo de `#75`).
-6. Calcular Cohen's kappa, fusionar en `qrels_v3.trec`.
-7. Correr la comparación confirmatoria (Fisher, nDCG@10) sobre las 68 consultas de v3 → Z₂.
-8. Combinar con Z₁=1.8592 usando los pesos fijos de arriba → decisión final, última mirada.
+Ejecutado tal como se pre-registró arriba: corpus v3 generado (3 lotes Haiku), verificado, indexado en `rag_eval_v3` (e5-small), corridas de léxico-solo + híbrida congelada + vector-solo + RRF (diversidad), pool de 1214 pares sobre las 71 consultas, 9 descartadas por duplicado exacto (enmienda 2, n2=62), etiquetado ciego por 6 sesiones de IA completamente aisladas (5 cubriendo el pool completo como "anotador 1", 1 cubriendo el 20% de doble anotación como "anotador 2" — **Cohen's κ=0.714, "acuerdo sustancial"**, más bajo que el 0.895 de v1, consistente con una medición menos artificialmente convergente).
+
+**Resultado confirmatorio sobre las 62 consultas de v3 (`eval/data/v3/metricas_v3_confirmatoria.md`)**:
+
+| Sistema | Recall@5 | Recall@10 | **nDCG@10** | MRR@10 |
+| --- | --- | --- | --- | --- |
+| léxico-solo | 0.508 [0.464, 0.557] | 0.728 [0.688, 0.771] | 0.758 [0.725, 0.791] | 0.941 [0.895, 0.976] |
+| **e5-small, ponderado, α=0.9** | 0.569 [0.523, 0.617] | 0.805 [0.764, 0.847] | **0.815** [0.785, 0.842] | 0.973 [0.938, 1.000] |
+
+**nDCG@10 p_crudo = p_holm = 0 — significativo**, incluso con corrección de Holm. Con 2000 permutaciones, un p=0 crudo significa "más extremo que las 2000 permutaciones", así que se reporta de forma conservadora como **p₂ < 1/2001 ≈ 0.0005** (dos colas), no como "p=0" literal.
+
+**Chequeo de sanidad antes de aceptar el resultado** (una significancia tan fuerte con n=62 merece verificación, no aceptación automática): inspección de las diferencias por consulta — 44/62 consultas favorecen a la híbrida, 16 favorecen a léxico-solo, 2 empatan (no es un barrido unánime ni sospechoso). Media de la diferencia pareada = 0.0573 (similar en magnitud a la de v1-test, 0.0672), pero con **desviación estándar notablemente más baja** (0.1068 vs. 0.1697 en v1) — eso, no un efecto más grande, es lo que explica la significancia tan fuerte con relativamente pocas consultas (dz=0.5367 en v3 vs. dz=0.3962 en v1). Los casos donde pierde la híbrida (p.ej. `Q-V3-SPR-003`, −0.201) y donde gana por mucho (p.ej. `Q-V3-DIN-003`, +0.394) son coherentes con un mecanismo real de complementariedad, no con un artefacto de generación.
+
+### Combinación final (última mirada)
+
+```
+Z1 = 1.8592 (de p1=0.0630, test de v1, n=25)
+Z2 > 3.4809 (cota conservadora desde p2 < 0.0005, test de v3, n=62)
+w1 = 0.5361, w2 = 0.8442
+
+Z combinado = w1·Z1 + w2·Z2 > 0.5361·1.8592 + 0.8442·3.4809 = 3.9351
+umbral (dos colas, α=0.05) = 1.96
+
+|Z combinado| = 3.9351 ≥ 1.96 → SIGNIFICATIVO
+p combinado (cota conservadora) ≈ 0.000083
+```
+
+**Decisión final, con rigor estadístico completo**: la hipótesis de superioridad de la híbrida congelada (e5-small, ponderado, α=0.9, sin filtro de categoría) sobre léxico-solo en nDCG@10 **se confirma** con el diseño de combinación de dos etapas pre-registrado — ni un solo vistazo nuevo después de este, por diseño (regla dura #1 de este pre-registro). Esto **reemplaza**, no complementa, la conclusión "no se puede confirmar ni descartar" de `#115` — ver la actualización correspondiente en `eval/RESULTADOS_TESIS.md` (sección 4.6).
+
+**Qué NO dice este resultado**: sigue siendo una conclusión sobre un corpus 100% sintético, con relevancia etiquetada por IA (no por un abogado), y sigue sin decir nada sobre si conviene promover `e5-small`/`α=0.9` a producción (decisión de ingeniería aparte, exclusiva de Alejandro). Lo que sí cambia es que la pregunta de investigación original de la tesis ("¿la fusión híbrida le gana a la búsqueda léxica pura?") pasa de "sin resolver por falta de potencia" a **"sí, con significancia estadística, en esta configuración puntual"**.
