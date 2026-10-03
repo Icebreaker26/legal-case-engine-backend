@@ -186,9 +186,76 @@ const buscarRRF = async (vectorTutelaLocal, texto, limit, categoria) => {
   return rows;
 };
 
-export const buscarContextoLegal = async (vectorTutelaLocal, textoOriginal = '', limit = 5, categoria = null, { fusion = 'ponderado' } = {}) => {
+// ── Fusión ponderada por α (#127) ────────────────────────────────────────────
+//
+// `buscarPonderado` (arriba) NO es la configuración que #121 confirmó con
+// significancia estadística — ese resultado (e5-small, α=0.9) se produjo con
+// una fórmula de 2 términos (coseno*α + ts_rank*(1-α), sin relevancia_score),
+// definida solo en eval/scripts/v2_barrido_pesos.js y corrida con SQL directo
+// contra la base de evaluación, nunca contra este archivo (ver #123/#127).
+// Este modo replica esa fórmula exacta, parametrizada por alpha, para poder
+// reproducirla a través del pipeline real (recuperarPrecedentes) y confirmar
+// que el código de producción, tal cual, da el mismo nDCG@10 reportado.
+//
+// Deliberadamente NO reemplaza 'ponderado' como default — fusion:'alpha' solo
+// se usa si el caller lo pide explícitamente.
+//
+// Orden por score crudo (no ROUND) con desempate por documento_id ASC: el
+// barrido de #115/#121 ordena así (ver v2_barrido_pesos.js) — redondear antes
+// de ordenar, como hace buildScoringCTE, puede cambiar el ranking cuando los
+// scores quedan muy juntos (típico con α alto). El ROUND solo se aplica a la
+// columna que se expone, nunca al ORDER BY.
+const buildAlphaScoringCTE = () => {
+  const scoreExpr = `
+          (1 - (COALESCE(embedding_comprension, embedding_local) <=> $1::vector)) * $5::float8 +
+          LEAST(ts_rank(contenido_tsv, plainto_tsquery('spanish', $2)), 1.0) * (1 - $5::float8)
+  `;
+
+  return `
+    WITH scored AS (
+      SELECT
+        categoria, titulo_referencia, contenido_legal, documento_id,
+        relevancia_score, comprension_doc,
+        (comprension_doc IS NOT NULL) AS tiene_comprension,
+        ${scoreExpr} AS score_crudo,
+        ROW_NUMBER() OVER (
+          PARTITION BY documento_id
+          ORDER BY ${scoreExpr} DESC, documento_id ASC
+        ) AS rn
+      FROM base_conocimiento_enel
+      WHERE embedding_local IS NOT NULL
+        AND es_exitosa = TRUE
+        AND is_active = TRUE
+        AND documento_id IS NOT NULL
+        AND ($4::text IS NULL OR categoria ILIKE $4)
+    )
+    SELECT categoria, titulo_referencia, contenido_legal, documento_id,
+           relevancia_score, ROUND(CAST(score_crudo AS NUMERIC), 6) AS score,
+           tiene_comprension, comprension_doc
+    FROM scored
+    WHERE rn = 1
+    ORDER BY score_crudo DESC, documento_id ASC
+    LIMIT $3;
+  `;
+};
+
+// alpha ya se valida en buscarContextoLegal antes de llegar aquí.
+const buscarAlpha = async (vectorTutelaLocal, texto, limit, categoria, alpha) => {
+  const categoriaParam = categoria?.trim() ? `%${categoria}%` : null;
+  const params = [JSON.stringify(vectorTutelaLocal), texto, limit, categoriaParam, alpha];
+  const { rows } = await pool.query(buildAlphaScoringCTE(), params);
+  return rows;
+};
+
+export const buscarContextoLegal = async (vectorTutelaLocal, textoOriginal = '', limit = 5, categoria = null, { fusion = 'ponderado', alpha = 0.9 } = {}) => {
   if (!vectorTutelaLocal || !Array.isArray(vectorTutelaLocal) || vectorTutelaLocal.length === 0) {
     throw new Error('Vector inválido o vacío');
+  }
+  // Validado antes del try (como el vector arriba): es un error de uso de la
+  // API, no una falla de la base de datos — no debe quedar enmascarado por
+  // el catch genérico de más abajo.
+  if (fusion === 'alpha' && (typeof alpha !== 'number' || Number.isNaN(alpha) || alpha < 0 || alpha > 1)) {
+    throw new Error(`alpha inválido para fusion 'alpha': ${alpha} (debe ser un número entre 0 y 1)`);
   }
 
   const texto = textoOriginal || '';
@@ -196,6 +263,9 @@ export const buscarContextoLegal = async (vectorTutelaLocal, textoOriginal = '',
   try {
     if (fusion === 'rrf') {
       return await buscarRRF(vectorTutelaLocal, texto, limit, categoria);
+    }
+    if (fusion === 'alpha') {
+      return await buscarAlpha(vectorTutelaLocal, texto, limit, categoria, alpha);
     }
     return await buscarPonderado(vectorTutelaLocal, texto, limit, categoria);
   } catch (error) {

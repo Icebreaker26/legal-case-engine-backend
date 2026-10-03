@@ -42,12 +42,18 @@ export const QuerySchema = z.object({
 // Una configuración experimental pre-registrada (eval/experimentos.json).
 export const ExperimentoSchema = z.object({
   id: z.string().min(1),
-  fusion: z.enum(['ponderado', 'rrf']).default('ponderado'),
+  fusion: z.enum(['ponderado', 'rrf', 'alpha']).default('ponderado'),
+  // Solo se usa si fusion:'alpha' (#127) — replica coseno*alpha + ts_rank*(1-alpha)
+  // de eval/scripts/v2_barrido_pesos.js a través del pipeline real.
+  alpha: z.number().min(0).max(1).optional(),
   estrategia: z.enum(['actual', 'completo', 'comprension']).default('actual'),
   comprensionQuery: z.boolean().default(false), // si true, pasa q.comprension a la tutela
   categoria: z.enum(['extraida', 'etiquetada', 'ninguna']).default('extraida'),
   limit: z.number().int().positive().default(10),
-});
+}).refine(
+  (exp) => exp.fusion !== 'alpha' || typeof exp.alpha === 'number',
+  { message: "fusion:'alpha' requiere 'alpha' (0-1) explícito en el experimento" }
+);
 
 export const cargarYValidar = async (rutaJsonl, schema) => {
   const fs = await import('node:fs/promises');

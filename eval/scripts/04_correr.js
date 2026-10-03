@@ -85,7 +85,7 @@ for (const q of queries) {
     categoriaResuelta = categoria;
   }
 
-  const hits = await recuperarPrecedentes({ tutela, categoria, limit: exp.limit, estrategia: exp.estrategia, fusion: exp.fusion });
+  const hits = await recuperarPrecedentes({ tutela, categoria, limit: exp.limit, estrategia: exp.estrategia, fusion: exp.fusion, alpha: exp.alpha });
 
   // Score sintético = posición mostrada (limit - rank + 1), no el score crudo:
   // ranx/trec_eval reordenan por score, y en la rama ponderada con categoría
