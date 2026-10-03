@@ -2,14 +2,19 @@ import { v4 as uuidv4 } from 'uuid';
 import pool from '../../../db/database.js';
 import { dividirEnChunks } from './chunkService.js';
 import { generarEmbeddingLocal } from './aiService.js';
+import { env } from '../../../config/env.js';
 
 const insertarChunks = async (db, { chunks, vectores, categoria, titulo, esExitosa, documentoId, comprensionDoc, vectorComprension }) => {
+  // embedding_modelo (#101): deja rastro de con qué modelo se generaron los
+  // vectores de esta fila — necesario para que scripts/reindexar_embeddings.js
+  // pueda ser reanudable y para poder auditar mezclas de modelos después.
+  const modelo = env.EMBEDDING_MODEL ?? 'Xenova/all-MiniLM-L6-v2';
   for (let i = 0; i < chunks.length; i++) {
     await db.query(
       `INSERT INTO base_conocimiento_enel
          (categoria, titulo_referencia, contenido_legal, embedding_local, es_exitosa, documento_id,
-          comprension_doc, embedding_comprension)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
+          comprension_doc, embedding_comprension, embedding_modelo)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
       [
         categoria,
         `${titulo} (${i + 1}/${chunks.length})`,
@@ -19,6 +24,7 @@ const insertarChunks = async (db, { chunks, vectores, categoria, titulo, esExito
         documentoId,
         comprensionDoc ? JSON.stringify(comprensionDoc) : null,
         vectorComprension ? JSON.stringify(vectorComprension) : null,
+        modelo,
       ]
     );
   }

@@ -20,7 +20,7 @@ const { indexarDocumento } = await import('../../src/modules/tutelas/services/me
 
 const CATEGORIA_TEST = 'MEMORIASVC_TEST';
 
-describe('memoriaService — indexarDocumento (integración real, #72 Fase 1)', () => {
+describe('memoriaService — indexarDocumento (integración real, #72 Fase 1 / #101)', () => {
   const documentoIds = [];
 
   afterAll(async () => {
@@ -43,6 +43,22 @@ describe('memoriaService — indexarDocumento (integración real, #72 Fase 1)', 
     const { rows } = await pool.query('SELECT texto_fuente FROM documentos_fuente WHERE documento_id = $1', [documentoId]);
     expect(rows).toHaveLength(1);
     expect(rows[0].texto_fuente).toBe(texto);
+  });
+
+  // #101: scripts/reindexar_embeddings.js depende de este marcador para ser
+  // reanudable — si una fila nueva no quedara marcada con el modelo con el
+  // que se generó, el script la trataría como pendiente para siempre.
+  test('marca cada chunk con el modelo de embeddings usado (embedding_modelo)', async () => {
+    const { documentoId } = await indexarDocumento({
+      texto: 'Corte del servicio eléctrico por mora en el pago de facturación mensual.',
+      categoria: CATEGORIA_TEST,
+      titulo: 'Doc embedding_modelo',
+    });
+    documentoIds.push(documentoId);
+
+    const { rows } = await pool.query('SELECT embedding_modelo FROM base_conocimiento_enel WHERE documento_id = $1', [documentoId]);
+    expect(rows).toHaveLength(1);
+    expect(rows[0].embedding_modelo).toBe(process.env.EMBEDDING_MODEL || 'Xenova/all-MiniLM-L6-v2');
   });
 
   test('persiste el texto fuente cuando se pasa un client externo (misma transacción que el caller)', async () => {
