@@ -100,6 +100,29 @@ Generación repartida en 4 sub-agentes en paralelo (`Agent`, sin contexto de est
 4. **Qrels mecánicos sanos** (`eval/lib/qrels.js`, sin modificar): las 85 consultas tienen al menos 1 documento relevante (grado ≥1) — 885 pares relevantes en total.
 5. **Pares casi-duplicados**: ver sección 4 arriba — Jaccard real medido con el stemmer de producción, no asumido.
 
+## Indexado y línea base (2026-10-03) — resultado inesperado, reportado tal como salió
+
+Indexado en `rag_eval_v2` (base lógica propia dentro del contenedor `rag-eval-db`, nunca mezclada con `rag_eval_minilm` de v1 — `eval/.env.eval.v2`, gitignored). Modelo MiniLM (el mismo del indexado por defecto), 90/90 documentos, confirmado vía `eval_indexado`.
+
+Línea base corrida con el pipeline real (`04_correr.js`/`00_ablation.js`, sin modificar) sobre el split **dev** (61 consultas, qrels mecánicos — nunca el de test) para confirmar que el corpus no es degenerado:
+
+| Sistema | recall@5 | recall@10 | nDCG@10 | MRR@10 |
+| --- | --- | --- | --- | --- |
+| híbrida (E06, ponderado, sin filtro) | 0.244 [0.204, 0.287] | 0.336 [0.283, 0.393] | 0.445 [0.377, 0.517] | 0.751 [0.666, 0.833] |
+| **léxico-solo** | **0.260** [0.218, 0.303] | **0.384** [0.329, 0.443] | **0.491** [0.422, 0.560] | **0.787** [0.696, 0.870] |
+| vector-solo | 0.135 [0.108, 0.163] | 0.223 [0.184, 0.265] | 0.270 [0.226, 0.322] | 0.565 [0.470, 0.667] |
+
+**El corpus no es degenerado** (todos los sistemas recuperan bien por encima del azar, magnitudes comparables a la línea base de v1 antes de `#106`). Pero el resultado es el **opuesto** del que motivó la Fase D: léxico-solo le gana a la híbrida con significancia (Holm) en recall@10 (p=0.0005) y nDCG@10 (p=0.0015) — una brecha más clara que la de v1, no el caso borde favorable a la híbrida que se buscaba.
+
+**Diagnóstico rápido, antes de invertir en pooling/etiquetado**: ¿son los negativos difíciles los que explican la pérdida de la híbrida? Se midió cuántas apariciones en el top-10 de cada sistema son un negativo_dificil disfrazado de la categoría real de la consulta (contaminación directa por el mecanismo que se diseñó):
+
+- léxico-solo: 44/850 apariciones (5.2%) — es, como se esperaba por diseño, el **más engañado** por el disfraz léxico.
+- híbrida: 35/850 apariciones (4.1%) — menos engañada que léxico-solo, consistente con que el vector no se deja llevar por el vocabulario superficial.
+
+**Los negativos difíciles no explican la pérdida de la híbrida — de hecho la engañan menos que a léxico-solo.** La causa más probable, dado que `vector-solo` solo llega a 0.270 de nDCG@10 (muy por debajo de ambos), es que el componente vectorial (55% del peso de la fusión) tiene **menos resolución para separar 90 documentos de 9 categorías con más variedad de estilo y subtemas** que para los 40 de v1 — el mismo mecanismo que el diagnóstico de la Fase B de `#114` ya había señalado como explicación más probable del límite real ("cuánta resolución tiene el espacio vectorial para separar documentos parecidos, no la robustez a la reescritura"), ahora reproducido en un corpus deliberadamente más grande y variado, no en una perturbación de consultas.
+
+**No se avanzó a poolear/etiquetar el split de test con este resultado mecánico en contra de la hipótesis de la Fase D** — ver la discusión con Alejandro en el cierre de sesión del issue.
+
 ## Fuera de alcance de esta sesión (próximos pasos)
 
 Indexar en una base de evaluación (posiblemente una tabla/BD separada de `rag_eval_minilm`, o un flag de "versión de corpus" — a decidir), correr línea base (equivalente a E01/E02 de v1) para confirmar que el corpus v2 no es degenerado, poolear y etiquetar el split de test con el protocolo ciego de `#75` (dos sesiones de IA aisladas, igual que se hizo para completar `#113`), pre-registrar y correr la comparación confirmatoria (E03 sin filtro vs. léxico-solo — la variante que decidió la Fase A de `#114`), y documentar el resultado en una sección propia de `eval/RESULTADOS_TESIS.md`, marcada explícitamente como estudio separado de `#77`/`#114`.
