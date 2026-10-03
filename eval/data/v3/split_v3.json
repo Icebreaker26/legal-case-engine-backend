@@ -1,13 +1,11 @@
 {
-  "_comentario": "v3 (#121): TODAS las consultas van a test -- no hay split dev, la configuracion (e5-small, ponderado, alpha=0.9) ya esta congelada de antemano (ver eval/data/v3/preregistro_diseno_dos_etapas.md), v3 no se usa para tunear nada.",
+  "_comentario": "v3 (#121): TODAS las consultas van a test -- no hay split dev, la configuracion (e5-small, ponderado, alpha=0.9) ya esta congelada de antemano (ver eval/data/v3/preregistro_diseno_dos_etapas.md), v3 no se usa para tunear nada. ENMIENDA (2026-10-03, antes de calcular cualquier metrica de retrieval): 9 de las 71 consultas generadas resultaron ser copias EXACTAS de texto de otra consulta del mismo lote (bug de generacion, descubierto durante el etiquetado ciego, no despues de ver ningun resultado de retrieval) -- se descartan del split de test por romper independencia (grupos: ISA-001/008, DIN-002/008, DIN-003/007, DIN-004/005, ACP-002/005, ACP-006/007, FAC-003/007/008, FAC-005/006, se conserva el primer qid alfabetico de cada grupo). test: 71 -> 62. Las consultas descartadas NO se borran de queries_v3.jsonl/corpus_v3.jsonl (siguen siendo datos validos, solo no independientes) -- solo se excluyen de este split.",
   "test": [
     "Q-V3-ACP-001",
     "Q-V3-ACP-002",
     "Q-V3-ACP-003",
     "Q-V3-ACP-004",
-    "Q-V3-ACP-005",
     "Q-V3-ACP-006",
-    "Q-V3-ACP-007",
     "Q-V3-CAL-001",
     "Q-V3-CAL-002",
     "Q-V3-CAL-003",
@@ -28,18 +26,12 @@
     "Q-V3-DIN-002",
     "Q-V3-DIN-003",
     "Q-V3-DIN-004",
-    "Q-V3-DIN-005",
     "Q-V3-DIN-006",
-    "Q-V3-DIN-007",
-    "Q-V3-DIN-008",
     "Q-V3-FAC-001",
     "Q-V3-FAC-002",
     "Q-V3-FAC-003",
     "Q-V3-FAC-004",
     "Q-V3-FAC-005",
-    "Q-V3-FAC-006",
-    "Q-V3-FAC-007",
-    "Q-V3-FAC-008",
     "Q-V3-INF-001",
     "Q-V3-INF-002",
     "Q-V3-INF-003",
@@ -55,7 +47,6 @@
     "Q-V3-ISA-005",
     "Q-V3-ISA-006",
     "Q-V3-ISA-007",
-    "Q-V3-ISA-008",
     "Q-V3-SPR-001",
     "Q-V3-SPR-002",
     "Q-V3-SPR-003",
@@ -73,5 +64,16 @@
     "Q-V3-STR-007",
     "Q-V3-STR-008"
   ],
-  "dev": []
+  "dev": [],
+  "descartadas_por_duplicado": [
+    "Q-V3-ACP-005",
+    "Q-V3-ACP-007",
+    "Q-V3-DIN-005",
+    "Q-V3-DIN-007",
+    "Q-V3-DIN-008",
+    "Q-V3-FAC-006",
+    "Q-V3-FAC-007",
+    "Q-V3-FAC-008",
+    "Q-V3-ISA-008"
+  ]
 }

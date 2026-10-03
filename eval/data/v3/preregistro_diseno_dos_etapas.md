@@ -2,7 +2,9 @@
 
 **Fecha de registro:** 2026-10-03, antes de generar un solo documento o consulta del corpus v3. Escrito siguiendo la recomendación de una consulta a un agente de Opus 5.5 (ver cierre de sesión de `#121`), que encontró dos fallas reales en el plan original de sumar directamente 25 (v1-test) + 24 (v2-test re-etiquetado) + 44 (preguntas nuevas sobre los corpus v1/v2 ya existentes) hasta n=93:
 
-> **Enmienda (2026-10-03, mismo día, antes de indexar o correr nada sobre v3)**: los 3 lotes de generación (sub-agentes Haiku, sin contexto, cada uno con instrucción de generar 7-8 consultas por categoría) redondearon al alza y entregaron **71 consultas**, no 68 — n2=71, N=96. Se actualiza el pre-registro con este número ANTES de indexar, correr o etiquetar nada de v3 (ningún resultado existía todavía cuando se hizo este cambio — no es optional stopping, es ajustar el tamaño de muestra pre-registrado al dato real disponible, antes de ver cualquier resultado). Se usan las 71 consultas completas, no se descarta ninguna para forzar el número original. Los cálculos de abajo ya reflejan n2=71.
+> **Enmienda 1 (2026-10-03, mismo día, antes de indexar o correr nada sobre v3)**: los 3 lotes de generación (sub-agentes Haiku, sin contexto, cada uno con instrucción de generar 7-8 consultas por categoría) redondearon al alza y entregaron **71 consultas**, no 68 — n2=71, N=96. Se actualiza el pre-registro con este número ANTES de indexar, correr o etiquetar nada de v3 (ningún resultado existía todavía cuando se hizo este cambio — no es optional stopping, es ajustar el tamaño de muestra pre-registrado al dato real disponible, antes de ver cualquier resultado). Se usan las 71 consultas completas, no se descarta ninguna para forzar el número original.
+>
+> **Enmienda 2 (2026-10-03, mismo día, durante el etiquetado ciego, ANTES de calcular ninguna métrica de retrieval sobre v3)**: durante el etiquetado ciego, varios de los 6 agentes anotadores reportaron de forma independiente pares de consultas con texto idéntico. Auditoría completa: **9 de las 71 consultas eran copias exactas de texto de otra consulta del mismo lote** (bug de generación de los sub-agentes Haiku, no detectado en la verificación inicial porque esa verificación chequeó duplicados de `qid`, no de contenido) — 8 grupos: `ISA-001/008`, `DIN-002/008`, `DIN-003/007`, `DIN-004/005`, `ACP-002/005`, `ACP-006/007`, `FAC-003/007/008`, `FAC-005/006`. Dos consultas con el mismo texto exacto no son dos observaciones independientes — violarían el supuesto del test de Fisher. Se descartan las 9 copias "extra" de `split_v3.json` (se conserva solo la primera, por orden alfabético de qid, de cada grupo) — **n2 pasa de 71 a 62, N=87**. Esto ocurre ANTES de correr `04_evaluar.py` o calcular cualquier nDCG@10 sobre v3 — ningún resultado del test confirmatorio existía todavía, así que no es optional stopping: es una corrección de calidad de datos (mismo principio que `#104`/`#113`/`#115`: arreglar el defecto, no solo documentarlo). Las 9 consultas descartadas NO se borran de `corpus_v3.jsonl`/`queries_v3.jsonl` (siguen siendo datos válidos, solo no independientes) — se excluyen únicamente del split de test usado para la comparación confirmatoria. Pérdida de potencia condicional mínima (ver tabla de potencia abajo, recalculada): de 90%/99% a 88%/98% según el escenario — se decide no invertir en generar 9 consultas de reemplazo. Los cálculos de abajo ya reflejan n2=62.
 
 1. **Circularidad a nivel de colección, no de consulta**: la configuración congelada (e5-small, ponderado, α=0.9) se eligió porque separaba bien los 90 documentos de v2 (y, en menor medida, los 40 de v1 — el barrido de `#115` corrió sobre v2-dev, pero v1 ya había decidido antes el modelo e5-small y la eliminación del prefiltro). Cualquier consulta nueva contra esos mismos documentos — sea de test o no — hereda esa ventaja de fábrica. Separar consultas en test/dev no alcanza si los documentos del test ya fueron los que decidieron la configuración ganadora.
 2. **Optional stopping**: sumar datos *porque* el resultado anterior (p=0.063) casi cruzó el umbral de significancia es precisamente el patrón "casi dio, agrego más" que el propio proyecto se prometió no seguir (ver el cierre de `#115`, análisis de potencia). Hacerlo sin control infla el error tipo I.
@@ -10,16 +12,16 @@
 ## Diseño elegido: combinación de dos etapas independientes (Lehmacher-Wassmer / inverse-normal)
 
 - **Etapa 1** (ya ocurrió, congelada, no se re-abre): test de v1 (`eval/data/qrels.trec`, `eval/data/split.json`), n₁=25, etiquetado ciego real (`#75`/`#113`). Resultado ya conocido: nDCG@10 e5-a0.9=0.723 vs. léxico-solo=0.656, **p₁ (Fisher, dos colas) = 0.0630** (erratum corregido de `#115`/PR #120).
-- **Etapa 2** (nueva, este issue): corpus **v3 completamente nuevo** — documentos y consultas nunca vistos por ninguna configuración anterior, generados por sub-agentes (Haiku, sin contexto de esta investigación ni de ningún hallazgo previo) — **nunca reusa documentos de v1 ni v2**. n₂=**71** (ver enmienda arriba), **todas** las consultas van a test (no hay split dev para v3 — no hace falta, la configuración ya está congelada de antemano, v3 no se usa para tunear nada).
-- **N = n₁ + n₂ = 96**.
+- **Etapa 2** (nueva, este issue): corpus **v3 completamente nuevo** — documentos y consultas nunca vistos por ninguna configuración anterior, generados por sub-agentes (Haiku, sin contexto de esta investigación ni de ningún hallazgo previo) — **nunca reusa documentos de v1 ni v2**. n₂=**62** (ver enmiendas 1 y 2 arriba: 68 generadas→71 reales→62 tras descartar 9 copias exactas), **todas** las consultas van a test (no hay split dev para v3 — no hace falta, la configuración ya está congelada de antemano, v3 no se usa para tunear nada).
+- **N = n₁ + n₂ = 87**.
 
 ### Fórmula de combinación (fijada antes de ver cualquier resultado de la etapa 2)
 
 Pesos fijos, determinados solo por los tamaños de muestra (nunca por los resultados):
 
 ```
-w1 = sqrt(n1 / N) = sqrt(25/96) = 0.5103
-w2 = sqrt(n2 / N) = sqrt(71/96) = 0.8600
+w1 = sqrt(n1 / N) = sqrt(25/87) = 0.5361
+w2 = sqrt(n2 / N) = sqrt(62/87) = 0.8442
 (verificación: w1² + w2² = 1.0000)
 ```
 
@@ -38,15 +40,15 @@ Para la etapa 1 (ya conocida): p₁=0.0630, diferencia favorece a la híbrida �
 Como Z₁=1.8592 ya es conocido y fijo, el umbral que debe cruzar por sí sola la etapa 2 es mucho más bajo que si tuviera que demostrar significancia por su cuenta:
 
 ```
-Z2 necesario = (1.96 − w1·Z1) / w2 = (1.96 − 0.5103·1.8592) / 0.8600 = 1.1758
-→ equivalente a p2 (dos colas) ≤ 0.2397
+Z2 necesario = (1.96 − w1·Z1) / w2 = (1.96 − 0.5361·1.8592) / 0.8442 = 1.1411
+→ equivalente a p2 (dos colas) ≤ 0.2538
 ```
 
 Es decir, la etapa 2 no necesita "ganar" sola — solo necesita no contradecir fuertemente lo que ya apuntaba la etapa 1.
 
 ### Potencia condicional de la etapa 2 (dado que ya conocemos Z₁)
 
-Con n₂=71 y asumiendo que el efecto real tiene el tamaño mínimo que el proyecto ya definió como relevante (dz=0.2947, diferencia=0.05/sd=0.1697): potencia condicional ≈ **90%**. Si el efecto real fuera igual al observado originalmente en el test de v1 (dz=0.3962): potencia condicional ≈ **99%**. n₂=71 deja margen razonable, no es un número ajustado al límite.
+Con n₂=62 y asumiendo que el efecto real tiene el tamaño mínimo que el proyecto ya definió como relevante (dz=0.2947, diferencia=0.05/sd=0.1697): potencia condicional ≈ **88%**. Si el efecto real fuera igual al observado originalmente en el test de v1 (dz=0.3962): potencia condicional ≈ **98%**. Ambos siguen por encima del 80% objetivo — margen suficiente pese a la pérdida de 9 consultas duplicadas.
 
 ### Reglas duras de este pre-registro
 
