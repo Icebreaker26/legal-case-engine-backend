@@ -1,17 +1,26 @@
 const TAMANO_LOTE = 3;
 
-export const extraerSolicitudes = (texto) => {
-  if (!texto?.trim()) return [];
+// Única fuente de verdad para segmentación + método: cada rama declara su
+// propio `metodo` en el mismo return, en vez de inferirlo después por la
+// forma del resultado (acoplamiento implícito y frágil al formato de las
+// etiquetas -- señalado en la revisión de #146). `extraerSolicitudes` y
+// `detectarMetodoSegmentacion` son wrappers delgados sobre esto para no
+// romper a los callers existentes.
+const extraerSolicitudesConMetodo = (texto) => {
+  if (!texto?.trim()) return { solicitudes: [], metodo: 'vacio' };
 
   // Patrón 1: "1.- texto", "1. texto", "1) texto"
   const regexNumerico = /(?:^|\n)\s*(\d{1,2})[.\-\)]\s*-?\s*([\s\S]+?)(?=\n\s*\d{1,2}[.\-\)]|\s*$)/g;
   const matchesNumericos = [...texto.matchAll(regexNumerico)];
   if (matchesNumericos.length >= 2) {
-    return matchesNumericos.map((m, i) => ({
-      numero: i + 1,
-      etiqueta: `${i + 1}.`,
-      texto: m[2].replace(/\n{3,}/g, '\n\n').trim(),
-    }));
+    return {
+      metodo: 'numerico',
+      solicitudes: matchesNumericos.map((m, i) => ({
+        numero: i + 1,
+        etiqueta: `${i + 1}.`,
+        texto: m[2].replace(/\n{3,}/g, '\n\n').trim(),
+      })),
+    };
   }
 
   // Patrón 2: "Primero:", "Segundo:", etc.
@@ -22,16 +31,27 @@ export const extraerSolicitudes = (texto) => {
   );
   const matchesOrdinales = [...texto.matchAll(regexOrdinal)];
   if (matchesOrdinales.length >= 2) {
-    return matchesOrdinales.map((m, i) => ({
-      numero: i + 1,
-      etiqueta: m[1].charAt(0).toUpperCase() + m[1].slice(1).toLowerCase() + ':',
-      texto: m[2].replace(/\n{3,}/g, '\n\n').trim(),
-    }));
+    return {
+      metodo: 'ordinal',
+      solicitudes: matchesOrdinales.map((m, i) => ({
+        numero: i + 1,
+        etiqueta: m[1].charAt(0).toUpperCase() + m[1].slice(1).toLowerCase() + ':',
+        texto: m[2].replace(/\n{3,}/g, '\n\n').trim(),
+      })),
+    };
   }
 
   // Fallback: no se detectaron solicitudes estructuradas — devuelve el texto completo como una sola solicitud
-  return [{ numero: 1, etiqueta: '1.', texto: texto.trim() }];
+  return { metodo: 'fallback', solicitudes: [{ numero: 1, etiqueta: '1.', texto: texto.trim() }] };
 };
+
+export const extraerSolicitudes = (texto) => extraerSolicitudesConMetodo(texto).solicitudes;
+
+// #146: expone el método ya calculado por extraerSolicitudesConMetodo, sin
+// re-derivarlo del resultado. Requiere volver a correr la segmentación
+// (los regex son baratos y esto solo se llama una vez por generación de
+// prompts, nunca en un loop caliente).
+export const detectarMetodoSegmentacion = (texto) => extraerSolicitudesConMetodo(texto).metodo;
 
 const LIMITE_COPILOT = 128000;
 
@@ -79,8 +99,12 @@ export const agruparEnLotes = (solicitudes, opts = null) => {
   return lotes;
 };
 
+// Único lugar donde vive este número -- #146 lo usa para marcar
+// `comprension_truncada` en la telemetría sin duplicar el literal.
+export const LIMITE_EXTRACTO_COMPRENSION = 3000;
+
 export const buildPromptComprension = (textoCrudo) => {
-  const extracto = textoCrudo.substring(0, 3000);
+  const extracto = textoCrudo.substring(0, LIMITE_EXTRACTO_COMPRENSION);
   return `Eres un abogado experto en derecho colombiano de servicios públicos.
 Lee el siguiente texto de un derecho de petición o tutela dirigido a Enel Colombia.
 Responde ÚNICAMENTE con un objeto JSON válido, sin texto adicional, sin markdown, sin bloques de código.

@@ -9,7 +9,7 @@ import { registrarLog } from '../../../services/auditService.js';
 import { crearNotificacion } from '../../notificaciones/services/notificationService.js';
 import pool from '../../../db/database.js';
 import { ESTADOS, PRIORIDADES } from '../constants.js';
-import { extraerSolicitudes, agruparEnLotes, construirPromptLote, buildPromptComprension } from '../services/peticionService.js';
+import { extraerSolicitudes, agruparEnLotes, construirPromptLote, buildPromptComprension, detectarMetodoSegmentacion, LIMITE_EXTRACTO_COMPRENSION } from '../services/peticionService.js';
 import { respuestaLlmSchema } from '../schemas/tutelaSchema.js';
 
 export const listarBaseConocimiento = async (req, res) => {
@@ -987,6 +987,19 @@ export const promoverArgumento = async (req, res) => {
   }
 };
 
+// Versión del esquema de `detalles` en los eventos TELEMETRIA_* (#146) --
+// sin esto, un cambio futuro en la forma del JSON deja al análisis
+// adivinando qué formato tiene cada fila vieja.
+const TELEMETRIA_SCHEMA_VERSION = 1;
+
+// Identifica la versión de la plantilla de prompt vigente (construirPromptLote
+// + buildFichaPrecedente + buildSeccionEstrategia). Sin esto, cuando se
+// comparen variantes de plantilla (docs/ANALISIS_GENERADOR_PROMPTS.md,
+// sección D.1), ningún dato de telemetría registrado antes de agregar este
+// campo se podrá atribuir a una plantilla -- se sube a mano en cada cambio
+// de plantilla que se quiera distinguir en el análisis.
+const PLANTILLA_VERSION = 'v1';
+
 export const guardarRespuestaPeticion = async (req, res) => {
   const { id } = req.params;
   const { resultado_llm_json, modo = 'acumular', parte_index } = req.body;
@@ -995,21 +1008,50 @@ export const guardarRespuestaPeticion = async (req, res) => {
   try {
     parsed = JSON.parse(resultado_llm_json);
   } catch {
+    // Telemetría #146 -- tasa de fallo de formato (C.5 de
+    // docs/ANALISIS_GENERADOR_PROMPTS.md). IMPORTANTE: el frontend limpia
+    // el texto (quita fences de markdown, recorta a lo que hay entre la
+    // primera y la última llave) antes de mandarlo aquí -- esto mide la
+    // tasa de fallo QUE SOBREVIVE a esa limpieza, no la adherencia real del
+    // LLM al formato pedido. Subestima sistemáticamente. Hasta que el
+    // frontend mande un indicador de cuánto tuvo que limpiar (pendiente,
+    // ver issue de seguimiento), toda lectura de esta métrica debe
+    // declarar esta limitación.
+    await registrarLog(req.user.id, 'TELEMETRIA_FALLO_FORMATO', 'tutela', id, req, {
+      v: TELEMETRIA_SCHEMA_VERSION,
+      tipo: 'json_invalido',
+      medido_tras_limpieza_frontend: true,
+    });
     return res.status(400).json({ error: 'La respuesta del LLM no es un JSON válido.' });
   }
 
   const validation = respuestaLlmSchema.safeParse(parsed);
   if (!validation.success) {
+    await registrarLog(req.user.id, 'TELEMETRIA_FALLO_FORMATO', 'tutela', id, req, {
+      v: TELEMETRIA_SCHEMA_VERSION,
+      tipo: 'zod_invalido',
+      medido_tras_limpieza_frontend: true,
+      // `code` en vez de `message`: el mensaje es texto libre que puede
+      // incluir el valor recibido (contenido de la respuesta del LLM) y no
+      // sirve para agregar.
+      issues: validation.error.issues.map(i => ({ path: i.path.join('.'), code: i.code })),
+    });
     return res.status(400).json({ error: 'Estructura del JSON inválida.', details: validation.error.issues });
   }
 
   const { encabezado, introduccion, respuestas, prescripcion, cierre } = validation.data;
   const client = await pool.connect();
+  // Telemetría #146 -- se calcula DENTRO de la transacción pero se registra
+  // DESPUÉS del COMMIT. `registrarLog` usa `pool.query` (otra conexión, no
+  // la del `client` de esta transacción): registrar el evento antes de
+  // confirmar dejaba "eventos fantasma" si el resto de la transacción
+  // fallaba y hacía ROLLBACK después.
+  let conflictoPrescripcion = null;
   try {
     await client.query('BEGIN');
 
     const { rows: existing } = await client.query(
-      'SELECT id FROM respuestas_peticion WHERE tutela_id = $1', [id]
+      'SELECT id, prescripcion, partes_procesadas FROM respuestas_peticion WHERE tutela_id = $1', [id]
     );
 
     let respuestaId;
@@ -1028,6 +1070,27 @@ export const guardarRespuestaPeticion = async (req, res) => {
       respuestaId = rows[0].id;
     } else {
       respuestaId = existing[0].id;
+
+      // Telemetría #146 -- conflicto entre lotes sobre una decisión global
+      // (C.2 de docs/ANALISIS_GENERADOR_PROMPTS.md): cada lote pide
+      // `prescripcion` por separado y hoy se fusiona en silencio con
+      // "si algún lote dice que aplica, gana". Solo se registra, no cambia
+      // la fusión existente. Se distingue de un re-pegado del MISMO lote
+      // (p. ej. el abogado corrige y vuelve a pegar la parte 2): eso no es
+      // un conflicto entre lotes distintos, es una corrección.
+      const prescripcionPrevia = existing[0].prescripcion;
+      const partesPrevias = existing[0].partes_procesadas || [];
+      const esRepegado = parte_index !== undefined && parte_index !== null && partesPrevias.includes(parte_index);
+      if (prescripcionPrevia && prescripcion && prescripcionPrevia.aplica !== prescripcion.aplica) {
+        conflictoPrescripcion = {
+          v: TELEMETRIA_SCHEMA_VERSION,
+          parte_index: parte_index ?? null,
+          aplica_previo: prescripcionPrevia.aplica,
+          aplica_nuevo: prescripcion.aplica,
+          es_repegado: esRepegado,
+        };
+      }
+
       await client.query(
         `UPDATE respuestas_peticion SET
            encabezado   = COALESCE($1, encabezado),
@@ -1065,6 +1128,25 @@ export const guardarRespuestaPeticion = async (req, res) => {
 
     await client.query('COMMIT');
     await registrarLog(req.user.id, 'GUARDAR_RESPUESTA_PETICION', 'tutela', id, req, { parte_index, modo });
+
+    if (conflictoPrescripcion) {
+      await registrarLog(req.user.id, 'TELEMETRIA_CONFLICTO_PRESCRIPCION', 'tutela', id, req, conflictoPrescripcion);
+    }
+
+    // Telemetría #146 -- cobertura y citas (C.5 de
+    // docs/ANALISIS_GENERADOR_PROMPTS.md). Se registran los `numero`
+    // guardados (para cruzar luego contra TELEMETRIA_SEGMENTACION y
+    // detectar huecos) y las normas citadas por ítem -- no existe todavía
+    // un catálogo de normas contra el cual validarlas (ver limitación
+    // declarada en el documento), así que por ahora solo se guardan para
+    // análisis posterior, sin bloquear ni corregir nada. Por ítem y no
+    // aplanadas: aplanadas se pierde qué respuesta concreta no citó nada.
+    await registrarLog(req.user.id, 'TELEMETRIA_COBERTURA', 'tutela', id, req, {
+      v: TELEMETRIA_SCHEMA_VERSION,
+      parte_index: parte_index ?? null,
+      items: respuestas.map(r => ({ numero: r.numero, normas_citadas: r.normas_citadas || [] })),
+    });
+
     res.json({ message: 'Respuesta guardada correctamente.', respuesta_id: respuestaId });
   } catch (err) {
     await client.query('ROLLBACK');
@@ -1122,7 +1204,8 @@ export const generarPromptsPeticion = async (req, res) => {
     const comprension = tutela.analisis_comprension || null;
     const sugerencias = await recuperarPrecedentes({ tutela }); // sin filtro de categoría (#106)
 
-    const solicitudes = extraerSolicitudes(tutela.contenido_original || '');
+    const contenidoOriginal = tutela.contenido_original || '';
+    const solicitudes = extraerSolicitudes(contenidoOriginal);
     const lotes = agruparEnLotes(solicitudes, { tutela, legalNotes, sugerencias, argumentos, comprension });
 
     const prompts = lotes.map((lote, i) => ({
@@ -1132,7 +1215,43 @@ export const generarPromptsPeticion = async (req, res) => {
       prompt: construirPromptLote({ lote, loteIndex: i, totalLotes: lotes.length, tutela, legalNotes, sugerencias, argumentos, comprension }),
     }));
 
-    res.json({ prompts, total_solicitudes: solicitudes.length, total_partes: lotes.length });
+    // Telemetría #146 -- solo medición, no cambia el resultado. Base para
+    // decidir si se justifica un segmentador más robusto que el regex
+    // (docs/ANALISIS_GENERADOR_PROMPTS.md, sección D.3: regla pre-registrada,
+    // si el fallback es <5% no se justifica CRF). Se calcula aquí, justo
+    // antes de responder, para no dejar un evento de una generación que
+    // terminó fallando si `construirPromptLote` lanza una excepción arriba.
+    //
+    // Limitaciones declaradas (no resueltas por este evento, solo
+    // documentadas para que el análisis no las ignore):
+    // - `metodo: 'numerico'` es un ÉXITO DE FORMA, no de contenido: una
+    //   petición con HECHOS numerados capturados como solicitudes (falta
+    //   el anclaje de sección de la sección A.1 del documento) también
+    //   cuenta aquí como "numerico". El fallback mide una cota inferior
+    //   del fallo real de segmentación, no el fallo real.
+    // - `comprension_truncada` importa para leer `discrepancia`: si el
+    //   análisis de comprensión se hizo sobre un extracto truncado, una
+    //   discrepancia de conteo puede venir del truncamiento, no del regex.
+    // - Cada regeneración de prompts (el abogado puede pedirla de nuevo)
+    //   escribe OTRO evento idéntico -- las tasas de este indicador se
+    //   deben calcular por tutela distinta, no por evento.
+    const generacionId = crypto.randomUUID();
+    const nPeticionesComprension = comprension?.peticiones?.length ?? null;
+    await registrarLog(req.user.id, 'TELEMETRIA_SEGMENTACION', 'tutela', id, req, {
+      v: TELEMETRIA_SCHEMA_VERSION,
+      generacion_id: generacionId,
+      version_plantilla: PLANTILLA_VERSION,
+      metodo: detectarMetodoSegmentacion(contenidoOriginal),
+      n_solicitudes_regex: solicitudes.length,
+      n_peticiones_comprension: nPeticionesComprension,
+      discrepancia: nPeticionesComprension !== null && nPeticionesComprension !== solicitudes.length,
+      longitud_texto: contenidoOriginal.length,
+      comprension_truncada: contenidoOriginal.length > LIMITE_EXTRACTO_COMPRENSION,
+      total_partes: lotes.length,
+      lotes: lotes.map(lote => lote.map(s => s.numero)),
+    });
+
+    res.json({ prompts, total_solicitudes: solicitudes.length, total_partes: lotes.length, generacion_id: generacionId });
   } catch (error) {
     console.error('Error generando prompts de petición:', error);
     res.status(500).json({ error: 'Error al generar los prompts.', details: error.message });
