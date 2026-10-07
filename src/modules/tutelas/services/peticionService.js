@@ -35,9 +35,15 @@ export const extraerSolicitudes = (texto) => {
 
 const LIMITE_COPILOT = 128000;
 
-// Wrapper size probe: build a prompt with empty solicitudes to measure fixed overhead
-const medirWrapper = (opts) =>
-  construirPromptLote({ lote: [], loteIndex: 1, totalLotes: 99, ...opts }).length;
+// Wrapper size probe: build empty-solicitudes prompts to measure fixed overhead.
+// Mide tanto loteIndex 0 (lleva la sección de estrategia, #138) como un lote
+// intermedio, y usa el peor caso — el budget tiene que caber en ambos.
+const medirWrapper = (opts) => {
+  const base = { lote: [], totalLotes: 99, ...opts };
+  const sizeLote0 = construirPromptLote({ ...base, loteIndex: 0 }).length;
+  const sizeLoteN = construirPromptLote({ ...base, loteIndex: 1 }).length;
+  return Math.max(sizeLote0, sizeLoteN);
+};
 
 // Groups solicitudes greedily so each resulting prompt stays under LIMITE_COPILOT.
 // Falls back to one solicitud per lote if a single item already exceeds the limit.

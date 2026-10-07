@@ -5,6 +5,10 @@ import { crearNotificacion } from '../../notificaciones/services/notificationSer
 const UMBRALES = [
   { dias: 0, mensaje: (r, d) => `🚨 VENCIDA: La tutela ${r} venció hoy. Requiere atención inmediata.` },
   { dias: 1, mensaje: (r, d) => `⚠️ URGENTE: La tutela ${r} vence mañana (${d}).` },
+  // Faltaba el umbral de 2 días — sin él, una tutela que vence pasado mañana
+  // caía al fallback de "vence en 3 días", dándole al abogado un día de
+  // margen falso. Ver #141.
+  { dias: 2, mensaje: (r, d) => `📅 Recordatorio: La tutela ${r} vence en 2 días (${d}).` },
   { dias: 3, mensaje: (r, d) => `📅 Recordatorio: La tutela ${r} vence en 3 días (${d}).` },
 ];
 
@@ -34,7 +38,7 @@ export const ejecutarAlertasVencimiento = async () => {
 
     for (const tutela of rows) {
       const dias = parseInt(tutela.dias_restantes);
-      const umbral = UMBRALES.find(u => u.dias === Math.max(dias, 0)) || UMBRALES[2];
+      const umbral = UMBRALES.find(u => u.dias === Math.max(dias, 0)) || UMBRALES[UMBRALES.length - 1];
       const fechaStr = new Date(tutela.fecha_vencimiento).toLocaleDateString('es-CO', {
         day: '2-digit', month: 'long', year: 'numeric'
       });

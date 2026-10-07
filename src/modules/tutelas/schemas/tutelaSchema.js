@@ -119,13 +119,29 @@ export const asignarUsuariosSchema = z.object({
 
 // ── Admin tutelas ─────────────────────────────────────────────────────────────
 
+// Patrones que coinciden con "todo el texto" y borrarían contenido legítimo
+// sin lanzar ningún error — ver #139.
+const PATRONES_CATASTROFICOS = [/^\.\*$/, /^\.\+$/, /^\[\s*\\?s\\S\]\*$/i, /^\[\s*\\?s\\S\]\+$/i, /^\[\^\]\*$/, /^\[\^\]\+$/];
+
+const esPatronValido = (patron) => {
+  try {
+    // eslint-disable-next-line no-new
+    new RegExp(patron, 'gi');
+  } catch {
+    return false;
+  }
+  return !PATRONES_CATASTROFICOS.some(p => p.test(patron.trim()));
+};
+
 export const crearNoiseSchema = z.object({
-  patron:      z.string().min(1, 'El patrón es obligatorio.'),
+  patron:      z.string().min(1, 'El patrón es obligatorio.')
+    .refine(esPatronValido, { message: 'El patrón no es un regex válido, o coincide con todo el texto (ej. ".*") y borraría el documento completo.' }),
   descripcion: z.string().optional(),
 });
 
 export const actualizarNoiseSchema = z.object({
-  patron:      z.string().min(1).optional(),
+  patron:      z.string().min(1).optional()
+    .refine(p => p === undefined || esPatronValido(p), { message: 'El patrón no es un regex válido, o coincide con todo el texto (ej. ".*") y borraría el documento completo.' }),
   descripcion: z.string().optional(),
   activo:      z.boolean().optional(),
 }).refine(d => Object.keys(d).length > 0, { message: 'Se requiere al menos un campo.' });

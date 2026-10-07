@@ -1114,7 +1114,7 @@ export const generarPromptsPeticion = async (req, res) => {
     const sugerencias = await recuperarPrecedentes({ tutela }); // sin filtro de categoría (#106)
 
     const solicitudes = extraerSolicitudes(tutela.contenido_original || '');
-    const lotes = agruparEnLotes(solicitudes, { tutela, legalNotes, sugerencias, argumentos });
+    const lotes = agruparEnLotes(solicitudes, { tutela, legalNotes, sugerencias, argumentos, comprension });
 
     const prompts = lotes.map((lote, i) => ({
       parte: i + 1,
