@@ -2,7 +2,7 @@ import { extraerTextoPdf } from '../../../services/pdfService.js';
 import { generarEmbeddingLocal } from '../services/aiService.js';
 import { generarDocumentoWord } from '../services/docxService.js';
 import { indexarDocumento } from '../services/memoriaService.js';
-import { recuperarPrecedentes } from '../services/consultaService.js';
+import { recuperarPrecedentes, registrarImpresiones } from '../services/consultaService.js';
 import { extraerDatosTutela } from '../services/extractorService.js';
 import { limpiarTexto, limpiarTextoParaPostgres } from '../services/cleanerService.js';
 import { registrarLog } from '../../../services/auditService.js';
@@ -305,6 +305,13 @@ export const procesarTutela = async (req, res) => {
     const dbResult = await pool.query(queryInsert, values);
     await registrarLog(req.user.id, 'CREAR_TUTELA', 'tutela', dbResult.rows[0].id, req, { radicado: datosExtraidos.radicado });
 
+    await registrarImpresiones({
+      usuario_uuid: req.user.id,
+      tutela_id: dbResult.rows[0].id,
+      categoria_contexto: derechoManual || datosExtraidos.derecho_vulnerado,
+      resultados: precedentesExitosos,
+    });
+
     res.status(200).json({ mensaje: 'Tutela registrada', id_tutela: dbResult.rows[0].id, sugerencias: precedentesExitosos });
   } catch (error) {
     console.error('Error detallado al procesar tutela:', error);
@@ -417,11 +424,19 @@ export const eliminarTutela = async (req, res) => {
 
 export const obtenerSugerenciasTutela = async (req, res) => {
   try {
-    const { rows } = await pool.query('SELECT contenido_original FROM tutelas WHERE id = $1', [req.params.id]);
+    const { rows } = await pool.query('SELECT contenido_original, derecho_vulnerado FROM tutelas WHERE id = $1', [req.params.id]);
     if (rows.length === 0) return res.status(404).json({ error: 'Tutela no encontrada.' });
 
-    const { contenido_original } = rows[0];
+    const { contenido_original, derecho_vulnerado } = rows[0];
     const sugerencias = await recuperarPrecedentes({ tutela: { contenido_original } }); // sin filtro de categoría (#106)
+
+    await registrarImpresiones({
+      usuario_uuid: req.user.id,
+      tutela_id: req.params.id,
+      categoria_contexto: derecho_vulnerado,
+      resultados: sugerencias,
+    });
+
     res.status(200).json(sugerencias);
   } catch (error) {
     res.status(500).json({ error: 'Error al generar sugerencias.' });
@@ -431,7 +446,7 @@ export const obtenerSugerenciasTutela = async (req, res) => {
 export const generarBorradorContestacion = async (req, res) => {
   try {
     const { id } = req.params;
-    const { rows } = await pool.query('SELECT contenido_original, contestacion_generada FROM tutelas WHERE id = $1', [id]);
+    const { rows } = await pool.query('SELECT contenido_original, contestacion_generada, derecho_vulnerado FROM tutelas WHERE id = $1', [id]);
     if (rows.length === 0) return res.status(404).json({ error: 'Tutela no encontrada.' });
 
     // Si ya existe un borrador guardado, lo devuelve directamente
@@ -446,6 +461,13 @@ export const generarBorradorContestacion = async (req, res) => {
     // Sin filtro de categoría (#106)
     const sugerencias = await recuperarPrecedentes({
       tutela: { contenido_original: rows[0].contenido_original },
+    });
+
+    await registrarImpresiones({
+      usuario_uuid: req.user.id,
+      tutela_id: id,
+      categoria_contexto: rows[0].derecho_vulnerado,
+      resultados: sugerencias,
     });
 
     res.status(200).json({ sugerencias, status: 'suggestions_only' });
@@ -477,7 +499,7 @@ export const guardarBorrador = async (req, res) => {
 export const registrarFeedbackMemoria = async (req, res) => {
   try {
     const { documento_id } = req.params;
-    const { util } = req.body; // true = útil, false = no útil
+    const { util, tutela_id = null } = req.body; // true = útil, false = no útil
 
     if (typeof util !== 'boolean') {
       return res.status(400).json({ error: 'El campo "util" debe ser true o false.' });
@@ -486,10 +508,11 @@ export const registrarFeedbackMemoria = async (req, res) => {
     const delta = util ? 1 : -1;
 
     // Actualiza todos los chunks del documento a la vez
-    const { rowCount } = await pool.query(
+    const { rowCount, rows: chunksActualizados } = await pool.query(
       `UPDATE base_conocimiento_enel
        SET relevancia_score = relevancia_score + $1
-       WHERE documento_id = $2`,
+       WHERE documento_id = $2
+       RETURNING categoria`,
       [delta, documento_id]
     );
 
@@ -503,6 +526,18 @@ export const registrarFeedbackMemoria = async (req, res) => {
        WHERE documento_id = $1
          AND relevancia_score <= -5`,
       [documento_id]
+    );
+
+    // Doble escritura (#165, fase c): además de relevancia_score (mecanismo
+    // actual, que ECCP reemplazará), registra el evento en feedback_precedentes
+    // -- es el dato que la fase de feromona (#161 fase d) va a leer. Un rastro
+    // por agente/documento/caso: re-votar reemplaza, no suma (diseño §3.3).
+    await pool.query(
+      `INSERT INTO feedback_precedentes (usuario_uuid, documento_id, tutela_id, categoria_contexto, util)
+       VALUES ($1, $2, $3, $4, $5)
+       ON CONFLICT (usuario_uuid, documento_id, tutela_id) WHERE tutela_id IS NOT NULL
+       DO UPDATE SET util = EXCLUDED.util, categoria_contexto = EXCLUDED.categoria_contexto, created_at = now()`,
+      [req.user.id, documento_id, tutela_id, chunksActualizados[0]?.categoria ?? null, util]
     );
 
     await registrarLog(req.user.id, util ? 'FEEDBACK_UTIL' : 'FEEDBACK_NO_UTIL', 'memoria', documento_id, req);
@@ -1220,6 +1255,13 @@ export const generarPromptsPeticion = async (req, res) => {
 
     const comprension = tutela.analisis_comprension || null;
     const sugerencias = await recuperarPrecedentes({ tutela }); // sin filtro de categoría (#106)
+
+    await registrarImpresiones({
+      usuario_uuid: req.user.id,
+      tutela_id: id,
+      categoria_contexto: tutela.derecho_vulnerado,
+      resultados: sugerencias,
+    });
 
     const contenidoOriginal = tutela.contenido_original || '';
     const solicitudes = extraerSolicitudes(contenidoOriginal);

@@ -2,6 +2,7 @@ import request from 'supertest';
 import createApp from '../../src/app_test.js';
 import pool from '../../src/db/database.js';
 import bcrypt from 'bcrypt';
+import { registrarImpresiones } from '../../src/modules/tutelas/services/consultaService.js';
 
 const app = createApp();
 const agent = request.agent(app);
@@ -403,6 +404,124 @@ describe('Tutelas — Integración', () => {
       test('sin token → 401', async () => {
         const res = await request(app).get('/api/tutelas/memoria/cobertura-comprension');
         expect(res.status).toBe(401);
+      });
+    });
+  });
+
+  // #165 — ECCP fases (b)+(c): tabla feedback_precedentes + instrumentación
+  // de impresiones, sin cambiar el ranking.
+  describe('ECCP — feedback_precedentes e impresiones_precedentes (#165)', () => {
+    const CATEGORIA_ECCP = 'ECCP_TEST';
+    const docEccp = 'eccccccc-0000-0000-0000-000000000001';
+    let tutelaEccpId;
+
+    beforeAll(async () => {
+      await pool.query(
+        `INSERT INTO base_conocimiento_enel
+           (categoria, titulo_referencia, contenido_legal, embedding_local, es_exitosa, is_active, documento_id)
+         VALUES ($1, 'Doc ECCP', 'contenido de prueba para ECCP', $2, TRUE, TRUE, $3)`,
+        [CATEGORIA_ECCP, JSON.stringify(Array(384).fill(0.1)), docEccp]
+      );
+
+      const { rows } = await pool.query(`
+        INSERT INTO tutelas (radicado, accionante, derecho_vulnerado, estado, is_active, responsable_uuid)
+        VALUES ('TEST-ECCP-001', 'Accionante ECCP', $1, 'Pendiente', true, $2)
+        ON CONFLICT (radicado) DO UPDATE SET responsable_uuid = EXCLUDED.responsable_uuid
+        RETURNING id
+      `, [CATEGORIA_ECCP, testUserUuid]);
+      tutelaEccpId = rows[0].id;
+    });
+
+    afterAll(async () => {
+      await pool.query('DELETE FROM impresiones_precedentes WHERE documento_id = $1', [docEccp]);
+      await pool.query('DELETE FROM feedback_precedentes WHERE documento_id = $1', [docEccp]);
+      await pool.query('DELETE FROM tutelas WHERE id = $1', [tutelaEccpId]);
+      await pool.query('DELETE FROM base_conocimiento_enel WHERE documento_id = $1', [docEccp]);
+    });
+
+    describe('Doble escritura del voto', () => {
+      test('votar útil crea un evento en feedback_precedentes', async () => {
+        const res = await agent
+          .post(`/api/tutelas/memoria/${docEccp}/feedback`)
+          .send({ util: true, tutela_id: tutelaEccpId });
+        expect(res.status).toBe(200);
+
+        const { rows } = await pool.query(
+          'SELECT util, categoria_contexto FROM feedback_precedentes WHERE usuario_uuid = $1 AND documento_id = $2 AND tutela_id = $3',
+          [testUserUuid, docEccp, tutelaEccpId]
+        );
+        expect(rows).toHaveLength(1);
+        expect(rows[0].util).toBe(true);
+        expect(rows[0].categoria_contexto).toBe(CATEGORIA_ECCP);
+      });
+
+      test('re-votar el mismo caso/documento reemplaza el evento, no lo suma', async () => {
+        const res = await agent
+          .post(`/api/tutelas/memoria/${docEccp}/feedback`)
+          .send({ util: false, tutela_id: tutelaEccpId });
+        expect(res.status).toBe(200);
+
+        const { rows } = await pool.query(
+          'SELECT util FROM feedback_precedentes WHERE usuario_uuid = $1 AND documento_id = $2 AND tutela_id = $3',
+          [testUserUuid, docEccp, tutelaEccpId]
+        );
+        expect(rows).toHaveLength(1);
+        expect(rows[0].util).toBe(false);
+      });
+
+      test('votar sin tutela_id (frontend todavía no lo envía) sigue respondiendo 200', async () => {
+        const res = await agent
+          .post(`/api/tutelas/memoria/${docEccp}/feedback`)
+          .send({ util: true });
+        expect(res.status).toBe(200);
+      });
+    });
+
+    // Nota: se ejercita `registrarImpresiones` directamente (no vía
+    // GET /:id/sugerencias) porque el pipeline de embeddings locales
+    // (@xenova/transformers) falla en este entorno de pruebas por un
+    // problema de entorno preexistente y no relacionado con #165
+    // ("A float32 tensor's data must be type of Float32Array" al correr
+    // bajo Jest + --experimental-vm-modules en esta máquina) -- ningún otro
+    // test de la suite llama hoy a un endpoint que genere un embedding real.
+    // La función bajo prueba es la misma que usan los 4 endpoints reales
+    // (tutelaController.js), solo se evita la generación de embeddings.
+    describe('Instrumentación de impresiones', () => {
+      const resultadosFicticios = [
+        { documento_id: docEccp, score: 0.9 },
+      ];
+
+      test('registrarImpresiones inserta una fila por precedente, con contrafactual == mostrada', async () => {
+        await registrarImpresiones({
+          usuario_uuid: testUserUuid,
+          tutela_id: tutelaEccpId,
+          categoria_contexto: CATEGORIA_ECCP,
+          resultados: resultadosFicticios,
+        });
+
+        const { rows } = await pool.query(
+          `SELECT documento_id, posicion_mostrada, posicion_contrafactual, score_base, categoria_contexto
+           FROM impresiones_precedentes WHERE tutela_id = $1 ORDER BY posicion_mostrada ASC`,
+          [tutelaEccpId]
+        );
+        expect(rows).toHaveLength(resultadosFicticios.length);
+        expect(rows[0].documento_id).toBe(docEccp);
+        expect(rows[0].posicion_mostrada).toBe(1);
+        expect(rows[0].posicion_contrafactual).toBe(1);
+        expect(Number(rows[0].score_base)).toBeCloseTo(0.9);
+        expect(rows[0].categoria_contexto).toBe(CATEGORIA_ECCP);
+      });
+
+      test('resultados vacíos no inserta nada y no lanza', async () => {
+        await expect(registrarImpresiones({ usuario_uuid: testUserUuid, resultados: [] })).resolves.toBeUndefined();
+      });
+
+      test('un fallo de base de datos se loguea pero nunca lanza (no debe romper la búsqueda)', async () => {
+        await expect(registrarImpresiones({
+          usuario_uuid: testUserUuid,
+          tutela_id: 'no-es-un-uuid-valido',
+          resultados: resultadosFicticios,
+        })).resolves.toBeUndefined();
       });
     });
   });

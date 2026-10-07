@@ -1,5 +1,7 @@
 import { generarEmbeddingLocal } from './aiService.js';
 import { buscarContextoLegal } from './vectorService.js';
+import pool from '../../../db/database.js';
+import logger from '../../../utils/logger.js';
 
 /**
  * Construye el texto de consulta (vectorial y léxico) usado para buscar
@@ -46,4 +48,36 @@ export const recuperarPrecedentes = async ({
   const { textoVector, textoLexico } = construirConsulta(tutela, { estrategia });
   const vector = await generarEmbeddingLocal(textoVector, { tipo: 'query' });
   return buscarContextoLegal(vector, textoLexico, limit, categoria, { fusion, alpha });
+};
+
+/**
+ * Instrumentación ECCP (#165, fase b): registra qué precedentes se mostraron,
+ * en qué posición y con qué score, para poder medir más adelante si una
+ * futura feromona cambia algo. `posicion_contrafactual` hoy es siempre igual
+ * a `posicion_mostrada` porque el ranking todavía es puro S_base (sin
+ * feromona) — ver docs/ANALISIS_ESTIGMERGIA_ECCP.md sección 3.4 paso 2.
+ *
+ * Nunca lanza: es telemetría del camino de lectura, un fallo aquí no debe
+ * romper la búsqueda de precedentes que ya se le devolvió al abogado.
+ */
+export const registrarImpresiones = async ({ usuario_uuid = null, tutela_id = null, categoria_contexto = null, resultados = [] }) => {
+  if (!resultados.length) return;
+
+  try {
+    const columnas = ['usuario_uuid', 'tutela_id', 'documento_id', 'categoria_contexto', 'posicion_mostrada', 'posicion_contrafactual', 'score_base'];
+    const values = [];
+    const filas = resultados.map((r, i) => {
+      const posicion = i + 1;
+      values.push(usuario_uuid, tutela_id, r.documento_id, categoria_contexto, posicion, posicion, r.score ?? null);
+      const offset = i * columnas.length;
+      return `(${columnas.map((_, j) => `$${offset + j + 1}`).join(', ')})`;
+    });
+
+    await pool.query(
+      `INSERT INTO impresiones_precedentes (${columnas.join(', ')}) VALUES ${filas.join(', ')}`,
+      values
+    );
+  } catch (error) {
+    logger.error('Error registrando impresiones de precedentes (ECCP)', { error: error.message });
+  }
 };
