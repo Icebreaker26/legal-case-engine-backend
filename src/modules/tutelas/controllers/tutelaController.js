@@ -443,6 +443,7 @@ export const obtenerSugerenciasTutela = async (req, res) => {
       tutela_id: req.params.id,
       categoria_contexto: derecho_vulnerado,
       resultados: sugerencias,
+      fusion,
     });
 
     res.status(200).json(sugerencias);

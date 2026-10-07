@@ -3,6 +3,7 @@ import createApp from '../../src/app_test.js';
 import pool from '../../src/db/database.js';
 import bcrypt from 'bcrypt';
 import { registrarImpresiones } from '../../src/modules/tutelas/services/consultaService.js';
+import { GAMMA_ECCP, ECCP_CONFIG_VERSION } from '../../src/modules/tutelas/services/vectorService.js';
 
 const app = createApp();
 const agent = request.agent(app);
@@ -500,7 +501,8 @@ describe('Tutelas — Integración', () => {
         });
 
         const { rows } = await pool.query(
-          `SELECT documento_id, posicion_mostrada, posicion_contrafactual, score_base, categoria_contexto
+          `SELECT documento_id, posicion_mostrada, posicion_contrafactual, score_base, categoria_contexto,
+                  fusion_modo, embedding_model, gamma, config_version, delta_feromona
            FROM impresiones_precedentes WHERE tutela_id = $1 ORDER BY posicion_mostrada ASC`,
           [tutelaEccpId]
         );
@@ -510,6 +512,34 @@ describe('Tutelas — Integración', () => {
         expect(rows[0].posicion_contrafactual).toBe(1);
         expect(Number(rows[0].score_base)).toBeCloseTo(0.9);
         expect(rows[0].categoria_contexto).toBe(CATEGORIA_ECCP);
+        // #174 — sin `fusion` explícito, registrarImpresiones asume 'ponderado':
+        // gamma/config_version/delta_feromona solo tienen sentido para 'alpha_fb'.
+        expect(rows[0].fusion_modo).toBe('ponderado');
+        expect(rows[0].embedding_model).toBe(process.env.EMBEDDING_MODEL || 'Xenova/all-MiniLM-L6-v2');
+        expect(rows[0].gamma).toBeNull();
+        expect(rows[0].config_version).toBeNull();
+        expect(rows[0].delta_feromona).toBeNull();
+      });
+
+      test('#174 — con fusion: "alpha_fb", registra gamma/config_version y delta_feromona si el resultado lo trae', async () => {
+        await registrarImpresiones({
+          usuario_uuid: testUserUuid,
+          tutela_id: tutelaEccpId,
+          categoria_contexto: CATEGORIA_ECCP,
+          resultados: [{ documento_id: docEccp, score_semantico: 0.8, delta_feromona: 0.015 }],
+          fusion: 'alpha_fb',
+        });
+
+        const { rows } = await pool.query(
+          `SELECT fusion_modo, gamma, config_version, delta_feromona
+           FROM impresiones_precedentes WHERE tutela_id = $1 AND fusion_modo = 'alpha_fb'`,
+          [tutelaEccpId]
+        );
+        expect(rows).toHaveLength(1);
+        expect(rows[0].fusion_modo).toBe('alpha_fb');
+        expect(Number(rows[0].gamma)).toBeCloseTo(GAMMA_ECCP);
+        expect(rows[0].config_version).toBe(ECCP_CONFIG_VERSION);
+        expect(Number(rows[0].delta_feromona)).toBeCloseTo(0.015);
       });
 
       test('resultados vacíos no inserta nada y no lanza', async () => {

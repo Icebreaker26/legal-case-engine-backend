@@ -285,8 +285,13 @@ export const MODELO_ALPHA_FB = 'Xenova/multilingual-e5-small';
 // que calibró γ, o alpha_fb compararía vectores de espacios distintos sin
 // que nada falle (riesgo señalado en #101/#123/#127). `IS DISTINCT FROM`
 // también atrapa embedding_modelo NULL (documentos nunca reindexados).
-export const baseIndexadaConModelo = async (modelo) => {
-  const { rows } = await pool.query(
+// `db` es inyectable (default: el pool compartido) solo para que los tests
+// puedan ejercitar esta comprobación dentro de una transacción propia
+// (BEGIN ISOLATION LEVEL REPEATABLE READ + ROLLBACK) y así quedar inmunes a
+// que otras suites inserten/actualicen filas de base_conocimiento_enel en
+// paralelo durante la corrida -- en producción nunca se pasa, usa el pool.
+export const baseIndexadaConModelo = async (modelo, db = pool) => {
+  const { rows } = await db.query(
     `SELECT NOT EXISTS (
        SELECT 1 FROM base_conocimiento_enel
        WHERE is_active = TRUE AND embedding_modelo IS DISTINCT FROM $1
@@ -319,11 +324,16 @@ const buscarAlphaFb = async (vectorTutelaLocal, texto, limit, alpha, contexto, g
       const scoreSemantico = Number(c.score_crudo);
       const vigencia = c.vigencia_factor != null ? Number(c.vigencia_factor) : 1;
       const senal = senales[c.documento_id] ?? 0;
-      const scoreFinal = vigencia * (scoreSemantico + gamma * senal);
+      // Aporte crudo de la feromona, SIN multiplicar por vigencia_factor --
+      // es el componente que #174 quiere poder medir aparte (cuánto movió la
+      // feromona el score, independiente de si el documento está vigente).
+      const deltaFeromona = gamma * senal;
+      const scoreFinal = vigencia * (scoreSemantico + deltaFeromona);
       // ECCP (#142, #167): `score` y `score_semantico` son siempre S_base
       // puro -- `buildFichaPrecedente` nunca debe poder leer el componente
       // de feromona. `score_final` solo ordena, no se expone como "score".
-      return { ...c, vigencia, score_semantico: scoreSemantico, score_final: scoreFinal, posicion_contrafactual: idx + 1 };
+      // `delta_feromona` (#174) es telemetría de análisis, mismo criterio.
+      return { ...c, vigencia, score_semantico: scoreSemantico, score_final: scoreFinal, delta_feromona: deltaFeromona, posicion_contrafactual: idx + 1 };
     })
     // Diseño §3.3 "por evento normativo": vigencia_factor=0 (precedente
     // jurídicamente superado) desaparece de inmediato -- no solo baja su

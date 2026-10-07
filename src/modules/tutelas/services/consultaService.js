@@ -1,5 +1,5 @@
 import { generarEmbeddingLocal } from './aiService.js';
-import { buscarContextoLegal, baseIndexadaConModelo, MODELO_ALPHA_FB } from './vectorService.js';
+import { buscarContextoLegal, baseIndexadaConModelo, MODELO_ALPHA_FB, GAMMA_ECCP, ECCP_CONFIG_VERSION } from './vectorService.js';
 import { estaAlphaFbActivoParaEndpoint } from './featureFlagService.js';
 import pool from '../../../db/database.js';
 import logger from '../../../utils/logger.js';
@@ -66,7 +66,9 @@ export const recuperarPrecedentes = async ({
  * alpha_fb contra el modelo o los datos equivocados queda imposible por
  * construcción, no solo por disciplina de quien prenda el flag.
  */
-export const resolverFusionAlphaFb = async (endpoint) => {
+// `db` es inyectable (default: el pool compartido) solo para los tests de
+// integración -- ver la nota en baseIndexadaConModelo (vectorService.js).
+export const resolverFusionAlphaFb = async (endpoint, db = pool) => {
   try {
     if (env.RAG_ALPHA_FB_KILL) {
       logger.warn(`alpha_fb: RAG_ALPHA_FB_KILL activo -- cae a 'ponderado' (endpoint: ${endpoint})`);
@@ -81,7 +83,7 @@ export const resolverFusionAlphaFb = async (endpoint) => {
       return 'ponderado';
     }
 
-    const sincronizado = await baseIndexadaConModelo(MODELO_ALPHA_FB);
+    const sincronizado = await baseIndexadaConModelo(MODELO_ALPHA_FB, db);
     if (!sincronizado) {
       logger.warn(`alpha_fb: base_conocimiento_enel aún tiene filas activas sin reindexar a "${MODELO_ALPHA_FB}" -- cae a 'ponderado' (endpoint: ${endpoint})`);
       return 'ponderado';
@@ -106,17 +108,39 @@ export const resolverFusionAlphaFb = async (endpoint) => {
  *
  * Nunca lanza: es telemetría del camino de lectura, un fallo aquí no debe
  * romper la búsqueda de precedentes que ya se le devolvió al abogado.
+ *
+ * `fusion` (#174): modo de fusión realmente usado para estos resultados --
+ * determina `gamma`/`config_version` (solo tienen sentido para 'alpha_fb';
+ * NULL en cualquier otro modo) y queda registrado en `fusion_modo` /
+ * `embedding_model` para poder segmentar el monitoreo del piloto de #173 por
+ * configuración activa en el momento de la búsqueda.
+ *
+ * Limitación conocida (#174): esto registra el modo que SE USÓ, no un
+ * contrafactual de lo que el otro modo habría dado cuando `alpha_fb` está
+ * apagado -- comparar 'ponderado' (3 términos con relevancia_score) contra
+ * 'alpha_fb' (2 términos) en modo sombra requeriría correr ambas fórmulas
+ * sobre formulaciones de candidatos distintas, que queda fuera de alcance de
+ * este lote (ver discusión en el PR). `posicion_contrafactual` ya cubre el
+ * sentido inverso: con `alpha_fb` encendido, siempre registra qué posición
+ * habría tenido el documento con S_base puro, sin feromona.
  */
-export const registrarImpresiones = async ({ usuario_uuid = null, tutela_id = null, categoria_contexto = null, resultados = [] }) => {
+export const registrarImpresiones = async ({ usuario_uuid = null, tutela_id = null, categoria_contexto = null, resultados = [], fusion = 'ponderado' }) => {
   if (!resultados.length) return;
 
   try {
-    const columnas = ['usuario_uuid', 'tutela_id', 'documento_id', 'categoria_contexto', 'posicion_mostrada', 'posicion_contrafactual', 'score_base'];
+    const gamma = fusion === 'alpha_fb' ? GAMMA_ECCP : null;
+    const configVersion = fusion === 'alpha_fb' ? ECCP_CONFIG_VERSION : null;
+    const embeddingModel = env.EMBEDDING_MODEL;
+
+    const columnas = ['usuario_uuid', 'tutela_id', 'documento_id', 'categoria_contexto', 'posicion_mostrada', 'posicion_contrafactual', 'score_base', 'fusion_modo', 'embedding_model', 'gamma', 'config_version', 'delta_feromona'];
     const values = [];
     const filas = resultados.map((r, i) => {
       const posicion = i + 1;
       const contrafactual = r.posicion_contrafactual ?? posicion;
-      values.push(usuario_uuid, tutela_id, r.documento_id, categoria_contexto, posicion, contrafactual, r.score_semantico ?? r.score ?? null);
+      values.push(
+        usuario_uuid, tutela_id, r.documento_id, categoria_contexto, posicion, contrafactual, r.score_semantico ?? r.score ?? null,
+        fusion, embeddingModel, gamma, configVersion, r.delta_feromona ?? null
+      );
       const offset = i * columnas.length;
       return `(${columnas.map((_, j) => `$${offset + j + 1}`).join(', ')})`;
     });
