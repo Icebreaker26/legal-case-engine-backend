@@ -28,3 +28,26 @@ coverage/
 # OS
 .DS_Store
 Thumbs.db
+
+# Arnés de evaluación RAG (#73).
+# eval/fixtures/ y eval/data/ SÍ se versionan a propósito: son 100% sintéticos,
+# verificados sin datos identificables (ver #74) — dan reproducibilidad a los
+# resultados de la tesis. Lo que SÍ se excluye:
+# - eval/.env.eval*: credenciales locales del contenedor de evaluación
+#   (incluye variantes como .env.eval.v2 para bases lógicas distintas del
+#   mismo contenedor, p.ej. corpus v2 de #115 — misma razón, mismo patrón).
+# - eval/data/*.produccion.json y *.real.json: futuro export REAL de
+#   global_categorias — nunca el mismo nombre que categorias.json (el
+#   placeholder sintético de v1).
+# - eval/results/: corridas desechables/exploratorias, no evidencia versionada.
+eval/.env.eval*
+!eval/.env.eval.example
+eval/data/*.produccion.json
+eval/data/*.real.json
+eval/results/
+
+# Entorno Python aislado para #76 (ranx) — requirements.txt sí se versiona,
+# el venv en sí nunca (es local, pesado y específico de la plataforma).
+eval/.venv/
+__pycache__/
+*.pyc

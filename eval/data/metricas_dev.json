@@ -1,0 +1,405 @@
+{
+  "subset": "dev",
+  "n_queries": 95,
+  "metricas": [
+    "recall@5",
+    "recall@10",
+    "ndcg@10",
+    "mrr@10"
+  ],
+  "stat_test": "fisher",
+  "n_permutations": 2000,
+  "max_p": 0.05,
+  "correccion_multiple": "holm-bonferroni (por métrica)",
+  "bootstrap_resamples": 2000,
+  "seed": 42,
+  "runs": {
+    "minilm-filtro": "eval/data/runs/pool-minilm-ponderado.trec",
+    "minilm-sin-filtro": "eval/data/runs/E06-minilm-ponderado-sin-filtro.trec",
+    "e5-filtro": "eval/data/runs/pool-e5-ponderado.trec",
+    "e5-rrf": "eval/data/runs/pool-e5-rrf.trec",
+    "e5-sin-filtro": "eval/data/runs/pool-e5-ponderado-normalizado.trec"
+  },
+  "tabla": {
+    "minilm-filtro": {
+      "recall@5": {
+        "media": 0.4133333333333334,
+        "ci95_lo": 0.341578947368421,
+        "ci95_hi": 0.48579824561403495,
+        "n": 95
+      },
+      "recall@10": {
+        "media": 0.47087719298245617,
+        "ci95_lo": 0.39648245614035094,
+        "ci95_hi": 0.5419298245614035,
+        "n": 95
+      },
+      "ndcg@10": {
+        "media": 0.4557532791074117,
+        "ci95_lo": 0.38402761566091226,
+        "ci95_hi": 0.529716717047001,
+        "n": 95
+      },
+      "mrr@10": {
+        "media": 0.5842105263157895,
+        "ci95_lo": 0.49912280701754386,
+        "ci95_hi": 0.6719517543859648,
+        "n": 95
+      }
+    },
+    "minilm-sin-filtro": {
+      "recall@5": {
+        "media": 0.389122807017544,
+        "ci95_lo": 0.34666228070175437,
+        "ci95_hi": 0.43245614035087715,
+        "n": 95
+      },
+      "recall@10": {
+        "media": 0.5514035087719298,
+        "ci95_lo": 0.5052631578947369,
+        "ci95_hi": 0.5968508771929824,
+        "n": 95
+      },
+      "ndcg@10": {
+        "media": 0.5151254305127725,
+        "ci95_lo": 0.472724514217212,
+        "ci95_hi": 0.5570887142552674,
+        "n": 95
+      },
+      "mrr@10": {
+        "media": 0.7478070175438597,
+        "ci95_lo": 0.6762828947368421,
+        "ci95_hi": 0.8140350877192983,
+        "n": 95
+      }
+    },
+    "e5-filtro": {
+      "recall@5": {
+        "media": 0.4382456140350877,
+        "ci95_lo": 0.3678947368421053,
+        "ci95_hi": 0.509127192982456,
+        "n": 95
+      },
+      "recall@10": {
+        "media": 0.5264912280701753,
+        "ci95_lo": 0.45192982456140357,
+        "ci95_hi": 0.5993026315789474,
+        "n": 95
+      },
+      "ndcg@10": {
+        "media": 0.5018050958226393,
+        "ci95_lo": 0.42985802020066405,
+        "ci95_hi": 0.5742645730116445,
+        "n": 95
+      },
+      "mrr@10": {
+        "media": 0.6178362573099416,
+        "ci95_lo": 0.5295877192982457,
+        "ci95_hi": 0.7039780701754385,
+        "n": 95
+      }
+    },
+    "e5-rrf": {
+      "recall@5": {
+        "media": 0.4368421052631579,
+        "ci95_lo": 0.3645614035087719,
+        "ci95_hi": 0.5094780701754386,
+        "n": 95
+      },
+      "recall@10": {
+        "media": 0.5229824561403509,
+        "ci95_lo": 0.45104824561403506,
+        "ci95_hi": 0.5956315789473682,
+        "n": 95
+      },
+      "ndcg@10": {
+        "media": 0.4773584899659492,
+        "ci95_lo": 0.405536808914346,
+        "ci95_hi": 0.553236396143588,
+        "n": 95
+      },
+      "mrr@10": {
+        "media": 0.5623350041771095,
+        "ci95_lo": 0.4769293024227235,
+        "ci95_hi": 0.6503392857142856,
+        "n": 95
+      }
+    },
+    "e5-sin-filtro": {
+      "recall@5": {
+        "media": 0.456140350877193,
+        "ci95_lo": 0.41437280701754386,
+        "ci95_hi": 0.49824561403508766,
+        "n": 95
+      },
+      "recall@10": {
+        "media": 0.6205263157894736,
+        "ci95_lo": 0.5805175438596492,
+        "ci95_hi": 0.6596535087719299,
+        "n": 95
+      },
+      "ndcg@10": {
+        "media": 0.5838730783319505,
+        "ci95_lo": 0.5400425197943318,
+        "ci95_hi": 0.6262697721662674,
+        "n": 95
+      },
+      "mrr@10": {
+        "media": 0.807923976608187,
+        "ci95_lo": 0.7429225146198831,
+        "ci95_hi": 0.8676608187134501,
+        "n": 95
+      }
+    }
+  },
+  "significancia": {
+    "recall@5": {
+      "minilm-filtro vs minilm-sin-filtro": {
+        "p_crudo": 0.4895,
+        "n": 95,
+        "p_holm": 1.0,
+        "significativo_holm": false
+      },
+      "minilm-filtro vs e5-filtro": {
+        "p_crudo": 0.043,
+        "n": 95,
+        "p_holm": 0.38699999999999996,
+        "significativo_holm": false
+      },
+      "minilm-filtro vs e5-rrf": {
+        "p_crudo": 0.121,
+        "n": 95,
+        "p_holm": 0.968,
+        "significativo_holm": false
+      },
+      "minilm-filtro vs e5-sin-filtro": {
+        "p_crudo": 0.2655,
+        "n": 95,
+        "p_holm": 1.0,
+        "significativo_holm": false
+      },
+      "minilm-sin-filtro vs e5-filtro": {
+        "p_crudo": 0.195,
+        "n": 95,
+        "p_holm": 1.0,
+        "significativo_holm": false
+      },
+      "minilm-sin-filtro vs e5-rrf": {
+        "p_crudo": 0.224,
+        "n": 95,
+        "p_holm": 1.0,
+        "significativo_holm": false
+      },
+      "minilm-sin-filtro vs e5-sin-filtro": {
+        "p_crudo": 0.0005,
+        "n": 95,
+        "p_holm": 0.005,
+        "significativo_holm": true
+      },
+      "e5-filtro vs e5-rrf": {
+        "p_crudo": 0.929,
+        "n": 95,
+        "p_holm": 1.0,
+        "significativo_holm": false
+      },
+      "e5-filtro vs e5-sin-filtro": {
+        "p_crudo": 0.646,
+        "n": 95,
+        "p_holm": 1.0,
+        "significativo_holm": false
+      },
+      "e5-rrf vs e5-sin-filtro": {
+        "p_crudo": 0.631,
+        "n": 95,
+        "p_holm": 1.0,
+        "significativo_holm": false
+      }
+    },
+    "recall@10": {
+      "minilm-filtro vs minilm-sin-filtro": {
+        "p_crudo": 0.0425,
+        "n": 95,
+        "p_holm": 0.17,
+        "significativo_holm": false
+      },
+      "minilm-filtro vs e5-filtro": {
+        "p_crudo": 0.001,
+        "n": 95,
+        "p_holm": 0.009000000000000001,
+        "significativo_holm": true
+      },
+      "minilm-filtro vs e5-rrf": {
+        "p_crudo": 0.0045,
+        "n": 95,
+        "p_holm": 0.0315,
+        "significativo_holm": true
+      },
+      "minilm-filtro vs e5-sin-filtro": {
+        "p_crudo": 0.0,
+        "n": 95,
+        "p_holm": 0.0,
+        "significativo_holm": true
+      },
+      "minilm-sin-filtro vs e5-filtro": {
+        "p_crudo": 0.569,
+        "n": 95,
+        "p_holm": 1.0,
+        "significativo_holm": false
+      },
+      "minilm-sin-filtro vs e5-rrf": {
+        "p_crudo": 0.5205,
+        "n": 95,
+        "p_holm": 1.0,
+        "significativo_holm": false
+      },
+      "minilm-sin-filtro vs e5-sin-filtro": {
+        "p_crudo": 0.001,
+        "n": 95,
+        "p_holm": 0.009000000000000001,
+        "significativo_holm": true
+      },
+      "e5-filtro vs e5-rrf": {
+        "p_crudo": 0.772,
+        "n": 95,
+        "p_holm": 1.0,
+        "significativo_holm": false
+      },
+      "e5-filtro vs e5-sin-filtro": {
+        "p_crudo": 0.016,
+        "n": 95,
+        "p_holm": 0.08,
+        "significativo_holm": false
+      },
+      "e5-rrf vs e5-sin-filtro": {
+        "p_crudo": 0.01,
+        "n": 95,
+        "p_holm": 0.06,
+        "significativo_holm": false
+      }
+    },
+    "ndcg@10": {
+      "minilm-filtro vs minilm-sin-filtro": {
+        "p_crudo": 0.103,
+        "n": 95,
+        "p_holm": 0.309,
+        "significativo_holm": false
+      },
+      "minilm-filtro vs e5-filtro": {
+        "p_crudo": 0.0,
+        "n": 95,
+        "p_holm": 0.0,
+        "significativo_holm": true
+      },
+      "minilm-filtro vs e5-rrf": {
+        "p_crudo": 0.0615,
+        "n": 95,
+        "p_holm": 0.246,
+        "significativo_holm": false
+      },
+      "minilm-filtro vs e5-sin-filtro": {
+        "p_crudo": 0.0015,
+        "n": 95,
+        "p_holm": 0.012,
+        "significativo_holm": true
+      },
+      "minilm-sin-filtro vs e5-filtro": {
+        "p_crudo": 0.728,
+        "n": 95,
+        "p_holm": 0.728,
+        "significativo_holm": false
+      },
+      "minilm-sin-filtro vs e5-rrf": {
+        "p_crudo": 0.336,
+        "n": 95,
+        "p_holm": 0.672,
+        "significativo_holm": false
+      },
+      "minilm-sin-filtro vs e5-sin-filtro": {
+        "p_crudo": 0.0,
+        "n": 95,
+        "p_holm": 0.0,
+        "significativo_holm": true
+      },
+      "e5-filtro vs e5-rrf": {
+        "p_crudo": 0.039,
+        "n": 95,
+        "p_holm": 0.198,
+        "significativo_holm": false
+      },
+      "e5-filtro vs e5-sin-filtro": {
+        "p_crudo": 0.033,
+        "n": 95,
+        "p_holm": 0.198,
+        "significativo_holm": false
+      },
+      "e5-rrf vs e5-sin-filtro": {
+        "p_crudo": 0.002,
+        "n": 95,
+        "p_holm": 0.014,
+        "significativo_holm": true
+      }
+    },
+    "mrr@10": {
+      "minilm-filtro vs minilm-sin-filtro": {
+        "p_crudo": 0.0,
+        "n": 95,
+        "p_holm": 0.0,
+        "significativo_holm": true
+      },
+      "minilm-filtro vs e5-filtro": {
+        "p_crudo": 0.045,
+        "n": 95,
+        "p_holm": 0.09,
+        "significativo_holm": false
+      },
+      "minilm-filtro vs e5-rrf": {
+        "p_crudo": 0.261,
+        "n": 95,
+        "p_holm": 0.261,
+        "significativo_holm": false
+      },
+      "minilm-filtro vs e5-sin-filtro": {
+        "p_crudo": 0.0,
+        "n": 95,
+        "p_holm": 0.0,
+        "significativo_holm": true
+      },
+      "minilm-sin-filtro vs e5-filtro": {
+        "p_crudo": 0.0115,
+        "n": 95,
+        "p_holm": 0.057499999999999996,
+        "significativo_holm": false
+      },
+      "minilm-sin-filtro vs e5-rrf": {
+        "p_crudo": 0.0005,
+        "n": 95,
+        "p_holm": 0.003,
+        "significativo_holm": true
+      },
+      "minilm-sin-filtro vs e5-sin-filtro": {
+        "p_crudo": 0.029,
+        "n": 95,
+        "p_holm": 0.08700000000000001,
+        "significativo_holm": false
+      },
+      "e5-filtro vs e5-rrf": {
+        "p_crudo": 0.0155,
+        "n": 95,
+        "p_holm": 0.062,
+        "significativo_holm": false
+      },
+      "e5-filtro vs e5-sin-filtro": {
+        "p_crudo": 0.0,
+        "n": 95,
+        "p_holm": 0.0,
+        "significativo_holm": true
+      },
+      "e5-rrf vs e5-sin-filtro": {
+        "p_crudo": 0.0,
+        "n": 95,
+        "p_holm": 0.0,
+        "significativo_holm": true
+      }
+    }
+  }
+}

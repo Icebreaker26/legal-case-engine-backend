@@ -1,0 +1,11 @@
+[
+  { "nombre": "SERVIDUMBRE_PASO_RED", "palabras_clave": ["SERVIDUMBRE", "PREDIO", "FRANJA"] },
+  { "nombre": "SERVIDUMBRE_TRASLADO", "palabras_clave": ["TRASLADO", "REUBICACION", "REUBICACIÓN", "RELOCALIZACION"] },
+  { "nombre": "INSTALACION_SIN_AUTORIZACION", "palabras_clave": ["INSTALACION", "INSTALACIÓN", "AUTORIZACION", "AUTORIZACIÓN", "PERMISO"] },
+  { "nombre": "DAÑOS_INFRAESTRUCTURA", "palabras_clave": ["DAÑO", "DAÑOS", "CAIDA", "CAÍDA", "AVERIA", "AVERÍA"] },
+  { "nombre": "ACCESO_PREDIO", "palabras_clave": ["INGRESO", "ACCESO"] },
+  { "nombre": "FACTURACION", "palabras_clave": ["FACTURACION", "FACTURACIÓN", "COBRO", "FACTURA"] },
+  { "nombre": "CORTE_SERVICIO", "palabras_clave": ["CORTE", "SUSPENSION", "SUSPENSIÓN", "SUSPENDIDO"] },
+  { "nombre": "CALIDAD_SERVICIO", "palabras_clave": ["CALIDAD", "INTERMITENCIA", "FALLAS"] },
+  { "nombre": "INFORMACION_GENERAL", "palabras_clave": ["INFORMACION", "INFORMACIÓN", "CERTIFICACION", "CERTIFICACIÓN", "COPIA"] }
+]

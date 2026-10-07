@@ -1,0 +1,232 @@
+[
+  {
+    "qid": "Q-ISA-PARA-005",
+    "ndcg_lexico_A": 0.8390496601388447,
+    "ndcg_lexico_B": 0.1968740777898919,
+    "ndcg_hibrida_A": 0.8390496601388447,
+    "ndcg_hibrida_B": 0.3106928199955508,
+    "caida_lexico": 0.6421755823489528,
+    "caida_hibrida": 0.5283568401432939,
+    "interaccion": 0.11381874220565891
+  },
+  {
+    "qid": "Q-COR-PARA-010",
+    "ndcg_lexico_A": 0.7908017546450544,
+    "ndcg_lexico_B": 0.552282637708512,
+    "ndcg_hibrida_A": 0.7950637231218081,
+    "ndcg_hibrida_B": 0.5488396426102687,
+    "caida_lexico": 0.23851911693654237,
+    "caida_hibrida": 0.24622408051153932,
+    "interaccion": -0.007704963574996948
+  },
+  {
+    "qid": "Q-DIN-PARA-007",
+    "ndcg_lexico_A": 0.5745154706993483,
+    "ndcg_lexico_B": 0.545924373236733,
+    "ndcg_hibrida_A": 0.6376384843522994,
+    "ndcg_hibrida_B": 0.6402513153826744,
+    "caida_lexico": 0.028591097462615234,
+    "caida_hibrida": -0.002612831030375018,
+    "interaccion": 0.03120392849299025
+  },
+  {
+    "qid": "Q-DIN-PARA-006",
+    "ndcg_lexico_A": 0.8063381748228982,
+    "ndcg_lexico_B": 0.7182322615370308,
+    "ndcg_hibrida_A": 0.8063381748228982,
+    "ndcg_hibrida_B": 0.7871202475920117,
+    "caida_lexico": 0.08810591328586737,
+    "caida_hibrida": 0.019217927230886445,
+    "interaccion": 0.06888798605498092
+  },
+  {
+    "qid": "Q-FAC-PARA-009",
+    "ndcg_lexico_A": 0.5962977923413559,
+    "ndcg_lexico_B": 0.0,
+    "ndcg_hibrida_A": 0.6652452794521135,
+    "ndcg_hibrida_B": 0.0,
+    "caida_lexico": 0.5962977923413559,
+    "caida_hibrida": 0.6652452794521135,
+    "interaccion": -0.0689474871107576
+  },
+  {
+    "qid": "Q-NOKW-037",
+    "ndcg_lexico_A": 0.6421755823489528,
+    "ndcg_lexico_B": 0.5422192405466016,
+    "ndcg_hibrida_A": 0.6421755823489528,
+    "ndcg_hibrida_B": 0.6421755823489528,
+    "caida_lexico": 0.09995634180235113,
+    "caida_hibrida": 0.0,
+    "interaccion": 0.09995634180235113
+  },
+  {
+    "qid": "Q-DIS-032",
+    "ndcg_lexico_A": 0.6952094936515857,
+    "ndcg_lexico_B": 0.6687507111981522,
+    "ndcg_hibrida_A": 0.5594119684548754,
+    "ndcg_hibrida_B": 0.6687507111981522,
+    "caida_lexico": 0.02645878245343347,
+    "caida_hibrida": -0.10933874274327682,
+    "interaccion": 0.1357975251967103
+  },
+  {
+    "qid": "Q-SPR-LEX-082",
+    "ndcg_lexico_A": 0.5247785253749805,
+    "ndcg_lexico_B": 0.6210070374650253,
+    "ndcg_hibrida_A": 0.5247785253749805,
+    "ndcg_hibrida_B": 0.6203113615254988,
+    "caida_lexico": -0.0962285120900448,
+    "caida_hibrida": -0.09553283615051833,
+    "interaccion": -0.0006956759395264633
+  },
+  {
+    "qid": "Q-NOKW-035",
+    "ndcg_lexico_A": 0.7136541484040296,
+    "ndcg_lexico_B": 0.3987284119157133,
+    "ndcg_hibrida_A": 0.7055917849835939,
+    "ndcg_hibrida_B": 0.30846248373667906,
+    "caida_lexico": 0.31492573648831634,
+    "caida_hibrida": 0.3971293012469148,
+    "interaccion": -0.08220356475859847
+  },
+  {
+    "qid": "Q-SPR-PARA-001",
+    "ndcg_lexico_A": 0.5102854561076756,
+    "ndcg_lexico_B": 0.7585575856099068,
+    "ndcg_hibrida_A": 0.41611986659039507,
+    "ndcg_hibrida_B": 0.7585575856099068,
+    "caida_lexico": -0.2482721295022312,
+    "caida_hibrida": -0.34243771901951175,
+    "interaccion": 0.09416558951728055
+  },
+  {
+    "qid": "Q-DIN-LEX-024",
+    "ndcg_lexico_A": 0.6843515475204855,
+    "ndcg_lexico_B": 0.31608365985743925,
+    "ndcg_hibrida_A": 0.6843515475204855,
+    "ndcg_hibrida_B": 0.3347975674340217,
+    "caida_lexico": 0.3682678876630463,
+    "caida_hibrida": 0.3495539800864638,
+    "interaccion": 0.018713907576582478
+  },
+  {
+    "qid": "Q-ISA-LEX-085",
+    "ndcg_lexico_A": 0.5703281064914796,
+    "ndcg_lexico_B": 0.5906222333696757,
+    "ndcg_hibrida_A": 0.8390496601388447,
+    "ndcg_hibrida_B": 0.5906222333696757,
+    "caida_lexico": -0.020294126878196095,
+    "caida_hibrida": 0.24842742676916907,
+    "interaccion": -0.26872155364736516
+  },
+  {
+    "qid": "Q-ISA-SEM-066",
+    "ndcg_lexico_A": 0.6525340840747135,
+    "ndcg_lexico_B": 0.2925785022575091,
+    "ndcg_hibrida_A": 0.6525340840747135,
+    "ndcg_hibrida_B": 0.3076924295526104,
+    "caida_lexico": 0.3599555818172044,
+    "caida_hibrida": 0.3448416545221031,
+    "interaccion": 0.015113927295101304
+  },
+  {
+    "qid": "Q-STR-LEX-022",
+    "ndcg_lexico_A": 0.6366278495813059,
+    "ndcg_lexico_B": 0.23330247263525344,
+    "ndcg_hibrida_A": 0.7678620595110026,
+    "ndcg_hibrida_B": 0.3753127131864053,
+    "caida_lexico": 0.40332537694605247,
+    "caida_hibrida": 0.3925493463245973,
+    "interaccion": 0.010776030621455157
+  },
+  {
+    "qid": "Q-STR-LEX-084",
+    "ndcg_lexico_A": 0.6994778023500862,
+    "ndcg_lexico_B": 0.10907458963273321,
+    "ndcg_hibrida_A": 0.792949770861511,
+    "ndcg_hibrida_B": 0.3206345608292898,
+    "caida_lexico": 0.590403212717353,
+    "caida_hibrida": 0.47231521003222116,
+    "interaccion": 0.11808800268513181
+  },
+  {
+    "qid": "Q-DIN-PARA-048",
+    "ndcg_lexico_A": 0.7093099131463181,
+    "ndcg_lexico_B": 0.8695583097706295,
+    "ndcg_hibrida_A": 0.7093099131463181,
+    "ndcg_hibrida_B": 0.8745532674848118,
+    "caida_lexico": -0.16024839662431145,
+    "caida_hibrida": -0.1652433543384937,
+    "interaccion": 0.0049949577141822354
+  },
+  {
+    "qid": "Q-NOKW-101",
+    "ndcg_lexico_A": 0.6056933996488967,
+    "ndcg_lexico_B": 0.21836974929469322,
+    "ndcg_hibrida_A": 0.6650991633124442,
+    "ndcg_hibrida_B": 0.3847368188672701,
+    "caida_lexico": 0.38732365035420346,
+    "caida_hibrida": 0.2803623444451741,
+    "interaccion": 0.10696130590902936
+  },
+  {
+    "qid": "Q-CAL-LEX-095",
+    "ndcg_lexico_A": 0.6461369845040973,
+    "ndcg_lexico_B": 0.541106098658635,
+    "ndcg_hibrida_A": 0.6344874928748538,
+    "ndcg_hibrida_B": 0.6012610260559063,
+    "caida_lexico": 0.10503088584546227,
+    "caida_hibrida": 0.033226466818947586,
+    "interaccion": 0.07180441902651469
+  },
+  {
+    "qid": "Q-ISA-LEX-086",
+    "ndcg_lexico_A": 0.28770855719069,
+    "ndcg_lexico_B": 0.13777597210996176,
+    "ndcg_hibrida_A": 0.28770855719069,
+    "ndcg_hibrida_B": 0.06573584468332616,
+    "caida_lexico": 0.14993258508072824,
+    "caida_hibrida": 0.22197271250736383,
+    "interaccion": -0.0720401274266356
+  },
+  {
+    "qid": "Q-COR-LEX-094",
+    "ndcg_lexico_A": 0.56200045758854,
+    "ndcg_lexico_B": 0.554468682384477,
+    "ndcg_hibrida_A": 0.5565446061852656,
+    "ndcg_hibrida_B": 0.45146642301256307,
+    "caida_lexico": 0.007531775204063007,
+    "caida_hibrida": 0.10507818317270251,
+    "interaccion": -0.0975464079686395
+  },
+  {
+    "qid": "Q-SPR-PARA-041",
+    "ndcg_lexico_A": 0.5398371784054048,
+    "ndcg_lexico_B": 0.38585340076029684,
+    "ndcg_hibrida_A": 0.377313602958798,
+    "ndcg_hibrida_B": 0.38585340076029684,
+    "caida_lexico": 0.15398377764510796,
+    "caida_hibrida": -0.008539797801498827,
+    "interaccion": 0.16252357544660678
+  },
+  {
+    "qid": "Q-COR-LEX-027",
+    "ndcg_lexico_A": 0.7365896932159578,
+    "ndcg_lexico_B": 0.5204732013389002,
+    "ndcg_hibrida_A": 0.787702056960637,
+    "ndcg_hibrida_B": 0.33424620450682646,
+    "caida_lexico": 0.21611649187705761,
+    "caida_hibrida": 0.45345585245381054,
+    "interaccion": -0.23733936057675292
+  },
+  {
+    "qid": "Q-SPR-SEM-062",
+    "ndcg_lexico_A": 0.5903785658545911,
+    "ndcg_lexico_B": 0.522479803256236,
+    "ndcg_hibrida_A": 0.5903785658545911,
+    "ndcg_hibrida_B": 0.522479803256236,
+    "caida_lexico": 0.06789876259835514,
+    "caida_hibrida": 0.06789876259835514,
+    "interaccion": 0.0
+  }
+]

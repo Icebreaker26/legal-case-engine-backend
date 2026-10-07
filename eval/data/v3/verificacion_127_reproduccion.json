@@ -1,0 +1,108 @@
+{
+  "subset": "test",
+  "n_queries": 62,
+  "metricas": [
+    "recall@5",
+    "recall@10",
+    "ndcg@10",
+    "mrr@10"
+  ],
+  "stat_test": "fisher",
+  "n_permutations": 2000,
+  "max_p": 0.05,
+  "correccion_multiple": "holm-bonferroni (por métrica)",
+  "bootstrap_resamples": 2000,
+  "seed": 42,
+  "runs": {
+    "e5-a0.9-oficial": "eval/data/v3/runs/v3-hibrida-congelada-e5-a0.9.trec",
+    "e5-a0.9-reproduccion": "eval/data/v3/runs/E08-e5-alpha0.9-reproduccion-v3.trec"
+  },
+  "tabla": {
+    "e5-a0.9-oficial": {
+      "recall@5": {
+        "media": 0.569194828469022,
+        "ci95_lo": 0.5226942524321556,
+        "ci95_hi": 0.6167732334869432,
+        "n": 62
+      },
+      "recall@10": {
+        "media": 0.8049539170506913,
+        "ci95_lo": 0.7643004352278546,
+        "ci95_hi": 0.846755632360471,
+        "n": 62
+      },
+      "ndcg@10": {
+        "media": 0.8150292598356138,
+        "ci95_lo": 0.7852207071940406,
+        "ci95_hi": 0.8420733286401378,
+        "n": 62
+      },
+      "mrr@10": {
+        "media": 0.9731182795698924,
+        "ci95_lo": 0.9381720430107526,
+        "ci95_hi": 1.0,
+        "n": 62
+      }
+    },
+    "e5-a0.9-reproduccion": {
+      "recall@5": {
+        "media": 0.569194828469022,
+        "ci95_lo": 0.5226942524321556,
+        "ci95_hi": 0.6167732334869432,
+        "n": 62
+      },
+      "recall@10": {
+        "media": 0.8049539170506913,
+        "ci95_lo": 0.7643004352278546,
+        "ci95_hi": 0.846755632360471,
+        "n": 62
+      },
+      "ndcg@10": {
+        "media": 0.8150292598356138,
+        "ci95_lo": 0.7852207071940406,
+        "ci95_hi": 0.8420733286401378,
+        "n": 62
+      },
+      "mrr@10": {
+        "media": 0.9731182795698924,
+        "ci95_lo": 0.9381720430107526,
+        "ci95_hi": 1.0,
+        "n": 62
+      }
+    }
+  },
+  "significancia": {
+    "recall@5": {
+      "e5-a0.9-oficial vs e5-a0.9-reproduccion": {
+        "p_crudo": 1.0,
+        "n": 62,
+        "p_holm": 1.0,
+        "significativo_holm": false
+      }
+    },
+    "recall@10": {
+      "e5-a0.9-oficial vs e5-a0.9-reproduccion": {
+        "p_crudo": 1.0,
+        "n": 62,
+        "p_holm": 1.0,
+        "significativo_holm": false
+      }
+    },
+    "ndcg@10": {
+      "e5-a0.9-oficial vs e5-a0.9-reproduccion": {
+        "p_crudo": 1.0,
+        "n": 62,
+        "p_holm": 1.0,
+        "significativo_holm": false
+      }
+    },
+    "mrr@10": {
+      "e5-a0.9-oficial vs e5-a0.9-reproduccion": {
+        "p_crudo": 1.0,
+        "n": 62,
+        "p_holm": 1.0,
+        "significativo_holm": false
+      }
+    }
+  }
+}

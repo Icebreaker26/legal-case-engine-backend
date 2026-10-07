@@ -1,0 +1,108 @@
+{
+  "subset": "test",
+  "n_queries": 25,
+  "metricas": [
+    "recall@5",
+    "recall@10",
+    "ndcg@10",
+    "mrr@10"
+  ],
+  "stat_test": "fisher",
+  "n_permutations": 2000,
+  "max_p": 0.05,
+  "correccion_multiple": "holm-bonferroni (por métrica)",
+  "bootstrap_resamples": 2000,
+  "seed": 42,
+  "runs": {
+    "e5-a0.9": "eval/data/runs/v1-confirmatorio-e5-a0.9.trec",
+    "lexico-solo": "eval/data/runs/ablation-lexical-only.trec"
+  },
+  "tabla": {
+    "e5-a0.9": {
+      "recall@5": {
+        "media": 0.5185238095238095,
+        "ci95_lo": 0.43377619047619054,
+        "ci95_hi": 0.6067777777777777,
+        "n": 25
+      },
+      "recall@10": {
+        "media": 0.7865079365079365,
+        "ci95_lo": 0.6947257936507938,
+        "ci95_hi": 0.870476984126984,
+        "n": 25
+      },
+      "ndcg@10": {
+        "media": 0.7064327889407549,
+        "ci95_lo": 0.6204509876315109,
+        "ci95_hi": 0.7842945975227879,
+        "n": 25
+      },
+      "mrr@10": {
+        "media": 0.8937142857142857,
+        "ci95_lo": 0.7834285714285716,
+        "ci95_hi": 0.98,
+        "n": 25
+      }
+    },
+    "lexico-solo": {
+      "recall@5": {
+        "media": 0.4804761904761905,
+        "ci95_lo": 0.38579841269841275,
+        "ci95_hi": 0.5749242063492064,
+        "n": 25
+      },
+      "recall@10": {
+        "media": 0.7254603174603175,
+        "ci95_lo": 0.6268019841269842,
+        "ci95_hi": 0.8113642857142854,
+        "n": 25
+      },
+      "ndcg@10": {
+        "media": 0.655749085469168,
+        "ci95_lo": 0.5524891450792533,
+        "ci95_hi": 0.7534592899905997,
+        "n": 25
+      },
+      "mrr@10": {
+        "media": 0.884047619047619,
+        "ci95_lo": 0.7671250000000001,
+        "ci95_hi": 0.98,
+        "n": 25
+      }
+    }
+  },
+  "significancia": {
+    "recall@5": {
+      "e5-a0.9 vs lexico-solo": {
+        "p_crudo": 0.2445,
+        "n": 25,
+        "p_holm": 0.2445,
+        "significativo_holm": false
+      }
+    },
+    "recall@10": {
+      "e5-a0.9 vs lexico-solo": {
+        "p_crudo": 0.2175,
+        "n": 25,
+        "p_holm": 0.2175,
+        "significativo_holm": false
+      }
+    },
+    "ndcg@10": {
+      "e5-a0.9 vs lexico-solo": {
+        "p_crudo": 0.101,
+        "n": 25,
+        "p_holm": 0.101,
+        "significativo_holm": false
+      }
+    },
+    "mrr@10": {
+      "e5-a0.9 vs lexico-solo": {
+        "p_crudo": 0.2565,
+        "n": 25,
+        "p_holm": 0.2565,
+        "significativo_holm": false
+      }
+    }
+  }
+}

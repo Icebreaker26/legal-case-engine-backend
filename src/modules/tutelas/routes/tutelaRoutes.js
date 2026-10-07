@@ -20,6 +20,7 @@ import {
     agregarAccionHistorial,
     obtenerContenidoCompletoSugerencia,
     listarBaseConocimiento,
+    obtenerCoberturaComprension,
     eliminarBaseConocimiento,
     eliminarTutela,
     listarPapelera,
@@ -77,6 +78,7 @@ import {
     responderRequerimientoSchema,
     crearArgumentoSchema,
     actualizarArgumentoSchema,
+    promoverArgumentoSchema,
     asignarUsuariosSchema,
     crearNoiseSchema,
     actualizarNoiseSchema,
@@ -109,6 +111,7 @@ router.get('/festivos',        checkPermission('tutelas', 'READ'),  listarFestiv
 router.get('/papelera',        checkPermission('tutelas', 'READ'),  listarPapelera);
 router.post('/restaurar',      checkPermission('tutelas', 'WRITE'), validate(restaurarSchema),  restaurarRegistro);
 router.get('/memoria',         checkPermission('tutelas', 'READ'),  listarBaseConocimiento);
+router.get('/memoria/cobertura-comprension', checkPermission('tutelas', 'READ'), obtenerCoberturaComprension);
 router.post('/entrenar-local', checkPermission('tutelas', 'WRITE'), upload.single('documento'), entrenarContextoLocal);
 router.get('/config',          checkPermission('tutelas', 'READ'),  obtenerConfiguracion);
 router.post('/config',         checkPermission('tutelas', 'WRITE'), validate(actualizarConfigSchema), actualizarConfiguracion);
@@ -304,7 +307,7 @@ router.get('/:id/argumentos', checkPermission('tutelas', 'READ'), listarArgument
 router.post('/:id/argumentos', checkPermission('tutelas', 'WRITE'), validate(crearArgumentoSchema), crearArgumento);
 router.patch('/:id/argumentos/:argId', checkPermission('tutelas', 'WRITE'), validate(actualizarArgumentoSchema), actualizarArgumento);
 router.delete('/:id/argumentos/:argId', checkPermission('tutelas', 'DELETE'), eliminarArgumento);
-router.post('/:id/argumentos/:argId/promover', checkPermission('tutelas', 'WRITE'), promoverArgumento);
+router.post('/:id/argumentos/:argId/promover', checkPermission('tutelas', 'WRITE'), validate(promoverArgumentoSchema), promoverArgumento);
 
 // Comprensión estructurada (opcional, enriquece RAG)
 router.get('/:id/prompt-comprension',  checkPermission('tutelas', 'READ'),  generarPromptComprension);

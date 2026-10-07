@@ -1,22 +1,16 @@
 import { extraerTextoPdf } from '../../../services/pdfService.js';
 import { generarEmbeddingLocal } from '../services/aiService.js';
-import { buscarContextoLegal } from '../services/vectorService.js';
 import { generarDocumentoWord } from '../services/docxService.js';
-import { dividirEnChunks } from '../services/chunkService.js';
+import { indexarDocumento } from '../services/memoriaService.js';
+import { recuperarPrecedentes } from '../services/consultaService.js';
 import { extraerDatosTutela } from '../services/extractorService.js';
-import { limpiarTexto } from '../services/cleanerService.js';
+import { limpiarTexto, limpiarTextoParaPostgres } from '../services/cleanerService.js';
 import { registrarLog } from '../../../services/auditService.js';
 import { crearNotificacion } from '../../notificaciones/services/notificationService.js';
 import pool from '../../../db/database.js';
 import { ESTADOS, PRIORIDADES } from '../constants.js';
 import { extraerSolicitudes, agruparEnLotes, construirPromptLote, buildPromptComprension } from '../services/peticionService.js';
 import { respuestaLlmSchema } from '../schemas/tutelaSchema.js';
-import { v4 as uuidv4 } from 'uuid';
-
-const limpiarTextoParaPostgres = (texto) => {
-  if (!texto) return '';
-  return texto.replace(/\0/g, ''); 
-};
 
 export const listarBaseConocimiento = async (req, res) => {
   try {
@@ -33,6 +27,56 @@ export const listarBaseConocimiento = async (req, res) => {
     res.status(200).json(rows);
   } catch (error) {
     res.status(500).json({ error: 'Error al listar la base de conocimiento.' });
+  }
+};
+
+// #124 — visibilidad de cuántos documentos de la memoria legal usan el
+// fallback embedding_local↔embedding_local en vez de comprensión semántica
+// (comprension_doc IS NOT NULL implica embedding_comprension IS NOT NULL —
+// memoriaService.indexarDocumento y guardarComprensionDoc siempre generan el
+// embedding junto con la comprensión, nunca uno sin el otro).
+export const obtenerCoberturaComprension = async (req, res) => {
+  try {
+    const query = `
+      WITH docs AS (
+        SELECT DISTINCT ON (documento_id)
+               documento_id, categoria, titulo_referencia, created_at,
+               (comprension_doc IS NOT NULL) AS tiene_comprension
+        FROM base_conocimiento_enel
+        WHERE is_active = TRUE AND documento_id IS NOT NULL
+        ORDER BY documento_id, created_at DESC
+      )
+      SELECT
+        (SELECT COUNT(*) FROM docs) AS total,
+        (SELECT COUNT(*) FROM docs WHERE tiene_comprension) AS con_comprension,
+        (SELECT COUNT(*) FROM docs WHERE NOT tiene_comprension) AS sin_comprension,
+        (
+          SELECT COALESCE(json_agg(c), '[]')
+          FROM (
+            SELECT categoria,
+                   COUNT(*) AS total,
+                   COUNT(*) FILTER (WHERE tiene_comprension) AS con_comprension,
+                   COUNT(*) FILTER (WHERE NOT tiene_comprension) AS sin_comprension
+            FROM docs
+            GROUP BY categoria
+            ORDER BY categoria
+          ) c
+        ) AS por_categoria,
+        (
+          SELECT COALESCE(json_agg(d), '[]')
+          FROM (
+            SELECT documento_id, categoria, titulo_referencia, created_at
+            FROM docs
+            WHERE NOT tiene_comprension
+            ORDER BY created_at ASC
+            LIMIT 10
+          ) d
+        ) AS mas_antiguos_sin_comprension;
+    `;
+    const { rows: [resumen] } = await pool.query(query);
+    res.status(200).json(resumen);
+  } catch (error) {
+    res.status(500).json({ error: 'Error al calcular la cobertura de comprensión.' });
   }
 };
 
@@ -128,7 +172,7 @@ export const obtenerEstadisticas = async (req, res) => {
 export const actualizarDatosTutela = async (req, res) => {
   try {
     const { id } = req.params;
-    const { radicado, accionante, sharepoint_link, derecho_vulnerado, resultado_fallo, grupo_id, responsable_uuid } = req.body;
+    const { radicado, accionante, sharepoint_link, derecho_vulnerado, resultado_fallo, grupo_id, responsable_uuid, categoria_confirmada } = req.body;
 
     const sanitizedGrupoId = (grupo_id === '' || grupo_id === undefined) ? null : parseInt(grupo_id);
     const sanitizedResponsableUuid = (responsable_uuid === '' || responsable_uuid === undefined) ? null : responsable_uuid;
@@ -136,18 +180,32 @@ export const actualizarDatosTutela = async (req, res) => {
 
     await pool.query(
       `UPDATE tutelas
-       SET radicado = $1, accionante = $2,
+       SET radicado = COALESCE($1, radicado),
+           accionante = COALESCE($2, accionante),
            sharepoint_link = COALESCE($3, sharepoint_link),
-           derecho_vulnerado = $4,
-           resultado_fallo = $5,
-           grupo_id = $6, responsable_uuid = $7
+           derecho_vulnerado = COALESCE($4, derecho_vulnerado),
+           resultado_fallo = COALESCE($5, resultado_fallo),
+           grupo_id = COALESCE($6, grupo_id), responsable_uuid = COALESCE($7, responsable_uuid)
        WHERE id = $8`,
-      [radicado, accionante, sharepoint_link, derecho_vulnerado || null, sanitizedResultado, sanitizedGrupoId, sanitizedResponsableUuid, id]
+      [radicado, accionante, sharepoint_link, derecho_vulnerado, sanitizedResultado, sanitizedGrupoId, sanitizedResponsableUuid, id]
     );
     await registrarLog(req.user.id, 'ACTUALIZAR_DATOS_TUTELA', 'tutela', id, req, { radicado, accionante, derecho_vulnerado, resultado_fallo: sanitizedResultado, grupo_id: sanitizedGrupoId, responsable_uuid: sanitizedResponsableUuid });
 
-    // Promoción automática a memoria legal cuando el fallo es Favorable
-    if (sanitizedResultado === 'Favorable') {
+    // Promoción automática a memoria legal cuando el fallo es Favorable.
+    // #108: requiere categoria_confirmada=true — sin eso, se difiere la
+    // promoción (no se descarta la respuesta Favorable, solo no entra
+    // todavía al corpus) para que una categoría nunca corregida por un
+    // abogado no siga ensuciando la taxonomía de base_conocimiento_enel.
+    let promocionPendienteConfirmacion = false;
+    if (sanitizedResultado === 'Favorable' && categoria_confirmada !== true) {
+      const { rows: pendienteRows } = await pool.query(
+        `SELECT 1 FROM tutelas WHERE id = $1 AND contestacion_generada IS NOT NULL AND respuesta_promovida = FALSE`,
+        [id]
+      );
+      promocionPendienteConfirmacion = pendienteRows.length > 0;
+    }
+
+    if (sanitizedResultado === 'Favorable' && categoria_confirmada === true) {
       const { rows: tutelaRows } = await pool.query(
         `SELECT contestacion_generada, derecho_vulnerado, radicado, respuesta_promovida, analisis_comprension FROM tutelas WHERE id = $1`,
         [id]
@@ -155,10 +213,6 @@ export const actualizarDatosTutela = async (req, res) => {
       const tutela = tutelaRows[0];
       if (tutela && tutela.contestacion_generada && !tutela.respuesta_promovida) {
         try {
-          const documentoId = uuidv4();
-          const chunks  = dividirEnChunks(tutela.contestacion_generada, 1500, 300);
-          const vectores = await Promise.all(chunks.map(c => generarEmbeddingLocal(c)));
-
           // Construir comprension_doc heredada de la tutela si existe
           const ac = tutela.analisis_comprension;
           const comprensionDoc = ac?.tema_central ? {
@@ -167,33 +221,18 @@ export const actualizarDatosTutela = async (req, res) => {
             resultado:           'favorable',
             derechos_involucrados: ac.derechos_invocados || [],
           } : null;
-          const textoComprension = comprensionDoc
-            ? `${comprensionDoc.que_resuelve}. ${(comprensionDoc.derechos_involucrados).join('. ')}`
-            : null;
-          const vectorComprension = textoComprension
-            ? await generarEmbeddingLocal(textoComprension)
-            : null;
 
-          const client  = await pool.connect();
+          const client = await pool.connect();
           try {
             await client.query('BEGIN');
-            for (let i = 0; i < chunks.length; i++) {
-              await client.query(
-                `INSERT INTO base_conocimiento_enel
-                   (categoria, titulo_referencia, contenido_legal, embedding_local, es_exitosa, documento_id,
-                    comprension_doc, embedding_comprension)
-                 VALUES ($1, $2, $3, $4, TRUE, $5, $6, $7)`,
-                [
-                  tutela.derecho_vulnerado || 'General',
-                  `Respuesta exitosa — ${tutela.radicado} (${i + 1}/${chunks.length})`,
-                  chunks[i],
-                  JSON.stringify(vectores[i]),
-                  documentoId,
-                  comprensionDoc ? JSON.stringify(comprensionDoc) : null,
-                  vectorComprension  ? JSON.stringify(vectorComprension) : null,
-                ]
-              );
-            }
+            await indexarDocumento({
+              texto: tutela.contestacion_generada,
+              categoria: tutela.derecho_vulnerado || 'General',
+              titulo: `Respuesta exitosa — ${tutela.radicado}`,
+              esExitosa: true,
+              comprensionDoc,
+              client,
+            });
             await client.query(
               `UPDATE tutelas SET respuesta_promovida = TRUE WHERE id = $1`, [id]
             );
@@ -209,6 +248,14 @@ export const actualizarDatosTutela = async (req, res) => {
           console.error('Error al generar embedding para promoción:', embedErr);
         }
       }
+    }
+
+    if (promocionPendienteConfirmacion) {
+      return res.status(200).json({
+        message: 'Datos actualizados correctamente.',
+        promocion_pendiente: true,
+        promocion_pendiente_motivo: 'Confirmá o corregí la categoría (derecho_vulnerado) y reenviá con categoria_confirmada=true para promover esta respuesta a la memoria legal.',
+      });
     }
 
     res.status(200).json({ message: 'Datos actualizados correctamente.' });
@@ -231,10 +278,14 @@ export const procesarTutela = async (req, res) => {
 
     const fechaVencimiento = sumarDiasHabiles(new Date(), parseInt(dias_termino) || 2);
 
-    const textoParaVector = textoPdf.substring(0, 1500);
     const datosExtraidos = await extraerDatosTutela(textoPdf);
-    const vectorLocal = await generarEmbeddingLocal(textoParaVector);
-    const precedentesExitosos = await buscarContextoLegal(vectorLocal, textoParaVector, 5, datosExtraidos.derecho_vulnerado);
+    // Sin filtro de categoría (#106): el prefiltro por categoría extraída
+    // descartaba por completo los candidatos correctos cada vez que
+    // extraerDatosTutela se equivocaba de categoría (recall@5=0 en ese caso,
+    // medido en #104/#106) — peor que no filtrar en absoluto.
+    const precedentesExitosos = await recuperarPrecedentes({
+      tutela: { contenido_original: textoPdf },
+    });
 
     const queryInsert = `
       INSERT INTO tutelas (radicado, accionante, juzgado, derecho_vulnerado, responsable_uuid, fecha_recepcion, fecha_vencimiento, prioridad, grupo_id, dias_termino, estado, contenido_original)
@@ -365,13 +416,12 @@ export const eliminarTutela = async (req, res) => {
 
 export const obtenerSugerenciasTutela = async (req, res) => {
   try {
-    const { rows } = await pool.query('SELECT contenido_original, derecho_vulnerado FROM tutelas WHERE id = $1', [req.params.id]);
+    const { rows } = await pool.query('SELECT contenido_original FROM tutelas WHERE id = $1', [req.params.id]);
     if (rows.length === 0) return res.status(404).json({ error: 'Tutela no encontrada.' });
 
-    const { contenido_original, derecho_vulnerado } = rows[0];
-    const textoOriginal = contenido_original || '';
-    const vectorLocal = await generarEmbeddingLocal(textoOriginal.substring(0, 1500));
-    res.status(200).json(await buscarContextoLegal(vectorLocal, textoOriginal, 5, derecho_vulnerado));
+    const { contenido_original } = rows[0];
+    const sugerencias = await recuperarPrecedentes({ tutela: { contenido_original } }); // sin filtro de categoría (#106)
+    res.status(200).json(sugerencias);
   } catch (error) {
     res.status(500).json({ error: 'Error al generar sugerencias.' });
   }
@@ -380,7 +430,7 @@ export const obtenerSugerenciasTutela = async (req, res) => {
 export const generarBorradorContestacion = async (req, res) => {
   try {
     const { id } = req.params;
-    const { rows } = await pool.query('SELECT contenido_original, contestacion_generada, derecho_vulnerado FROM tutelas WHERE id = $1', [id]);
+    const { rows } = await pool.query('SELECT contenido_original, contestacion_generada FROM tutelas WHERE id = $1', [id]);
     if (rows.length === 0) return res.status(404).json({ error: 'Tutela no encontrada.' });
 
     // Si ya existe un borrador guardado, lo devuelve directamente
@@ -392,9 +442,10 @@ export const generarBorradorContestacion = async (req, res) => {
     }
 
     // Sin IA externa: devuelve sugerencias del RAG local para que el abogado redacte manualmente
-    const textoOriginal = rows[0].contenido_original || '';
-    const vectorLocal = await generarEmbeddingLocal(textoOriginal.substring(0, 1500));
-    const sugerencias = await buscarContextoLegal(vectorLocal, textoOriginal, 5, rows[0].derecho_vulnerado);
+    // Sin filtro de categoría (#106)
+    const sugerencias = await recuperarPrecedentes({
+      tutela: { contenido_original: rows[0].contenido_original },
+    });
 
     res.status(200).json({ sugerencias, status: 'suggestions_only' });
 
@@ -593,34 +644,15 @@ export const entrenarContextoLocal = async (req, res) => {
     if (!textoCompletoRaw?.trim())  return res.status(400).json({ error: 'No se recibió contenido para entrenar.' });
 
     const textoCompleto = await limpiarTexto(textoCompletoRaw);
-    const documentoId   = uuidv4();
-    const chunks        = dividirEnChunks(textoCompleto, 1500, 300);
+    const { documentoId, chunks } = await indexarDocumento({
+      texto: textoCompleto,
+      categoria,
+      titulo: titulo_referencia,
+      esExitosa: es_exitosa,
+    });
 
-    // Generar todos los embeddings en paralelo (el modelo Xenova es local, sin rate limit)
-    const vectores = await Promise.all(chunks.map(chunk => generarEmbeddingLocal(chunk)));
-
-    // Bulk insert — una sola transacción para todos los chunks
-    const client = await pool.connect();
-    try {
-      await client.query('BEGIN');
-      for (let i = 0; i < chunks.length; i++) {
-        await client.query(
-          `INSERT INTO base_conocimiento_enel
-            (categoria, titulo_referencia, contenido_legal, embedding_local, es_exitosa, documento_id)
-           VALUES ($1, $2, $3, $4, $5, $6)`,
-          [categoria, `${titulo_referencia} (${i + 1}/${chunks.length})`, chunks[i], JSON.stringify(vectores[i]), es_exitosa, documentoId]
-        );
-      }
-      await client.query('COMMIT');
-    } catch (err) {
-      await client.query('ROLLBACK');
-      throw err;
-    } finally {
-      client.release();
-    }
-
-    await registrarLog(req.user.id, 'ENTRENAR_MEMORIA', 'memoria', documentoId, req, { titulo_referencia, chunks: chunks.length });
-    res.status(200).json({ mensaje: 'Conocimiento guardado', documento_id: documentoId, chunks: chunks.length });
+    await registrarLog(req.user.id, 'ENTRENAR_MEMORIA', 'memoria', documentoId, req, { titulo_referencia, chunks });
+    res.status(200).json({ mensaje: 'Conocimiento guardado', documento_id: documentoId, chunks });
 
   } catch (error) {
     console.error('Error en entrenarContextoLocal:', error);
@@ -885,6 +917,15 @@ export const promoverArgumento = async (req, res) => {
   try {
     const { id, argId } = req.params;
 
+    // #108: mismo gate que actualizarDatosTutela — sin confirmar la
+    // categoría, no se promueve (evita seguir ensuciando la taxonomía de
+    // base_conocimiento_enel con categorías nunca revisadas por un abogado).
+    if (req.body.categoria_confirmada !== true) {
+      return res.status(400).json({
+        error: 'Confirmá o corregí la categoría (derecho_vulnerado) de la tutela y reenviá con categoria_confirmada=true antes de promover este argumento.',
+      });
+    }
+
     // Traer el argumento y el derecho vulnerado de la tutela en una sola query
     const { rows } = await pool.query(
       `SELECT ta.titulo, ta.contenido, ta.promovido_a_memoria,
@@ -903,11 +944,6 @@ export const promoverArgumento = async (req, res) => {
       return res.status(409).json({ error: 'Este argumento ya fue promovido a la memoria legal.' });
     }
 
-    // Vectorizar y registrar en base_conocimiento_enel
-    const documentoId = uuidv4();
-    const chunks      = dividirEnChunks(contenido, 1500, 300);
-    const vectores    = await Promise.all(chunks.map(c => generarEmbeddingLocal(c)));
-
     // Comprension_doc: usa contexto de la tutela si disponible, complementa con el argumento
     const ac = analisis_comprension;
     const comprensionDoc = ac?.tema_central ? {
@@ -916,33 +952,19 @@ export const promoverArgumento = async (req, res) => {
       resultado:            'favorable',
       derechos_involucrados: ac.derechos_invocados || [],
     } : null;
-    const textoComprension = comprensionDoc
-      ? `${comprensionDoc.que_resuelve}. ${(comprensionDoc.derechos_involucrados).join('. ')}`
-      : null;
-    const vectorComprension = textoComprension
-      ? await generarEmbeddingLocal(textoComprension)
-      : null;
 
     const client = await pool.connect();
+    let documentoId, chunks;
     try {
       await client.query('BEGIN');
-      for (let i = 0; i < chunks.length; i++) {
-        await client.query(
-          `INSERT INTO base_conocimiento_enel
-             (categoria, titulo_referencia, contenido_legal, embedding_local, es_exitosa, documento_id,
-              comprension_doc, embedding_comprension)
-           VALUES ($1, $2, $3, $4, TRUE, $5, $6, $7)`,
-          [
-            derecho_vulnerado || 'General',
-            `${titulo} — Arg. promovido de tutela ${radicado} (${i + 1}/${chunks.length})`,
-            chunks[i],
-            JSON.stringify(vectores[i]),
-            documentoId,
-            comprensionDoc ? JSON.stringify(comprensionDoc) : null,
-            vectorComprension  ? JSON.stringify(vectorComprension) : null,
-          ]
-        );
-      }
+      ({ documentoId, chunks } = await indexarDocumento({
+        texto: contenido,
+        categoria: derecho_vulnerado || 'General',
+        titulo: `${titulo} — Arg. promovido de tutela ${radicado}`,
+        esExitosa: true,
+        comprensionDoc,
+        client,
+      }));
       // Marcar el argumento como promovido para evitar duplicados
       await client.query(
         `UPDATE tutela_argumentos SET promovido_a_memoria = TRUE, documento_id_memoria = $1 WHERE id = $2`,
@@ -957,7 +979,7 @@ export const promoverArgumento = async (req, res) => {
     }
 
     await registrarLog(req.user.id, 'PROMOVER_ARGUMENTO', 'tutela', id, req, { argId, titulo, documentoId });
-    res.status(200).json({ mensaje: 'Argumento promovido a la memoria legal.', documento_id: documentoId, chunks: chunks.length });
+    res.status(200).json({ mensaje: 'Argumento promovido a la memoria legal.', documento_id: documentoId, chunks });
 
   } catch (error) {
     console.error('Error promoviendo argumento:', error);
@@ -1089,12 +1111,7 @@ export const generarPromptsPeticion = async (req, res) => {
     const argumentos = argumentosRes.rows;
 
     const comprension = tutela.analisis_comprension || null;
-    const textoParaVector = comprension?.tema_central
-      ? `${comprension.tema_central}. ${(comprension.peticiones || []).join('. ')}`
-      : (tutela.contenido_original || '').substring(0, 1500);
-
-    const vectorLocal = await generarEmbeddingLocal(textoParaVector);
-    const sugerencias = await buscarContextoLegal(vectorLocal, tutela.contenido_original || '', 5, tutela.derecho_vulnerado);
+    const sugerencias = await recuperarPrecedentes({ tutela }); // sin filtro de categoría (#106)
 
     const solicitudes = extraerSolicitudes(tutela.contenido_original || '');
     const lotes = agruparEnLotes(solicitudes, { tutela, legalNotes, sugerencias, argumentos });

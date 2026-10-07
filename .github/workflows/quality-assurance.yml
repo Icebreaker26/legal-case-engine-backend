@@ -2,9 +2,9 @@ name: Quality Assurance Pipeline
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, 'rag/**' ]
   pull_request:
-    branches: [ main ]
+    branches: [ main, 'rag/**' ]
 
 jobs:
   test:

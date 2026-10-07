@@ -1,0 +1,32 @@
+{
+  "_comentario": "Split dev/test congelado para corpus v2 (#115, Fase D). Regla: muestreo sistemático (stride uniforme dentro de cada categoría, ordenada por qid) del ~30% de las consultas de cada una de las 9 categorías — no al azar, no las últimas N por orden de generación, para asegurar cobertura de todas las categorías (incluyendo negativos difíciles y pares casi-duplicados) en el split de test. Congelado antes de indexar, poolear o etiquetar nada sobre corpus v2 — no se recalcula después de ver resultados de ningún experimento.",
+  "fecha_congelado": "2026-10-03",
+  "regla_generacion": "para cada categoria, nTest = round(0.3 * n_queries_de_la_categoria); stride = n/nTest; se toman los indices floor(i*stride) para i en [0, nTest) sobre las queries de la categoria ordenadas por qid",
+  "dev": "todas las queries de queries_v2.jsonl que NO aparecen en 'test'",
+  "test": [
+    "Q-V2-ACP-001",
+    "Q-V2-ACP-005",
+    "Q-V2-CAL-001",
+    "Q-V2-CAL-005",
+    "Q-V2-COR-001",
+    "Q-V2-COR-005",
+    "Q-V2-DIN-001",
+    "Q-V2-DIN-004",
+    "Q-V2-DIN-007",
+    "Q-V2-DIN-010",
+    "Q-V2-FAC-001",
+    "Q-V2-FAC-005",
+    "Q-V2-INF-001",
+    "Q-V2-INF-005",
+    "Q-V2-ISA-001",
+    "Q-V2-ISA-005",
+    "Q-V2-SPR-001",
+    "Q-V2-SPR-004",
+    "Q-V2-SPR-007",
+    "Q-V2-SPR-010",
+    "Q-V2-STR-001",
+    "Q-V2-STR-004",
+    "Q-V2-STR-007",
+    "Q-V2-STR-010"
+  ]
+}
