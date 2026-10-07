@@ -1,7 +1,9 @@
 import { generarEmbeddingLocal } from './aiService.js';
-import { buscarContextoLegal } from './vectorService.js';
+import { buscarContextoLegal, baseIndexadaConModelo, MODELO_ALPHA_FB } from './vectorService.js';
+import { estaAlphaFbActivoParaEndpoint } from './featureFlagService.js';
 import pool from '../../../db/database.js';
 import logger from '../../../utils/logger.js';
+import { env } from '../../../config/env.js';
 
 /**
  * Construye el texto de consulta (vectorial y léxico) usado para buscar
@@ -52,6 +54,44 @@ export const recuperarPrecedentes = async ({
   const { textoVector, textoLexico } = construirConsulta(tutela, { estrategia });
   const vector = await generarEmbeddingLocal(textoVector, { tipo: 'query' });
   return buscarContextoLegal(vector, textoLexico, limit, categoria, { fusion, alpha, contexto });
+};
+
+/**
+ * Guarda dura de activación (#173) — decide si el endpoint dado puede usar
+ * fusion:'alpha_fb', o debe caer a 'ponderado'. Se cumplen las 3 condiciones
+ * o ninguna: el flag de system_config por endpoint, EMBEDDING_MODEL igual al
+ * que calibró γ_ECCP, y que base_conocimiento_enel ya esté 100% reindexada a
+ * ese modelo. Cualquier falla (de la condición o de la propia consulta a la
+ * base) cae en silencio a 'ponderado' con un `logger.warn`/`error` — activar
+ * alpha_fb contra el modelo o los datos equivocados queda imposible por
+ * construcción, no solo por disciplina de quien prenda el flag.
+ */
+export const resolverFusionAlphaFb = async (endpoint) => {
+  try {
+    if (env.RAG_ALPHA_FB_KILL) {
+      logger.warn(`alpha_fb: RAG_ALPHA_FB_KILL activo -- cae a 'ponderado' (endpoint: ${endpoint})`);
+      return 'ponderado';
+    }
+
+    const activo = await estaAlphaFbActivoParaEndpoint(endpoint);
+    if (!activo) return 'ponderado';
+
+    if (env.EMBEDDING_MODEL !== MODELO_ALPHA_FB) {
+      logger.warn(`alpha_fb: EMBEDDING_MODEL="${env.EMBEDDING_MODEL}" distinto de "${MODELO_ALPHA_FB}" -- cae a 'ponderado' (endpoint: ${endpoint})`);
+      return 'ponderado';
+    }
+
+    const sincronizado = await baseIndexadaConModelo(MODELO_ALPHA_FB);
+    if (!sincronizado) {
+      logger.warn(`alpha_fb: base_conocimiento_enel aún tiene filas activas sin reindexar a "${MODELO_ALPHA_FB}" -- cae a 'ponderado' (endpoint: ${endpoint})`);
+      return 'ponderado';
+    }
+
+    return 'alpha_fb';
+  } catch (error) {
+    logger.error(`alpha_fb: error resolviendo la guarda dura, cae a 'ponderado' (endpoint: ${endpoint})`, { error: error.message });
+    return 'ponderado';
+  }
 };
 
 /**

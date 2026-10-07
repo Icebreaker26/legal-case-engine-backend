@@ -10,6 +10,10 @@ const envSchema = z.object({
   NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
   FRONTEND_URL: z.string().url("FRONTEND_URL debe ser una URL válida"),
   EMBEDDING_MODEL: z.string().default('Xenova/all-MiniLM-L6-v2'),
+  // ECCP (#173) — corte de emergencia para fusion:'alpha_fb', con prioridad
+  // absoluta sobre el flag de system_config: apagado instantáneo sin
+  // depender de la base de datos.
+  RAG_ALPHA_FB_KILL: z.preprocess((v) => v === 'true' || v === '1', z.boolean()),
 });
 
 const _env = envSchema.safeParse(process.env);

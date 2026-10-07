@@ -267,6 +267,35 @@ const K_RERANK = 20;
 // colas) redondeada: γ = 0.0415 / 2 ≈ 0.02.
 export const GAMMA_ECCP = 0.02;
 
+// Identificador de la calibración activa de γ/pesos de alpha_fb (#174) --
+// se bumpea manualmente cada vez que GAMMA_ECCP u otro parámetro de la
+// fórmula cambia, para poder segmentar el monitoreo de #174 por versión de
+// configuración sin ambigüedad.
+export const ECCP_CONFIG_VERSION = 'v1-gamma0.02';
+
+// Modelo de embeddings contra el que se calibró GAMMA_ECCP (#161 fase e,
+// ver nota arriba). La guarda dura de #173 (resolverFusionAlphaFb,
+// consultaService.js) nunca activa 'alpha_fb' en producción si
+// EMBEDDING_MODEL no es exactamente este, aunque el flag de system_config
+// esté en true -- ver #100 para el rollout de este modelo.
+export const MODELO_ALPHA_FB = 'Xenova/multilingual-e5-small';
+
+// ECCP (#173) — condición 3 de la guarda dura: ninguna fila activa de
+// base_conocimiento_enel puede quedar indexada con un modelo distinto al
+// que calibró γ, o alpha_fb compararía vectores de espacios distintos sin
+// que nada falle (riesgo señalado en #101/#123/#127). `IS DISTINCT FROM`
+// también atrapa embedding_modelo NULL (documentos nunca reindexados).
+export const baseIndexadaConModelo = async (modelo) => {
+  const { rows } = await pool.query(
+    `SELECT NOT EXISTS (
+       SELECT 1 FROM base_conocimiento_enel
+       WHERE is_active = TRUE AND embedding_modelo IS DISTINCT FROM $1
+     ) AS sincronizado`,
+    [modelo]
+  );
+  return rows[0].sincronizado;
+};
+
 const buscarAlphaFb = async (vectorTutelaLocal, texto, limit, alpha, contexto, gamma = GAMMA_ECCP) => {
   // Sin filtro de categoría en la recuperación (#106) -- `contexto` solo
   // condiciona la lectura de la feromona, nunca qué candidatos entran al CTE.
