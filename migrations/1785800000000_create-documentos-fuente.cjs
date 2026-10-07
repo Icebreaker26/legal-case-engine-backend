@@ -17,6 +17,7 @@
 // si hace falta un backfill manual más adelante (fuera de alcance de esta
 // migración).
 exports.up = (pgm) => {
+  pgm.sql("SET LOCAL lock_timeout = '5s'; SET LOCAL statement_timeout = '60s';");
   pgm.createTable('documentos_fuente', {
     documento_id: { type: 'uuid', notNull: true, primaryKey: true },
     texto_fuente: { type: 'text', notNull: true },
@@ -25,5 +26,6 @@ exports.up = (pgm) => {
 };
 
 exports.down = (pgm) => {
+  pgm.sql("SET LOCAL lock_timeout = '5s'; SET LOCAL statement_timeout = '60s';");
   pgm.dropTable('documentos_fuente');
 };
