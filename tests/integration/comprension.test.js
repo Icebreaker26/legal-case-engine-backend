@@ -318,6 +318,34 @@ describe('Comprensión semántica y respuesta de petición — Integración', ()
       expect(res.status).toBe(200);
       expect(res.body.prompts[0].prompt.length).toBeGreaterThan(200);
     });
+
+    test('respuesta incluye generacion_id', async () => {
+      const res = await agent.post(`/api/tutelas/${tutelaId}/generar-prompts-peticion`);
+      expect(res.status).toBe(200);
+      expect(typeof res.body.generacion_id).toBe('string');
+    });
+
+    test('#146 — registra TELEMETRIA_SEGMENTACION en logs_sistema', async () => {
+      const res = await agent.post(`/api/tutelas/${tutelaId}/generar-prompts-peticion`);
+      expect(res.status).toBe(200);
+
+      const { rows } = await pool.query(
+        `SELECT detalles FROM logs_sistema
+         WHERE usuario_uuid = $1 AND accion = 'TELEMETRIA_SEGMENTACION'
+         ORDER BY created_at DESC LIMIT 1`,
+        [testUserUuid]
+      );
+      expect(rows.length).toBe(1);
+      const d = rows[0].detalles;
+      expect(d.v).toBe(1);
+      expect(d.generacion_id).toBe(res.body.generacion_id);
+      expect(d.version_plantilla).toBe('v1');
+      expect(['numerico', 'ordinal', 'fallback', 'vacio']).toContain(d.metodo);
+      expect(d.total_partes).toBe(res.body.total_partes);
+      expect(Array.isArray(d.lotes)).toBe(true);
+      expect(typeof d.longitud_texto).toBe('number');
+      expect(typeof d.comprension_truncada).toBe('boolean');
+    });
   });
 
   // ── Respuesta de petición ─────────────────────────────────────────────────
@@ -419,6 +447,102 @@ describe('Comprensión semántica y respuesta de petición — Integración', ()
 
       const item2 = despues.items.find(i => i.numero === 2);
       expect(item2.respuesta).toBe('Texto corregido tras repegar el mismo lote.');
+    });
+
+    // ── Telemetría #146 ──────────────────────────────────────────────────────
+    test('#146 — JSON inválido registra TELEMETRIA_FALLO_FORMATO (tipo json_invalido)', async () => {
+      await agent
+        .post(`/api/tutelas/${tutelaId}/respuesta-peticion`)
+        .send({ resultado_llm_json: 'no soy json', modo: 'acumular' });
+
+      const { rows } = await pool.query(
+        `SELECT detalles FROM logs_sistema
+         WHERE usuario_uuid = $1 AND accion = 'TELEMETRIA_FALLO_FORMATO'
+         ORDER BY created_at DESC LIMIT 1`,
+        [testUserUuid]
+      );
+      expect(rows.length).toBe(1);
+      expect(rows[0].detalles).toMatchObject({ v: 1, tipo: 'json_invalido', medido_tras_limpieza_frontend: true });
+    });
+
+    test('#146 — estructura inválida registra TELEMETRIA_FALLO_FORMATO (tipo zod_invalido) con code, no message', async () => {
+      await agent
+        .post(`/api/tutelas/${tutelaId}/respuesta-peticion`)
+        .send({ resultado_llm_json: JSON.stringify({ foo: 'bar' }), modo: 'acumular' });
+
+      const { rows } = await pool.query(
+        `SELECT detalles FROM logs_sistema
+         WHERE usuario_uuid = $1 AND accion = 'TELEMETRIA_FALLO_FORMATO'
+         ORDER BY created_at DESC LIMIT 1`,
+        [testUserUuid]
+      );
+      expect(rows.length).toBe(1);
+      expect(rows[0].detalles.tipo).toBe('zod_invalido');
+      expect(Array.isArray(rows[0].detalles.issues)).toBe(true);
+      expect(rows[0].detalles.issues[0]).toHaveProperty('code');
+      expect(rows[0].detalles.issues[0]).not.toHaveProperty('message');
+    });
+
+    test('#146 — guardado exitoso registra TELEMETRIA_COBERTURA con normas por ítem', async () => {
+      const res = await agent
+        .post(`/api/tutelas/${tutelaId}/respuesta-peticion`)
+        .send({ resultado_llm_json: RESPUESTA_LLM_VALIDA, modo: 'reemplazar' });
+      expect(res.status).toBe(200);
+
+      const { rows } = await pool.query(
+        `SELECT detalles FROM logs_sistema
+         WHERE usuario_uuid = $1 AND accion = 'TELEMETRIA_COBERTURA'
+         ORDER BY created_at DESC LIMIT 1`,
+        [testUserUuid]
+      );
+      expect(rows.length).toBe(1);
+      const d = rows[0].detalles;
+      expect(d.v).toBe(1);
+      expect(Array.isArray(d.items)).toBe(true);
+      expect(d.items[0]).toHaveProperty('numero');
+      expect(d.items[0]).toHaveProperty('normas_citadas');
+    });
+
+    test('#146 — prescripción distinta en un lote nuevo registra conflicto con es_repegado=false', async () => {
+      const lotePrescripcionDistinta = JSON.stringify({
+        respuestas: [{ numero: 3, solicitud: 'Tercera solicitud', respuesta: 'Respuesta', normas_citadas: [] }],
+        prescripcion: { aplica: true, fundamento: 'Más de 10 años', norma: 'Art. 2536 CC' },
+      });
+
+      const res = await agent
+        .post(`/api/tutelas/${tutelaId}/respuesta-peticion`)
+        .send({ resultado_llm_json: lotePrescripcionDistinta, modo: 'acumular', parte_index: 2 });
+      expect(res.status).toBe(200);
+
+      const { rows } = await pool.query(
+        `SELECT detalles FROM logs_sistema
+         WHERE usuario_uuid = $1 AND accion = 'TELEMETRIA_CONFLICTO_PRESCRIPCION'
+         ORDER BY created_at DESC LIMIT 1`,
+        [testUserUuid]
+      );
+      expect(rows.length).toBe(1);
+      expect(rows[0].detalles).toMatchObject({ v: 1, parte_index: 2, aplica_previo: false, aplica_nuevo: true, es_repegado: false });
+    });
+
+    test('#146 — repegar el MISMO lote con prescripción distinta marca es_repegado=true (no es conflicto entre lotes)', async () => {
+      const mismoLoteCorregido = JSON.stringify({
+        respuestas: [{ numero: 3, solicitud: 'Tercera solicitud', respuesta: 'Respuesta corregida', normas_citadas: [] }],
+        prescripcion: { aplica: false, fundamento: null, norma: null },
+      });
+
+      const res = await agent
+        .post(`/api/tutelas/${tutelaId}/respuesta-peticion`)
+        .send({ resultado_llm_json: mismoLoteCorregido, modo: 'acumular', parte_index: 2 });
+      expect(res.status).toBe(200);
+
+      const { rows } = await pool.query(
+        `SELECT detalles FROM logs_sistema
+         WHERE usuario_uuid = $1 AND accion = 'TELEMETRIA_CONFLICTO_PRESCRIPCION'
+         ORDER BY created_at DESC LIMIT 1`,
+        [testUserUuid]
+      );
+      expect(rows.length).toBe(1);
+      expect(rows[0].detalles).toMatchObject({ parte_index: 2, es_repegado: true });
     });
   });
 
