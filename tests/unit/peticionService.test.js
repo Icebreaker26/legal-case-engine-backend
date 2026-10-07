@@ -1,4 +1,4 @@
-import { extraerSolicitudes, detectarMetodoSegmentacion, agruparEnLotes } from '../../src/modules/tutelas/services/peticionService.js';
+import { extraerSolicitudes, detectarMetodoSegmentacion, agruparEnLotes, construirPromptLote } from '../../src/modules/tutelas/services/peticionService.js';
 
 describe('peticionService — extraerSolicitudes / detectarMetodoSegmentacion', () => {
   test('texto vacío → sin solicitudes, método "vacio"', () => {
@@ -73,5 +73,67 @@ describe('peticionService — agruparEnLotes (ver docs/ANALISIS_GENERADOR_PROMPT
     // Reconstruir el total de solicitudes agrupadas — ninguna se pierde
     const totalAgrupado = lotes.reduce((acc, l) => acc + l.length, 0);
     expect(totalAgrupado).toBe(solicitudes.length);
+  });
+});
+
+// Mejoras de docs/ANALISIS_GENERADOR_PROMPTS.md sección C, "Veredicto C"
+// (issues #153-#158)
+describe('peticionService — construirPromptLote (mejoras C.1/C.2/C.4)', () => {
+  const tutela = { radicado: 'R-1', accionante: 'Juan Perez', derecho_vulnerado: 'Facturacion' };
+  const argumentos = [{ titulo: 'Argumento clave', contenido: 'El abogado insiste en este punto.' }];
+  const sugerencias = [{
+    titulo_referencia: 'Precedente 1',
+    score: 0.9,
+    categoria: 'Facturacion',
+    comprension_doc: { resultado: 'favorable', tipo_caso: 'Facturacion', que_resuelve: 'Resuelve a favor', derechos_involucrados: [] },
+  }];
+  const comprension = { tema_central: 'Reclamo', derechos_invocados: [], peticiones: ['p1', 'p2', 'p3', 'p4', 'p5', 'p6'], urgencia_declarada: 'media' };
+
+  const lote0 = [{ numero: 1, etiqueta: '1.', texto: 'Solicitud 1' }, { numero: 2, etiqueta: '2.', texto: 'Solicitud 2' }];
+  const lote1 = [{ numero: 4, etiqueta: '4.', texto: 'Solicitud 4' }, { numero: 5, etiqueta: '5.', texto: 'Solicitud 5' }];
+
+  const base = { tutela, legalNotes: [], sugerencias, argumentos, comprension };
+  const p0 = construirPromptLote({ ...base, lote: lote0, loteIndex: 0, totalLotes: 2 });
+  const p1 = construirPromptLote({ ...base, lote: lote1, loteIndex: 1, totalLotes: 2 });
+
+  test('#153 (C.1): los argumentos del abogado quedan después de los insumos y antes de las solicitudes', () => {
+    const idxArgumentos = p0.indexOf('ARGUMENTOS ESPECÍFICOS DEL ABOGADO');
+    const idxInsumosEnd = p0.indexOf('══════════════════════════════');
+    const idxSolicitudes = p0.indexOf('Solicitudes a responder:');
+    expect(idxArgumentos).toBeGreaterThan(idxInsumosEnd);
+    expect(idxArgumentos).toBeLessThan(idxSolicitudes);
+  });
+
+  test('#154 (C.2.1): el ejemplo de "numero" usa el primer número real del lote, no reinicia en 1', () => {
+    expect(p0).toContain('"numero": 1,');
+    expect(p1).toContain('"numero": 4,');
+    expect(p1).not.toContain('"numero": 1,');
+  });
+
+  test('#155 (C.2.2): prescripcion solo se pide completa en el lote 0; en los demás es null con aclaración', () => {
+    expect(p0).toContain('"prescripcion": { "aplica"');
+    expect(p1).toContain('"prescripcion": null');
+    expect(p1).toContain('ya se tomó en la parte 1');
+  });
+
+  test('#156 (C.2.3): la estrategia sugerida aparece en TODOS los lotes, no solo en el primero', () => {
+    expect(p0).toContain('ESTRATEGIA SUGERIDA');
+    expect(p1).toContain('ESTRATEGIA SUGERIDA');
+  });
+
+  test('#157 (C.4.a): la regla de prescripción exige antigüedad verificable, no "más de 10 años" sin condicionar', () => {
+    expect(p0).toContain('ÚNICAMENTE si el texto');
+    expect(p0).toContain('sin información de antigüedad disponible');
+    expect(p0).not.toContain('tiene más de 10 años, aplica');
+  });
+
+  test('#158 (C.4.c): cada lote indica explícitamente qué etiquetas debe responder', () => {
+    expect(p1).toContain('etiquetadas: 4., 5.');
+    expect(p1).toContain('ignóralas aquí');
+  });
+
+  test('con un solo lote (sin multiplicidad), no hace falta aclarar el rango de etiquetas', () => {
+    const pUnico = construirPromptLote({ ...base, lote: lote0, loteIndex: 0, totalLotes: 1 });
+    expect(pUnico).not.toContain('etiquetadas:');
   });
 });
