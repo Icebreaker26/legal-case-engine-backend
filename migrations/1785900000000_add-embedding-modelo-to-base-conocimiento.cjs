@@ -13,11 +13,13 @@
 // ahora fue con el MiniLM por defecto de aiService.js, documentado acá por
 // si hace falta un backfill manual con ese valor).
 exports.up = (pgm) => {
+  pgm.sql("SET LOCAL lock_timeout = '5s'; SET LOCAL statement_timeout = '60s';");
   pgm.addColumns('base_conocimiento_enel', {
     embedding_modelo: { type: 'text', default: null },
   });
 };
 
 exports.down = (pgm) => {
+  pgm.sql("SET LOCAL lock_timeout = '5s'; SET LOCAL statement_timeout = '60s';");
   pgm.dropColumns('base_conocimiento_enel', ['embedding_modelo']);
 };
