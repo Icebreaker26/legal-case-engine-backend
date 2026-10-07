@@ -67,6 +67,9 @@ export const actualizarBorradorSchema = z.object({
 
 export const feedbackMemoriaSchema = z.object({
   util: z.boolean({ required_error: 'El campo útil es obligatorio.' }),
+  // Opcional: el frontend todavía no lo envía (#165) -- sin él, el voto se
+  // registra en feedback_precedentes sin deduplicar por caso.
+  tutela_id: z.string().uuid().nullable().optional(),
 });
 
 export const entrenarLocalSchema = z.object({
