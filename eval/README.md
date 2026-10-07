@@ -67,6 +67,31 @@ observados (no el export real de `global_categorias` de producción). Si
 Alejandro exporta el real, guardarlo como `eval/data/categorias.produccion.json`
 (patrón en `.gitignore`) — **nunca sobrescribir** `categorias.json`.
 
+## Reindexar con otro modelo de embeddings (#101)
+
+Para probar un modelo distinto al `EMBEDDING_MODEL` por defecto (p.ej.
+`multilingual-e5-small` en vez de `MiniLM`), usar el wrapper explícito en vez
+de exportar `EMBEDDING_MODEL` a mano en el shell (riesgo de que quede pegado
+en la sesión y contamine una corrida posterior sin que nadie lo note):
+
+```bash
+bash eval/scripts/02b_indexar_modelo.sh Xenova/multilingual-e5-small eval/data/v1/corpus.jsonl
+```
+
+`02_indexar.js` también acepta `--modelo=<id>` directamente. Cada corrida
+registra en `eval_indexado` el modelo, `corpus_sha256`, `git_sha`, **y ahora
+`modelo_onnx_sha256`** — el hash de los pesos `.onnx` cacheados localmente por
+`@xenova/transformers`, no solo el nombre del modelo (que no cambia si Xenova
+actualiza el repo de HuggingFace). Para auditar qué pesos exactos generaron un
+`.trec` dado: `SELECT * FROM eval_indexado ORDER BY id DESC LIMIT 1`.
+
+**Versión fijada y verificada en esta sesión** (2026-10-07, host de
+desarrollo): `Xenova/multilingual-e5-small`, archivo `onnx/model_quantized.onnx`,
+`sha256=f80102d3f2a1229f387d3c81909990d8945513e347b0eab049f7de3c6f98c193`. Si
+una corrida futura reporta un hash distinto para el mismo id de modelo, Xenova
+actualizó el repo — no asumir que el resultado es reproducible contra
+corridas previas sin volver a etiquetar.
+
 ## Mini-corpus (`eval/fixtures/mini/`) — prueba de regresión del arnés, no de la tesis
 
 8 documentos + 4 consultas sintéticas minúsculas, con casos borde
