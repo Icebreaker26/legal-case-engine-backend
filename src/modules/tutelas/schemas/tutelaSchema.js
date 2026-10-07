@@ -67,7 +67,17 @@ export const actualizarBorradorSchema = z.object({
 
 export const feedbackMemoriaSchema = z.object({
   util: z.boolean({ required_error: 'El campo útil es obligatorio.' }),
+  // Opcional: el frontend todavía no lo envía (#165) -- sin él, el voto se
+  // registra en feedback_precedentes sin deduplicar por caso.
+  tutela_id: z.string().uuid().nullable().optional(),
 });
+
+// ECCP fase (g) — solo admin (ver checkPermission('admin', 'WRITE') en la
+// ruta). .strict() para no aceptar campos que intenten tocar otras columnas.
+export const vigenciaMemoriaSchema = z.object({
+  vigencia_factor: z.preprocess((v) => Number(v), z.number().min(0).max(1)),
+  motivo: z.string().min(1, 'El motivo es obligatorio.').optional(),
+}).strict();
 
 export const entrenarLocalSchema = z.object({
   categoria:        z.string().min(1, 'La categoría es obligatoria.'),
@@ -119,13 +129,29 @@ export const asignarUsuariosSchema = z.object({
 
 // ── Admin tutelas ─────────────────────────────────────────────────────────────
 
+// Patrones que coinciden con "todo el texto" y borrarían contenido legítimo
+// sin lanzar ningún error — ver #139.
+const PATRONES_CATASTROFICOS = [/^\.\*$/, /^\.\+$/, /^\[\s*\\?s\\S\]\*$/i, /^\[\s*\\?s\\S\]\+$/i, /^\[\^\]\*$/, /^\[\^\]\+$/];
+
+const esPatronValido = (patron) => {
+  try {
+    // eslint-disable-next-line no-new
+    new RegExp(patron, 'gi');
+  } catch {
+    return false;
+  }
+  return !PATRONES_CATASTROFICOS.some(p => p.test(patron.trim()));
+};
+
 export const crearNoiseSchema = z.object({
-  patron:      z.string().min(1, 'El patrón es obligatorio.'),
+  patron:      z.string().min(1, 'El patrón es obligatorio.')
+    .refine(esPatronValido, { message: 'El patrón no es un regex válido, o coincide con todo el texto (ej. ".*") y borraría el documento completo.' }),
   descripcion: z.string().optional(),
 });
 
 export const actualizarNoiseSchema = z.object({
-  patron:      z.string().min(1).optional(),
+  patron:      z.string().min(1).optional()
+    .refine(p => p === undefined || esPatronValido(p), { message: 'El patrón no es un regex válido, o coincide con todo el texto (ej. ".*") y borraría el documento completo.' }),
   descripcion: z.string().optional(),
   activo:      z.boolean().optional(),
 }).refine(d => Object.keys(d).length > 0, { message: 'Se requiere al menos un campo.' });
@@ -168,8 +194,19 @@ export const respuestaLlmSchema = z.object({
   cierre:       z.string().optional(),
 });
 
+// #146/#47 (frontend): indicador de cuánto tuvo que limpiar el frontend el
+// JSON pegado por el abogado antes de mandarlo -- sin esto,
+// TELEMETRIA_FALLO_FORMATO solo mide la tasa de fallo QUE SOBREVIVE a esa
+// limpieza, no la adherencia real del LLM externo al formato pedido.
+export const limpiezaJsonSchema = z.object({
+  tenia_fences:          z.boolean(),
+  texto_fuera_de_llaves: z.boolean(),
+  chars_descartados:     z.number().int().min(0),
+}).optional();
+
 export const guardarRespuestaPeticionSchema = z.object({
   resultado_llm_json: z.string().min(1, 'El JSON del LLM es obligatorio.'),
   modo:               z.enum(['reemplazar', 'acumular']).default('acumular'),
   parte_index:        z.number().int().min(0).optional(),
+  limpieza:           limpiezaJsonSchema,
 });

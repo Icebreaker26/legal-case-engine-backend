@@ -8,7 +8,11 @@ export const listarLogs = async (req, res) => {
     const search = req.query.search?.trim() || '';
     const accion = req.query.accion?.trim() || '';
 
-    const conditions = [];
+    // #146: los eventos TELEMETRIA_* son para análisis técnico del generador
+    // de prompts/RAG, no para el log de cumplimiento que revisa un admin --
+    // se excluyen de esta vista para no diluirla. No tienen una UI propia
+    // todavía; se consultan directo en la base para el análisis.
+    const conditions = [`l.accion NOT LIKE 'TELEMETRIA_%'`];
     const values = [];
 
     if (search) {
@@ -43,7 +47,7 @@ export const listarLogs = async (req, res) => {
     ]);
 
     const { rows: acciones } = await pool.query(
-      `SELECT DISTINCT accion FROM logs_sistema ORDER BY accion`
+      `SELECT DISTINCT accion FROM logs_sistema WHERE accion NOT LIKE 'TELEMETRIA_%' ORDER BY accion`
     );
 
     res.json({

@@ -2,6 +2,8 @@ import request from 'supertest';
 import createApp from '../../src/app_test.js';
 import pool from '../../src/db/database.js';
 import bcrypt from 'bcrypt';
+import { registrarImpresiones } from '../../src/modules/tutelas/services/consultaService.js';
+import { GAMMA_ECCP, ECCP_CONFIG_VERSION } from '../../src/modules/tutelas/services/vectorService.js';
 
 const app = createApp();
 const agent = request.agent(app);
@@ -404,6 +406,239 @@ describe('Tutelas — Integración', () => {
         const res = await request(app).get('/api/tutelas/memoria/cobertura-comprension');
         expect(res.status).toBe(401);
       });
+    });
+  });
+
+  // #165 — ECCP fases (b)+(c): tabla feedback_precedentes + instrumentación
+  // de impresiones, sin cambiar el ranking.
+  describe('ECCP — feedback_precedentes e impresiones_precedentes (#165)', () => {
+    const CATEGORIA_ECCP = 'ECCP_TEST';
+    const docEccp = 'eccccccc-0000-0000-0000-000000000001';
+    let tutelaEccpId;
+
+    beforeAll(async () => {
+      await pool.query(
+        `INSERT INTO base_conocimiento_enel
+           (categoria, titulo_referencia, contenido_legal, embedding_local, es_exitosa, is_active, documento_id)
+         VALUES ($1, 'Doc ECCP', 'contenido de prueba para ECCP', $2, TRUE, TRUE, $3)`,
+        [CATEGORIA_ECCP, JSON.stringify(Array(384).fill(0.1)), docEccp]
+      );
+
+      const { rows } = await pool.query(`
+        INSERT INTO tutelas (radicado, accionante, derecho_vulnerado, estado, is_active, responsable_uuid)
+        VALUES ('TEST-ECCP-001', 'Accionante ECCP', $1, 'Pendiente', true, $2)
+        ON CONFLICT (radicado) DO UPDATE SET responsable_uuid = EXCLUDED.responsable_uuid
+        RETURNING id
+      `, [CATEGORIA_ECCP, testUserUuid]);
+      tutelaEccpId = rows[0].id;
+    });
+
+    afterAll(async () => {
+      await pool.query('DELETE FROM impresiones_precedentes WHERE documento_id = $1', [docEccp]);
+      await pool.query('DELETE FROM feedback_precedentes WHERE documento_id = $1', [docEccp]);
+      await pool.query('DELETE FROM tutelas WHERE id = $1', [tutelaEccpId]);
+      await pool.query('DELETE FROM base_conocimiento_enel WHERE documento_id = $1', [docEccp]);
+    });
+
+    describe('Doble escritura del voto', () => {
+      test('votar útil crea un evento en feedback_precedentes', async () => {
+        const res = await agent
+          .post(`/api/tutelas/memoria/${docEccp}/feedback`)
+          .send({ util: true, tutela_id: tutelaEccpId });
+        expect(res.status).toBe(200);
+
+        const { rows } = await pool.query(
+          'SELECT util, categoria_contexto FROM feedback_precedentes WHERE usuario_uuid = $1 AND documento_id = $2 AND tutela_id = $3',
+          [testUserUuid, docEccp, tutelaEccpId]
+        );
+        expect(rows).toHaveLength(1);
+        expect(rows[0].util).toBe(true);
+        expect(rows[0].categoria_contexto).toBe(CATEGORIA_ECCP);
+      });
+
+      test('re-votar el mismo caso/documento reemplaza el evento, no lo suma', async () => {
+        const res = await agent
+          .post(`/api/tutelas/memoria/${docEccp}/feedback`)
+          .send({ util: false, tutela_id: tutelaEccpId });
+        expect(res.status).toBe(200);
+
+        const { rows } = await pool.query(
+          'SELECT util FROM feedback_precedentes WHERE usuario_uuid = $1 AND documento_id = $2 AND tutela_id = $3',
+          [testUserUuid, docEccp, tutelaEccpId]
+        );
+        expect(rows).toHaveLength(1);
+        expect(rows[0].util).toBe(false);
+      });
+
+      test('votar sin tutela_id (frontend todavía no lo envía) sigue respondiendo 200', async () => {
+        const res = await agent
+          .post(`/api/tutelas/memoria/${docEccp}/feedback`)
+          .send({ util: true });
+        expect(res.status).toBe(200);
+      });
+    });
+
+    // Nota: se ejercita `registrarImpresiones` directamente (no vía
+    // GET /:id/sugerencias) porque el pipeline de embeddings locales
+    // (@xenova/transformers) falla en este entorno de pruebas por un
+    // problema de entorno preexistente y no relacionado con #165
+    // ("A float32 tensor's data must be type of Float32Array" al correr
+    // bajo Jest + --experimental-vm-modules en esta máquina) -- ningún otro
+    // test de la suite llama hoy a un endpoint que genere un embedding real.
+    // La función bajo prueba es la misma que usan los 4 endpoints reales
+    // (tutelaController.js), solo se evita la generación de embeddings.
+    describe('Instrumentación de impresiones', () => {
+      const resultadosFicticios = [
+        { documento_id: docEccp, score: 0.9 },
+      ];
+
+      test('registrarImpresiones inserta una fila por precedente, con contrafactual == mostrada', async () => {
+        await registrarImpresiones({
+          usuario_uuid: testUserUuid,
+          tutela_id: tutelaEccpId,
+          categoria_contexto: CATEGORIA_ECCP,
+          resultados: resultadosFicticios,
+        });
+
+        const { rows } = await pool.query(
+          `SELECT documento_id, posicion_mostrada, posicion_contrafactual, score_base, categoria_contexto,
+                  fusion_modo, embedding_model, gamma, config_version, delta_feromona
+           FROM impresiones_precedentes WHERE tutela_id = $1 ORDER BY posicion_mostrada ASC`,
+          [tutelaEccpId]
+        );
+        expect(rows).toHaveLength(resultadosFicticios.length);
+        expect(rows[0].documento_id).toBe(docEccp);
+        expect(rows[0].posicion_mostrada).toBe(1);
+        expect(rows[0].posicion_contrafactual).toBe(1);
+        expect(Number(rows[0].score_base)).toBeCloseTo(0.9);
+        expect(rows[0].categoria_contexto).toBe(CATEGORIA_ECCP);
+        // #174 — sin `fusion` explícito, registrarImpresiones asume 'ponderado':
+        // gamma/config_version/delta_feromona solo tienen sentido para 'alpha_fb'.
+        expect(rows[0].fusion_modo).toBe('ponderado');
+        expect(rows[0].embedding_model).toBe(process.env.EMBEDDING_MODEL || 'Xenova/all-MiniLM-L6-v2');
+        expect(rows[0].gamma).toBeNull();
+        expect(rows[0].config_version).toBeNull();
+        expect(rows[0].delta_feromona).toBeNull();
+      });
+
+      test('#174 — con fusion: "alpha_fb", registra gamma/config_version y delta_feromona si el resultado lo trae', async () => {
+        await registrarImpresiones({
+          usuario_uuid: testUserUuid,
+          tutela_id: tutelaEccpId,
+          categoria_contexto: CATEGORIA_ECCP,
+          resultados: [{ documento_id: docEccp, score_semantico: 0.8, delta_feromona: 0.015 }],
+          fusion: 'alpha_fb',
+        });
+
+        const { rows } = await pool.query(
+          `SELECT fusion_modo, gamma, config_version, delta_feromona
+           FROM impresiones_precedentes WHERE tutela_id = $1 AND fusion_modo = 'alpha_fb'`,
+          [tutelaEccpId]
+        );
+        expect(rows).toHaveLength(1);
+        expect(rows[0].fusion_modo).toBe('alpha_fb');
+        expect(Number(rows[0].gamma)).toBeCloseTo(GAMMA_ECCP);
+        expect(rows[0].config_version).toBe(ECCP_CONFIG_VERSION);
+        expect(Number(rows[0].delta_feromona)).toBeCloseTo(0.015);
+      });
+
+      test('resultados vacíos no inserta nada y no lanza', async () => {
+        await expect(registrarImpresiones({ usuario_uuid: testUserUuid, resultados: [] })).resolves.toBeUndefined();
+      });
+
+      test('un fallo de base de datos se loguea pero nunca lanza (no debe romper la búsqueda)', async () => {
+        await expect(registrarImpresiones({
+          usuario_uuid: testUserUuid,
+          tutela_id: 'no-es-un-uuid-valido',
+          resultados: resultadosFicticios,
+        })).resolves.toBeUndefined();
+      });
+    });
+  });
+
+  // #161 fase (g): solo admin puede marcar un precedente como superado.
+  describe('ECCP — vigencia_factor, permiso de admin (#161 fase g)', () => {
+    const CATEGORIA_VIGENCIA = 'ECCP_VIGENCIA_TEST';
+    const docVigencia = 'eccccccc-0000-0000-0000-000000000002';
+    const adminAgent = request.agent(app);
+    let adminUuid;
+    const adminEmail = 'eccp-vigencia-admin-test@icebreaker.com';
+    const adminPass  = 'testpass123';
+
+    beforeAll(async () => {
+      await pool.query(
+        `INSERT INTO base_conocimiento_enel
+           (categoria, titulo_referencia, contenido_legal, embedding_local, es_exitosa, is_active, documento_id)
+         VALUES ($1, 'Doc vigencia', 'contenido de prueba', $2, TRUE, TRUE, $3)`,
+        [CATEGORIA_VIGENCIA, JSON.stringify(Array(384).fill(0.1)), docVigencia]
+      );
+
+      const hash = await bcrypt.hash(adminPass, 10);
+      const { rows } = await pool.query(
+        `INSERT INTO global_usuarios (nombre, email, password_hash, rol, is_admin, is_approved)
+         VALUES ($1, $2, $3, 'admin', true, true)
+         ON CONFLICT (email) DO UPDATE SET password_hash = EXCLUDED.password_hash
+         RETURNING id`,
+        ['ECCP Vigencia Admin Test', adminEmail, hash]
+      );
+      adminUuid = rows[0].id;
+      await adminAgent.post('/api/auth/login').send({ email: adminEmail, password: adminPass });
+    });
+
+    afterAll(async () => {
+      await pool.query('DELETE FROM logs_sistema WHERE usuario_uuid = $1', [adminUuid]);
+      await pool.query('DELETE FROM global_usuarios WHERE id = $1', [adminUuid]);
+      await pool.query('DELETE FROM base_conocimiento_enel WHERE documento_id = $1', [docVigencia]);
+    });
+
+    test('un usuario con solo tutelas:WRITE (no admin) recibe 403', async () => {
+      const res = await agent
+        .patch(`/api/tutelas/memoria/${docVigencia}/vigencia`)
+        .send({ vigencia_factor: 0, motivo: 'superado por cambio normativo' });
+      expect(res.status).toBe(403);
+    });
+
+    test('admin puede marcar un precedente como superado', async () => {
+      const res = await adminAgent
+        .patch(`/api/tutelas/memoria/${docVigencia}/vigencia`)
+        .send({ vigencia_factor: 0, motivo: 'superado por cambio normativo' });
+      expect(res.status).toBe(200);
+
+      const { rows } = await pool.query(
+        'SELECT vigencia_factor, vigencia_actualizada_por, vigencia_motivo FROM base_conocimiento_enel WHERE documento_id = $1 LIMIT 1',
+        [docVigencia]
+      );
+      expect(Number(rows[0].vigencia_factor)).toBe(0);
+      expect(rows[0].vigencia_actualizada_por).toBe(adminUuid);
+      expect(rows[0].vigencia_motivo).toBe('superado por cambio normativo');
+    });
+
+    test('Zod rechaza vigencia_factor fuera de [0,1]', async () => {
+      const res = await adminAgent
+        .patch(`/api/tutelas/memoria/${docVigencia}/vigencia`)
+        .send({ vigencia_factor: 1.5 });
+      expect(res.status).toBe(400);
+    });
+
+    test('Zod rechaza campos extra (.strict())', async () => {
+      const res = await adminAgent
+        .patch(`/api/tutelas/memoria/${docVigencia}/vigencia`)
+        .send({ vigencia_factor: 1, relevancia_score: 999 });
+      expect(res.status).toBe(400);
+    });
+
+    test('documento inexistente → 404', async () => {
+      const res = await adminAgent
+        .patch('/api/tutelas/memoria/00000000-0000-0000-0000-000000000000/vigencia')
+        .send({ vigencia_factor: 1 });
+      expect(res.status).toBe(404);
+    });
+
+    test('sin token → 401', async () => {
+      const res = await request(app)
+        .patch(`/api/tutelas/memoria/${docVigencia}/vigencia`)
+        .send({ vigencia_factor: 1 });
+      expect(res.status).toBe(401);
     });
   });
 

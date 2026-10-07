@@ -2,7 +2,13 @@ import { Document, Packer, Paragraph, TextRun, AlignmentType } from 'docx';
 
 export const generarDocumentoWord = async (textoBorrador) => {
   // 1. Separar el texto largo de la IA en líneas individuales
-  const lineas = textoBorrador.split('\n');
+  // Normaliza \r\n/\r → \n antes de dividir: el texto pegado desde Windows
+  // (muy probable, herramienta corporativa) deja un \r residual que docx no
+  // interpreta como salto de línea — ver #140. También colapsa 3+ saltos de
+  // línea consecutivos a 2 (máximo una línea en blanco entre párrafos) --
+  // sin esto, texto pegado con separaciones dobles/triples (común al copiar
+  // de un chat de LLM) generaba párrafos vacíos sin colapsar en el Word.
+  const lineas = textoBorrador.replace(/\r\n?/g, '\n').replace(/\n{3,}/g, '\n\n').split('\n');
 
   // 2. Convertir cada línea en un Párrafo de Word
   const parrafosWord = lineas.map(linea => {

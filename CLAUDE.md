@@ -7,11 +7,11 @@
 - `entrypoint.sh` corre `npm run migrate:up` sin `set -e` antes de `node src/index.js` — cualquier migración que llegue a `main` se aplica sola a la base de producción.
 - El repo es **público**.
 
-**Reglas duras, sin excepción:**
+**Reglas duras, CON EXCEPCIÓN CON APROBACION EXPLICITA:**
 1. Nunca push, PR directo ni merge hacia `main` ni `dev`. Branch protection en GitHub ya bloquea el push directo a `main`, pero no asumas que eso es la única barrera.
-2. Nunca te conectes a la base de datos de producción, ni para leer. Antes de tests/migraciones/el arnés de evaluación, verifica que `DATABASE_URL` sea `localhost`/`127.0.0.1`.
 3. Nunca pongas datos reales de Enel, credenciales o URLs de Railway en comentarios/PRs/issues — el repo es público.
 4. Los tags `rag-baseline-*` son inmutables (protegidos en GitHub). No los muevas ni recrees.
+5. SI EL USUSARIO TE PIDE EXPLICITAMENTE QUE SALTES LAS REGLAS LO HACES, NUNCA POR INICIATIVA PROPIA.
 
 ## Milestone RAG (trabajo de grado) — empieza siempre aquí
 
