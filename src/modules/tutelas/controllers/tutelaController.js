@@ -1002,25 +1002,31 @@ const PLANTILLA_VERSION = 'v1';
 
 export const guardarRespuestaPeticion = async (req, res) => {
   const { id } = req.params;
-  const { resultado_llm_json, modo = 'acumular', parte_index } = req.body;
+  const { resultado_llm_json, modo = 'acumular', parte_index, limpieza } = req.body;
+
+  // #47 (frontend): si el frontend ya manda el indicador de limpieza, se usa
+  // tal cual. Si no (frontend sin actualizar), se asume que sí hubo
+  // limpieza -- es el comportamiento conservador: toda lectura histórica de
+  // esta métrica debe seguir declarando la limitación hasta que el
+  // despliegue del frontend con el indicador esté completo.
+  const limpiezaRegistrada = limpieza ?? { tenia_fences: null, texto_fuera_de_llaves: null, chars_descartados: null };
 
   let parsed;
   try {
     parsed = JSON.parse(resultado_llm_json);
   } catch {
     // Telemetría #146 -- tasa de fallo de formato (C.5 de
-    // docs/ANALISIS_GENERADOR_PROMPTS.md). IMPORTANTE: el frontend limpia
-    // el texto (quita fences de markdown, recorta a lo que hay entre la
-    // primera y la última llave) antes de mandarlo aquí -- esto mide la
-    // tasa de fallo QUE SOBREVIVE a esa limpieza, no la adherencia real del
-    // LLM al formato pedido. Subestima sistemáticamente. Hasta que el
-    // frontend mande un indicador de cuánto tuvo que limpiar (pendiente,
-    // ver issue de seguimiento), toda lectura de esta métrica debe
-    // declarar esta limitación.
+    // docs/ANALISIS_GENERADOR_PROMPTS.md). El frontend limpia el texto
+    // (quita fences de markdown, recorta a lo que hay entre la primera y la
+    // última llave) antes de mandarlo aquí -- esto mide la tasa de fallo
+    // QUE SOBREVIVE a esa limpieza, no la adherencia real del LLM al
+    // formato pedido. `limpieza` (#47) permite reconstruir cuánta limpieza
+    // hizo falta en este caso puntual.
     await registrarLog(req.user.id, 'TELEMETRIA_FALLO_FORMATO', 'tutela', id, req, {
       v: TELEMETRIA_SCHEMA_VERSION,
       tipo: 'json_invalido',
       medido_tras_limpieza_frontend: true,
+      limpieza: limpiezaRegistrada,
     });
     return res.status(400).json({ error: 'La respuesta del LLM no es un JSON válido.' });
   }
@@ -1031,6 +1037,7 @@ export const guardarRespuestaPeticion = async (req, res) => {
       v: TELEMETRIA_SCHEMA_VERSION,
       tipo: 'zod_invalido',
       medido_tras_limpieza_frontend: true,
+      limpieza: limpiezaRegistrada,
       // `code` en vez de `message`: el mensaje es texto libre que puede
       // incluir el valor recibido (contenido de la respuesta del LLM) y no
       // sirve para agregar.
@@ -1145,6 +1152,11 @@ export const guardarRespuestaPeticion = async (req, res) => {
       v: TELEMETRIA_SCHEMA_VERSION,
       parte_index: parte_index ?? null,
       items: respuestas.map(r => ({ numero: r.numero, normas_citadas: r.normas_citadas || [] })),
+      // #47: también se registra en el caso exitoso -- permite comparar la
+      // cantidad de limpieza en guardados que sí pasaron contra los que
+      // fallaron (TELEMETRIA_FALLO_FORMATO), no solo ver estos últimos
+      // aislados.
+      limpieza: limpiezaRegistrada,
     });
 
     res.json({ message: 'Respuesta guardada correctamente.', respuesta_id: respuestaId });
