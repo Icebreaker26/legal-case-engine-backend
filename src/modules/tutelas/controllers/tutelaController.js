@@ -6,6 +6,7 @@ import { recuperarPrecedentes } from '../services/consultaService.js';
 import { extraerDatosTutela } from '../services/extractorService.js';
 import { limpiarTexto, limpiarTextoParaPostgres } from '../services/cleanerService.js';
 import { registrarLog } from '../../../services/auditService.js';
+import logger from '../../../utils/logger.js';
 import { crearNotificacion } from '../../notificaciones/services/notificationService.js';
 import pool from '../../../db/database.js';
 import { ESTADOS, PRIORIDADES } from '../constants.js';
@@ -629,6 +630,10 @@ export const descargarWord = async (req, res) => {
     res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document');
     res.send(buffer);
   } catch (error) {
+    // #140: antes no quedaba rastro diagnosticable de por qué falló -- si
+    // un texto patológico (muy largo, con muchos párrafos) rompe
+    // Packer.toBuffer, ahora el detalle queda en logs/error.log.
+    logger.error('Error al generar Word en descargarWord', { error: error.message, tutelaId: req.params.id });
     res.status(500).json({ error: 'Error al generar Word.' });
   }
 };
