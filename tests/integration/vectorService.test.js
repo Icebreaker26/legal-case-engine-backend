@@ -414,9 +414,13 @@ describe('vectorService — buscarContextoLegal (integración real contra pgvect
     test('score y score_semantico nunca incluyen el componente de feromona (#142, #167)', async () => {
       const rowsAlpha = await buscarContextoLegal(vectorCercano, 'facturación mensual', 10, null, { fusion: 'alpha', alpha: 0.9 });
       const rowsAlphaFb = await buscarContextoLegal(vectorCercano, 'facturación mensual', 10, null, { fusion: 'alpha_fb', alpha: 0.9, contexto: CATEGORIA_FB });
+      // 'alpha' expone `score` redondeado a 6 decimales; `score_semantico` de
+      // 'alpha_fb' usa `score_crudo` sin redondear a propósito (precisión
+      // completa para el desempate del re-ranking, auditoría de Opus #172) —
+      // la comparación tolera esa diferencia de redondeo, no identidad exacta.
       const scoreAlphaFavorable = Number(rowsAlpha.find(r => r.documento_id === docFavorable).score);
       const scoreSemanticoFavorable = rowsAlphaFb.find(r => r.documento_id === docFavorable).score_semantico;
-      expect(scoreSemanticoFavorable).toBeCloseTo(scoreAlphaFavorable, 10);
+      expect(scoreSemanticoFavorable).toBeCloseTo(scoreAlphaFavorable, 5);
     });
 
     test('GAMMA_ECCP está calibrado desde el run confirmatorio real (#121), no es un valor arbitrario', () => {
@@ -434,6 +438,18 @@ describe('vectorService — buscarContextoLegal (integración real contra pgvect
       await expect(
         buscarContextoLegal(vectorCercano, 'facturación', 10, null, { fusion: 'alpha_fb', alpha: 2 })
       ).rejects.toThrow(/alpha inválido/);
+    });
+
+    // Auditoría de Opus (PR #172): diseño §3.3 "por evento normativo" --
+    // vigencia_factor=0 debe desaparecer de inmediato, no solo bajar a 0.
+    test('vigencia_factor=0 excluye el documento del resultado, aunque sobre espacio en el limit', async () => {
+      await pool.query('UPDATE base_conocimiento_enel SET vigencia_factor = 0 WHERE documento_id = $1', [docNeutro]);
+      try {
+        const rows = await buscarContextoLegal(vectorCercano, 'facturación mensual', 10, null, { fusion: 'alpha_fb', alpha: 0.9, contexto: CATEGORIA_FB });
+        expect(rows.find(r => r.documento_id === docNeutro)).toBeUndefined();
+      } finally {
+        await pool.query('UPDATE base_conocimiento_enel SET vigencia_factor = 1 WHERE documento_id = $1', [docNeutro]);
+      }
     });
   });
 });

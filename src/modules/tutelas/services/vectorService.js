@@ -232,7 +232,7 @@ const buildAlphaScoringCTE = () => {
     )
     SELECT categoria, titulo_referencia, contenido_legal, documento_id,
            relevancia_score, ROUND(CAST(score_crudo AS NUMERIC), 6) AS score,
-           tiene_comprension, comprension_doc, vigencia_factor
+           score_crudo, tiene_comprension, comprension_doc, vigencia_factor
     FROM scored
     WHERE rn = 1
     ORDER BY score_crudo DESC, documento_id ASC
@@ -282,15 +282,24 @@ const buscarAlphaFb = async (vectorTutelaLocal, texto, limit, alpha, contexto, g
     // -- el índice es su posición contrafactual, la que tendría con S_base
     // puro, sin feromona (#165 fase b, instrumentación de impresiones).
     .map((c, idx) => {
-      const scoreSemantico = Number(c.score);
+      // Precisión completa, no el `score` ya redondeado a 6 decimales --
+      // con γ=0 (degeneración segura) el ORDER BY debe coincidir exactamente
+      // con el de 'alpha' puro (que ordena por score_crudo, no por score),
+      // o dos candidatos que solo difieren después del redondeo pueden
+      // desempatarse distinto por documento_id (auditoría de Opus, PR #172).
+      const scoreSemantico = Number(c.score_crudo);
       const vigencia = c.vigencia_factor != null ? Number(c.vigencia_factor) : 1;
       const senal = senales[c.documento_id] ?? 0;
       const scoreFinal = vigencia * (scoreSemantico + gamma * senal);
       // ECCP (#142, #167): `score` y `score_semantico` son siempre S_base
       // puro -- `buildFichaPrecedente` nunca debe poder leer el componente
       // de feromona. `score_final` solo ordena, no se expone como "score".
-      return { ...c, score_semantico: scoreSemantico, score_final: scoreFinal, posicion_contrafactual: idx + 1 };
+      return { ...c, vigencia, score_semantico: scoreSemantico, score_final: scoreFinal, posicion_contrafactual: idx + 1 };
     })
+    // Diseño §3.3 "por evento normativo": vigencia_factor=0 (precedente
+    // jurídicamente superado) desaparece de inmediato -- no solo baja su
+    // score a 0, se excluye del resultado aunque quepa en `limit`.
+    .filter((c) => c.vigencia !== 0)
     .sort((a, b) => b.score_final - a.score_final || a.documento_id.localeCompare(b.documento_id))
     .slice(0, limit);
 };
