@@ -104,7 +104,7 @@ ECCP es un mecanismo de **re-ranking por coordinación estigmérgica entre agent
 
 *Límite honesto declarado*: la evaporación gradual es un sustituto débil de la obsolescencia jurídica real — el canal que protege de verdad es el normativo, y depende de que alguien lo marque.
 
-**Lectura de la feromona — Beta-Bernoulli.** Prior neutral débil (a₀=b₀=2). Media = a/(a+b) es la señal de utilidad (0 sin rastros). Varianza mide evidencia disponible y alimenta la exploración. Equivalencias con ACO: el prior funciona como piso de feromona (τ_min), la saturación de la media funciona como techo (τ_max). Mezcla con el rastro global del documento (peso ~0.3) cuando hay pocos rastros en el contexto específico, lo que también amortigua errores del extractor de categoría (~26% de error según `RESULTADOS_TESIS.md`).
+**Lectura de la feromona — Beta-Bernoulli.** Prior neutral débil (a₀=b₀=2). **Corrección (auditoría de implementación, PR #172):** con ese prior, la media a/(a+b) sin rastros es 0.5, no 0 — la señal de utilidad real es **media − 0.5** (0 sin rastros, rango (-0.5, 0.5)), no la media cruda. Varianza mide evidencia disponible y alimenta la exploración. Equivalencias con ACO: el prior funciona como piso de feromona (τ_min), la saturación de la media funciona como techo (τ_max). Mezcla con el rastro global del documento (peso ~0.3) — implementado como una mezcla fija (no condicional al volumen de rastros del contexto, ver §3.9) con el rastro del documento en **otras** categorías, nunca contando de nuevo los eventos del propio contexto (evita que un voto del contexto pese 1+0.3 en vez de 1) — lo que también amortigua errores del extractor de categoría (~26% de error según `RESULTADOS_TESIS.md`).
 
 **Re-ranking acotado.**
 
@@ -179,6 +179,32 @@ Indicadores que sostendrían la afirmación de coordinación indirecta:
 8. Tiempo de reorganización de la exposición tras un evento normativo.
 
 Criterio de éxito a pre-registrar antes de desplegar (como en #121): umbral fijo para (1), diferencia significativa en (2), sin concentración creciente en (4). Si no se cumple, el resultado se reporta como negativo — también es un resultado legítimo para la tesis.
+
+---
+
+### 3.9 Estado de implementación (actualizado 2026-10-07, PRs #166/#168/#170/#172)
+
+Auditoría de fidelidad diseño↔código hecha con una segunda opinión (Opus) antes de mergear. Veredicto: **fiel al diseño, con las desviaciones y pendientes documentados aquí.**
+
+**Implementado y fiel al diseño:**
+- Tabla `feedback_precedentes` (evento por usuario/documento/tutela/contexto/fecha) + `impresiones_precedentes` (posición mostrada y contrafactual).
+- Evaporación exponencial por edad, vida media 365 días: `peso = 0.5^(edad_días/365)`.
+- Lectura Beta-Bernoulli, prior Beta(2,2), señal = media − 0.5 (ver corrección arriba).
+- **Tope de aporte por agente y documento = 3** (`TOPE_AGENTE`, diseño §3.3 "Depósito"): un agente votando N veces el mismo documento nunca pesa más que 3 agentes distintos votando una vez. Se aplica por separado a los pesos "útil" y "no útil" de cada agente.
+- Mezcla con rastro global (peso 0.3) — implementada como conjuntos mutuamente excluyentes (contexto vs. otras categorías), sin doble conteo.
+- `Score_final = vigencia_factor · [S_base + γ·señal_feromona]`, acotado al top-20 de `S_base`, usando el score sin redondear (`score_crudo`) para que la degeneración segura (γ=0 ⇒ orden idéntico al actual) sea exacta y no se rompa por desempates de redondeo.
+- `vigencia_factor=0` excluye el documento del resultado de inmediato (no solo le baja el score a 0), como pide §3.3 "por evento normativo".
+- `vigencia_factor` solo lo cambia admin (`checkPermission('admin','WRITE')`).
+- Ocultar el rastro (§3.7 decisión 1): `buildFichaPrecedente` solo puede leer `score_semantico`, nunca el score con feromona.
+- γ=0.02, calibrado con datos reales del run confirmatorio de #121 (no un valor inventado).
+- Modo opt-in (`fusion:'alpha_fb'`) — nunca reemplaza el default de producción.
+
+**Pendiente, declarado explícitamente (no implementado todavía):**
+1. **El estado absorbente viejo (-5 → `es_exitosa=false`) sigue activo** y corre *antes* de que la feromona vea el documento — un documento ya descartado por el mecanismo viejo nunca llega al top-K de `alpha_fb`. τ⁻ todavía NO "sustituye" ese umbral como dice §3.2; conviven. Reemplazarlo es trabajo de una fase futura (requiere decidir qué pasa con los documentos ya marcados `es_exitosa=false` por el mecanismo viejo).
+2. **Vida media acelerada por categoría tras un evento normativo** (§3.3, evaporación canal 2 a nivel contexto) — no implementada. Hoy el único control de vigencia es manual, documento por documento, vía el endpoint de admin.
+3. **Slot de exploración UCB** (§3.3, puesto 5) y **peso ajustable por posición mostrada** (§3.3 "Depósito", fase 2) — no implementados. `pheromoneService.js` calcula solo la media de la Beta, no expone `{a, b}` crudos todavía; exponerlos es prerrequisito de UCB (necesita la varianza).
+4. **Evaluación por interleaving** (§3.4 paso i) — no implementada, necesita volumen real de datos.
+5. Las 120 consultas del run confirmatorio de #121, usadas para calibrar γ, son parte del mismo corpus que evaluó la hipótesis de fusión híbrida — si ese mismo corpus se reutiliza más adelante para *evaluar* ECCP (no solo para calibrar γ), hay riesgo de fuga de datos entre calibración y evaluación. Separar un set de desarrollo propio para ECCP antes de evaluar resultados con significancia estadística.
 
 ---
 

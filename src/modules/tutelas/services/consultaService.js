@@ -44,18 +44,25 @@ export const recuperarPrecedentes = async ({
   estrategia = 'actual',
   fusion = 'ponderado',
   alpha = 0.9,
+  // ECCP (#161 fase e): categoría jurídica que condiciona la lectura de la
+  // feromona en fusion:'alpha_fb' -- nunca filtra la recuperación (#106),
+  // a diferencia de `categoria`. Independiente de `categoria` a propósito.
+  contexto = null,
 }) => {
   const { textoVector, textoLexico } = construirConsulta(tutela, { estrategia });
   const vector = await generarEmbeddingLocal(textoVector, { tipo: 'query' });
-  return buscarContextoLegal(vector, textoLexico, limit, categoria, { fusion, alpha });
+  return buscarContextoLegal(vector, textoLexico, limit, categoria, { fusion, alpha, contexto });
 };
 
 /**
- * Instrumentación ECCP (#165, fase b): registra qué precedentes se mostraron,
- * en qué posición y con qué score, para poder medir más adelante si una
- * futura feromona cambia algo. `posicion_contrafactual` hoy es siempre igual
- * a `posicion_mostrada` porque el ranking todavía es puro S_base (sin
- * feromona) — ver docs/ANALISIS_ESTIGMERGIA_ECCP.md sección 3.4 paso 2.
+ * Instrumentación ECCP (#165 fase b): registra qué precedentes se mostraron,
+ * en qué posición y con qué score, para poder medir más adelante si la
+ * feromona cambia algo. `posicion_contrafactual` es la posición que el
+ * documento tendría con S_base puro, sin feromona -- en los modos de fusión
+ * sin feromona (todos salvo `alpha_fb`, #161 fase e) coincide siempre con
+ * `posicion_mostrada`; `buscarAlphaFb` (vectorService.js) adjunta su propio
+ * `posicion_contrafactual` a cada resultado cuando reordena, y aquí se
+ * respeta si viene presente.
  *
  * Nunca lanza: es telemetría del camino de lectura, un fallo aquí no debe
  * romper la búsqueda de precedentes que ya se le devolvió al abogado.
@@ -68,7 +75,8 @@ export const registrarImpresiones = async ({ usuario_uuid = null, tutela_id = nu
     const values = [];
     const filas = resultados.map((r, i) => {
       const posicion = i + 1;
-      values.push(usuario_uuid, tutela_id, r.documento_id, categoria_contexto, posicion, posicion, r.score ?? null);
+      const contrafactual = r.posicion_contrafactual ?? posicion;
+      values.push(usuario_uuid, tutela_id, r.documento_id, categoria_contexto, posicion, contrafactual, r.score_semantico ?? r.score ?? null);
       const offset = i * columnas.length;
       return `(${columnas.map((_, j) => `$${offset + j + 1}`).join(', ')})`;
     });

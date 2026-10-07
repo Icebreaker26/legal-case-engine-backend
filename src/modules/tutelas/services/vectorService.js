@@ -1,4 +1,5 @@
 import pool from '../../../db/database.js';
+import { obtenerSenalesFeromona } from './pheromoneService.js';
 
 /**
  * Busca los documentos más similares a la tutela.
@@ -215,7 +216,7 @@ const buildAlphaScoringCTE = () => {
     WITH scored AS (
       SELECT
         categoria, titulo_referencia, contenido_legal, documento_id,
-        relevancia_score, comprension_doc,
+        relevancia_score, comprension_doc, vigencia_factor,
         (comprension_doc IS NOT NULL) AS tiene_comprension,
         ${scoreExpr} AS score_crudo,
         ROW_NUMBER() OVER (
@@ -231,7 +232,7 @@ const buildAlphaScoringCTE = () => {
     )
     SELECT categoria, titulo_referencia, contenido_legal, documento_id,
            relevancia_score, ROUND(CAST(score_crudo AS NUMERIC), 6) AS score,
-           tiene_comprension, comprension_doc
+           score_crudo, tiene_comprension, comprension_doc, vigencia_factor
     FROM scored
     WHERE rn = 1
     ORDER BY score_crudo DESC, documento_id ASC
@@ -247,15 +248,71 @@ const buscarAlpha = async (vectorTutelaLocal, texto, limit, categoria, alpha) =>
   return rows;
 };
 
-export const buscarContextoLegal = async (vectorTutelaLocal, textoOriginal = '', limit = 5, categoria = null, { fusion = 'ponderado', alpha = 0.9 } = {}) => {
+// ── Re-ranking acotado con feromona (#161 fase e, ECCP) ──────────────────────
+//
+// Score_final(i) = vigencia_factor(i) · [S_base(i) + γ·señal_feromona(c,i)]
+// (diseño §3.3), aplicado solo dentro del top-K de S_base -- la feromona
+// reordena entre precedentes ya semánticamente comparables, nunca sube algo
+// lejano. Con γ=0 o sin rastros (señal=0 siempre), el orden resultante es
+// idéntico al de 'alpha' puro -- degeneración segura (§3.3, §3.6 punto 4).
+//
+// Modo opcional (fusion:'alpha_fb'), nunca el default de producción.
+const K_RERANK = 20;
+
+// Calibrado offline (#161 fase e) sobre el run confirmatorio real de #121
+// (e5-small, α=0.9, corpus v1, 120 consultas de dev+test combinadas):
+// eval/data/runs/v1-confirmatorio-e5-a0.9.trec -- mitad de la diferencia
+// típica de S_base entre el puesto 1 y el puesto 5 (mediana sobre las 120
+// consultas = 0.04147, media = 0.04588). Se usa la mediana (más robusta a
+// colas) redondeada: γ = 0.0415 / 2 ≈ 0.02.
+export const GAMMA_ECCP = 0.02;
+
+const buscarAlphaFb = async (vectorTutelaLocal, texto, limit, alpha, contexto, gamma = GAMMA_ECCP) => {
+  // Sin filtro de categoría en la recuperación (#106) -- `contexto` solo
+  // condiciona la lectura de la feromona, nunca qué candidatos entran al CTE.
+  const params = [JSON.stringify(vectorTutelaLocal), texto, K_RERANK, null, alpha];
+  const { rows: candidatos } = await pool.query(buildAlphaScoringCTE(), params);
+
+  if (!candidatos.length) return [];
+
+  const senales = await obtenerSenalesFeromona(candidatos.map(c => c.documento_id), contexto);
+
+  return candidatos
+    // `candidatos` ya viene ordenado por score_crudo DESC (ORDER BY del CTE)
+    // -- el índice es su posición contrafactual, la que tendría con S_base
+    // puro, sin feromona (#165 fase b, instrumentación de impresiones).
+    .map((c, idx) => {
+      // Precisión completa, no el `score` ya redondeado a 6 decimales --
+      // con γ=0 (degeneración segura) el ORDER BY debe coincidir exactamente
+      // con el de 'alpha' puro (que ordena por score_crudo, no por score),
+      // o dos candidatos que solo difieren después del redondeo pueden
+      // desempatarse distinto por documento_id (auditoría de Opus, PR #172).
+      const scoreSemantico = Number(c.score_crudo);
+      const vigencia = c.vigencia_factor != null ? Number(c.vigencia_factor) : 1;
+      const senal = senales[c.documento_id] ?? 0;
+      const scoreFinal = vigencia * (scoreSemantico + gamma * senal);
+      // ECCP (#142, #167): `score` y `score_semantico` son siempre S_base
+      // puro -- `buildFichaPrecedente` nunca debe poder leer el componente
+      // de feromona. `score_final` solo ordena, no se expone como "score".
+      return { ...c, vigencia, score_semantico: scoreSemantico, score_final: scoreFinal, posicion_contrafactual: idx + 1 };
+    })
+    // Diseño §3.3 "por evento normativo": vigencia_factor=0 (precedente
+    // jurídicamente superado) desaparece de inmediato -- no solo baja su
+    // score a 0, se excluye del resultado aunque quepa en `limit`.
+    .filter((c) => c.vigencia !== 0)
+    .sort((a, b) => b.score_final - a.score_final || a.documento_id.localeCompare(b.documento_id))
+    .slice(0, limit);
+};
+
+export const buscarContextoLegal = async (vectorTutelaLocal, textoOriginal = '', limit = 5, categoria = null, { fusion = 'ponderado', alpha = 0.9, contexto = null, gamma = GAMMA_ECCP } = {}) => {
   if (!vectorTutelaLocal || !Array.isArray(vectorTutelaLocal) || vectorTutelaLocal.length === 0) {
     throw new Error('Vector inválido o vacío');
   }
   // Validado antes del try (como el vector arriba): es un error de uso de la
   // API, no una falla de la base de datos — no debe quedar enmascarado por
   // el catch genérico de más abajo.
-  if (fusion === 'alpha' && (typeof alpha !== 'number' || Number.isNaN(alpha) || alpha < 0 || alpha > 1)) {
-    throw new Error(`alpha inválido para fusion 'alpha': ${alpha} (debe ser un número entre 0 y 1)`);
+  if ((fusion === 'alpha' || fusion === 'alpha_fb') && (typeof alpha !== 'number' || Number.isNaN(alpha) || alpha < 0 || alpha > 1)) {
+    throw new Error(`alpha inválido para fusion '${fusion}': ${alpha} (debe ser un número entre 0 y 1)`);
   }
 
   const texto = textoOriginal || '';
@@ -263,6 +320,9 @@ export const buscarContextoLegal = async (vectorTutelaLocal, textoOriginal = '',
   try {
     if (fusion === 'rrf') {
       return await buscarRRF(vectorTutelaLocal, texto, limit, categoria);
+    }
+    if (fusion === 'alpha_fb') {
+      return await buscarAlphaFb(vectorTutelaLocal, texto, limit, alpha, contexto, gamma);
     }
     if (fusion === 'alpha') {
       return await buscarAlpha(vectorTutelaLocal, texto, limit, categoria, alpha);
