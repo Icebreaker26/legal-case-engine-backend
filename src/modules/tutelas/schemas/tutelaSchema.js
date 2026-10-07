@@ -184,8 +184,19 @@ export const respuestaLlmSchema = z.object({
   cierre:       z.string().optional(),
 });
 
+// #146/#47 (frontend): indicador de cuánto tuvo que limpiar el frontend el
+// JSON pegado por el abogado antes de mandarlo -- sin esto,
+// TELEMETRIA_FALLO_FORMATO solo mide la tasa de fallo QUE SOBREVIVE a esa
+// limpieza, no la adherencia real del LLM externo al formato pedido.
+export const limpiezaJsonSchema = z.object({
+  tenia_fences:          z.boolean(),
+  texto_fuera_de_llaves: z.boolean(),
+  chars_descartados:     z.number().int().min(0),
+}).optional();
+
 export const guardarRespuestaPeticionSchema = z.object({
   resultado_llm_json: z.string().min(1, 'El JSON del LLM es obligatorio.'),
   modo:               z.enum(['reemplazar', 'acumular']).default('acumular'),
   parte_index:        z.number().int().min(0).optional(),
+  limpieza:           limpiezaJsonSchema,
 });

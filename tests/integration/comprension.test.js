@@ -465,6 +465,42 @@ describe('Comprensión semántica y respuesta de petición — Integración', ()
       expect(rows[0].detalles).toMatchObject({ v: 1, tipo: 'json_invalido', medido_tras_limpieza_frontend: true });
     });
 
+    test('#47 — si el frontend manda `limpieza`, se registra tal cual en el evento', async () => {
+      const limpieza = { tenia_fences: true, texto_fuera_de_llaves: false, chars_descartados: 7 };
+      await agent
+        .post(`/api/tutelas/${tutelaId}/respuesta-peticion`)
+        .send({ resultado_llm_json: 'no soy json', modo: 'acumular', limpieza });
+
+      const { rows } = await pool.query(
+        `SELECT detalles FROM logs_sistema
+         WHERE usuario_uuid = $1 AND accion = 'TELEMETRIA_FALLO_FORMATO'
+         ORDER BY created_at DESC LIMIT 1`,
+        [testUserUuid]
+      );
+      expect(rows[0].detalles.limpieza).toEqual(limpieza);
+    });
+
+    test('#47 — sin `limpieza` del frontend, se registra con valores null (frontend sin actualizar)', async () => {
+      await agent
+        .post(`/api/tutelas/${tutelaId}/respuesta-peticion`)
+        .send({ resultado_llm_json: 'no soy json', modo: 'acumular' });
+
+      const { rows } = await pool.query(
+        `SELECT detalles FROM logs_sistema
+         WHERE usuario_uuid = $1 AND accion = 'TELEMETRIA_FALLO_FORMATO'
+         ORDER BY created_at DESC LIMIT 1`,
+        [testUserUuid]
+      );
+      expect(rows[0].detalles.limpieza).toEqual({ tenia_fences: null, texto_fuera_de_llaves: null, chars_descartados: null });
+    });
+
+    test('#47 — limpieza con forma inválida es rechazada por Zod (400)', async () => {
+      const res = await agent
+        .post(`/api/tutelas/${tutelaId}/respuesta-peticion`)
+        .send({ resultado_llm_json: RESPUESTA_LLM_VALIDA, modo: 'acumular', limpieza: { tenia_fences: 'si' } });
+      expect(res.status).toBe(400);
+    });
+
     test('#146 — estructura inválida registra TELEMETRIA_FALLO_FORMATO (tipo zod_invalido) con code, no message', async () => {
       await agent
         .post(`/api/tutelas/${tutelaId}/respuesta-peticion`)
