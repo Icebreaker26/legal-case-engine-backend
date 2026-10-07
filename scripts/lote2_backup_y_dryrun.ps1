@@ -74,11 +74,11 @@ $backupFile = Join-Path $BackupDir "backup_pre_lote2_rag_$timestamp.dump"
 $backupFileAbs = (Resolve-Path -Path $BackupDir).Path + "\backup_pre_lote2_rag_$timestamp.dump"
 
 Write-Host "[lote2] Backup -> $backupFile"
-Write-Host "[lote2] Usando el binario pg_dump 15.x empaquetado en la imagen postgres:15-alpine (via Docker) -- evita depender de que pg_dump este instalado en esta maquina (la corrida anterior fallo exactamente por esto, en silencio)."
+Write-Host "[lote2] Usando el binario pg_dump 18.x empaquetado en la imagen postgres:18-alpine (via Docker) -- evita depender de que pg_dump este instalado en esta maquina (la corrida anterior fallo exactamente por esto, en silencio). El servidor de produccion corre Postgres 18.6, asi que pg_dump debe ser >= esa version (pg_dump 15 aborta por 'server version mismatch')."
 
 # docker run con --network host no aplica en Windows -- se conecta por URL
 # completa (host:puerto publico de Railway), no por red local.
-docker run --rm -v "${BackupDir}:/backup" postgres:15-alpine `
+docker run --rm -v "${BackupDir}:/backup" postgres:18-alpine `
     pg_dump "$ProductionDatabaseUrl" -F c -f "/backup/backup_pre_lote2_rag_$timestamp.dump"
 
 if ($LASTEXITCODE -ne 0) {
@@ -110,7 +110,9 @@ try {
 finally {
     # Restaura la DATABASE_URL local original, incluso si el dry-run falla.
     $env:DATABASE_URL = $env:DATABASE_URL_BACKUP_TEMPORAL
-    Remove-Item Env:\DATABASE_URL_BACKUP_TEMPORAL
+    if (Test-Path Env:\DATABASE_URL_BACKUP_TEMPORAL) {
+        Remove-Item Env:\DATABASE_URL_BACKUP_TEMPORAL
+    }
 }
 
 Write-Paso "Fase 0 completa"

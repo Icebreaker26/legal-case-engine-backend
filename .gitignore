@@ -51,3 +51,8 @@ eval/results/
 eval/.venv/
 __pycache__/
 *.pyc
+
+# Backups de producción (#100, lote 2) — datos reales de Enel, repo público,
+# nunca se versionan. Generados por scripts/lote2_backup_y_dryrun.ps1.
+backup_pre_lote2_rag_*.dump
+*.dump
