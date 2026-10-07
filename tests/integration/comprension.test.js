@@ -391,6 +391,35 @@ describe('Comprensión semántica y respuesta de petición — Integración', ()
       const getRes = await agent.get(`/api/tutelas/${tutelaId}/respuesta-peticion`);
       expect(getRes.body.items.length).toBeGreaterThanOrEqual(2);
     });
+
+    test('repegar el mismo lote (mismo numero) en modo acumular actualiza el item, no lo duplica (#145)', async () => {
+      const { body: antes } = await agent.get(`/api/tutelas/${tutelaId}/respuesta-peticion`);
+      const countAntes = antes.items.length;
+
+      const respuestaCorregida = JSON.stringify({
+        respuestas: [
+          {
+            numero:        2,
+            solicitud:     'Explicar cobros adicionales',
+            respuesta:     'Texto corregido tras repegar el mismo lote.',
+            normas_citadas: ['Art. 142 Ley 142/1994'],
+          },
+        ],
+        prescripcion: { aplica: false, fundamento: null, norma: null },
+      });
+
+      const res = await agent
+        .post(`/api/tutelas/${tutelaId}/respuesta-peticion`)
+        .send({ resultado_llm_json: respuestaCorregida, modo: 'acumular', parte_index: 1 });
+      expect(res.status).toBe(200);
+
+      const { body: despues } = await agent.get(`/api/tutelas/${tutelaId}/respuesta-peticion`);
+      // Mismo conteo de items: el ítem con numero=2 se reemplazó, no se duplicó
+      expect(despues.items.length).toBe(countAntes);
+
+      const item2 = despues.items.find(i => i.numero === 2);
+      expect(item2.respuesta).toBe('Texto corregido tras repegar el mismo lote.');
+    });
   });
 
   describe('DELETE /:id/respuesta-peticion', () => {

@@ -1045,10 +1045,19 @@ export const guardarRespuestaPeticion = async (req, res) => {
     }
 
     for (const r of respuestas) {
+      // Upsert real por (respuesta_id, numero) -- ver #145. Antes era
+      // `ON CONFLICT DO NOTHING` sin restricción única detrás, así que no
+      // comparaba contra nada y repegar un lote duplicaba los ítems en
+      // silencio. Si el abogado vuelve a pegar la respuesta de un lote
+      // (p. ej. tras corregir algo), el ítem se reemplaza, no se duplica.
       await client.query(
         `INSERT INTO respuesta_peticion_items (respuesta_id, numero, solicitud, respuesta, normas_citadas, parte)
          VALUES ($1, $2, $3, $4, $5, $6)
-         ON CONFLICT DO NOTHING`,
+         ON CONFLICT (respuesta_id, numero) DO UPDATE SET
+           solicitud      = EXCLUDED.solicitud,
+           respuesta      = EXCLUDED.respuesta,
+           normas_citadas = EXCLUDED.normas_citadas,
+           parte          = EXCLUDED.parte`,
         [respuestaId, r.numero, r.solicitud, r.respuesta,
          r.normas_citadas?.length ? r.normas_citadas : [], parte_index ?? null]
       );
