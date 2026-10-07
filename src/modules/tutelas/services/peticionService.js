@@ -130,8 +130,15 @@ const TONO_POR_URGENCIA = {
   baja:  'Urgencia baja — puedes incluir análisis normativo extenso y contextualización detallada.',
 };
 
-const buildFichaPrecedente = (sug, idx) => {
-  const score = sug.score ? `${Math.round(sug.score * 100)}% relevancia` : '';
+// ECCP (#142, #167): el score mostrado al abogado es siempre el semántico
+// puro (S_base) -- nunca el score re-rankeado con feromona. `score_semantico`
+// es el campo que va a poblar el modo de fusión `alpha_fb` (#161 fase e,
+// feromona); los modos de fusión actuales no la tienen y siguen exponiendo
+// solo `score` (que hoy es S_base puro, sin feromona posible). Esta función
+// nunca debe leer `score_final` ni ningún otro campo que incluya feromona.
+export const buildFichaPrecedente = (sug, idx) => {
+  const scoreBase = sug.score_semantico ?? sug.score;
+  const score = scoreBase ? `${Math.round(scoreBase * 100)}% relevancia` : '';
   const comp  = sug.comprension_doc;
 
   if (comp) {

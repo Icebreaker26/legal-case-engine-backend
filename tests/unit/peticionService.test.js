@@ -1,4 +1,4 @@
-import { extraerSolicitudes, detectarMetodoSegmentacion, agruparEnLotes, construirPromptLote } from '../../src/modules/tutelas/services/peticionService.js';
+import { extraerSolicitudes, detectarMetodoSegmentacion, agruparEnLotes, construirPromptLote, buildFichaPrecedente } from '../../src/modules/tutelas/services/peticionService.js';
 
 describe('peticionService — extraerSolicitudes / detectarMetodoSegmentacion', () => {
   test('texto vacío → sin solicitudes, método "vacio"', () => {
@@ -135,5 +135,40 @@ describe('peticionService — construirPromptLote (mejoras C.1/C.2/C.4)', () => 
   test('con un solo lote (sin multiplicidad), no hace falta aclarar el rango de etiquetas', () => {
     const pUnico = construirPromptLote({ ...base, lote: lote0, loteIndex: 0, totalLotes: 1 });
     expect(pUnico).not.toContain('etiquetadas:');
+  });
+});
+
+// #167 (#142, #161 fase h): el score mostrado al abogado nunca debe incluir
+// el componente de feromona de ECCP -- ver docs/ANALISIS_ESTIGMERGIA_ECCP.md
+// sección 3.7 punto 1.
+describe('peticionService — buildFichaPrecedente (#167, ocultar el rastro de ECCP)', () => {
+  const base = { titulo_referencia: 'Precedente X', categoria: 'Facturacion', contenido_legal: 'texto' };
+
+  test('sin score_semantico, usa score (compatibilidad con los modos de fusión actuales)', () => {
+    const ficha = buildFichaPrecedente({ ...base, score: 0.9 }, 0);
+    expect(ficha).toContain('90% relevancia');
+  });
+
+  test('con score_semantico, lo usa en vez de score_final/score (nunca muestra el score re-rankeado con feromona)', () => {
+    const ficha = buildFichaPrecedente({ ...base, score: 0.9, score_final: 0.9, score_semantico: 0.5 }, 0);
+    expect(ficha).toContain('50% relevancia');
+    expect(ficha).not.toContain('90% relevancia');
+  });
+
+  test('nunca lee score_final aunque sea el único campo "post-feromona" presente junto a score', () => {
+    const ficha = buildFichaPrecedente({ ...base, score: 0.4, score_final: 0.95 }, 0);
+    expect(ficha).toContain('40% relevancia');
+    expect(ficha).not.toContain('95% relevancia');
+  });
+
+  test('con comprension_doc también respeta score_semantico sobre score', () => {
+    const ficha = buildFichaPrecedente({
+      ...base,
+      score: 0.9,
+      score_semantico: 0.3,
+      comprension_doc: { resultado: 'favorable', tipo_caso: 'Facturacion', que_resuelve: 'x', derechos_involucrados: [] },
+    }, 0);
+    expect(ficha).toContain('30% relevancia');
+    expect(ficha).not.toContain('90% relevancia');
   });
 });
