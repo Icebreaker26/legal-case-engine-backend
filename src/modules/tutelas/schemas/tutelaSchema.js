@@ -72,6 +72,13 @@ export const feedbackMemoriaSchema = z.object({
   tutela_id: z.string().uuid().nullable().optional(),
 });
 
+// ECCP fase (g) — solo admin (ver checkPermission('admin', 'WRITE') en la
+// ruta). .strict() para no aceptar campos que intenten tocar otras columnas.
+export const vigenciaMemoriaSchema = z.object({
+  vigencia_factor: z.preprocess((v) => Number(v), z.number().min(0).max(1)),
+  motivo: z.string().min(1, 'El motivo es obligatorio.').optional(),
+}).strict();
+
 export const entrenarLocalSchema = z.object({
   categoria:        z.string().min(1, 'La categoría es obligatoria.'),
   contenido_legal:  z.string().optional(),

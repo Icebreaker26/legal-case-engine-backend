@@ -45,6 +45,7 @@ import {
     eliminarArgumento,
     promoverArgumento,
     registrarFeedbackMemoria,
+    actualizarVigenciaMemoria,
     generarPromptsPeticion,
     guardarRespuestaPeticion,
     obtenerRespuestaPeticion,
@@ -73,6 +74,7 @@ import {
     guardarBorradorSchema,
     actualizarBorradorSchema,
     feedbackMemoriaSchema,
+    vigenciaMemoriaSchema,
     crearRequerimientoSchema,
     actualizarRequerimientoSchema,
     responderRequerimientoSchema,
@@ -130,6 +132,8 @@ router.patch('/requerimientos/:reqId/responder-area', checkPermission('tutelas',
 router.patch('/requerimientos/:reqId',                checkPermission('tutelas', 'WRITE'), validate(actualizarRequerimientoSchema), actualizarEstadoRequerimiento);
 router.get('/documento-referencia/:documento_id',     checkPermission('tutelas', 'READ'),  obtenerContenidoCompletoSugerencia);
 router.post('/memoria/:documento_id/feedback',        checkPermission('tutelas', 'WRITE'), validate(feedbackMemoriaSchema), registrarFeedbackMemoria);
+// ECCP fase (g): solo admin (decisión 3, §3.7) -- no checkPermission('tutelas', 'WRITE').
+router.patch('/memoria/:documento_id/vigencia',        checkPermission('admin', 'WRITE'),   validate(vigenciaMemoriaSchema), actualizarVigenciaMemoria);
 router.get('/memoria/:documento_id/prompt-comprension', checkPermission('tutelas', 'READ'),  generarPromptComprensionDoc);
 router.post('/memoria/:documento_id/comprension',       checkPermission('tutelas', 'WRITE'), guardarComprensionDoc);
 router.delete('/memoria/:documento_id',               checkPermission('tutelas', 'DELETE'), eliminarBaseConocimiento);
