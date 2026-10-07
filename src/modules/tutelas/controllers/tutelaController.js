@@ -549,6 +549,36 @@ export const registrarFeedbackMemoria = async (req, res) => {
   }
 };
 
+// ECCP fase (g): solo admin puede marcar un precedente como jurídicamente
+// superado (`checkPermission('admin', 'WRITE')` en la ruta -- ver
+// docs/ANALISIS_ESTIGMERGIA_ECCP.md sección 3.7 decisión 3). Afecta a todos
+// los chunks del documento, igual que el voto de feedback.
+export const actualizarVigenciaMemoria = async (req, res) => {
+  try {
+    const { documento_id } = req.params;
+    const { vigencia_factor, motivo } = req.body;
+
+    const { rowCount } = await pool.query(
+      `UPDATE base_conocimiento_enel
+       SET vigencia_factor = $1,
+           vigencia_actualizada_por = $2,
+           vigencia_actualizada_en = now(),
+           vigencia_motivo = $3
+       WHERE documento_id = $4`,
+      [vigencia_factor, req.user.id, motivo ?? null, documento_id]
+    );
+
+    if (rowCount === 0) return res.status(404).json({ error: 'Documento no encontrado.' });
+
+    await registrarLog(req.user.id, 'ACTUALIZAR_VIGENCIA_MEMORIA', 'memoria', documento_id, req, { vigencia_factor, motivo });
+    res.json({ mensaje: 'Vigencia actualizada.', vigencia_factor });
+
+  } catch (error) {
+    console.error('Error actualizando vigencia:', error);
+    res.status(500).json({ error: 'Error al actualizar la vigencia.' });
+  }
+};
+
 export const obtenerContenidoCompletoSugerencia = async (req, res) => {
   try {
     const { documento_id } = req.params;

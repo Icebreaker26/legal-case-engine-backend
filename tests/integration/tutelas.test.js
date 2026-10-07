@@ -526,6 +526,92 @@ describe('Tutelas — Integración', () => {
     });
   });
 
+  // #161 fase (g): solo admin puede marcar un precedente como superado.
+  describe('ECCP — vigencia_factor, permiso de admin (#161 fase g)', () => {
+    const CATEGORIA_VIGENCIA = 'ECCP_VIGENCIA_TEST';
+    const docVigencia = 'eccccccc-0000-0000-0000-000000000002';
+    const adminAgent = request.agent(app);
+    let adminUuid;
+    const adminEmail = 'eccp-vigencia-admin-test@icebreaker.com';
+    const adminPass  = 'testpass123';
+
+    beforeAll(async () => {
+      await pool.query(
+        `INSERT INTO base_conocimiento_enel
+           (categoria, titulo_referencia, contenido_legal, embedding_local, es_exitosa, is_active, documento_id)
+         VALUES ($1, 'Doc vigencia', 'contenido de prueba', $2, TRUE, TRUE, $3)`,
+        [CATEGORIA_VIGENCIA, JSON.stringify(Array(384).fill(0.1)), docVigencia]
+      );
+
+      const hash = await bcrypt.hash(adminPass, 10);
+      const { rows } = await pool.query(
+        `INSERT INTO global_usuarios (nombre, email, password_hash, rol, is_admin, is_approved)
+         VALUES ($1, $2, $3, 'admin', true, true)
+         ON CONFLICT (email) DO UPDATE SET password_hash = EXCLUDED.password_hash
+         RETURNING id`,
+        ['ECCP Vigencia Admin Test', adminEmail, hash]
+      );
+      adminUuid = rows[0].id;
+      await adminAgent.post('/api/auth/login').send({ email: adminEmail, password: adminPass });
+    });
+
+    afterAll(async () => {
+      await pool.query('DELETE FROM logs_sistema WHERE usuario_uuid = $1', [adminUuid]);
+      await pool.query('DELETE FROM global_usuarios WHERE id = $1', [adminUuid]);
+      await pool.query('DELETE FROM base_conocimiento_enel WHERE documento_id = $1', [docVigencia]);
+    });
+
+    test('un usuario con solo tutelas:WRITE (no admin) recibe 403', async () => {
+      const res = await agent
+        .patch(`/api/tutelas/memoria/${docVigencia}/vigencia`)
+        .send({ vigencia_factor: 0, motivo: 'superado por cambio normativo' });
+      expect(res.status).toBe(403);
+    });
+
+    test('admin puede marcar un precedente como superado', async () => {
+      const res = await adminAgent
+        .patch(`/api/tutelas/memoria/${docVigencia}/vigencia`)
+        .send({ vigencia_factor: 0, motivo: 'superado por cambio normativo' });
+      expect(res.status).toBe(200);
+
+      const { rows } = await pool.query(
+        'SELECT vigencia_factor, vigencia_actualizada_por, vigencia_motivo FROM base_conocimiento_enel WHERE documento_id = $1 LIMIT 1',
+        [docVigencia]
+      );
+      expect(Number(rows[0].vigencia_factor)).toBe(0);
+      expect(rows[0].vigencia_actualizada_por).toBe(adminUuid);
+      expect(rows[0].vigencia_motivo).toBe('superado por cambio normativo');
+    });
+
+    test('Zod rechaza vigencia_factor fuera de [0,1]', async () => {
+      const res = await adminAgent
+        .patch(`/api/tutelas/memoria/${docVigencia}/vigencia`)
+        .send({ vigencia_factor: 1.5 });
+      expect(res.status).toBe(400);
+    });
+
+    test('Zod rechaza campos extra (.strict())', async () => {
+      const res = await adminAgent
+        .patch(`/api/tutelas/memoria/${docVigencia}/vigencia`)
+        .send({ vigencia_factor: 1, relevancia_score: 999 });
+      expect(res.status).toBe(400);
+    });
+
+    test('documento inexistente → 404', async () => {
+      const res = await adminAgent
+        .patch('/api/tutelas/memoria/00000000-0000-0000-0000-000000000000/vigencia')
+        .send({ vigencia_factor: 1 });
+      expect(res.status).toBe(404);
+    });
+
+    test('sin token → 401', async () => {
+      const res = await request(app)
+        .patch(`/api/tutelas/memoria/${docVigencia}/vigencia`)
+        .send({ vigencia_factor: 1 });
+      expect(res.status).toBe(401);
+    });
+  });
+
   // ── Admin: Noise patterns ────────────────────────────────────────────────
   describe('Noise patterns', () => {
     let noiseId;
