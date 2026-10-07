@@ -141,22 +141,24 @@ aplicado solo dentro de los top-K de S_base (K≈20). γ se acota a la mitad de 
 
 ### 3.6 Lo que sigue sin sostenerse del todo
 
-1. **Con muy pocos abogados activos, "colectivo" es una palabra frágil.** Con 2-3 agentes, la coordinación indirecta existe en sentido técnico pero casi no hay agregación — se parece más a memoria compartida de un equipo pequeño que a un enjambre. Se recomienda fijar de antemano un mínimo (ej. ≥5 agentes activos, con la mayoría de documentos votados teniendo rastros de 2+ agentes). Por debajo de ese umbral, presentar ECCP como caso de estudio cualitativo, no hacer afirmaciones cuantitativas de emergencia. **El número real de abogados activos no se ha verificado** — consultar `SELECT COUNT(DISTINCT usuario_uuid) FROM logs_sistema WHERE accion LIKE 'FEEDBACK%'` antes de comprometer el encuadre cuantitativo en la tesis.
+1. **Con muy pocos abogados activos, "colectivo" es una palabra frágil.** Con 2-3 agentes, la coordinación indirecta existe en sentido técnico pero casi no hay agregación — se parece más a memoria compartida de un equipo pequeño que a un enjambre. Se fijó de antemano un mínimo (≥5 agentes activos, con la mayoría de documentos votados teniendo rastros de 2+ agentes) — ver decisión 4 en §3.7: Alejandro estima entre 5 y 10 agentes activos, lo que cumple el umbral pero sigue siendo un grupo pequeño. **Pendiente de verificar con la cifra exacta** antes de comprometerla en la tesis: `SELECT COUNT(DISTINCT usuario_uuid) FROM logs_sistema WHERE accion LIKE 'FEEDBACK%'`. Por debajo del umbral, presentar ECCP como caso de estudio cualitativo; dentro del umbral pero con pocos agentes (como aquí), presentarlo con el mismo matiz de cautela que fija la decisión 4.
 2. **Volumen de datos.** Con pocos votos/mes, los indicadores causales (§3.8) pueden tardar meses en tener potencia estadística.
 3. **El contexto hereda los errores del extractor de categoría** (~26%). La mezcla con rastro global lo amortigua, no lo elimina.
 4. **Los parámetros no se pueden calibrar con el corpus sintético** (feedback=0 ahí). Vida media, γ, ε, prior y tope por agente empiezan como valores razonados y se ajustan solo con datos reales.
 5. **Los agentes no son independientes** — coordinación directa (reuniones, correos) entre abogados se confunde con la coordinación indirecta medida; es una amenaza a la validez que se declara, no se controla.
 6. **"Inspirado en enjambre" es una elección retórica.** El mismo diseño es técnicamente *relevance feedback con prior bayesiano, decaimiento temporal y exploración tipo bandit*. El encuadre de enjambre aporta perspectiva de diseño y de evaluación (medir coordinación entre agentes vía el entorno), no garantías matemáticas propias — hay que poder responder esto ante un comité.
 
-### 3.7 Decisiones abiertas (pendientes de validar antes de implementar)
+### 3.7 Decisiones resueltas (2026-10-07)
 
-1. ¿Se muestra al abogado alguna indicación del rastro (conteo, etiqueta cualitativa, nada)? — recomendación del análisis: nada visible como número.
-2. Contexto: ¿solo categoría jurídica, o también un clúster semántico de la consulta? — recomendación: solo categoría en v1.
-3. ¿Quién marca los eventos normativos (precedente superado) y con qué flujo de permisos?
-4. Umbrales pre-registrados de éxito (§3.8) y el mínimo de agentes activos de §3.6.
-5. Orden de entrega propuesto:
-   - (a) arreglar deduplicación y estado absorbente actuales (independiente de ECCP);
-   - (b) instrumentar impresiones y eventos sin cambiar el ranking;
+Las cinco decisiones que quedaban abiertas ya se resolvieron. Quedan registradas aquí como la versión vigente del diseño — cualquier cambio futuro debe actualizar esta sección, no solo el código.
+
+1. **Visibilidad del rastro ante el abogado: oculto, solo afecta el orden.** El voto de otros abogados mueve la posición del precedente, pero nunca se muestra como número ni conteo — ni siquiera como etiqueta cualitativa tipo "valorado por el equipo". Decisión alineada con la recomendación original del análisis (mitigación de prueba social, §3.5). Consecuencia directa para #142: `buildFichaPrecedente` puede seguir mostrando el score semántico puro (`S_base`), pero el componente de feromona de ECCP (`γ·señal_feromona`) **no debe aparecer nunca** en el porcentaje de relevancia visible en el prompt — hay que separar ambos valores antes de activar ECCP, no después.
+2. **Granularidad del contexto: solo categoría jurídica en v1** (no se agrega clúster semántico de la consulta). Mantiene la recomendación original — menor complejidad, y evita que un clúster semántico no validado introduzca otra fuente de ruido además del ~26% de error ya conocido del extractor de categoría. Consecuencia directa para #143: la categoría que condiciona τ(c,i) debe ser la misma que ya usa `extractorService`/`categoria_confirmada` (la fuente de verdad existente desde #108) — `buildSeccionEstrategia` debe dejar de recalcular su propio agrupamiento por `tipo_caso` como una noción paralela de "categoría del caso".
+3. **Quién marca un precedente como jurídicamente superado (`vigencia_factor = 0`): solo admin.** Un solo rol controla esta señal — evita que un abogado individual saque un precedente del sistema por error o desacuerdo puntual, el mismo riesgo que tenía el estado absorbente de -5 que ECCP reemplaza. Implica que el endpoint que active `vigencia_factor` debe llevar `checkPermission('tutelas', ...)` restringido a admin, no abierto a cualquier `WRITE`.
+4. **Número de agentes activos: entre 5 y 10 (estimado por Alejandro, sin verificar aún contra `logs_sistema`).** Cumple el umbral mínimo pre-registrado (≥5) del §3.6, pero sigue siendo un grupo pequeño de expertos. Decisión de encuadre para la tesis: **presentar ECCP con cautela** — se puede argumentar coordinación indirecta real (el fenómeno técnico existe), pero no inflar el lenguaje a "inteligencia colectiva emergente" sin matizar que es un colectivo pequeño e identificable, no una población grande y anónima. Antes de escribir la cifra final en la tesis, correr igual la consulta de verificación de §3.6 — la estimación de Alejandro fija el rango esperado, no sustituye la medición.
+5. **Orden de entrega confirmado** (sin cambios respecto a la propuesta original):
+   - (a) arreglar deduplicación y estado absorbente actuales (independiente de ECCP) — **ya hecho**, ver #145;
+   - (b) instrumentar impresiones y eventos sin cambiar el ranking — ver #146;
    - (c) activar ECCP como modo opcional (`fusion:'alpha_fb'`), sin tocar el default;
    - (d) evaluación por interleaving.
 
