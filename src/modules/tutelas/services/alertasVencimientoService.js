@@ -13,6 +13,37 @@ const UMBRALES = [
   { dias: 3, mensaje: (r, d) => `📅 Recordatorio: La tutela ${r} vence en 3 días (${d}).` },
 ];
 
+// #163: clave de system_config donde se persiste la fecha (Bogotá,
+// YYYY-MM-DD) de la última corrida de ejecutarAlertasVencimiento que llegó
+// al final sin lanzar -- incluye el caso "no había nada que notificar hoy",
+// que también es una corrida exitosa. Sin esto, un redeploy de Railway
+// justo antes/durante las 7am se come el cron de ese día sin dejar rastro.
+const CONFIG_KEY_ULTIMA_CORRIDA = 'tutelas.alertas_vencimiento.ultima_corrida';
+
+// La alerta de "vence mañana" es sensible a la fecha: si se salta un día
+// completo, al día siguiente esa tutela ya muestra "vence hoy" -- por eso
+// vale la pena el catch-up cualquier momento del mismo día calendario
+// (Bogotá), no solo justo después de las 7am. ejecutarAlertasVencimiento ya
+// es idempotente por tutela (WHERE ultima_notif_vencimiento < CURRENT_DATE),
+// así que correrla de nuevo el mismo día nunca duplica notificaciones.
+// `ahora` es inyectable (default: reloj real) solo para que los tests de
+// recuperarAlertasPerdidas sean deterministas -- en producción siempre se
+// llama sin argumento.
+const hoyBogota = (ahora = new Date()) => ahora.toLocaleDateString('en-CA', { timeZone: 'America/Bogota' });
+
+const horaBogota = (ahora = new Date()) => Number(
+  new Intl.DateTimeFormat('en-US', { timeZone: 'America/Bogota', hour: '2-digit', hour12: false }).format(ahora)
+);
+
+const registrarCorridaExitosa = async (fecha) => {
+  await pool.query(
+    `INSERT INTO system_config (key, value, description)
+     VALUES ($1, $2::jsonb, 'Última corrida exitosa de ejecutarAlertasVencimiento (#163) -- incluye corridas sin tutelas que notificar.')
+     ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value, updated_at = CURRENT_TIMESTAMP`,
+    [CONFIG_KEY_ULTIMA_CORRIDA, JSON.stringify({ fecha, ejecutado_en: new Date().toISOString() })],
+  );
+};
+
 export const ejecutarAlertasVencimiento = async () => {
   try {
     const hoy = new Date();
@@ -35,7 +66,10 @@ export const ejecutarAlertasVencimiento = async () => {
         AND (t.ultima_notif_vencimiento IS NULL OR t.ultima_notif_vencimiento < CURRENT_DATE)
     `);
 
-    if (rows.length === 0) return;
+    if (rows.length === 0) {
+      await registrarCorridaExitosa(hoyBogota());
+      return;
+    }
 
     // #141: cada tutela se procesa en su propio try/catch -- antes, un solo
     // fallo (ej. timeout de red en `crearNotificacion` o en el UPDATE) a
@@ -77,8 +111,45 @@ export const ejecutarAlertasVencimiento = async () => {
     }
 
     logger.info(`[Alertas] ${enviadas} notificación(es) de vencimiento enviadas, ${fallidas} fallida(s).`);
+    // #163: se registra como corrida exitosa aunque haya fallidas puntuales
+    // -- fallidas ya quedan en logs/error.log con su propio detalle, y no
+    // bloquean que el resto del lote cuente como "el cron corrió hoy".
+    await registrarCorridaExitosa(hoyBogota());
   } catch (error) {
     logger.error('[Alertas] Error al ejecutar alertas de vencimiento', { error: error.message });
+    // No se registra como corrida exitosa -- un catch-up posterior (mismo
+    // día o al reiniciar) debe poder reintentar.
+  }
+};
+
+// #163: al arrancar el proceso, si la última corrida exitosa registrada no
+// es "hoy" (Bogotá) y ya pasaron las 7am, dispara un catch-up inmediato en
+// vez de esperar al cron del día siguiente -- cubre el caso de un redeploy
+// de Railway que se comió la ventana de las 7am. Antes de las 7am no hace
+// falta: el cron de ese mismo día todavía no corrió su horario normal.
+export const recuperarAlertasPerdidas = async ({ ahora = new Date() } = {}) => {
+  try {
+    const { rows } = await pool.query(
+      "SELECT value FROM system_config WHERE key = $1",
+      [CONFIG_KEY_ULTIMA_CORRIDA],
+    );
+    const ultimaFecha = rows[0]?.value?.fecha ?? null;
+    const hoy = hoyBogota(ahora);
+
+    if (ultimaFecha === hoy) {
+      logger.info('[Alertas] Catch-up: ya hubo una corrida exitosa hoy, nada que recuperar.');
+      return;
+    }
+
+    if (horaBogota(ahora) < 7) {
+      logger.info('[Alertas] Catch-up: todavía no son las 7am (Bogotá), el cron normal se encarga.');
+      return;
+    }
+
+    logger.warn(`[Alertas] Catch-up: última corrida exitosa registrada fue ${ultimaFecha ?? 'nunca'}, no hoy (${hoy}) -- probable cron perdido por redeploy. Ejecutando ahora.`);
+    await ejecutarAlertasVencimiento();
+  } catch (error) {
+    logger.error('[Alertas] Error verificando catch-up de alertas de vencimiento', { error: error.message });
   }
 };
 
@@ -90,4 +161,8 @@ export const iniciarCronAlertas = () => {
   }, { timezone: 'America/Bogota' });
 
   logger.info('[Alertas] Cron de vencimientos activo — se ejecuta diariamente a las 7:00 AM (Bogotá)');
+
+  // #163: catch-up al arrancar -- no bloquea el boot (fire-and-forget), ya
+  // tiene su propio try/catch interno.
+  recuperarAlertasPerdidas();
 };
