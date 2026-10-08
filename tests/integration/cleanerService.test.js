@@ -5,6 +5,7 @@
  *   - Orden determinista de aplicación de patrones (ORDER BY id)
  *   - Que un patrón inválido no rompe la limpieza de los demás
  */
+import { jest } from '@jest/globals';
 import pool from '../../src/db/database.js';
 import logger from '../../src/utils/logger.js';
 import { limpiarTexto } from '../../src/modules/tutelas/services/cleanerService.js';
