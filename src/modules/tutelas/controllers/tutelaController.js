@@ -12,6 +12,7 @@ import pool from '../../../db/database.js';
 import { ESTADOS, PRIORIDADES } from '../constants.js';
 import { extraerSolicitudes, agruparEnLotes, construirPromptLote, buildPromptComprension, detectarMetodoSegmentacion, LIMITE_EXTRACTO_COMPRENSION } from '../services/peticionService.js';
 import { respuestaLlmSchema } from '../schemas/tutelaSchema.js';
+import { calcularHter, itemsATexto } from '../services/hterService.js';
 
 export const listarBaseConocimiento = async (req, res) => {
   try {
@@ -885,6 +886,33 @@ export const actualizarBorrador = async (req, res) => {
 
         await registrarLog(userId, 'ACTUALIZAR_BORRADOR', 'tutela', id, req, {});
         res.json({ message: 'Borrador actualizado correctamente.' });
+
+        // #162 -- HTER, después de responder (no debe retrasar ni poder
+        // romper el guardado del borrador si algo sale mal acá). Solo tiene
+        // sentido si existen ítems del flujo estructurado contra los que
+        // comparar -- si el abogado escribió desde cero, no hay hipótesis.
+        try {
+            const { rows: itemsRows } = await pool.query(
+                `SELECT rpi.numero, rpi.solicitud, rpi.respuesta, rpi.normas_citadas
+                 FROM respuesta_peticion_items rpi
+                 JOIN respuestas_peticion rp ON rp.id = rpi.respuesta_id
+                 WHERE rp.tutela_id = $1`,
+                [id]
+            );
+            if (itemsRows.length > 0) {
+                const hipotesis = itemsATexto(itemsRows);
+                const medicion = calcularHter(hipotesis, contestacion_generada);
+                if (medicion) {
+                    await registrarLog(userId, 'TELEMETRIA_HTER', 'tutela', id, req, {
+                        v: 1,
+                        ...medicion,
+                        n_items: itemsRows.length,
+                    });
+                }
+            }
+        } catch (errorHter) {
+            logger.error('Error calculando HTER para telemetría (#162)', { tutelaId: id, error: errorHter.message });
+        }
     } catch (error) {
         console.error('Error al actualizar borrador:', error);
         res.status(500).json({ error: 'Error al actualizar borrador.' });
