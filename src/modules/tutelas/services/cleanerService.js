@@ -14,6 +14,15 @@ export const limpiarTexto = async (texto) => {
         // UPDATE o un VACUUM), y un patrón puede interferir con otro que
         // dependa del texto antes de que el anterior lo haya normalizado.
         const { rows } = await pool.query('SELECT patron FROM noise_patterns WHERE activo = TRUE ORDER BY id');
+
+        // #164: sin ningún patrón activo, limpiarTexto es un no-op
+        // silencioso -- si la tabla quedó vacía (seed borrado a mano, o
+        // nunca se corrió la migración de seed) no había forma de
+        // detectarlo desde los logs.
+        if (rows.length === 0) {
+            logger.warn('noise_patterns no tiene patrones activos -- limpiarTexto es un no-op, el texto indexado puede traer ruido de OCR/PDF sin filtrar');
+        }
+
         let limpio = texto;
 
         rows.forEach(row => {

@@ -6,6 +6,7 @@
  *   - Que un patrón inválido no rompe la limpieza de los demás
  */
 import pool from '../../src/db/database.js';
+import logger from '../../src/utils/logger.js';
 import { limpiarTexto } from '../../src/modules/tutelas/services/cleanerService.js';
 
 describe('cleanerService — limpiarTexto (#139)', () => {
@@ -57,5 +58,25 @@ describe('cleanerService — limpiarTexto (#139)', () => {
     await insertarPatron('TEXTO_SECRETO', false);
     const resultado = await limpiarTexto('Contiene TEXTO_SECRETO que no debe limpiarse');
     expect(resultado).toContain('TEXTO_SECRETO');
+  });
+
+  test('registra una advertencia si no hay ningún patrón activo (#164)', async () => {
+    // Desactiva temporalmente TODOS los patrones (incluido el seed base de
+    // #164) para simular la tabla "vacía" a efectos de limpiarTexto, sin
+    // borrar nada -- se restaura en el finally.
+    const { rows: activos } = await pool.query('SELECT id FROM noise_patterns WHERE activo = TRUE');
+    await pool.query('UPDATE noise_patterns SET activo = FALSE WHERE activo = TRUE');
+    const warnSpy = jest.spyOn(logger, 'warn').mockImplementation(() => {});
+
+    try {
+      const resultado = await limpiarTexto('Texto que debería sobrevivir intacto');
+      expect(resultado).toContain('Texto que debería sobrevivir intacto');
+      expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('no-op'));
+    } finally {
+      warnSpy.mockRestore();
+      if (activos.length) {
+        await pool.query('UPDATE noise_patterns SET activo = TRUE WHERE id = ANY($1::int[])', [activos.map((r) => r.id)]);
+      }
+    }
   });
 });
