@@ -281,12 +281,18 @@ export const procesarTutela = async (req, res) => {
     const fechaVencimiento = sumarDiasHabiles(new Date(), parseInt(dias_termino) || 2);
 
     const datosExtraidos = await extraerDatosTutela(textoPdf);
+    const derechoContexto = derechoManual || datosExtraidos.derecho_vulnerado;
     // Sin filtro de categoría (#106): el prefiltro por categoría extraída
     // descartaba por completo los candidatos correctos cada vez que
     // extraerDatosTutela se equivocaba de categoría (recall@5=0 en ese caso,
-    // medido en #104/#106) — peor que no filtrar en absoluto.
+    // medido en #104/#106) — peor que no filtrar en absoluto. `fusion` la
+    // resuelve la guarda dura de #173 (#100 fase 3) -- 'alpha_fb' solo si el
+    // flag, el modelo y los datos ya calzan, si no cae sola a 'ponderado'.
+    const fusion = await resolverFusionAlphaFb('procesarTutela');
     const precedentesExitosos = await recuperarPrecedentes({
       tutela: { contenido_original: textoPdf },
+      fusion,
+      contexto: derechoContexto,
     });
 
     const queryInsert = `
@@ -309,8 +315,9 @@ export const procesarTutela = async (req, res) => {
     await registrarImpresiones({
       usuario_uuid: req.user.id,
       tutela_id: dbResult.rows[0].id,
-      categoria_contexto: derechoManual || datosExtraidos.derecho_vulnerado,
+      categoria_contexto: derechoContexto,
       resultados: precedentesExitosos,
+      fusion,
     });
 
     res.status(200).json({ mensaje: 'Tutela registrada', id_tutela: dbResult.rows[0].id, sugerencias: precedentesExitosos });
@@ -468,9 +475,13 @@ export const generarBorradorContestacion = async (req, res) => {
     }
 
     // Sin IA externa: devuelve sugerencias del RAG local para que el abogado redacte manualmente
-    // Sin filtro de categoría (#106)
+    // Sin filtro de categoría (#106); fusion la resuelve la guarda dura de
+    // #173 (#100 fase 3).
+    const fusion = await resolverFusionAlphaFb('generarBorradorContestacion');
     const sugerencias = await recuperarPrecedentes({
       tutela: { contenido_original: rows[0].contenido_original },
+      fusion,
+      contexto: rows[0].derecho_vulnerado,
     });
 
     await registrarImpresiones({
@@ -478,6 +489,7 @@ export const generarBorradorContestacion = async (req, res) => {
       tutela_id: id,
       categoria_contexto: rows[0].derecho_vulnerado,
       resultados: sugerencias,
+      fusion,
     });
 
     res.status(200).json({ sugerencias, status: 'suggestions_only' });
@@ -1321,13 +1333,17 @@ export const generarPromptsPeticion = async (req, res) => {
     const argumentos = argumentosRes.rows;
 
     const comprension = tutela.analisis_comprension || null;
-    const sugerencias = await recuperarPrecedentes({ tutela }); // sin filtro de categoría (#106)
+    // Sin filtro de categoría (#106); fusion la resuelve la guarda dura de
+    // #173 (#100 fase 3).
+    const fusion = await resolverFusionAlphaFb('generarPromptsPeticion');
+    const sugerencias = await recuperarPrecedentes({ tutela, fusion, contexto: tutela.derecho_vulnerado });
 
     await registrarImpresiones({
       usuario_uuid: req.user.id,
       tutela_id: id,
       categoria_contexto: tutela.derecho_vulnerado,
       resultados: sugerencias,
+      fusion,
     });
 
     const contenidoOriginal = tutela.contenido_original || '';
