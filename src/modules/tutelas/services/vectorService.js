@@ -1,5 +1,5 @@
 import pool from '../../../db/database.js';
-import { obtenerSenalesFeromona } from './pheromoneService.js';
+import { obtenerParametrosBetaFeromona } from './pheromoneService.js';
 
 /**
  * Busca los documentos más similares a la tutela.
@@ -280,6 +280,27 @@ export const ECCP_CONFIG_VERSION = 'v1-gamma0.02';
 // esté en true -- ver #100 para el rollout de este modelo.
 export const MODELO_ALPHA_FB = 'Xenova/multilingual-e5-small';
 
+// ECCP fase (f, #186) — slot explorador (§3.3 "Exploración — slot único con
+// UCB"). Valores de partida razonados, igual que GAMMA_ECCP antes de
+// calibrarse con datos reales (§3.6 punto 4) -- no hay corpus real de
+// feedback todavía para calibrarlos empíricamente, se ajustan cuando lo haya.
+//
+// Z_UCB: multiplicador de la desviación estándar de la Beta en
+// UCB = media + z·√varianza (Auer, Cesa-Bianchi & Fischer 2002 usan z≈√2 en
+// UCB1 clásico; z=1 es más conservador -- un solo desvío estándar).
+export const Z_UCB = 1;
+
+// EPSILON_EXPLORACION: margen en S_base (score_semantico, no score_final)
+// para considerar un candidato "casi equivalente" al que naturalmente
+// ocuparía el puesto explorador -- misma escala que GAMMA_ECCP (0.02), la
+// feromona nunca reordena algo semánticamente lejano, y el margen de
+// exploración tampoco debería ser mayor que eso.
+export const EPSILON_EXPLORACION = 0.02;
+
+// Puestos fijos por explotación determinista antes del slot explorador
+// (§3.3: "Puestos 1-4... Puesto 5: slot explorador").
+const SLOTS_EXPLOTACION = 4;
+
 // ECCP (#173) — condición 3 de la guarda dura: ninguna fila activa de
 // base_conocimiento_enel puede quedar indexada con un modelo distinto al
 // que calibró γ, o alpha_fb compararía vectores de espacios distintos sin
@@ -301,6 +322,44 @@ export const baseIndexadaConModelo = async (modelo, db = pool) => {
   return rows[0].sincronizado;
 };
 
+// ECCP fase (f, #186) — slot explorador (§3.3). El último puesto del
+// resultado (puesto 5 en el caso normal; si `limit` <= SLOTS_EXPLOTACION no
+// hay puesto que explorar, se deja igual) se decide por UCB bayesiano entre
+// los candidatos cuyo S_base (score_semantico, nunca score_final -- la
+// exploración compara evidencia entre precedentes ya semánticamente
+// comparables) está a lo sumo EPSILON_EXPLORACION del candidato que
+// naturalmente ocuparía ese puesto por explotación pura. Si ningún otro
+// candidato entra en el margen, no se explora -- determinista (§3.3: "se
+// prefiere no explorar a explorar mal").
+//
+// `candidatosOrdenados` ya viene ordenado por score_final DESC (mismo
+// desempate que el resto de 'alpha_fb').
+export const aplicarSlotExplorador = (candidatosOrdenados, limit) => {
+  const resultado = candidatosOrdenados.slice(0, limit);
+  if (resultado.length <= SLOTS_EXPLOTACION) return resultado;
+
+  const indiceSlot = SLOTS_EXPLOTACION; // 0-indexed -- puesto 5
+  const natural = resultado[indiceSlot];
+
+  // El resto de candidatos elegibles para el slot son el natural y todo lo
+  // que quedó después de él en el orden por score_final -- nunca alguien ya
+  // fijado en los puestos 1-4 (esos son explotación pura, no se tocan).
+  const elegibles = candidatosOrdenados
+    .slice(indiceSlot)
+    .filter((c) => Math.abs(c.score_semantico - natural.score_semantico) <= EPSILON_EXPLORACION);
+
+  if (elegibles.length <= 1) return resultado; // nadie en el margen -- no se explora
+
+  const ganador = elegibles.reduce((mejor, c) => (c.ucb > mejor.ucb ? c : mejor), elegibles[0]);
+
+  // `es_exploracion` solo es true cuando el slot cambió de ocupante respecto
+  // al orden puramente explotador -- es la señal auditable de "aquí la
+  // exploración movió algo", y lo que dispara la etiqueta visible al
+  // abogado (peticionService.js, buildFichaPrecedente).
+  resultado[indiceSlot] = { ...ganador, es_exploracion: ganador.documento_id !== natural.documento_id };
+  return resultado;
+};
+
 const buscarAlphaFb = async (vectorTutelaLocal, texto, limit, alpha, contexto, gamma = GAMMA_ECCP) => {
   // Sin filtro de categoría en la recuperación (#106) -- `contexto` solo
   // condiciona la lectura de la feromona, nunca qué candidatos entran al CTE.
@@ -309,9 +368,9 @@ const buscarAlphaFb = async (vectorTutelaLocal, texto, limit, alpha, contexto, g
 
   if (!candidatos.length) return [];
 
-  const senales = await obtenerSenalesFeromona(candidatos.map(c => c.documento_id), contexto);
+  const parametros = await obtenerParametrosBetaFeromona(candidatos.map(c => c.documento_id), contexto);
 
-  return candidatos
+  const conScore = candidatos
     // `candidatos` ya viene ordenado por score_crudo DESC (ORDER BY del CTE)
     // -- el índice es su posición contrafactual, la que tendría con S_base
     // puro, sin feromona (#165 fase b, instrumentación de impresiones).
@@ -323,7 +382,12 @@ const buscarAlphaFb = async (vectorTutelaLocal, texto, limit, alpha, contexto, g
       // desempatarse distinto por documento_id (auditoría de Opus, PR #172).
       const scoreSemantico = Number(c.score_crudo);
       const vigencia = c.vigencia_factor != null ? Number(c.vigencia_factor) : 1;
-      const senal = senales[c.documento_id] ?? 0;
+      const stats = parametros[c.documento_id];
+      const senal = stats ? stats.media - 0.5 : 0;
+      // UCB (#161 fase f): media + z·√varianza -- sin rastros, varianza de
+      // Beta(2,2) es máxima (0.05) y media=0.5, así que todo candidato sin
+      // evidencia empieza con UCB alto (favorece cold start, §3.5).
+      const ucb = stats ? stats.media + Z_UCB * Math.sqrt(stats.varianza) : 0.5;
       // Aporte crudo de la feromona, SIN multiplicar por vigencia_factor --
       // es el componente que #174 quiere poder medir aparte (cuánto movió la
       // feromona el score, independiente de si el documento está vigente).
@@ -332,15 +396,17 @@ const buscarAlphaFb = async (vectorTutelaLocal, texto, limit, alpha, contexto, g
       // ECCP (#142, #167): `score` y `score_semantico` son siempre S_base
       // puro -- `buildFichaPrecedente` nunca debe poder leer el componente
       // de feromona. `score_final` solo ordena, no se expone como "score".
-      // `delta_feromona` (#174) es telemetría de análisis, mismo criterio.
-      return { ...c, vigencia, score_semantico: scoreSemantico, score_final: scoreFinal, delta_feromona: deltaFeromona, posicion_contrafactual: idx + 1 };
+      // `delta_feromona` (#174) y `ucb` (#186) son telemetría de análisis,
+      // mismo criterio.
+      return { ...c, vigencia, score_semantico: scoreSemantico, score_final: scoreFinal, delta_feromona: deltaFeromona, posicion_contrafactual: idx + 1, ucb };
     })
     // Diseño §3.3 "por evento normativo": vigencia_factor=0 (precedente
     // jurídicamente superado) desaparece de inmediato -- no solo baja su
     // score a 0, se excluye del resultado aunque quepa en `limit`.
     .filter((c) => c.vigencia !== 0)
-    .sort((a, b) => b.score_final - a.score_final || a.documento_id.localeCompare(b.documento_id))
-    .slice(0, limit);
+    .sort((a, b) => b.score_final - a.score_final || a.documento_id.localeCompare(b.documento_id));
+
+  return aplicarSlotExplorador(conScore, limit);
 };
 
 export const buscarContextoLegal = async (vectorTutelaLocal, textoOriginal = '', limit = 5, categoria = null, { fusion = 'ponderado', alpha = 0.9, contexto = null, gamma = GAMMA_ECCP } = {}) => {

@@ -1,4 +1,4 @@
-import { calcularSenalFeromonaDesdeEventos, calcularPesoEvaporacion, PRIOR_A, PRIOR_B, PESO_GLOBAL, VIDA_MEDIA_DIAS, TOPE_AGENTE } from '../../src/modules/tutelas/services/pheromoneService.js';
+import { calcularSenalFeromonaDesdeEventos, calcularParametrosBetaDesdeEventos, calcularPesoEvaporacion, PRIOR_A, PRIOR_B, PESO_GLOBAL, VIDA_MEDIA_DIAS, TOPE_AGENTE } from '../../src/modules/tutelas/services/pheromoneService.js';
 
 describe('pheromoneService — calcularPesoEvaporacion', () => {
   test('evento de hoy pesa 1 (sin evaporar)', () => {
@@ -157,5 +157,47 @@ describe('pheromoneService — contexto y global son mutuamente excluyentes (sin
     const bEsperado = PRIOR_B;
     const senalEsperada = aEsperado / (aEsperado + bEsperado) - 0.5;
     expect(senalConUnVoto).toBeCloseTo(senalEsperada, 10);
+  });
+});
+
+// ECCP fase (f, #186): calcularParametrosBetaDesdeEventos expone {a, b,
+// media, varianza} -- prerrequisito de UCB (media + z·√varianza) que #161
+// dejó pendiente ("pheromoneService.js calcula solo la media de la Beta").
+describe('pheromoneService — calcularParametrosBetaDesdeEventos (varianza para UCB, #186)', () => {
+  const ahora = new Date('2026-10-07T00:00:00Z');
+
+  test('sin eventos, devuelve el prior neutral Beta(2,2): a=2, b=2, media=0.5', () => {
+    const { a, b, media } = calcularParametrosBetaDesdeEventos([], { categoria: 'Facturacion', ahora });
+    expect(a).toBe(PRIOR_A);
+    expect(b).toBe(PRIOR_B);
+    expect(media).toBeCloseTo(0.5, 10);
+  });
+
+  test('la varianza de Beta(2,2) es ab/[(a+b)²(a+b+1)] = 4/80 = 0.05', () => {
+    const { varianza } = calcularParametrosBetaDesdeEventos([], { categoria: 'Facturacion', ahora });
+    expect(varianza).toBeCloseTo(0.05, 10);
+  });
+
+  test('la media coincide siempre con calcularSenalFeromonaDesdeEventos + 0.5 (misma agregación, distinta proyección)', () => {
+    const eventos = [
+      { usuario_uuid: 'u1', util: true, categoria_contexto: 'Facturacion', created_at: ahora },
+      { usuario_uuid: 'u2', util: false, categoria_contexto: 'Facturacion', created_at: ahora },
+      { usuario_uuid: 'u3', util: true, categoria_contexto: 'Facturacion', created_at: ahora },
+    ];
+    const senal = calcularSenalFeromonaDesdeEventos(eventos, { categoria: 'Facturacion', ahora });
+    const { media } = calcularParametrosBetaDesdeEventos(eventos, { categoria: 'Facturacion', ahora });
+    expect(media).toBeCloseTo(senal + 0.5, 10);
+  });
+
+  test('más evidencia (más votos) reduce la varianza -- menos incertidumbre, menos margen para UCB', () => {
+    const pocaEvidencia = [
+      { usuario_uuid: 'u1', util: true, categoria_contexto: 'Facturacion', created_at: ahora },
+    ];
+    const muchaEvidencia = Array.from({ length: 3 }, (_, i) => ({
+      usuario_uuid: `u${i}`, util: true, categoria_contexto: 'Facturacion', created_at: ahora,
+    }));
+    const { varianza: varPoca } = calcularParametrosBetaDesdeEventos(pocaEvidencia, { categoria: 'Facturacion', ahora });
+    const { varianza: varMucha } = calcularParametrosBetaDesdeEventos(muchaEvidencia, { categoria: 'Facturacion', ahora });
+    expect(varMucha).toBeLessThan(varPoca);
   });
 });
