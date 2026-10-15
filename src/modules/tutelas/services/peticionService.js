@@ -136,9 +136,15 @@ const TONO_POR_URGENCIA = {
 // feromona); los modos de fusión actuales no la tienen y siguen exponiendo
 // solo `score` (que hoy es S_base puro, sin feromona posible). Esta función
 // nunca debe leer `score_final` ni ningún otro campo que incluya feromona.
+// ECCP fase (f, #186): etiqueta visible al abogado cuando el precedente
+// ocupa el slot explorador (§3.3) -- nunca expone un número de feromona o
+// UCB, solo la marca cualitativa que pide el diseño.
+const ETIQUETA_EXPLORACION = 'precedente poco evaluado por el equipo';
+
 export const buildFichaPrecedente = (sug, idx) => {
   const scoreBase = sug.score_semantico ?? sug.score;
   const score = scoreBase ? `${Math.round(scoreBase * 100)}% relevancia` : '';
+  const etiquetaExploracion = sug.es_exploracion ? ` | ${ETIQUETA_EXPLORACION}` : '';
   const comp  = sug.comprension_doc;
 
   if (comp) {
@@ -149,7 +155,7 @@ export const buildFichaPrecedente = (sug, idx) => {
       ? `Derechos/figuras: ${comp.derechos_involucrados.join(', ')}`
       : '';
     return [
-      `PRECEDENTE ${idx + 1} — ${resultado} ${score ? `| ${score}` : ''}`,
+      `PRECEDENTE ${idx + 1} — ${resultado} ${score ? `| ${score}` : ''}${etiquetaExploracion}`,
       `  Título: ${sug.titulo_referencia}`,
       comp.tipo_caso   ? `  Tipo de caso: ${comp.tipo_caso}`   : null,
       comp.que_resuelve ? `  Resolvió: ${comp.que_resuelve}`  : null,
@@ -159,7 +165,7 @@ export const buildFichaPrecedente = (sug, idx) => {
 
   // Fallback — sin comprension_doc: mostrar fragmento textual
   return [
-    `PRECEDENTE ${idx + 1} — ${score}`,
+    `PRECEDENTE ${idx + 1} — ${score}${etiquetaExploracion}`,
     `  Título: ${sug.titulo_referencia} (${sug.categoria})`,
     `  Fragmento: ${sug.contenido_legal}`,
   ].join('\n');
