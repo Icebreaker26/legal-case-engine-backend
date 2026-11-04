@@ -25,10 +25,16 @@ const buildScoringCTE = ({ filtrarCategoria, excluirIds = [] }) => {
 
   // La expresión se repite (no se puede referenciar el alias "score" del SELECT
   // list dentro del propio SELECT): ROW_NUMBER() debe partir el documento por el
-  // mismo score híbrido, no solo por ts_rank, o descarta el mejor chunk semántico.
+  // mismo score híbrido, no solo por el componente léxico, o descarta el mejor
+  // chunk semántico.
+  //
+  // ts_rank_cd (cover density, Clarke/Cormack/Tudhope 1999) en vez de ts_rank: además
+  // de frecuencia, premia que los términos de la consulta aparezcan cerca entre sí en
+  // el documento -- señal relevante para consultas tipo frase jurídica ("servidumbre
+  // de paso"), que ts_rank ignora por completo.
   const scoreExpr = `
           (1 - (COALESCE(embedding_comprension, embedding_local) <=> $1::vector)) * 0.55 +
-          LEAST(ts_rank(contenido_tsv, plainto_tsquery('spanish', $2)), 1.0) * 0.35 +
+          LEAST(ts_rank_cd(contenido_tsv, plainto_tsquery('spanish', $2)), 1.0) * 0.35 +
           LEAST(GREATEST(relevancia_score, 0), 10) / 10.0 * 0.10
   `;
 
@@ -133,12 +139,12 @@ const RRF_QUERY = `
     LIMIT $5
   ),
   txt AS (
-    SELECT b.id, ROW_NUMBER() OVER (ORDER BY ts_rank(b.contenido_tsv, q.tsq) DESC) AS rank
+    SELECT b.id, ROW_NUMBER() OVER (ORDER BY ts_rank_cd(b.contenido_tsv, q.tsq) DESC) AS rank
     FROM base_conocimiento_enel b, q
     WHERE b.embedding_local IS NOT NULL AND b.es_exitosa = TRUE AND b.is_active = TRUE
       AND b.documento_id IS NOT NULL ${CATEGORIA_FILTER}
       AND q.tsq IS NOT NULL AND b.contenido_tsv @@ q.tsq
-    ORDER BY ts_rank(b.contenido_tsv, q.tsq) DESC
+    ORDER BY ts_rank_cd(b.contenido_tsv, q.tsq) DESC
     LIMIT $5
   ),
   rel AS (
@@ -206,6 +212,13 @@ const buscarRRF = async (vectorTutelaLocal, texto, limit, categoria) => {
 // de ordenar, como hace buildScoringCTE, puede cambiar el ranking cuando los
 // scores quedan muy juntos (típico con α alto). El ROUND solo se aplica a la
 // columna que se expone, nunca al ORDER BY.
+//
+// A propósito sigue usando ts_rank, NO ts_rank_cd (migración del componente
+// léxico a cover density, ver buildScoringCTE arriba): este modo existe para
+// reproducir bit a bit la fórmula exacta que #121 validó con significancia
+// estadística (coseno*α + ts_rank*(1-α), definida en v2_barrido_pesos.js).
+// Cambiar la función de ranking aquí rompería esa reproducibilidad -- el
+// resultado confirmado dejaría de describir lo que este código calcula.
 const buildAlphaScoringCTE = () => {
   const scoreExpr = `
           (1 - (COALESCE(embedding_comprension, embedding_local) <=> $1::vector)) * $5::float8 +
