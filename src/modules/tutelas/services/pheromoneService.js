@@ -50,10 +50,11 @@ const sumarConTopePorAgente = (pesosPorUsuario, campo) => {
 };
 
 /**
- * Lectura Beta-Bernoulli de una lista de eventos de feedback ya evaporados
- * por edad. Cada evento sin evaporar pesa como un voto completo; un evento
- * evaporado a la mitad pesa como medio voto (en 'a' si útil, en 'b' si no),
- * acotado por TOPE_AGENTE antes de sumarse a la cuenta de su agente.
+ * Agrega una lista de eventos de feedback ya evaporados por edad en los
+ * parámetros crudos {a, b} de la Beta-Bernoulli. Cada evento sin evaporar
+ * pesa como un voto completo; uno evaporado a la mitad pesa medio voto (en
+ * 'a' si útil, en 'b' si no), acotado por TOPE_AGENTE antes de sumarse a la
+ * cuenta de su agente.
  *
  * Función pura -- no toca la base de datos, solo agrega. `eventos` es
  * [{ usuario_uuid, util, categoria_contexto, created_at }, ...] para UN
@@ -65,7 +66,7 @@ const sumarConTopePorAgente = (pesosPorUsuario, campo) => {
  * contaran ambos, un voto en el propio contexto pesaría 1 + PESO_GLOBAL en
  * vez de 1.
  */
-export const calcularSenalFeromonaDesdeEventos = (eventos, { categoria = null, ahora = new Date() } = {}) => {
+const agregarBetaDesdeEventos = (eventos, { categoria = null, ahora = new Date() } = {}) => {
   const pesosContextoPorUsuario = new Map();
   const pesosGlobalPorUsuario = new Map();
 
@@ -90,6 +91,16 @@ export const calcularSenalFeromonaDesdeEventos = (eventos, { categoria = null, a
   // no tiene sentido mezclar el global consigo mismo con un peso parcial.
   const a = categoria ? PRIOR_A + aContexto + PESO_GLOBAL * aGlobal : PRIOR_A + aGlobal;
   const b = categoria ? PRIOR_B + bContexto + PESO_GLOBAL * bGlobal : PRIOR_B + bGlobal;
+  return { a, b };
+};
+
+/**
+ * Lectura Beta-Bernoulli de una lista de eventos -- solo la señal de
+ * utilidad (media - 0.5). Ver `calcularParametrosBetaDesdeEventos` para los
+ * parámetros crudos {a, b, media, varianza} (#161 fase f, necesarios para UCB).
+ */
+export const calcularSenalFeromonaDesdeEventos = (eventos, opts = {}) => {
+  const { a, b } = agregarBetaDesdeEventos(eventos, opts);
 
   // Nota de diseño (auditoría de Opus, PR #172): el documento de diseño dice
   // "Media = a/(a+b) es la señal (0 sin rastros)" -- con el prior neutral
@@ -98,6 +109,19 @@ export const calcularSenalFeromonaDesdeEventos = (eventos, { categoria = null, a
   // ANALISIS_ESTIGMERGIA_ECCP.md sección 3.9, corrección documentada ahí).
   const media = a / (a + b);
   return media - 0.5; // 0 sin rastros (prior neutral) -- rango (-0.5, 0.5)
+};
+
+/**
+ * Parámetros crudos de la Beta-Bernoulli (#161 fase f, diseño §3.3
+ * "Exploración — slot único con UCB"): {a, b} más media y varianza
+ * (ab / [(a+b)²(a+b+1)]) -- la varianza es la que falta para calcular
+ * UCB = media + z·√varianza, el prerrequisito que #161 dejó pendiente.
+ */
+export const calcularParametrosBetaDesdeEventos = (eventos, opts = {}) => {
+  const { a, b } = agregarBetaDesdeEventos(eventos, opts);
+  const media = a / (a + b);
+  const varianza = (a * b) / ((a + b) ** 2 * (a + b + 1));
+  return { a, b, media, varianza };
 };
 
 /**
@@ -114,12 +138,11 @@ export const obtenerSenalFeromona = async (documentoId, categoria = null, ahora 
   return calcularSenalFeromonaDesdeEventos(rows, { categoria, ahora });
 };
 
-/**
- * Versión en lote -- una sola consulta para varios documentos, evita N+1
- * cuando se re-rankean los top-K candidatos (#161 fase e).
- */
-export const obtenerSenalesFeromona = async (documentoIds, categoria = null, ahora = new Date()) => {
-  if (!documentoIds.length) return {};
+// Una sola consulta para varios documentos, evita N+1 cuando se re-rankean
+// los top-K candidatos (#161 fases e/f). Compartida por las dos versiones en
+// lote de abajo (señal sola vs. parámetros crudos de la Beta).
+const agruparEventosPorDocumento = async (documentoIds) => {
+  if (!documentoIds.length) return new Map();
 
   const { rows } = await pool.query(
     'SELECT documento_id, usuario_uuid, util, categoria_contexto, created_at FROM feedback_precedentes WHERE documento_id = ANY($1::uuid[])',
@@ -130,10 +153,31 @@ export const obtenerSenalesFeromona = async (documentoIds, categoria = null, aho
   for (const ev of rows) {
     eventosPorDoc.get(ev.documento_id)?.push(ev);
   }
+  return eventosPorDoc;
+};
 
+/**
+ * Versión en lote de `calcularSenalFeromonaDesdeEventos` -- una sola
+ * consulta para varios documentos (#161 fase e).
+ */
+export const obtenerSenalesFeromona = async (documentoIds, categoria = null, ahora = new Date()) => {
+  const eventosPorDoc = await agruparEventosPorDocumento(documentoIds);
   const senales = {};
   for (const [documentoId, eventos] of eventosPorDoc) {
     senales[documentoId] = calcularSenalFeromonaDesdeEventos(eventos, { categoria, ahora });
   }
   return senales;
+};
+
+/**
+ * Versión en lote de `calcularParametrosBetaDesdeEventos` -- una sola
+ * consulta para varios documentos (#161 fase f, slot explorador UCB).
+ */
+export const obtenerParametrosBetaFeromona = async (documentoIds, categoria = null, ahora = new Date()) => {
+  const eventosPorDoc = await agruparEventosPorDocumento(documentoIds);
+  const parametros = {};
+  for (const [documentoId, eventos] of eventosPorDoc) {
+    parametros[documentoId] = calcularParametrosBetaDesdeEventos(eventos, { categoria, ahora });
+  }
+  return parametros;
 };

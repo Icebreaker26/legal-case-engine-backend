@@ -132,14 +132,14 @@ export const registrarImpresiones = async ({ usuario_uuid = null, tutela_id = nu
     const configVersion = fusion === 'alpha_fb' ? ECCP_CONFIG_VERSION : null;
     const embeddingModel = env.EMBEDDING_MODEL;
 
-    const columnas = ['usuario_uuid', 'tutela_id', 'documento_id', 'categoria_contexto', 'posicion_mostrada', 'posicion_contrafactual', 'score_base', 'fusion_modo', 'embedding_model', 'gamma', 'config_version', 'delta_feromona'];
+    const columnas = ['usuario_uuid', 'tutela_id', 'documento_id', 'categoria_contexto', 'posicion_mostrada', 'posicion_contrafactual', 'score_base', 'fusion_modo', 'embedding_model', 'gamma', 'config_version', 'delta_feromona', 'es_exploracion'];
     const values = [];
     const filas = resultados.map((r, i) => {
       const posicion = i + 1;
       const contrafactual = r.posicion_contrafactual ?? posicion;
       values.push(
         usuario_uuid, tutela_id, r.documento_id, categoria_contexto, posicion, contrafactual, r.score_semantico ?? r.score ?? null,
-        fusion, embeddingModel, gamma, configVersion, r.delta_feromona ?? null
+        fusion, embeddingModel, gamma, configVersion, r.delta_feromona ?? null, r.es_exploracion ?? false
       );
       const offset = i * columnas.length;
       return `(${columnas.map((_, j) => `$${offset + j + 1}`).join(', ')})`;
