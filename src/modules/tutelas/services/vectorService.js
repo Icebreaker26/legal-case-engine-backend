@@ -199,8 +199,8 @@ const buscarRRF = async (vectorTutelaLocal, texto, limit, categoria) => {
 // reproducirla a través del pipeline real (recuperarPrecedentes) y confirmar
 // que el código de producción, tal cual, da el mismo nDCG@10 reportado.
 //
-// Deliberadamente NO reemplaza 'ponderado' como default — fusion:'alpha' solo
-// se usa si el caller lo pide explícitamente.
+// Desde #193 es la fusión por defecto de los endpoints de tutelas: la decide
+// resolverFusion (consultaService.js), con guarda de modelo y datos.
 //
 // El SQL de la fórmula vive en src/services/motorBusqueda.js (#192), parametrizado
 // por fuente para que ambiental use exactamente la misma fusión (épica #199).
@@ -217,7 +217,8 @@ const buscarAlpha = (vectorTutelaLocal, texto, limit, categoria, alpha) =>
 // lejano. Con γ=0 o sin rastros (señal=0 siempre), el orden resultante es
 // idéntico al de 'alpha' puro -- degeneración segura (§3.3, §3.6 punto 4).
 //
-// Modo opcional (fusion:'alpha_fb'), nunca el default de producción.
+// Capa experimental opcional (fusion:'alpha_fb'): resolverFusion la suma a
+// 'alpha' solo si el flag de ECCP del endpoint está activo (#193).
 const K_RERANK = 20;
 
 // Calibrado offline (#161 fase e) sobre el run confirmatorio real de #121
@@ -235,10 +236,9 @@ export const GAMMA_ECCP = 0.02;
 export const ECCP_CONFIG_VERSION = 'v1-gamma0.02';
 
 // Modelo de embeddings contra el que se calibró GAMMA_ECCP (#161 fase e,
-// ver nota arriba). La guarda dura de #173 (resolverFusionAlphaFb,
-// consultaService.js) nunca activa 'alpha_fb' en producción si
-// EMBEDDING_MODEL no es exactamente este, aunque el flag de system_config
-// esté en true -- ver #100 para el rollout de este modelo.
+// ver nota arriba). Es también el modelo de la configuración validada: la
+// guarda de resolverFusion (consultaService.js, #193) nunca usa 'alpha' ni
+// 'alpha_fb' si EMBEDDING_MODEL no es exactamente este -- cae a 'ponderado'.
 export const MODELO_ALPHA_FB = 'Xenova/multilingual-e5-small';
 
 // ECCP fase (f, #186) — slot explorador (§3.3 "Exploración — slot único con
