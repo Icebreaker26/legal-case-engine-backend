@@ -327,17 +327,35 @@ describe('vectorService — buscarContextoLegal (integración real contra pgvect
     const docNeutro    = 'cccccccc-fb00-0000-0000-000000000002';
     const docNegativo  = 'cccccccc-fb00-0000-0000-000000000003';
 
+    // #209: alpha_fb busca sin filtro de categoría (#106), así que compite con
+    // TODO base_conocimiento_enel. Con un vector constante (vectorCercano), el
+    // coseno contra cualquier vector constante de otras suites (mocks con
+    // fill(0.1), restos de corridas viejas) es exactamente 1.0, y el top-K
+    // quedaba decidido por empates y por lo que otras suites escribían en
+    // paralelo. Este vector alterna ±0.9: su coseno con cualquier vector
+    // constante es 0, así que los documentos de este bloque quedan
+    // estrictamente arriba.
+    const vectorFb = Array.from({ length: 384 }, (_, i) => (i % 2 === 0 ? 0.9 : -0.9));
+    const docsPropios = [
+      [docFavorable, 'Alpha FB Doc favorable (votos útiles)'],
+      [docNeutro,    'Alpha FB Doc neutro (sin votos)'],
+      [docNegativo,  'Alpha FB Doc negativo (votos no útiles)'],
+      ['cccccccc-fb00-0000-0000-000000000004', 'Alpha FB Doc relleno 4 (sin votos)'],
+      ['cccccccc-fb00-0000-0000-000000000005', 'Alpha FB Doc relleno 5 (sin votos)'],
+      ['cccccccc-fb00-0000-0000-000000000006', 'Alpha FB Doc relleno 6 (sin votos)'],
+    ];
+    // Las comparaciones de conjunto usan este límite: solo compiten documentos
+    // que controla este bloque (y hay más de 4, así que el slot explorador del
+    // puesto 5 sí se ejercita).
+    const LIMITE_PROPIOS = docsPropios.length;
+
     beforeAll(async () => {
-      for (const [documento_id, titulo] of [
-        [docFavorable, 'Alpha FB Doc favorable (votos útiles)'],
-        [docNeutro,    'Alpha FB Doc neutro (sin votos)'],
-        [docNegativo,  'Alpha FB Doc negativo (votos no útiles)'],
-      ]) {
+      for (const [documento_id, titulo] of docsPropios) {
         await pool.query(
           `INSERT INTO base_conocimiento_enel
              (categoria, titulo_referencia, contenido_legal, embedding_local, es_exitosa, is_active, documento_id, relevancia_score)
            VALUES ($1, $2, 'Corte del servicio eléctrico por mora en el pago de facturación mensual.', $3, TRUE, TRUE, $4, 0)`,
-          [CATEGORIA_FB, titulo, JSON.stringify(vectorCercano), documento_id]
+          [CATEGORIA_FB, titulo, JSON.stringify(vectorFb), documento_id]
         );
       }
 
@@ -368,52 +386,52 @@ describe('vectorService — buscarContextoLegal (integración real contra pgvect
     });
 
     test('sin rastros de feedback (contexto nuevo), alpha_fb devuelve el mismo conjunto de candidatos que alpha puro', async () => {
-      // Comparación por CONJUNTO, no por orden exacto: con el seed global de
-      // pruebas (muchos documentos genéricos), puede haber más candidatos
-      // empatados en score_crudo que K_RERANK -- bajo un empate exacto
-      // cualquier orden es igual de válido, así que fijar un orden exacto
-      // haría el test frágil ante seeds no controlados por este archivo.
+      // Comparación por CONJUNTO, no por orden exacto: los documentos de este
+      // bloque empatan entre sí en S_base (mismo vector, mismo texto), y bajo
+      // un empate exacto el slot explorador puede reordenarlos. Con
+      // LIMITE_PROPIOS solo compiten documentos de este bloque (#209).
       // docFavorable/docNegativo sí tienen rastro global (peso 0.3, se
       // mezcla en CUALQUIER contexto por diseño §3.3), así que se excluyen.
       const sinHistoria = (ids) => ids.filter(id => id !== docFavorable && id !== docNegativo);
       const contextoSinHistoria = 'CATEGORIA_SIN_HISTORIA_XYZ';
-      const rowsAlpha = await buscarContextoLegal(vectorCercano, 'facturación mensual', 10, null, { fusion: 'alpha', alpha: 0.9 });
-      const rowsAlphaFb = await buscarContextoLegal(vectorCercano, 'facturación mensual', 10, null, { fusion: 'alpha_fb', alpha: 0.9, contexto: contextoSinHistoria });
+      const rowsAlpha = await buscarContextoLegal(vectorFb, 'facturación mensual', LIMITE_PROPIOS, null, { fusion: 'alpha', alpha: 0.9 });
+      const rowsAlphaFb = await buscarContextoLegal(vectorFb, 'facturación mensual', LIMITE_PROPIOS, null, { fusion: 'alpha_fb', alpha: 0.9, contexto: contextoSinHistoria });
+      expect(rowsAlpha.map(r => r.documento_id).sort()).toEqual(docsPropios.map(([id]) => id).sort());
       expect(new Set(sinHistoria(rowsAlphaFb.map(r => r.documento_id)))).toEqual(new Set(sinHistoria(rowsAlpha.map(r => r.documento_id))));
     });
 
     test('con γ=0, alpha_fb devuelve el mismo conjunto de candidatos que alpha puro aunque haya votos', async () => {
-      // Comparación por conjunto, no por orden exacto -- ver nota del test
-      // anterior sobre empates exactos con el seed global de pruebas.
-      const rowsAlpha = await buscarContextoLegal(vectorCercano, 'facturación mensual', 10, null, { fusion: 'alpha', alpha: 0.9 });
-      const rowsAlphaFb = await buscarContextoLegal(vectorCercano, 'facturación mensual', 10, null, { fusion: 'alpha_fb', alpha: 0.9, contexto: CATEGORIA_FB, gamma: 0 });
+      // Comparación por conjunto, no por orden exacto -- ver nota del test anterior.
+      const rowsAlpha = await buscarContextoLegal(vectorFb, 'facturación mensual', LIMITE_PROPIOS, null, { fusion: 'alpha', alpha: 0.9 });
+      const rowsAlphaFb = await buscarContextoLegal(vectorFb, 'facturación mensual', LIMITE_PROPIOS, null, { fusion: 'alpha_fb', alpha: 0.9, contexto: CATEGORIA_FB, gamma: 0 });
+      expect(rowsAlpha.map(r => r.documento_id).sort()).toEqual(docsPropios.map(([id]) => id).sort());
       expect(new Set(rowsAlphaFb.map(r => r.documento_id))).toEqual(new Set(rowsAlpha.map(r => r.documento_id)));
     });
 
     test('con γ por defecto, un documento con votos útiles en su contexto sube su score_final por encima de su score semántico', async () => {
-      const rows = await buscarContextoLegal(vectorCercano, 'facturación mensual', 10, null, { fusion: 'alpha_fb', alpha: 0.9, contexto: CATEGORIA_FB });
+      const rows = await buscarContextoLegal(vectorFb, 'facturación mensual', 10, null, { fusion: 'alpha_fb', alpha: 0.9, contexto: CATEGORIA_FB });
       const favorable = rows.find(r => r.documento_id === docFavorable);
       expect(favorable).toBeDefined();
       expect(favorable.score_final).toBeGreaterThan(favorable.score_semantico);
     });
 
     test('un documento con votos no útiles en su contexto baja su score_final por debajo de su score semántico', async () => {
-      const rows = await buscarContextoLegal(vectorCercano, 'facturación mensual', 10, null, { fusion: 'alpha_fb', alpha: 0.9, contexto: CATEGORIA_FB });
+      const rows = await buscarContextoLegal(vectorFb, 'facturación mensual', 10, null, { fusion: 'alpha_fb', alpha: 0.9, contexto: CATEGORIA_FB });
       const negativo = rows.find(r => r.documento_id === docNegativo);
       expect(negativo).toBeDefined();
       expect(negativo.score_final).toBeLessThan(negativo.score_semantico);
     });
 
     test('un documento sin votos mantiene score_final === score_semantico (señal 0)', async () => {
-      const rows = await buscarContextoLegal(vectorCercano, 'facturación mensual', 10, null, { fusion: 'alpha_fb', alpha: 0.9, contexto: CATEGORIA_FB });
+      const rows = await buscarContextoLegal(vectorFb, 'facturación mensual', 10, null, { fusion: 'alpha_fb', alpha: 0.9, contexto: CATEGORIA_FB });
       const neutro = rows.find(r => r.documento_id === docNeutro);
       expect(neutro).toBeDefined();
       expect(neutro.score_final).toBeCloseTo(neutro.score_semantico, 10);
     });
 
     test('score y score_semantico nunca incluyen el componente de feromona (#142, #167)', async () => {
-      const rowsAlpha = await buscarContextoLegal(vectorCercano, 'facturación mensual', 10, null, { fusion: 'alpha', alpha: 0.9 });
-      const rowsAlphaFb = await buscarContextoLegal(vectorCercano, 'facturación mensual', 10, null, { fusion: 'alpha_fb', alpha: 0.9, contexto: CATEGORIA_FB });
+      const rowsAlpha = await buscarContextoLegal(vectorFb, 'facturación mensual', 10, null, { fusion: 'alpha', alpha: 0.9 });
+      const rowsAlphaFb = await buscarContextoLegal(vectorFb, 'facturación mensual', 10, null, { fusion: 'alpha_fb', alpha: 0.9, contexto: CATEGORIA_FB });
       // 'alpha' expone `score` redondeado a 6 decimales; `score_semantico` de
       // 'alpha_fb' usa `score_crudo` sin redondear a propósito (precisión
       // completa para el desempate del re-ranking, auditoría de Opus #172) —
@@ -429,14 +447,14 @@ describe('vectorService — buscarContextoLegal (integración real contra pgvect
     });
 
     test('nunca repite documento_id (un chunk representante por documento)', async () => {
-      const rows = await buscarContextoLegal(vectorCercano, 'facturación mensual', 10, null, { fusion: 'alpha_fb', alpha: 0.9, contexto: CATEGORIA_FB });
+      const rows = await buscarContextoLegal(vectorFb, 'facturación mensual', 10, null, { fusion: 'alpha_fb', alpha: 0.9, contexto: CATEGORIA_FB });
       const ids = rows.map(r => r.documento_id);
       expect(new Set(ids).size).toBe(ids.length);
     });
 
     test('alpha inválido lanza error igual que en el modo "alpha"', async () => {
       await expect(
-        buscarContextoLegal(vectorCercano, 'facturación', 10, null, { fusion: 'alpha_fb', alpha: 2 })
+        buscarContextoLegal(vectorFb, 'facturación', 10, null, { fusion: 'alpha_fb', alpha: 2 })
       ).rejects.toThrow(/alpha inválido/);
     });
 
@@ -445,7 +463,7 @@ describe('vectorService — buscarContextoLegal (integración real contra pgvect
     test('vigencia_factor=0 excluye el documento del resultado, aunque sobre espacio en el limit', async () => {
       await pool.query('UPDATE base_conocimiento_enel SET vigencia_factor = 0 WHERE documento_id = $1', [docNeutro]);
       try {
-        const rows = await buscarContextoLegal(vectorCercano, 'facturación mensual', 10, null, { fusion: 'alpha_fb', alpha: 0.9, contexto: CATEGORIA_FB });
+        const rows = await buscarContextoLegal(vectorFb, 'facturación mensual', 10, null, { fusion: 'alpha_fb', alpha: 0.9, contexto: CATEGORIA_FB });
         expect(rows.find(r => r.documento_id === docNeutro)).toBeUndefined();
       } finally {
         await pool.query('UPDATE base_conocimiento_enel SET vigencia_factor = 1 WHERE documento_id = $1', [docNeutro]);
