@@ -1,0 +1,121 @@
+{
+  "fecha": "2026-11-11T10:03:16.285Z",
+  "corpus": 45,
+  "consultas": 30,
+  "corpus_con_analisis": 33,
+  "consultas_con_analisis": 21,
+  "longitud_contenido_corpus": {
+    "min": 3040,
+    "mediana": 3248,
+    "max": 3978
+  },
+  "longitud_contenido_consultas": {
+    "min": 3000,
+    "mediana": 3239,
+    "max": 3634
+  },
+  "composicion": {
+    "COMPENSACION_FORESTAL": {
+      "corpus": 5,
+      "consultas": 4,
+      "subtemas": [
+        "aprovechamiento_tala_torres",
+        "incumplimiento_plan_compensacion",
+        "sust_compensacion_servidumbre"
+      ]
+    },
+    "LICENCIA_AMBIENTAL_LT": {
+      "corpus": 5,
+      "consultas": 3,
+      "subtemas": [
+        "licencia_subestacion_nueva",
+        "modificacion_licencia_lt",
+        "requerimiento_seguimiento_obras"
+      ]
+    },
+    "VERTIMIENTOS": {
+      "corpus": 5,
+      "consultas": 3,
+      "subtemas": [
+        "incumplimiento_caracterizacion",
+        "renovacion_permiso_subestacion",
+        "vertimiento_campamento_obra"
+      ]
+    },
+    "OCUPACION_CAUCE": {
+      "corpus": 5,
+      "consultas": 4,
+      "subtemas": [
+        "acceso_vial_ocupacion_cauce",
+        "cruce_aereo_linea_quebrada",
+        "obra_defensa_ribera_cauce"
+      ]
+    },
+    "SANCIONATORIO": {
+      "corpus": 5,
+      "consultas": 3,
+      "subtemas": [
+        "cargos_por_tala_no_autorizada",
+        "medida_preventiva_suspension",
+        "sancion_multa_incumplimiento_pma"
+      ]
+    },
+    "LEVANTAMIENTO_VEDA": {
+      "corpus": 5,
+      "consultas": 3,
+      "subtemas": [
+        "levantamiento_epifitas_linea_sur",
+        "levantamiento_helechos_arborescentes",
+        "medidas_manejo_especies_vedadas"
+      ]
+    },
+    "RUIDO_SUBESTACION": {
+      "corpus": 5,
+      "consultas": 4,
+      "subtemas": [
+        "barrera_acustica_perimetral",
+        "medicion_nivel_presion_sonora_nocturno",
+        "queja_vecinal_zumbido_transformador"
+      ]
+    },
+    "RESIDUOS_PELIGROSOS": {
+      "corpus": 5,
+      "consultas": 3,
+      "subtemas": [
+        "almacenamiento_temporal_respel",
+        "derrame_aceite_dielectrico",
+        "inventario_eliminacion_pcb"
+      ]
+    },
+    "CONCESION_AGUAS": {
+      "corpus": 5,
+      "consultas": 3,
+      "subtemas": [
+        "captacion_superficial_campamento",
+        "pozo_subterraneo_subestacion",
+        "vertimiento_aguas_residuales_obra"
+      ]
+    }
+  },
+  "umbral_duplicado_jaccard_5gramas": 0.8,
+  "jaccard_maximo": {
+    "consulta_consulta": {
+      "a": "QAMB-CFO-001",
+      "b": "QAMB-LIC-001",
+      "s": 0.042105263157894736
+    },
+    "consulta_corpus": {
+      "a": "QAMB-VER-001",
+      "b": "AMB-VER-001",
+      "s": 0.12474849094567404
+    },
+    "corpus_corpus": {
+      "a": "AMB-CAG-001",
+      "b": "AMB-CAG-004",
+      "s": 0.02653927813163482
+    }
+  },
+  "pares_sobre_umbral": [],
+  "consultas_descartadas": {},
+  "errores": []
+}
