@@ -1,7 +1,7 @@
 import pool from '../../../db/database.js';
 import { registrarLog } from '../../../services/auditService.js';
 import { extractTextFromFile, generarPromptsAmbientales, generarPromptRespuesta, hashBuffer, hashTexto } from '../services/ambientalService.js';
-import { guardarEmbedding, buscarSimilares } from '../services/ambientalEmbeddingService.js';
+import { guardarEmbedding, buscarSimilares, programarReindexacionTrozos, reindexarTrozosExpediente } from '../services/ambientalEmbeddingService.js';
 import * as bibliotecaService from '../services/ambientalBibliotecaService.js';
 import { analisisLlmSchema } from '../schemas/ambientalSchema.js';
 import { jsonrepair } from 'jsonrepair';
@@ -87,6 +87,7 @@ export const crearExpediente = async (req, res) => {
     await registrarLog(creado_por, 'CREAR_EXPEDIENTE_AMBIENTAL', 'ambiental', rows[0].id, req);
     if (contenido_texto) {
       setImmediate(() => guardarEmbedding(rows[0].id, contenido_texto, 'contenido'));
+      programarReindexacionTrozos(rows[0].id, 'crearExpediente');
     }
     res.status(201).json(rows[0]);
   } catch (error) {
@@ -172,6 +173,7 @@ export const actualizarExpediente = async (req, res) => {
       valores
     );
     if (!rows.length) return res.status(404).json({ error: 'Expediente no encontrado.' });
+    if (req.body.contenido_texto !== undefined) programarReindexacionTrozos(req.params.id, 'actualizarExpediente');
     res.json(rows[0]);
   } catch (error) {
     logger.error('actualizarExpediente error', { error: error.message });
@@ -371,6 +373,9 @@ export const guardarAnalisis = async (req, res) => {
     if (resumen) {
       const textoEmb = [resumen, que_ordena].filter(Boolean).join(' ');
       setImmediate(() => guardarEmbedding(id, textoEmb, 'analisis'));
+      // Los trozos se leen de la base: en modo 'acumular' cubren todo el
+      // resumen acumulado, no solo la sección nueva.
+      programarReindexacionTrozos(id, 'guardarAnalisis');
     }
     res.status(201).json({ analisis_id: analisisId, modo, message: modo === 'acumular' ? 'Hallazgos acumulados correctamente.' : 'Análisis guardado correctamente.' });
   } catch (error) {
@@ -459,6 +464,7 @@ export const consolidarResumen = async (req, res) => {
       [resumen.trim(), id]
     );
     if (!rows.length) return res.status(404).json({ error: 'Análisis no encontrado.' });
+    programarReindexacionTrozos(id, 'consolidarResumen');
     res.json({ message: 'Resumen consolidado guardado.' });
   } catch (error) {
     logger.error('consolidarResumen error', { error: error.message });
@@ -930,6 +936,15 @@ export const generarEmbeddingExpediente = async (req, res) => {
     }
 
     await guardarEmbedding(id, texto, fuente);
+    // Endpoint explícito: los trozos se indexan antes de responder. Si fallan,
+    // se registra y la respuesta (contrato del frontend) no cambia.
+    try {
+      await reindexarTrozosExpediente(id);
+    } catch (err) {
+      logger.error('chunks_ambiental: falló la indexación del expediente (queda pendiente para scripts/reindexar_ambiental.js)', {
+        expedienteId: id, motivo: 'generarEmbeddingExpediente', error: err.message,
+      });
+    }
     res.json({ ok: true, fuente });
   } catch (error) {
     logger.error('generarEmbeddingExpediente error', { error: error.message });
