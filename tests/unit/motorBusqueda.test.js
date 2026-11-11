@@ -1,4 +1,4 @@
-import { construirConsultaAlpha, construirConsultaModelo, FUENTE_TUTELAS } from '../../src/services/motorBusqueda.js';
+import { construirConsultaAlpha, construirConsultaModelo, FUENTE_TUTELAS, FUENTE_AMBIENTAL } from '../../src/services/motorBusqueda.js';
 
 // #192 — el motor α se extrajo de vectorService.js a src/services/motorBusqueda.js.
 // Para tutelas debe generar exactamente el mismo SQL que antes: si el texto es
@@ -56,11 +56,20 @@ describe('motorBusqueda — fuente de tutelas (#192)', () => {
     expect(construirConsultaModelo(FUENTE_TUTELAS)).toBe(legacyModeloSQL);
   });
 
-  test('sin columnaCategoria no declara el filtro $4', () => {
+  // #196: antes no declaraba $4, pero buscarConAlpha siempre manda $1..$5 y
+  // PostgreSQL rechaza un parámetro que la consulta no usa. Ahora lo declara
+  // como un no-op tipado, sin filtrar por categoría.
+  test('sin columnaCategoria, $4 es un no-op tipado y no filtra por categoría', () => {
     const { columnaCategoria, ...sinCategoria } = FUENTE_TUTELAS;
     const sql = construirConsultaAlpha(sinCategoria);
-    expect(sql).not.toContain('$4');
+    expect(sql).toContain('$4::text IS NULL');
+    expect(sql).not.toContain('ILIKE');
     expect(sql).toContain('$5::float8');
+  });
+
+  test('excluirDocumento agrega el filtro $6 sobre la columna de documento (y por defecto no)', () => {
+    expect(construirConsultaAlpha(FUENTE_TUTELAS)).not.toContain('$6');
+    expect(construirConsultaAlpha(FUENTE_TUTELAS, { excluirDocumento: true })).toContain('documento_id <> $6');
   });
 
   test('usa la tabla, el vector y el tsvector de la fuente', () => {
@@ -71,5 +80,23 @@ describe('motorBusqueda — fuente de tutelas (#192)', () => {
     expect(sql).toContain("ts_rank(tsv_x, plainto_tsquery('spanish', $2))");
     expect(sql).toContain('PARTITION BY doc_id');
     expect(sql).toContain('ORDER BY score_crudo DESC, doc_id ASC');
+  });
+});
+
+describe('motorBusqueda — fuente de ambiental (#196)', () => {
+  test('misma fórmula α sobre chunks_ambiental, mejor trozo por expediente, excluyendo el consultado', () => {
+    const sql = construirConsultaAlpha(FUENTE_AMBIENTAL, { excluirDocumento: true });
+    expect(sql).toContain('FROM chunks_ambiental');
+    expect(sql).toContain('(1 - (embedding <=> $1::vector)) * $5::float8');
+    expect(sql).toContain("LEAST(ts_rank(contenido_tsv, plainto_tsquery('spanish', $2)), 1.0) * (1 - $5::float8)");
+    expect(sql).toContain('PARTITION BY expediente_id');
+    expect(sql).toContain('expediente_id <> $6');
+    expect(sql).toContain('$4::text IS NULL');
+    expect(sql).toContain('SELECT id FROM expedientes_ambientales WHERE is_active = TRUE');
+  });
+
+  test('la guarda de modelo mira los trozos activos de chunks_ambiental', () => {
+    expect(construirConsultaModelo(FUENTE_AMBIENTAL)).toContain('FROM chunks_ambiental');
+    expect(construirConsultaModelo(FUENTE_AMBIENTAL)).toContain('is_active = TRUE AND embedding_modelo IS DISTINCT FROM $1');
   });
 });

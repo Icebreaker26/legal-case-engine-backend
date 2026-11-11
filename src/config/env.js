@@ -14,6 +14,10 @@ const envSchema = z.object({
   // absoluta sobre el flag de system_config: apagado instantáneo sin
   // depender de la base de datos.
   RAG_ALPHA_FB_KILL: z.preprocess((v) => v === 'true' || v === '1', z.boolean()),
+  // Ambiental (#196) — corte de emergencia para la búsqueda de similares con
+  // el motor α: si está activo, buscarSimilares vuelve a RRF sobre
+  // embeddings_ambiental (el comportamiento anterior), sin tocar la base.
+  AMBIENTAL_ALPHA_KILL: z.preprocess((v) => v === 'true' || v === '1', z.boolean()),
 });
 
 const _env = envSchema.safeParse(process.env);
