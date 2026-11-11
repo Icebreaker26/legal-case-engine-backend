@@ -1,0 +1,3512 @@
+[
+  {
+    "qid": "QAMB-CAG-001",
+    "A": [
+      {
+        "doc_id": "AMB-CAG-001",
+        "rank": 1,
+        "similitud": 0.9128
+      },
+      {
+        "doc_id": "AMB-OCC-002",
+        "rank": 2,
+        "similitud": 0.8892
+      },
+      {
+        "doc_id": "AMB-OCC-003",
+        "rank": 3,
+        "similitud": 0.8856
+      },
+      {
+        "doc_id": "AMB-CAG-002",
+        "rank": 4,
+        "similitud": 0.8834
+      },
+      {
+        "doc_id": "AMB-RES-003",
+        "rank": 5,
+        "similitud": 0.8829
+      },
+      {
+        "doc_id": "AMB-CAG-003",
+        "rank": 6,
+        "similitud": 0.8812
+      },
+      {
+        "doc_id": "AMB-OCC-001",
+        "rank": 7,
+        "similitud": 0.8779
+      },
+      {
+        "doc_id": "AMB-CAG-005",
+        "rank": 8,
+        "similitud": 0.8735
+      },
+      {
+        "doc_id": "AMB-SAN-004",
+        "rank": 9,
+        "similitud": 0.8738
+      },
+      {
+        "doc_id": "AMB-LIC-001",
+        "rank": 10,
+        "similitud": 0.8732
+      }
+    ],
+    "B": [
+      {
+        "doc_id": "AMB-CAG-001",
+        "rank": 1,
+        "similitud": 0.9119,
+        "rrf_score": 28.7391
+      },
+      {
+        "doc_id": "AMB-RES-003",
+        "rank": 2,
+        "similitud": 0.8952,
+        "rrf_score": 28.4747
+      },
+      {
+        "doc_id": "AMB-CAG-003",
+        "rank": 3,
+        "similitud": 0.8784,
+        "rrf_score": 28.2187
+      },
+      {
+        "doc_id": "AMB-OCC-002",
+        "rank": 4,
+        "similitud": 0.8773,
+        "rrf_score": 27.9707
+      },
+      {
+        "doc_id": "AMB-OCC-003",
+        "rank": 5,
+        "similitud": 0.8749,
+        "rrf_score": 27.7303
+      },
+      {
+        "doc_id": "AMB-RUI-005",
+        "rank": 6,
+        "similitud": 0.8746,
+        "rrf_score": 27.4972
+      },
+      {
+        "doc_id": "AMB-CAG-002",
+        "rank": 7,
+        "similitud": 0.8745,
+        "rrf_score": 27.2711
+      },
+      {
+        "doc_id": "AMB-VER-001",
+        "rank": 8,
+        "similitud": 0.8703,
+        "rrf_score": 27.0516
+      },
+      {
+        "doc_id": "AMB-CAG-004",
+        "rank": 9,
+        "similitud": 0.8699,
+        "rrf_score": 26.8384
+      },
+      {
+        "doc_id": "AMB-CAG-005",
+        "rank": 10,
+        "similitud": 0.8699,
+        "rrf_score": 26.6314
+      }
+    ]
+  },
+  {
+    "qid": "QAMB-CAG-002",
+    "A": [
+      {
+        "doc_id": "AMB-CAG-004",
+        "rank": 1,
+        "similitud": 0.8947
+      },
+      {
+        "doc_id": "AMB-CAG-003",
+        "rank": 2,
+        "similitud": 0.8895
+      },
+      {
+        "doc_id": "AMB-SAN-004",
+        "rank": 3,
+        "similitud": 0.8888
+      },
+      {
+        "doc_id": "AMB-VER-005",
+        "rank": 4,
+        "similitud": 0.8883
+      },
+      {
+        "doc_id": "AMB-SAN-002",
+        "rank": 5,
+        "similitud": 0.8833
+      },
+      {
+        "doc_id": "AMB-CAG-001",
+        "rank": 6,
+        "similitud": 0.8813
+      },
+      {
+        "doc_id": "AMB-SAN-001",
+        "rank": 7,
+        "similitud": 0.8813
+      },
+      {
+        "doc_id": "AMB-RES-003",
+        "rank": 8,
+        "similitud": 0.8792
+      },
+      {
+        "doc_id": "AMB-OCC-002",
+        "rank": 9,
+        "similitud": 0.8799
+      },
+      {
+        "doc_id": "AMB-CAG-002",
+        "rank": 10,
+        "similitud": 0.8787
+      }
+    ],
+    "B": [
+      {
+        "doc_id": "AMB-CAG-004",
+        "rank": 1,
+        "similitud": 0.8984,
+        "rrf_score": 28.7391
+      },
+      {
+        "doc_id": "AMB-CFO-001",
+        "rank": 2,
+        "similitud": 0.8814,
+        "rrf_score": 28.4747
+      },
+      {
+        "doc_id": "AMB-CFO-003",
+        "rank": 3,
+        "similitud": 0.88,
+        "rrf_score": 28.2187
+      },
+      {
+        "doc_id": "AMB-CAG-001",
+        "rank": 4,
+        "similitud": 0.8784,
+        "rrf_score": 27.9707
+      },
+      {
+        "doc_id": "AMB-CAG-003",
+        "rank": 5,
+        "similitud": 0.878,
+        "rrf_score": 27.7303
+      },
+      {
+        "doc_id": "AMB-CAG-002",
+        "rank": 6,
+        "similitud": 0.8773,
+        "rrf_score": 27.4972
+      },
+      {
+        "doc_id": "AMB-SAN-004",
+        "rank": 7,
+        "similitud": 0.8769,
+        "rrf_score": 27.2711
+      },
+      {
+        "doc_id": "AMB-CAG-005",
+        "rank": 8,
+        "similitud": 0.8765,
+        "rrf_score": 27.0516
+      },
+      {
+        "doc_id": "AMB-LIC-005",
+        "rank": 9,
+        "similitud": 0.8738,
+        "rrf_score": 26.8384
+      },
+      {
+        "doc_id": "AMB-RES-003",
+        "rank": 10,
+        "similitud": 0.8736,
+        "rrf_score": 26.6314
+      }
+    ]
+  },
+  {
+    "qid": "QAMB-CAG-003",
+    "A": [
+      {
+        "doc_id": "AMB-VER-005",
+        "rank": 1,
+        "similitud": 0.9423
+      },
+      {
+        "doc_id": "AMB-VER-003",
+        "rank": 2,
+        "similitud": 0.9224
+      },
+      {
+        "doc_id": "AMB-CAG-004",
+        "rank": 3,
+        "similitud": 0.9223
+      },
+      {
+        "doc_id": "AMB-RES-003",
+        "rank": 4,
+        "similitud": 0.9202
+      },
+      {
+        "doc_id": "AMB-CAG-005",
+        "rank": 5,
+        "similitud": 0.9183
+      },
+      {
+        "doc_id": "AMB-VER-002",
+        "rank": 6,
+        "similitud": 0.9122
+      },
+      {
+        "doc_id": "AMB-CAG-001",
+        "rank": 7,
+        "similitud": 0.9088
+      },
+      {
+        "doc_id": "AMB-CAG-002",
+        "rank": 8,
+        "similitud": 0.9073
+      },
+      {
+        "doc_id": "AMB-VER-001",
+        "rank": 9,
+        "similitud": 0.9072
+      },
+      {
+        "doc_id": "AMB-RES-004",
+        "rank": 10,
+        "similitud": 0.9068
+      }
+    ],
+    "B": [
+      {
+        "doc_id": "AMB-VER-005",
+        "rank": 1,
+        "similitud": 0.9526,
+        "rrf_score": 28.7391
+      },
+      {
+        "doc_id": "AMB-VER-003",
+        "rank": 2,
+        "similitud": 0.921,
+        "rrf_score": 28.4747
+      },
+      {
+        "doc_id": "AMB-RES-004",
+        "rank": 3,
+        "similitud": 0.9046,
+        "rrf_score": 28.2187
+      },
+      {
+        "doc_id": "AMB-CAG-003",
+        "rank": 4,
+        "similitud": 0.8958,
+        "rrf_score": 27.9707
+      },
+      {
+        "doc_id": "AMB-VER-001",
+        "rank": 5,
+        "similitud": 0.891,
+        "rrf_score": 27.7303
+      },
+      {
+        "doc_id": "AMB-OCC-002",
+        "rank": 6,
+        "similitud": 0.8866,
+        "rrf_score": 27.4972
+      },
+      {
+        "doc_id": "AMB-CFO-004",
+        "rank": 7,
+        "similitud": 0.8815,
+        "rrf_score": 27.2711
+      },
+      {
+        "doc_id": "AMB-VED-004",
+        "rank": 8,
+        "similitud": 0.8813,
+        "rrf_score": 27.0516
+      },
+      {
+        "doc_id": "AMB-SAN-001",
+        "rank": 9,
+        "similitud": 0.8809,
+        "rrf_score": 26.8384
+      },
+      {
+        "doc_id": "AMB-RUI-004",
+        "rank": 10,
+        "similitud": 0.8795,
+        "rrf_score": 26.6314
+      }
+    ]
+  },
+  {
+    "qid": "QAMB-CFO-001",
+    "A": [
+      {
+        "doc_id": "AMB-CFO-001",
+        "rank": 1,
+        "similitud": 0.9158
+      },
+      {
+        "doc_id": "AMB-LIC-001",
+        "rank": 2,
+        "similitud": 0.8866
+      },
+      {
+        "doc_id": "AMB-CFO-002",
+        "rank": 3,
+        "similitud": 0.8846
+      },
+      {
+        "doc_id": "AMB-OCC-002",
+        "rank": 4,
+        "similitud": 0.8815
+      },
+      {
+        "doc_id": "AMB-SAN-004",
+        "rank": 5,
+        "similitud": 0.8709
+      },
+      {
+        "doc_id": "AMB-VED-003",
+        "rank": 6,
+        "similitud": 0.8723
+      },
+      {
+        "doc_id": "AMB-CFO-003",
+        "rank": 7,
+        "similitud": 0.8681
+      },
+      {
+        "doc_id": "AMB-LIC-005",
+        "rank": 8,
+        "similitud": 0.8675
+      },
+      {
+        "doc_id": "AMB-LIC-003",
+        "rank": 9,
+        "similitud": 0.8658
+      },
+      {
+        "doc_id": "AMB-SAN-005",
+        "rank": 10,
+        "similitud": 0.8656
+      }
+    ],
+    "B": [
+      {
+        "doc_id": "AMB-CFO-001",
+        "rank": 1,
+        "similitud": 0.9258,
+        "rrf_score": 28.7391
+      },
+      {
+        "doc_id": "AMB-CFO-002",
+        "rank": 2,
+        "similitud": 0.8973,
+        "rrf_score": 28.4747
+      },
+      {
+        "doc_id": "AMB-VED-001",
+        "rank": 3,
+        "similitud": 0.8785,
+        "rrf_score": 28.2187
+      },
+      {
+        "doc_id": "AMB-LIC-001",
+        "rank": 4,
+        "similitud": 0.8781,
+        "rrf_score": 27.9707
+      },
+      {
+        "doc_id": "AMB-VER-002",
+        "rank": 5,
+        "similitud": 0.865,
+        "rrf_score": 27.7303
+      },
+      {
+        "doc_id": "AMB-CFO-003",
+        "rank": 6,
+        "similitud": 0.8648,
+        "rrf_score": 27.4972
+      },
+      {
+        "doc_id": "AMB-LIC-003",
+        "rank": 7,
+        "similitud": 0.8647,
+        "rrf_score": 27.2711
+      },
+      {
+        "doc_id": "AMB-LIC-005",
+        "rank": 8,
+        "similitud": 0.8644,
+        "rrf_score": 27.0516
+      },
+      {
+        "doc_id": "AMB-OCC-001",
+        "rank": 9,
+        "similitud": 0.8637,
+        "rrf_score": 26.8384
+      },
+      {
+        "doc_id": "AMB-VED-004",
+        "rank": 10,
+        "similitud": 0.8624,
+        "rrf_score": 26.6314
+      }
+    ]
+  },
+  {
+    "qid": "QAMB-CFO-002",
+    "A": [
+      {
+        "doc_id": "AMB-CFO-002",
+        "rank": 1,
+        "similitud": 0.9071
+      },
+      {
+        "doc_id": "AMB-CFO-001",
+        "rank": 2,
+        "similitud": 0.9002
+      },
+      {
+        "doc_id": "AMB-VED-003",
+        "rank": 3,
+        "similitud": 0.8955
+      },
+      {
+        "doc_id": "AMB-SAN-005",
+        "rank": 4,
+        "similitud": 0.8946
+      },
+      {
+        "doc_id": "AMB-CFO-005",
+        "rank": 5,
+        "similitud": 0.8937
+      },
+      {
+        "doc_id": "AMB-LIC-004",
+        "rank": 6,
+        "similitud": 0.893
+      },
+      {
+        "doc_id": "AMB-VED-001",
+        "rank": 7,
+        "similitud": 0.8853
+      },
+      {
+        "doc_id": "AMB-CFO-003",
+        "rank": 8,
+        "similitud": 0.8925
+      },
+      {
+        "doc_id": "AMB-LIC-001",
+        "rank": 9,
+        "similitud": 0.8835
+      },
+      {
+        "doc_id": "AMB-VED-004",
+        "rank": 10,
+        "similitud": 0.8816
+      }
+    ],
+    "B": [
+      {
+        "doc_id": "AMB-CFO-002",
+        "rank": 1,
+        "similitud": 0.9185,
+        "rrf_score": 28.7391
+      },
+      {
+        "doc_id": "AMB-CFO-001",
+        "rank": 2,
+        "similitud": 0.9053,
+        "rrf_score": 28.4747
+      },
+      {
+        "doc_id": "AMB-SAN-005",
+        "rank": 3,
+        "similitud": 0.8945,
+        "rrf_score": 28.2187
+      },
+      {
+        "doc_id": "AMB-CAG-001",
+        "rank": 4,
+        "similitud": 0.8917,
+        "rrf_score": 27.9707
+      },
+      {
+        "doc_id": "AMB-VED-005",
+        "rank": 5,
+        "similitud": 0.887,
+        "rrf_score": 27.7303
+      },
+      {
+        "doc_id": "AMB-SAN-004",
+        "rank": 6,
+        "similitud": 0.8832,
+        "rrf_score": 27.4972
+      },
+      {
+        "doc_id": "AMB-OCC-001",
+        "rank": 7,
+        "similitud": 0.8774,
+        "rrf_score": 27.2711
+      },
+      {
+        "doc_id": "AMB-LIC-001",
+        "rank": 8,
+        "similitud": 0.8741,
+        "rrf_score": 27.0516
+      },
+      {
+        "doc_id": "AMB-RES-003",
+        "rank": 9,
+        "similitud": 0.8725,
+        "rrf_score": 26.8384
+      },
+      {
+        "doc_id": "AMB-SAN-003",
+        "rank": 10,
+        "similitud": 0.8725,
+        "rrf_score": 26.6314
+      }
+    ]
+  },
+  {
+    "qid": "QAMB-CFO-003",
+    "A": [
+      {
+        "doc_id": "AMB-CFO-003",
+        "rank": 1,
+        "similitud": 0.9166
+      },
+      {
+        "doc_id": "AMB-CFO-001",
+        "rank": 2,
+        "similitud": 0.9156
+      },
+      {
+        "doc_id": "AMB-LIC-002",
+        "rank": 3,
+        "similitud": 0.9142
+      },
+      {
+        "doc_id": "AMB-CFO-004",
+        "rank": 4,
+        "similitud": 0.9052
+      },
+      {
+        "doc_id": "AMB-CFO-002",
+        "rank": 5,
+        "similitud": 0.9041
+      },
+      {
+        "doc_id": "AMB-SAN-004",
+        "rank": 6,
+        "similitud": 0.9022
+      },
+      {
+        "doc_id": "AMB-SAN-003",
+        "rank": 7,
+        "similitud": 0.8985
+      },
+      {
+        "doc_id": "AMB-VED-002",
+        "rank": 8,
+        "similitud": 0.894
+      },
+      {
+        "doc_id": "AMB-SAN-005",
+        "rank": 9,
+        "similitud": 0.8934
+      },
+      {
+        "doc_id": "AMB-VED-004",
+        "rank": 10,
+        "similitud": 0.8922
+      }
+    ],
+    "B": [
+      {
+        "doc_id": "AMB-LIC-002",
+        "rank": 1,
+        "similitud": 0.9217,
+        "rrf_score": 28.7391
+      },
+      {
+        "doc_id": "AMB-CFO-004",
+        "rank": 2,
+        "similitud": 0.9119,
+        "rrf_score": 28.4747
+      },
+      {
+        "doc_id": "AMB-VED-004",
+        "rank": 3,
+        "similitud": 0.9013,
+        "rrf_score": 28.2187
+      },
+      {
+        "doc_id": "AMB-OCC-002",
+        "rank": 4,
+        "similitud": 0.8846,
+        "rrf_score": 27.9707
+      },
+      {
+        "doc_id": "AMB-CFO-001",
+        "rank": 5,
+        "similitud": 0.8822,
+        "rrf_score": 27.7303
+      },
+      {
+        "doc_id": "AMB-SAN-002",
+        "rank": 6,
+        "similitud": 0.8809,
+        "rrf_score": 27.4972
+      },
+      {
+        "doc_id": "AMB-SAN-004",
+        "rank": 7,
+        "similitud": 0.8809,
+        "rrf_score": 27.2711
+      },
+      {
+        "doc_id": "AMB-VER-005",
+        "rank": 8,
+        "similitud": 0.8774,
+        "rrf_score": 27.0516
+      },
+      {
+        "doc_id": "AMB-VER-003",
+        "rank": 9,
+        "similitud": 0.8754,
+        "rrf_score": 26.8384
+      },
+      {
+        "doc_id": "AMB-OCC-001",
+        "rank": 10,
+        "similitud": 0.875,
+        "rrf_score": 26.6314
+      }
+    ]
+  },
+  {
+    "qid": "QAMB-CFO-004",
+    "A": [
+      {
+        "doc_id": "AMB-CFO-003",
+        "rank": 1,
+        "similitud": 0.8909
+      },
+      {
+        "doc_id": "AMB-CFO-005",
+        "rank": 2,
+        "similitud": 0.8906
+      },
+      {
+        "doc_id": "AMB-VER-003",
+        "rank": 3,
+        "similitud": 0.885
+      },
+      {
+        "doc_id": "AMB-VED-004",
+        "rank": 4,
+        "similitud": 0.8843
+      },
+      {
+        "doc_id": "AMB-LIC-003",
+        "rank": 5,
+        "similitud": 0.8796
+      },
+      {
+        "doc_id": "AMB-SAN-004",
+        "rank": 6,
+        "similitud": 0.8848
+      },
+      {
+        "doc_id": "AMB-LIC-005",
+        "rank": 7,
+        "similitud": 0.8776
+      },
+      {
+        "doc_id": "AMB-CFO-002",
+        "rank": 8,
+        "similitud": 0.8762
+      },
+      {
+        "doc_id": "AMB-OCC-001",
+        "rank": 9,
+        "similitud": 0.8758
+      },
+      {
+        "doc_id": "AMB-CFO-001",
+        "rank": 10,
+        "similitud": 0.8756
+      }
+    ],
+    "B": [
+      {
+        "doc_id": "AMB-CFO-003",
+        "rank": 1,
+        "similitud": 0.8902,
+        "rrf_score": 28.7391
+      },
+      {
+        "doc_id": "AMB-CFO-005",
+        "rank": 2,
+        "similitud": 0.889,
+        "rrf_score": 28.4747
+      },
+      {
+        "doc_id": "AMB-CFO-002",
+        "rank": 3,
+        "similitud": 0.886,
+        "rrf_score": 28.2187
+      },
+      {
+        "doc_id": "AMB-LIC-005",
+        "rank": 4,
+        "similitud": 0.8849,
+        "rrf_score": 27.9707
+      },
+      {
+        "doc_id": "AMB-CFO-001",
+        "rank": 5,
+        "similitud": 0.8828,
+        "rrf_score": 27.7303
+      },
+      {
+        "doc_id": "AMB-CAG-005",
+        "rank": 6,
+        "similitud": 0.8786,
+        "rrf_score": 27.4972
+      },
+      {
+        "doc_id": "AMB-VED-003",
+        "rank": 7,
+        "similitud": 0.8777,
+        "rrf_score": 27.2711
+      },
+      {
+        "doc_id": "AMB-SAN-003",
+        "rank": 8,
+        "similitud": 0.8773,
+        "rrf_score": 27.0516
+      },
+      {
+        "doc_id": "AMB-SAN-005",
+        "rank": 9,
+        "similitud": 0.8767,
+        "rrf_score": 26.8384
+      },
+      {
+        "doc_id": "AMB-VER-002",
+        "rank": 10,
+        "similitud": 0.8743,
+        "rrf_score": 26.6314
+      }
+    ]
+  },
+  {
+    "qid": "QAMB-LIC-001",
+    "A": [
+      {
+        "doc_id": "AMB-CAG-001",
+        "rank": 1,
+        "similitud": 0.896
+      },
+      {
+        "doc_id": "AMB-LIC-004",
+        "rank": 2,
+        "similitud": 0.8936
+      },
+      {
+        "doc_id": "AMB-LIC-001",
+        "rank": 3,
+        "similitud": 0.8923
+      },
+      {
+        "doc_id": "AMB-SAN-005",
+        "rank": 4,
+        "similitud": 0.8914
+      },
+      {
+        "doc_id": "AMB-LIC-002",
+        "rank": 5,
+        "similitud": 0.8883
+      },
+      {
+        "doc_id": "AMB-VED-003",
+        "rank": 6,
+        "similitud": 0.8831
+      },
+      {
+        "doc_id": "AMB-OCC-001",
+        "rank": 7,
+        "similitud": 0.883
+      },
+      {
+        "doc_id": "AMB-CAG-002",
+        "rank": 8,
+        "similitud": 0.8819
+      },
+      {
+        "doc_id": "AMB-CFO-003",
+        "rank": 9,
+        "similitud": 0.8811
+      },
+      {
+        "doc_id": "AMB-VED-005",
+        "rank": 10,
+        "similitud": 0.8786
+      }
+    ],
+    "B": [
+      {
+        "doc_id": "AMB-LIC-001",
+        "rank": 1,
+        "similitud": 0.9068,
+        "rrf_score": 28.7391
+      },
+      {
+        "doc_id": "AMB-CAG-001",
+        "rank": 2,
+        "similitud": 0.8921,
+        "rrf_score": 28.4747
+      },
+      {
+        "doc_id": "AMB-SAN-005",
+        "rank": 3,
+        "similitud": 0.8863,
+        "rrf_score": 28.2187
+      },
+      {
+        "doc_id": "AMB-CFO-001",
+        "rank": 4,
+        "similitud": 0.8857,
+        "rrf_score": 27.9707
+      },
+      {
+        "doc_id": "AMB-SAN-004",
+        "rank": 5,
+        "similitud": 0.882,
+        "rrf_score": 27.7303
+      },
+      {
+        "doc_id": "AMB-VED-005",
+        "rank": 6,
+        "similitud": 0.8789,
+        "rrf_score": 27.4972
+      },
+      {
+        "doc_id": "AMB-SAN-002",
+        "rank": 7,
+        "similitud": 0.8776,
+        "rrf_score": 27.2711
+      },
+      {
+        "doc_id": "AMB-LIC-002",
+        "rank": 8,
+        "similitud": 0.8748,
+        "rrf_score": 27.0516
+      },
+      {
+        "doc_id": "AMB-LIC-005",
+        "rank": 9,
+        "similitud": 0.8728,
+        "rrf_score": 26.8384
+      },
+      {
+        "doc_id": "AMB-CFO-005",
+        "rank": 10,
+        "similitud": 0.872,
+        "rrf_score": 26.6314
+      }
+    ]
+  },
+  {
+    "qid": "QAMB-LIC-002",
+    "A": [
+      {
+        "doc_id": "AMB-LIC-002",
+        "rank": 1,
+        "similitud": 0.9232
+      },
+      {
+        "doc_id": "AMB-CAG-004",
+        "rank": 2,
+        "similitud": 0.9149
+      },
+      {
+        "doc_id": "AMB-LIC-003",
+        "rank": 3,
+        "similitud": 0.9111
+      },
+      {
+        "doc_id": "AMB-SAN-001",
+        "rank": 4,
+        "similitud": 0.9098
+      },
+      {
+        "doc_id": "AMB-LIC-005",
+        "rank": 5,
+        "similitud": 0.9067
+      },
+      {
+        "doc_id": "AMB-CFO-001",
+        "rank": 6,
+        "similitud": 0.905
+      },
+      {
+        "doc_id": "AMB-VER-002",
+        "rank": 7,
+        "similitud": 0.9024
+      },
+      {
+        "doc_id": "AMB-RUI-001",
+        "rank": 8,
+        "similitud": 0.9022
+      },
+      {
+        "doc_id": "AMB-OCC-002",
+        "rank": 9,
+        "similitud": 0.8993
+      },
+      {
+        "doc_id": "AMB-LIC-004",
+        "rank": 10,
+        "similitud": 0.8981
+      }
+    ],
+    "B": [
+      {
+        "doc_id": "AMB-LIC-002",
+        "rank": 1,
+        "similitud": 0.9323,
+        "rrf_score": 28.7391
+      },
+      {
+        "doc_id": "AMB-VER-005",
+        "rank": 2,
+        "similitud": 0.8978,
+        "rrf_score": 28.4747
+      },
+      {
+        "doc_id": "AMB-VER-003",
+        "rank": 3,
+        "similitud": 0.8939,
+        "rrf_score": 28.2187
+      },
+      {
+        "doc_id": "AMB-CFO-004",
+        "rank": 4,
+        "similitud": 0.8906,
+        "rrf_score": 27.9707
+      },
+      {
+        "doc_id": "AMB-OCC-002",
+        "rank": 5,
+        "similitud": 0.8903,
+        "rrf_score": 27.7303
+      },
+      {
+        "doc_id": "AMB-SAN-002",
+        "rank": 6,
+        "similitud": 0.8897,
+        "rrf_score": 27.4972
+      },
+      {
+        "doc_id": "AMB-CAG-003",
+        "rank": 7,
+        "similitud": 0.8889,
+        "rrf_score": 27.2711
+      },
+      {
+        "doc_id": "AMB-RUI-004",
+        "rank": 8,
+        "similitud": 0.8878,
+        "rrf_score": 27.0516
+      },
+      {
+        "doc_id": "AMB-LIC-003",
+        "rank": 9,
+        "similitud": 0.8853,
+        "rrf_score": 26.8384
+      },
+      {
+        "doc_id": "AMB-VED-004",
+        "rank": 10,
+        "similitud": 0.8845,
+        "rrf_score": 26.6314
+      }
+    ]
+  },
+  {
+    "qid": "QAMB-LIC-003",
+    "A": [
+      {
+        "doc_id": "AMB-LIC-005",
+        "rank": 1,
+        "similitud": 0.8932
+      },
+      {
+        "doc_id": "AMB-SAN-002",
+        "rank": 2,
+        "similitud": 0.8895
+      },
+      {
+        "doc_id": "AMB-VER-003",
+        "rank": 3,
+        "similitud": 0.8841
+      },
+      {
+        "doc_id": "AMB-VER-004",
+        "rank": 4,
+        "similitud": 0.879
+      },
+      {
+        "doc_id": "AMB-OCC-002",
+        "rank": 5,
+        "similitud": 0.8787
+      },
+      {
+        "doc_id": "AMB-CFO-004",
+        "rank": 6,
+        "similitud": 0.8807
+      },
+      {
+        "doc_id": "AMB-CFO-005",
+        "rank": 7,
+        "similitud": 0.8772
+      },
+      {
+        "doc_id": "AMB-SAN-001",
+        "rank": 8,
+        "similitud": 0.8816
+      },
+      {
+        "doc_id": "AMB-RES-001",
+        "rank": 9,
+        "similitud": 0.8766
+      },
+      {
+        "doc_id": "AMB-VER-002",
+        "rank": 10,
+        "similitud": 0.8794
+      }
+    ],
+    "B": [
+      {
+        "doc_id": "AMB-VER-002",
+        "rank": 1,
+        "similitud": 0.9031,
+        "rrf_score": 28.7391
+      },
+      {
+        "doc_id": "AMB-LIC-005",
+        "rank": 2,
+        "similitud": 0.8952,
+        "rrf_score": 28.4747
+      },
+      {
+        "doc_id": "AMB-VED-005",
+        "rank": 3,
+        "similitud": 0.8846,
+        "rrf_score": 28.2187
+      },
+      {
+        "doc_id": "AMB-CFO-005",
+        "rank": 4,
+        "similitud": 0.8768,
+        "rrf_score": 27.9707
+      },
+      {
+        "doc_id": "AMB-CFO-002",
+        "rank": 5,
+        "similitud": 0.8756,
+        "rrf_score": 27.7303
+      },
+      {
+        "doc_id": "AMB-VED-002",
+        "rank": 6,
+        "similitud": 0.8751,
+        "rrf_score": 27.4972
+      },
+      {
+        "doc_id": "AMB-CFO-001",
+        "rank": 7,
+        "similitud": 0.8745,
+        "rrf_score": 27.2711
+      },
+      {
+        "doc_id": "AMB-VER-004",
+        "rank": 8,
+        "similitud": 0.8743,
+        "rrf_score": 27.0516
+      },
+      {
+        "doc_id": "AMB-RES-003",
+        "rank": 9,
+        "similitud": 0.8729,
+        "rrf_score": 26.8384
+      },
+      {
+        "doc_id": "AMB-LIC-001",
+        "rank": 10,
+        "similitud": 0.8714,
+        "rrf_score": 26.6314
+      }
+    ]
+  },
+  {
+    "qid": "QAMB-OCC-001",
+    "A": [
+      {
+        "doc_id": "AMB-OCC-001",
+        "rank": 1,
+        "similitud": 0.9204
+      },
+      {
+        "doc_id": "AMB-OCC-002",
+        "rank": 2,
+        "similitud": 0.8764
+      },
+      {
+        "doc_id": "AMB-RUI-001",
+        "rank": 3,
+        "similitud": 0.8754
+      },
+      {
+        "doc_id": "AMB-SAN-004",
+        "rank": 4,
+        "similitud": 0.8772
+      },
+      {
+        "doc_id": "AMB-OCC-005",
+        "rank": 5,
+        "similitud": 0.8694
+      },
+      {
+        "doc_id": "AMB-VER-005",
+        "rank": 6,
+        "similitud": 0.8709
+      },
+      {
+        "doc_id": "AMB-LIC-001",
+        "rank": 7,
+        "similitud": 0.8674
+      },
+      {
+        "doc_id": "AMB-SAN-002",
+        "rank": 8,
+        "similitud": 0.8695
+      },
+      {
+        "doc_id": "AMB-VED-005",
+        "rank": 9,
+        "similitud": 0.8669
+      },
+      {
+        "doc_id": "AMB-CAG-002",
+        "rank": 10,
+        "similitud": 0.8696
+      }
+    ],
+    "B": [
+      {
+        "doc_id": "AMB-OCC-001",
+        "rank": 1,
+        "similitud": 0.9313,
+        "rrf_score": 28.7391
+      },
+      {
+        "doc_id": "AMB-OCC-002",
+        "rank": 2,
+        "similitud": 0.8773,
+        "rrf_score": 28.4747
+      },
+      {
+        "doc_id": "AMB-LIC-001",
+        "rank": 3,
+        "similitud": 0.8732,
+        "rrf_score": 28.2187
+      },
+      {
+        "doc_id": "AMB-OCC-005",
+        "rank": 4,
+        "similitud": 0.8727,
+        "rrf_score": 27.9707
+      },
+      {
+        "doc_id": "AMB-SAN-002",
+        "rank": 5,
+        "similitud": 0.8685,
+        "rrf_score": 27.7303
+      },
+      {
+        "doc_id": "AMB-VED-005",
+        "rank": 6,
+        "similitud": 0.8655,
+        "rrf_score": 27.4972
+      },
+      {
+        "doc_id": "AMB-SAN-004",
+        "rank": 7,
+        "similitud": 0.8631,
+        "rrf_score": 27.2711
+      },
+      {
+        "doc_id": "AMB-CFO-001",
+        "rank": 8,
+        "similitud": 0.8628,
+        "rrf_score": 27.0516
+      },
+      {
+        "doc_id": "AMB-LIC-002",
+        "rank": 9,
+        "similitud": 0.8621,
+        "rrf_score": 26.8384
+      },
+      {
+        "doc_id": "AMB-VED-004",
+        "rank": 10,
+        "similitud": 0.8615,
+        "rrf_score": 26.6314
+      }
+    ]
+  },
+  {
+    "qid": "QAMB-OCC-002",
+    "A": [
+      {
+        "doc_id": "AMB-OCC-003",
+        "rank": 1,
+        "similitud": 0.9068
+      },
+      {
+        "doc_id": "AMB-OCC-004",
+        "rank": 2,
+        "similitud": 0.8912
+      },
+      {
+        "doc_id": "AMB-OCC-005",
+        "rank": 3,
+        "similitud": 0.8898
+      },
+      {
+        "doc_id": "AMB-OCC-002",
+        "rank": 4,
+        "similitud": 0.8879
+      },
+      {
+        "doc_id": "AMB-SAN-002",
+        "rank": 5,
+        "similitud": 0.8846
+      },
+      {
+        "doc_id": "AMB-SAN-004",
+        "rank": 6,
+        "similitud": 0.8803
+      },
+      {
+        "doc_id": "AMB-OCC-001",
+        "rank": 7,
+        "similitud": 0.8779
+      },
+      {
+        "doc_id": "AMB-CAG-002",
+        "rank": 8,
+        "similitud": 0.8743
+      },
+      {
+        "doc_id": "AMB-CFO-004",
+        "rank": 9,
+        "similitud": 0.8736
+      },
+      {
+        "doc_id": "AMB-VER-002",
+        "rank": 10,
+        "similitud": 0.8697
+      }
+    ],
+    "B": [
+      {
+        "doc_id": "AMB-OCC-003",
+        "rank": 1,
+        "similitud": 0.9176,
+        "rrf_score": 28.7391
+      },
+      {
+        "doc_id": "AMB-OCC-002",
+        "rank": 2,
+        "similitud": 0.8875,
+        "rrf_score": 28.4747
+      },
+      {
+        "doc_id": "AMB-OCC-005",
+        "rank": 3,
+        "similitud": 0.884,
+        "rrf_score": 28.2187
+      },
+      {
+        "doc_id": "AMB-OCC-001",
+        "rank": 4,
+        "similitud": 0.8837,
+        "rrf_score": 27.9707
+      },
+      {
+        "doc_id": "AMB-LIC-004",
+        "rank": 5,
+        "similitud": 0.8826,
+        "rrf_score": 27.7303
+      },
+      {
+        "doc_id": "AMB-RUI-005",
+        "rank": 6,
+        "similitud": 0.8763,
+        "rrf_score": 27.4972
+      },
+      {
+        "doc_id": "AMB-SAN-004",
+        "rank": 7,
+        "similitud": 0.8762,
+        "rrf_score": 27.2711
+      },
+      {
+        "doc_id": "AMB-LIC-005",
+        "rank": 8,
+        "similitud": 0.8735,
+        "rrf_score": 27.0516
+      },
+      {
+        "doc_id": "AMB-RES-003",
+        "rank": 9,
+        "similitud": 0.8725,
+        "rrf_score": 26.8384
+      },
+      {
+        "doc_id": "AMB-SAN-002",
+        "rank": 10,
+        "similitud": 0.8692,
+        "rrf_score": 26.6314
+      }
+    ]
+  },
+  {
+    "qid": "QAMB-OCC-003",
+    "A": [
+      {
+        "doc_id": "AMB-OCC-002",
+        "rank": 1,
+        "similitud": 0.9186
+      },
+      {
+        "doc_id": "AMB-OCC-001",
+        "rank": 2,
+        "similitud": 0.9111
+      },
+      {
+        "doc_id": "AMB-OCC-003",
+        "rank": 3,
+        "similitud": 0.9063
+      },
+      {
+        "doc_id": "AMB-CAG-002",
+        "rank": 4,
+        "similitud": 0.901
+      },
+      {
+        "doc_id": "AMB-OCC-005",
+        "rank": 5,
+        "similitud": 0.8972
+      },
+      {
+        "doc_id": "AMB-SAN-002",
+        "rank": 6,
+        "similitud": 0.9057
+      },
+      {
+        "doc_id": "AMB-LIC-004",
+        "rank": 7,
+        "similitud": 0.8979
+      },
+      {
+        "doc_id": "AMB-RUI-005",
+        "rank": 8,
+        "similitud": 0.8924
+      },
+      {
+        "doc_id": "AMB-OCC-004",
+        "rank": 9,
+        "similitud": 0.8918
+      },
+      {
+        "doc_id": "AMB-CAG-005",
+        "rank": 10,
+        "similitud": 0.8921
+      }
+    ],
+    "B": [
+      {
+        "doc_id": "AMB-OCC-002",
+        "rank": 1,
+        "similitud": 0.9168,
+        "rrf_score": 28.7391
+      },
+      {
+        "doc_id": "AMB-SAN-002",
+        "rank": 2,
+        "similitud": 0.9026,
+        "rrf_score": 28.4747
+      },
+      {
+        "doc_id": "AMB-VED-004",
+        "rank": 3,
+        "similitud": 0.8879,
+        "rrf_score": 28.2187
+      },
+      {
+        "doc_id": "AMB-OCC-005",
+        "rank": 4,
+        "similitud": 0.8875,
+        "rrf_score": 27.9707
+      },
+      {
+        "doc_id": "AMB-OCC-001",
+        "rank": 5,
+        "similitud": 0.8845,
+        "rrf_score": 27.7303
+      },
+      {
+        "doc_id": "AMB-RUI-002",
+        "rank": 6,
+        "similitud": 0.8836,
+        "rrf_score": 27.4972
+      },
+      {
+        "doc_id": "AMB-OCC-003",
+        "rank": 7,
+        "similitud": 0.881,
+        "rrf_score": 27.2711
+      },
+      {
+        "doc_id": "AMB-OCC-004",
+        "rank": 8,
+        "similitud": 0.8799,
+        "rrf_score": 27.0516
+      },
+      {
+        "doc_id": "AMB-RES-004",
+        "rank": 9,
+        "similitud": 0.8748,
+        "rrf_score": 26.8384
+      },
+      {
+        "doc_id": "AMB-LIC-005",
+        "rank": 10,
+        "similitud": 0.8714,
+        "rrf_score": 26.6314
+      }
+    ]
+  },
+  {
+    "qid": "QAMB-OCC-004",
+    "A": [
+      {
+        "doc_id": "AMB-OCC-001",
+        "rank": 1,
+        "similitud": 0.9194
+      },
+      {
+        "doc_id": "AMB-OCC-004",
+        "rank": 2,
+        "similitud": 0.8877
+      },
+      {
+        "doc_id": "AMB-OCC-003",
+        "rank": 3,
+        "similitud": 0.8811
+      },
+      {
+        "doc_id": "AMB-SAN-002",
+        "rank": 4,
+        "similitud": 0.882
+      },
+      {
+        "doc_id": "AMB-OCC-002",
+        "rank": 5,
+        "similitud": 0.8746
+      },
+      {
+        "doc_id": "AMB-VED-005",
+        "rank": 6,
+        "similitud": 0.8743
+      },
+      {
+        "doc_id": "AMB-CAG-004",
+        "rank": 7,
+        "similitud": 0.8717
+      },
+      {
+        "doc_id": "AMB-VER-005",
+        "rank": 8,
+        "similitud": 0.8761
+      },
+      {
+        "doc_id": "AMB-OCC-005",
+        "rank": 9,
+        "similitud": 0.87
+      },
+      {
+        "doc_id": "AMB-CFO-003",
+        "rank": 10,
+        "similitud": 0.8701
+      }
+    ],
+    "B": [
+      {
+        "doc_id": "AMB-OCC-001",
+        "rank": 1,
+        "similitud": 0.9269,
+        "rrf_score": 28.7391
+      },
+      {
+        "doc_id": "AMB-OCC-003",
+        "rank": 2,
+        "similitud": 0.8805,
+        "rrf_score": 28.4747
+      },
+      {
+        "doc_id": "AMB-OCC-002",
+        "rank": 3,
+        "similitud": 0.8771,
+        "rrf_score": 28.2187
+      },
+      {
+        "doc_id": "AMB-OCC-005",
+        "rank": 4,
+        "similitud": 0.8763,
+        "rrf_score": 27.9707
+      },
+      {
+        "doc_id": "AMB-VED-004",
+        "rank": 5,
+        "similitud": 0.8666,
+        "rrf_score": 27.7303
+      },
+      {
+        "doc_id": "AMB-RES-003",
+        "rank": 6,
+        "similitud": 0.8664,
+        "rrf_score": 27.4972
+      },
+      {
+        "doc_id": "AMB-CFO-001",
+        "rank": 7,
+        "similitud": 0.866,
+        "rrf_score": 27.2711
+      },
+      {
+        "doc_id": "AMB-LIC-005",
+        "rank": 8,
+        "similitud": 0.8649,
+        "rrf_score": 27.0516
+      },
+      {
+        "doc_id": "AMB-CAG-005",
+        "rank": 9,
+        "similitud": 0.8643,
+        "rrf_score": 26.8384
+      },
+      {
+        "doc_id": "AMB-VED-005",
+        "rank": 10,
+        "similitud": 0.8635,
+        "rrf_score": 26.6314
+      }
+    ]
+  },
+  {
+    "qid": "QAMB-RES-001",
+    "A": [
+      {
+        "doc_id": "AMB-SAN-001",
+        "rank": 1,
+        "similitud": 0.9047
+      },
+      {
+        "doc_id": "AMB-LIC-005",
+        "rank": 2,
+        "similitud": 0.8947
+      },
+      {
+        "doc_id": "AMB-LIC-004",
+        "rank": 3,
+        "similitud": 0.897
+      },
+      {
+        "doc_id": "AMB-VER-004",
+        "rank": 4,
+        "similitud": 0.8904
+      },
+      {
+        "doc_id": "AMB-RES-003",
+        "rank": 5,
+        "similitud": 0.8878
+      },
+      {
+        "doc_id": "AMB-SAN-005",
+        "rank": 6,
+        "similitud": 0.8911
+      },
+      {
+        "doc_id": "AMB-LIC-003",
+        "rank": 7,
+        "similitud": 0.8842
+      },
+      {
+        "doc_id": "AMB-RES-001",
+        "rank": 8,
+        "similitud": 0.8809
+      },
+      {
+        "doc_id": "AMB-RES-005",
+        "rank": 9,
+        "similitud": 0.883
+      },
+      {
+        "doc_id": "AMB-RES-002",
+        "rank": 10,
+        "similitud": 0.8778
+      }
+    ],
+    "B": [
+      {
+        "doc_id": "AMB-LIC-005",
+        "rank": 1,
+        "similitud": 0.9048,
+        "rrf_score": 28.7391
+      },
+      {
+        "doc_id": "AMB-RES-003",
+        "rank": 2,
+        "similitud": 0.8936,
+        "rrf_score": 28.4747
+      },
+      {
+        "doc_id": "AMB-RES-005",
+        "rank": 3,
+        "similitud": 0.8883,
+        "rrf_score": 28.2187
+      },
+      {
+        "doc_id": "AMB-VER-004",
+        "rank": 4,
+        "similitud": 0.8875,
+        "rrf_score": 27.9707
+      },
+      {
+        "doc_id": "AMB-CAG-001",
+        "rank": 5,
+        "similitud": 0.885,
+        "rrf_score": 27.7303
+      },
+      {
+        "doc_id": "AMB-SAN-001",
+        "rank": 6,
+        "similitud": 0.8842,
+        "rrf_score": 27.4972
+      },
+      {
+        "doc_id": "AMB-RES-004",
+        "rank": 7,
+        "similitud": 0.8822,
+        "rrf_score": 27.2711
+      },
+      {
+        "doc_id": "AMB-SAN-005",
+        "rank": 8,
+        "similitud": 0.8815,
+        "rrf_score": 27.0516
+      },
+      {
+        "doc_id": "AMB-RES-002",
+        "rank": 9,
+        "similitud": 0.8756,
+        "rrf_score": 26.8384
+      },
+      {
+        "doc_id": "AMB-VED-005",
+        "rank": 10,
+        "similitud": 0.8735,
+        "rrf_score": 26.6314
+      }
+    ]
+  },
+  {
+    "qid": "QAMB-RES-002",
+    "A": [
+      {
+        "doc_id": "AMB-LIC-005",
+        "rank": 1,
+        "similitud": 0.8898
+      },
+      {
+        "doc_id": "AMB-RES-005",
+        "rank": 2,
+        "similitud": 0.8887
+      },
+      {
+        "doc_id": "AMB-RES-004",
+        "rank": 3,
+        "similitud": 0.887
+      },
+      {
+        "doc_id": "AMB-RES-001",
+        "rank": 4,
+        "similitud": 0.8855
+      },
+      {
+        "doc_id": "AMB-RES-002",
+        "rank": 5,
+        "similitud": 0.8842
+      },
+      {
+        "doc_id": "AMB-RES-003",
+        "rank": 6,
+        "similitud": 0.8787
+      },
+      {
+        "doc_id": "AMB-SAN-001",
+        "rank": 7,
+        "similitud": 0.877
+      },
+      {
+        "doc_id": "AMB-CAG-003",
+        "rank": 8,
+        "similitud": 0.8741
+      },
+      {
+        "doc_id": "AMB-VER-005",
+        "rank": 9,
+        "similitud": 0.8717
+      },
+      {
+        "doc_id": "AMB-LIC-003",
+        "rank": 10,
+        "similitud": 0.8646
+      }
+    ],
+    "B": [
+      {
+        "doc_id": "AMB-LIC-005",
+        "rank": 1,
+        "similitud": 0.8874,
+        "rrf_score": 28.7391
+      },
+      {
+        "doc_id": "AMB-RES-001",
+        "rank": 2,
+        "similitud": 0.8788,
+        "rrf_score": 28.4747
+      },
+      {
+        "doc_id": "AMB-RES-002",
+        "rank": 3,
+        "similitud": 0.8787,
+        "rrf_score": 28.2187
+      },
+      {
+        "doc_id": "AMB-RES-004",
+        "rank": 4,
+        "similitud": 0.8781,
+        "rrf_score": 27.9707
+      },
+      {
+        "doc_id": "AMB-RES-003",
+        "rank": 5,
+        "similitud": 0.8766,
+        "rrf_score": 27.7303
+      },
+      {
+        "doc_id": "AMB-VER-002",
+        "rank": 6,
+        "similitud": 0.8711,
+        "rrf_score": 27.4972
+      },
+      {
+        "doc_id": "AMB-RES-005",
+        "rank": 7,
+        "similitud": 0.8696,
+        "rrf_score": 27.2711
+      },
+      {
+        "doc_id": "AMB-CAG-004",
+        "rank": 8,
+        "similitud": 0.8691,
+        "rrf_score": 27.0516
+      },
+      {
+        "doc_id": "AMB-LIC-003",
+        "rank": 9,
+        "similitud": 0.8662,
+        "rrf_score": 26.8384
+      },
+      {
+        "doc_id": "AMB-VER-004",
+        "rank": 10,
+        "similitud": 0.862,
+        "rrf_score": 26.6314
+      }
+    ]
+  },
+  {
+    "qid": "QAMB-RES-003",
+    "A": [
+      {
+        "doc_id": "AMB-RES-001",
+        "rank": 1,
+        "similitud": 0.9317
+      },
+      {
+        "doc_id": "AMB-RES-002",
+        "rank": 2,
+        "similitud": 0.905
+      },
+      {
+        "doc_id": "AMB-CAG-002",
+        "rank": 3,
+        "similitud": 0.9024
+      },
+      {
+        "doc_id": "AMB-RUI-003",
+        "rank": 4,
+        "similitud": 0.8947
+      },
+      {
+        "doc_id": "AMB-RES-004",
+        "rank": 5,
+        "similitud": 0.8926
+      },
+      {
+        "doc_id": "AMB-CAG-004",
+        "rank": 6,
+        "similitud": 0.8945
+      },
+      {
+        "doc_id": "AMB-CAG-003",
+        "rank": 7,
+        "similitud": 0.8905
+      },
+      {
+        "doc_id": "AMB-RES-005",
+        "rank": 8,
+        "similitud": 0.8906
+      },
+      {
+        "doc_id": "AMB-RUI-001",
+        "rank": 9,
+        "similitud": 0.8896
+      },
+      {
+        "doc_id": "AMB-RES-003",
+        "rank": 10,
+        "similitud": 0.8883
+      }
+    ],
+    "B": [
+      {
+        "doc_id": "AMB-RUI-002",
+        "rank": 1,
+        "similitud": 0.8892,
+        "rrf_score": 28.7391
+      },
+      {
+        "doc_id": "AMB-RUI-004",
+        "rank": 2,
+        "similitud": 0.8885,
+        "rrf_score": 28.4747
+      },
+      {
+        "doc_id": "AMB-RES-004",
+        "rank": 3,
+        "similitud": 0.8857,
+        "rrf_score": 28.2187
+      },
+      {
+        "doc_id": "AMB-VER-003",
+        "rank": 4,
+        "similitud": 0.8848,
+        "rrf_score": 27.9707
+      },
+      {
+        "doc_id": "AMB-VED-004",
+        "rank": 5,
+        "similitud": 0.8814,
+        "rrf_score": 27.7303
+      },
+      {
+        "doc_id": "AMB-CFO-004",
+        "rank": 6,
+        "similitud": 0.881,
+        "rrf_score": 27.4972
+      },
+      {
+        "doc_id": "AMB-RES-001",
+        "rank": 7,
+        "similitud": 0.8808,
+        "rrf_score": 27.2711
+      },
+      {
+        "doc_id": "AMB-CAG-003",
+        "rank": 8,
+        "similitud": 0.8779,
+        "rrf_score": 27.0516
+      },
+      {
+        "doc_id": "AMB-SAN-002",
+        "rank": 9,
+        "similitud": 0.8747,
+        "rrf_score": 26.8384
+      },
+      {
+        "doc_id": "AMB-OCC-002",
+        "rank": 10,
+        "similitud": 0.8739,
+        "rrf_score": 26.6314
+      }
+    ]
+  },
+  {
+    "qid": "QAMB-RUI-001",
+    "A": [
+      {
+        "doc_id": "AMB-RUI-002",
+        "rank": 1,
+        "similitud": 0.8992
+      },
+      {
+        "doc_id": "AMB-RUI-004",
+        "rank": 2,
+        "similitud": 0.8989
+      },
+      {
+        "doc_id": "AMB-RUI-001",
+        "rank": 3,
+        "similitud": 0.8981
+      },
+      {
+        "doc_id": "AMB-RUI-003",
+        "rank": 4,
+        "similitud": 0.8908
+      },
+      {
+        "doc_id": "AMB-RUI-005",
+        "rank": 5,
+        "similitud": 0.8834
+      },
+      {
+        "doc_id": "AMB-LIC-003",
+        "rank": 6,
+        "similitud": 0.8746
+      },
+      {
+        "doc_id": "AMB-OCC-002",
+        "rank": 7,
+        "similitud": 0.8709
+      },
+      {
+        "doc_id": "AMB-LIC-004",
+        "rank": 8,
+        "similitud": 0.8674
+      },
+      {
+        "doc_id": "AMB-VED-003",
+        "rank": 9,
+        "similitud": 0.8616
+      },
+      {
+        "doc_id": "AMB-CAG-003",
+        "rank": 10,
+        "similitud": 0.865
+      }
+    ],
+    "B": [
+      {
+        "doc_id": "AMB-RUI-001",
+        "rank": 1,
+        "similitud": 0.9087,
+        "rrf_score": 28.7391
+      },
+      {
+        "doc_id": "AMB-RUI-002",
+        "rank": 2,
+        "similitud": 0.8872,
+        "rrf_score": 28.4747
+      },
+      {
+        "doc_id": "AMB-RUI-004",
+        "rank": 3,
+        "similitud": 0.886,
+        "rrf_score": 28.2187
+      },
+      {
+        "doc_id": "AMB-LIC-003",
+        "rank": 4,
+        "similitud": 0.8782,
+        "rrf_score": 27.9707
+      },
+      {
+        "doc_id": "AMB-RUI-005",
+        "rank": 5,
+        "similitud": 0.8774,
+        "rrf_score": 27.7303
+      },
+      {
+        "doc_id": "AMB-RUI-003",
+        "rank": 6,
+        "similitud": 0.8623,
+        "rrf_score": 27.4972
+      },
+      {
+        "doc_id": "AMB-SAN-005",
+        "rank": 7,
+        "similitud": 0.8602,
+        "rrf_score": 27.2711
+      },
+      {
+        "doc_id": "AMB-CFO-005",
+        "rank": 8,
+        "similitud": 0.859,
+        "rrf_score": 27.0516
+      },
+      {
+        "doc_id": "AMB-CAG-001",
+        "rank": 9,
+        "similitud": 0.8547,
+        "rrf_score": 26.8384
+      },
+      {
+        "doc_id": "AMB-LIC-004",
+        "rank": 10,
+        "similitud": 0.852,
+        "rrf_score": 26.6314
+      }
+    ]
+  },
+  {
+    "qid": "QAMB-RUI-002",
+    "A": [
+      {
+        "doc_id": "AMB-RUI-003",
+        "rank": 1,
+        "similitud": 0.9284
+      },
+      {
+        "doc_id": "AMB-RUI-001",
+        "rank": 2,
+        "similitud": 0.9266
+      },
+      {
+        "doc_id": "AMB-RUI-002",
+        "rank": 3,
+        "similitud": 0.9164
+      },
+      {
+        "doc_id": "AMB-LIC-003",
+        "rank": 4,
+        "similitud": 0.9115
+      },
+      {
+        "doc_id": "AMB-RUI-005",
+        "rank": 5,
+        "similitud": 0.9099
+      },
+      {
+        "doc_id": "AMB-RUI-004",
+        "rank": 6,
+        "similitud": 0.904
+      },
+      {
+        "doc_id": "AMB-CAG-002",
+        "rank": 7,
+        "similitud": 0.8959
+      },
+      {
+        "doc_id": "AMB-RES-001",
+        "rank": 8,
+        "similitud": 0.8874
+      },
+      {
+        "doc_id": "AMB-RES-004",
+        "rank": 9,
+        "similitud": 0.8879
+      },
+      {
+        "doc_id": "AMB-SAN-001",
+        "rank": 10,
+        "similitud": 0.891
+      }
+    ],
+    "B": [
+      {
+        "doc_id": "AMB-RUI-004",
+        "rank": 1,
+        "similitud": 0.9164,
+        "rrf_score": 28.7391
+      },
+      {
+        "doc_id": "AMB-RUI-002",
+        "rank": 2,
+        "similitud": 0.9147,
+        "rrf_score": 28.4747
+      },
+      {
+        "doc_id": "AMB-SAN-002",
+        "rank": 3,
+        "similitud": 0.8901,
+        "rrf_score": 28.2187
+      },
+      {
+        "doc_id": "AMB-VER-003",
+        "rank": 4,
+        "similitud": 0.8885,
+        "rrf_score": 27.9707
+      },
+      {
+        "doc_id": "AMB-OCC-002",
+        "rank": 5,
+        "similitud": 0.8884,
+        "rrf_score": 27.7303
+      },
+      {
+        "doc_id": "AMB-RES-004",
+        "rank": 6,
+        "similitud": 0.8872,
+        "rrf_score": 27.4972
+      },
+      {
+        "doc_id": "AMB-LIC-002",
+        "rank": 7,
+        "similitud": 0.8834,
+        "rrf_score": 27.2711
+      },
+      {
+        "doc_id": "AMB-RUI-001",
+        "rank": 8,
+        "similitud": 0.8832,
+        "rrf_score": 27.0516
+      },
+      {
+        "doc_id": "AMB-RUI-005",
+        "rank": 9,
+        "similitud": 0.8823,
+        "rrf_score": 26.8384
+      },
+      {
+        "doc_id": "AMB-LIC-003",
+        "rank": 10,
+        "similitud": 0.8783,
+        "rrf_score": 26.6314
+      }
+    ]
+  },
+  {
+    "qid": "QAMB-RUI-003",
+    "A": [
+      {
+        "doc_id": "AMB-RUI-005",
+        "rank": 1,
+        "similitud": 0.8898
+      },
+      {
+        "doc_id": "AMB-RUI-001",
+        "rank": 2,
+        "similitud": 0.887
+      },
+      {
+        "doc_id": "AMB-RUI-002",
+        "rank": 3,
+        "similitud": 0.8811
+      },
+      {
+        "doc_id": "AMB-RUI-004",
+        "rank": 4,
+        "similitud": 0.8792
+      },
+      {
+        "doc_id": "AMB-RUI-003",
+        "rank": 5,
+        "similitud": 0.8741
+      },
+      {
+        "doc_id": "AMB-OCC-002",
+        "rank": 6,
+        "similitud": 0.8692
+      },
+      {
+        "doc_id": "AMB-LIC-003",
+        "rank": 7,
+        "similitud": 0.867
+      },
+      {
+        "doc_id": "AMB-CAG-003",
+        "rank": 8,
+        "similitud": 0.8667
+      },
+      {
+        "doc_id": "AMB-CAG-004",
+        "rank": 9,
+        "similitud": 0.8658
+      },
+      {
+        "doc_id": "AMB-LIC-001",
+        "rank": 10,
+        "similitud": 0.864
+      }
+    ],
+    "B": [
+      {
+        "doc_id": "AMB-LIC-003",
+        "rank": 1,
+        "similitud": 0.8939,
+        "rrf_score": 28.7391
+      },
+      {
+        "doc_id": "AMB-RUI-001",
+        "rank": 2,
+        "similitud": 0.8929,
+        "rrf_score": 28.4747
+      },
+      {
+        "doc_id": "AMB-RUI-005",
+        "rank": 3,
+        "similitud": 0.8885,
+        "rrf_score": 28.2187
+      },
+      {
+        "doc_id": "AMB-RUI-004",
+        "rank": 4,
+        "similitud": 0.8823,
+        "rrf_score": 27.9707
+      },
+      {
+        "doc_id": "AMB-RUI-002",
+        "rank": 5,
+        "similitud": 0.8723,
+        "rrf_score": 27.7303
+      },
+      {
+        "doc_id": "AMB-VER-004",
+        "rank": 6,
+        "similitud": 0.8672,
+        "rrf_score": 27.4972
+      },
+      {
+        "doc_id": "AMB-LIC-004",
+        "rank": 7,
+        "similitud": 0.8666,
+        "rrf_score": 27.2711
+      },
+      {
+        "doc_id": "AMB-OCC-002",
+        "rank": 8,
+        "similitud": 0.8649,
+        "rrf_score": 27.0516
+      },
+      {
+        "doc_id": "AMB-SAN-002",
+        "rank": 9,
+        "similitud": 0.862,
+        "rrf_score": 26.8384
+      },
+      {
+        "doc_id": "AMB-CAG-003",
+        "rank": 10,
+        "similitud": 0.8613,
+        "rrf_score": 26.6314
+      }
+    ]
+  },
+  {
+    "qid": "QAMB-RUI-004",
+    "A": [
+      {
+        "doc_id": "AMB-RUI-002",
+        "rank": 1,
+        "similitud": 0.8991
+      },
+      {
+        "doc_id": "AMB-RUI-003",
+        "rank": 2,
+        "similitud": 0.898
+      },
+      {
+        "doc_id": "AMB-RUI-001",
+        "rank": 3,
+        "similitud": 0.8964
+      },
+      {
+        "doc_id": "AMB-RUI-004",
+        "rank": 4,
+        "similitud": 0.8828
+      },
+      {
+        "doc_id": "AMB-VER-003",
+        "rank": 5,
+        "similitud": 0.8759
+      },
+      {
+        "doc_id": "AMB-RUI-005",
+        "rank": 6,
+        "similitud": 0.874
+      },
+      {
+        "doc_id": "AMB-SAN-005",
+        "rank": 7,
+        "similitud": 0.8717
+      },
+      {
+        "doc_id": "AMB-LIC-003",
+        "rank": 8,
+        "similitud": 0.8699
+      },
+      {
+        "doc_id": "AMB-LIC-005",
+        "rank": 9,
+        "similitud": 0.8702
+      },
+      {
+        "doc_id": "AMB-VER-005",
+        "rank": 10,
+        "similitud": 0.8741
+      }
+    ],
+    "B": [
+      {
+        "doc_id": "AMB-RUI-001",
+        "rank": 1,
+        "similitud": 0.909,
+        "rrf_score": 28.7391
+      },
+      {
+        "doc_id": "AMB-SAN-005",
+        "rank": 2,
+        "similitud": 0.896,
+        "rrf_score": 28.4747
+      },
+      {
+        "doc_id": "AMB-LIC-004",
+        "rank": 3,
+        "similitud": 0.8938,
+        "rrf_score": 28.2187
+      },
+      {
+        "doc_id": "AMB-RUI-003",
+        "rank": 4,
+        "similitud": 0.8898,
+        "rrf_score": 27.9707
+      },
+      {
+        "doc_id": "AMB-CAG-001",
+        "rank": 5,
+        "similitud": 0.8819,
+        "rrf_score": 27.7303
+      },
+      {
+        "doc_id": "AMB-LIC-005",
+        "rank": 6,
+        "similitud": 0.8792,
+        "rrf_score": 27.4972
+      },
+      {
+        "doc_id": "AMB-LIC-003",
+        "rank": 7,
+        "similitud": 0.8738,
+        "rrf_score": 27.2711
+      },
+      {
+        "doc_id": "AMB-RUI-002",
+        "rank": 8,
+        "similitud": 0.8738,
+        "rrf_score": 27.0516
+      },
+      {
+        "doc_id": "AMB-RUI-005",
+        "rank": 9,
+        "similitud": 0.8737,
+        "rrf_score": 26.8384
+      },
+      {
+        "doc_id": "AMB-VED-005",
+        "rank": 10,
+        "similitud": 0.8683,
+        "rrf_score": 26.6314
+      }
+    ]
+  },
+  {
+    "qid": "QAMB-SAN-001",
+    "A": [
+      {
+        "doc_id": "AMB-SAN-001",
+        "rank": 1,
+        "similitud": 0.9086
+      },
+      {
+        "doc_id": "AMB-VER-004",
+        "rank": 2,
+        "similitud": 0.9066
+      },
+      {
+        "doc_id": "AMB-VER-003",
+        "rank": 3,
+        "similitud": 0.8933
+      },
+      {
+        "doc_id": "AMB-VER-001",
+        "rank": 4,
+        "similitud": 0.8926
+      },
+      {
+        "doc_id": "AMB-RES-003",
+        "rank": 5,
+        "similitud": 0.8896
+      },
+      {
+        "doc_id": "AMB-VER-005",
+        "rank": 6,
+        "similitud": 0.8885
+      },
+      {
+        "doc_id": "AMB-VER-002",
+        "rank": 7,
+        "similitud": 0.8881
+      },
+      {
+        "doc_id": "AMB-LIC-005",
+        "rank": 8,
+        "similitud": 0.8847
+      },
+      {
+        "doc_id": "AMB-LIC-003",
+        "rank": 9,
+        "similitud": 0.8844
+      },
+      {
+        "doc_id": "AMB-RES-004",
+        "rank": 10,
+        "similitud": 0.8806
+      }
+    ],
+    "B": [
+      {
+        "doc_id": "AMB-VER-004",
+        "rank": 1,
+        "similitud": 0.9122,
+        "rrf_score": 28.7391
+      },
+      {
+        "doc_id": "AMB-SAN-001",
+        "rank": 2,
+        "similitud": 0.9117,
+        "rrf_score": 28.4747
+      },
+      {
+        "doc_id": "AMB-VER-003",
+        "rank": 3,
+        "similitud": 0.8995,
+        "rrf_score": 28.2187
+      },
+      {
+        "doc_id": "AMB-RES-003",
+        "rank": 4,
+        "similitud": 0.8974,
+        "rrf_score": 27.9707
+      },
+      {
+        "doc_id": "AMB-VER-001",
+        "rank": 5,
+        "similitud": 0.8966,
+        "rrf_score": 27.7303
+      },
+      {
+        "doc_id": "AMB-VER-005",
+        "rank": 6,
+        "similitud": 0.8954,
+        "rrf_score": 27.4972
+      },
+      {
+        "doc_id": "AMB-CAG-005",
+        "rank": 7,
+        "similitud": 0.8894,
+        "rrf_score": 27.2711
+      },
+      {
+        "doc_id": "AMB-LIC-005",
+        "rank": 8,
+        "similitud": 0.887,
+        "rrf_score": 27.0516
+      },
+      {
+        "doc_id": "AMB-CAG-001",
+        "rank": 9,
+        "similitud": 0.8855,
+        "rrf_score": 26.8384
+      },
+      {
+        "doc_id": "AMB-CAG-002",
+        "rank": 10,
+        "similitud": 0.8836,
+        "rrf_score": 26.6314
+      }
+    ]
+  },
+  {
+    "qid": "QAMB-SAN-002",
+    "A": [
+      {
+        "doc_id": "AMB-SAN-003",
+        "rank": 1,
+        "similitud": 0.9086
+      },
+      {
+        "doc_id": "AMB-SAN-004",
+        "rank": 2,
+        "similitud": 0.8919
+      },
+      {
+        "doc_id": "AMB-LIC-005",
+        "rank": 3,
+        "similitud": 0.8942
+      },
+      {
+        "doc_id": "AMB-LIC-002",
+        "rank": 4,
+        "similitud": 0.8821
+      },
+      {
+        "doc_id": "AMB-SAN-001",
+        "rank": 5,
+        "similitud": 0.8835
+      },
+      {
+        "doc_id": "AMB-CFO-004",
+        "rank": 6,
+        "similitud": 0.8852
+      },
+      {
+        "doc_id": "AMB-VED-003",
+        "rank": 7,
+        "similitud": 0.8798
+      },
+      {
+        "doc_id": "AMB-SAN-002",
+        "rank": 8,
+        "similitud": 0.8785
+      },
+      {
+        "doc_id": "AMB-CFO-005",
+        "rank": 9,
+        "similitud": 0.8763
+      },
+      {
+        "doc_id": "AMB-VED-004",
+        "rank": 10,
+        "similitud": 0.8752
+      }
+    ],
+    "B": [
+      {
+        "doc_id": "AMB-SAN-003",
+        "rank": 1,
+        "similitud": 0.9085,
+        "rrf_score": 28.7391
+      },
+      {
+        "doc_id": "AMB-SAN-004",
+        "rank": 2,
+        "similitud": 0.8946,
+        "rrf_score": 28.4747
+      },
+      {
+        "doc_id": "AMB-LIC-005",
+        "rank": 3,
+        "similitud": 0.88,
+        "rrf_score": 28.2187
+      },
+      {
+        "doc_id": "AMB-VED-004",
+        "rank": 4,
+        "similitud": 0.8734,
+        "rrf_score": 27.9707
+      },
+      {
+        "doc_id": "AMB-VED-005",
+        "rank": 5,
+        "similitud": 0.8729,
+        "rrf_score": 27.7303
+      },
+      {
+        "doc_id": "AMB-CFO-003",
+        "rank": 6,
+        "similitud": 0.8723,
+        "rrf_score": 27.4972
+      },
+      {
+        "doc_id": "AMB-CFO-001",
+        "rank": 7,
+        "similitud": 0.872,
+        "rrf_score": 27.2711
+      },
+      {
+        "doc_id": "AMB-LIC-001",
+        "rank": 8,
+        "similitud": 0.8707,
+        "rrf_score": 27.0516
+      },
+      {
+        "doc_id": "AMB-CFO-002",
+        "rank": 9,
+        "similitud": 0.8707,
+        "rrf_score": 26.8384
+      },
+      {
+        "doc_id": "AMB-VER-002",
+        "rank": 10,
+        "similitud": 0.8698,
+        "rrf_score": 26.6314
+      }
+    ]
+  },
+  {
+    "qid": "QAMB-SAN-003",
+    "A": [
+      {
+        "doc_id": "AMB-SAN-004",
+        "rank": 1,
+        "similitud": 0.916
+      },
+      {
+        "doc_id": "AMB-SAN-005",
+        "rank": 2,
+        "similitud": 0.9127
+      },
+      {
+        "doc_id": "AMB-CAG-005",
+        "rank": 3,
+        "similitud": 0.9118
+      },
+      {
+        "doc_id": "AMB-SAN-002",
+        "rank": 4,
+        "similitud": 0.9123
+      },
+      {
+        "doc_id": "AMB-LIC-005",
+        "rank": 5,
+        "similitud": 0.9042
+      },
+      {
+        "doc_id": "AMB-SAN-001",
+        "rank": 6,
+        "similitud": 0.9041
+      },
+      {
+        "doc_id": "AMB-SAN-003",
+        "rank": 7,
+        "similitud": 0.9071
+      },
+      {
+        "doc_id": "AMB-VER-004",
+        "rank": 8,
+        "similitud": 0.9007
+      },
+      {
+        "doc_id": "AMB-VED-004",
+        "rank": 9,
+        "similitud": 0.899
+      },
+      {
+        "doc_id": "AMB-CFO-003",
+        "rank": 10,
+        "similitud": 0.9012
+      }
+    ],
+    "B": [
+      {
+        "doc_id": "AMB-SAN-002",
+        "rank": 1,
+        "similitud": 0.927,
+        "rrf_score": 28.7391
+      },
+      {
+        "doc_id": "AMB-VED-004",
+        "rank": 2,
+        "similitud": 0.9087,
+        "rrf_score": 28.4747
+      },
+      {
+        "doc_id": "AMB-OCC-002",
+        "rank": 3,
+        "similitud": 0.9085,
+        "rrf_score": 28.2187
+      },
+      {
+        "doc_id": "AMB-VER-003",
+        "rank": 4,
+        "similitud": 0.9037,
+        "rrf_score": 27.9707
+      },
+      {
+        "doc_id": "AMB-LIC-002",
+        "rank": 5,
+        "similitud": 0.9024,
+        "rrf_score": 27.7303
+      },
+      {
+        "doc_id": "AMB-OCC-004",
+        "rank": 6,
+        "similitud": 0.901,
+        "rrf_score": 27.4972
+      },
+      {
+        "doc_id": "AMB-RES-004",
+        "rank": 7,
+        "similitud": 0.8972,
+        "rrf_score": 27.2711
+      },
+      {
+        "doc_id": "AMB-VER-005",
+        "rank": 8,
+        "similitud": 0.8889,
+        "rrf_score": 27.0516
+      },
+      {
+        "doc_id": "AMB-RUI-004",
+        "rank": 9,
+        "similitud": 0.8885,
+        "rrf_score": 26.8384
+      },
+      {
+        "doc_id": "AMB-CFO-004",
+        "rank": 10,
+        "similitud": 0.8857,
+        "rrf_score": 26.6314
+      }
+    ]
+  },
+  {
+    "qid": "QAMB-VED-001",
+    "A": [
+      {
+        "doc_id": "AMB-VED-001",
+        "rank": 1,
+        "similitud": 0.9274
+      },
+      {
+        "doc_id": "AMB-VED-003",
+        "rank": 2,
+        "similitud": 0.9215
+      },
+      {
+        "doc_id": "AMB-VED-002",
+        "rank": 3,
+        "similitud": 0.913
+      },
+      {
+        "doc_id": "AMB-VED-004",
+        "rank": 4,
+        "similitud": 0.9115
+      },
+      {
+        "doc_id": "AMB-VED-005",
+        "rank": 5,
+        "similitud": 0.8886
+      },
+      {
+        "doc_id": "AMB-SAN-002",
+        "rank": 6,
+        "similitud": 0.8748
+      },
+      {
+        "doc_id": "AMB-CFO-002",
+        "rank": 7,
+        "similitud": 0.8747
+      },
+      {
+        "doc_id": "AMB-OCC-002",
+        "rank": 8,
+        "similitud": 0.873
+      },
+      {
+        "doc_id": "AMB-CFO-003",
+        "rank": 9,
+        "similitud": 0.8684
+      },
+      {
+        "doc_id": "AMB-OCC-001",
+        "rank": 10,
+        "similitud": 0.8654
+      }
+    ],
+    "B": [
+      {
+        "doc_id": "AMB-VED-001",
+        "rank": 1,
+        "similitud": 0.9322,
+        "rrf_score": 28.7391
+      },
+      {
+        "doc_id": "AMB-VED-002",
+        "rank": 2,
+        "similitud": 0.9213,
+        "rrf_score": 28.4747
+      },
+      {
+        "doc_id": "AMB-VED-003",
+        "rank": 3,
+        "similitud": 0.9204,
+        "rrf_score": 28.2187
+      },
+      {
+        "doc_id": "AMB-VED-005",
+        "rank": 4,
+        "similitud": 0.8845,
+        "rrf_score": 27.9707
+      },
+      {
+        "doc_id": "AMB-VED-004",
+        "rank": 5,
+        "similitud": 0.8843,
+        "rrf_score": 27.7303
+      },
+      {
+        "doc_id": "AMB-CFO-002",
+        "rank": 6,
+        "similitud": 0.8637,
+        "rrf_score": 27.4972
+      },
+      {
+        "doc_id": "AMB-OCC-004",
+        "rank": 7,
+        "similitud": 0.856,
+        "rrf_score": 27.2711
+      },
+      {
+        "doc_id": "AMB-CFO-005",
+        "rank": 8,
+        "similitud": 0.8543,
+        "rrf_score": 27.0516
+      },
+      {
+        "doc_id": "AMB-SAN-004",
+        "rank": 9,
+        "similitud": 0.8534,
+        "rrf_score": 26.8384
+      },
+      {
+        "doc_id": "AMB-SAN-003",
+        "rank": 10,
+        "similitud": 0.8532,
+        "rrf_score": 26.6314
+      }
+    ]
+  },
+  {
+    "qid": "QAMB-VED-002",
+    "A": [
+      {
+        "doc_id": "AMB-VED-005",
+        "rank": 1,
+        "similitud": 0.9185
+      },
+      {
+        "doc_id": "AMB-VED-001",
+        "rank": 2,
+        "similitud": 0.906
+      },
+      {
+        "doc_id": "AMB-VED-002",
+        "rank": 3,
+        "similitud": 0.9057
+      },
+      {
+        "doc_id": "AMB-CFO-002",
+        "rank": 4,
+        "similitud": 0.8934
+      },
+      {
+        "doc_id": "AMB-VED-004",
+        "rank": 5,
+        "similitud": 0.8914
+      },
+      {
+        "doc_id": "AMB-SAN-005",
+        "rank": 6,
+        "similitud": 0.8878
+      },
+      {
+        "doc_id": "AMB-VED-003",
+        "rank": 7,
+        "similitud": 0.887
+      },
+      {
+        "doc_id": "AMB-SAN-001",
+        "rank": 8,
+        "similitud": 0.8898
+      },
+      {
+        "doc_id": "AMB-LIC-005",
+        "rank": 9,
+        "similitud": 0.8752
+      },
+      {
+        "doc_id": "AMB-SAN-002",
+        "rank": 10,
+        "similitud": 0.8746
+      }
+    ],
+    "B": [
+      {
+        "doc_id": "AMB-VED-005",
+        "rank": 1,
+        "similitud": 0.9224,
+        "rrf_score": 28.7391
+      },
+      {
+        "doc_id": "AMB-VED-002",
+        "rank": 2,
+        "similitud": 0.9161,
+        "rrf_score": 28.4747
+      },
+      {
+        "doc_id": "AMB-SAN-005",
+        "rank": 3,
+        "similitud": 0.8891,
+        "rrf_score": 28.2187
+      },
+      {
+        "doc_id": "AMB-VED-001",
+        "rank": 4,
+        "similitud": 0.8888,
+        "rrf_score": 27.9707
+      },
+      {
+        "doc_id": "AMB-VED-004",
+        "rank": 5,
+        "similitud": 0.8824,
+        "rrf_score": 27.7303
+      },
+      {
+        "doc_id": "AMB-VED-003",
+        "rank": 6,
+        "similitud": 0.8786,
+        "rrf_score": 27.4972
+      },
+      {
+        "doc_id": "AMB-LIC-001",
+        "rank": 7,
+        "similitud": 0.8759,
+        "rrf_score": 27.2711
+      },
+      {
+        "doc_id": "AMB-CAG-005",
+        "rank": 8,
+        "similitud": 0.8757,
+        "rrf_score": 27.0516
+      },
+      {
+        "doc_id": "AMB-CFO-002",
+        "rank": 9,
+        "similitud": 0.8743,
+        "rrf_score": 26.8384
+      },
+      {
+        "doc_id": "AMB-VER-004",
+        "rank": 10,
+        "similitud": 0.8722,
+        "rrf_score": 26.6314
+      }
+    ]
+  },
+  {
+    "qid": "QAMB-VED-003",
+    "A": [
+      {
+        "doc_id": "AMB-VED-002",
+        "rank": 1,
+        "similitud": 0.9387
+      },
+      {
+        "doc_id": "AMB-VED-001",
+        "rank": 2,
+        "similitud": 0.9383
+      },
+      {
+        "doc_id": "AMB-VED-004",
+        "rank": 3,
+        "similitud": 0.9195
+      },
+      {
+        "doc_id": "AMB-VED-005",
+        "rank": 4,
+        "similitud": 0.912
+      },
+      {
+        "doc_id": "AMB-VED-003",
+        "rank": 5,
+        "similitud": 0.909
+      },
+      {
+        "doc_id": "AMB-SAN-003",
+        "rank": 6,
+        "similitud": 0.903
+      },
+      {
+        "doc_id": "AMB-CFO-004",
+        "rank": 7,
+        "similitud": 0.9028
+      },
+      {
+        "doc_id": "AMB-SAN-004",
+        "rank": 8,
+        "similitud": 0.8997
+      },
+      {
+        "doc_id": "AMB-CFO-003",
+        "rank": 9,
+        "similitud": 0.8973
+      },
+      {
+        "doc_id": "AMB-CFO-002",
+        "rank": 10,
+        "similitud": 0.8975
+      }
+    ],
+    "B": [
+      {
+        "doc_id": "AMB-VED-004",
+        "rank": 1,
+        "similitud": 0.9358,
+        "rrf_score": 28.7391
+      },
+      {
+        "doc_id": "AMB-VED-002",
+        "rank": 2,
+        "similitud": 0.9172,
+        "rrf_score": 28.4747
+      },
+      {
+        "doc_id": "AMB-VED-001",
+        "rank": 3,
+        "similitud": 0.9091,
+        "rrf_score": 28.2187
+      },
+      {
+        "doc_id": "AMB-LIC-002",
+        "rank": 4,
+        "similitud": 0.8946,
+        "rrf_score": 27.9707
+      },
+      {
+        "doc_id": "AMB-VED-005",
+        "rank": 5,
+        "similitud": 0.8882,
+        "rrf_score": 27.7303
+      },
+      {
+        "doc_id": "AMB-SAN-002",
+        "rank": 6,
+        "similitud": 0.8875,
+        "rrf_score": 27.4972
+      },
+      {
+        "doc_id": "AMB-RUI-004",
+        "rank": 7,
+        "similitud": 0.8849,
+        "rrf_score": 27.2711
+      },
+      {
+        "doc_id": "AMB-RES-004",
+        "rank": 8,
+        "similitud": 0.8847,
+        "rrf_score": 27.0516
+      },
+      {
+        "doc_id": "AMB-OCC-004",
+        "rank": 9,
+        "similitud": 0.8843,
+        "rrf_score": 26.8384
+      },
+      {
+        "doc_id": "AMB-CFO-004",
+        "rank": 10,
+        "similitud": 0.8821,
+        "rrf_score": 26.6314
+      }
+    ]
+  },
+  {
+    "qid": "QAMB-VER-001",
+    "A": [
+      {
+        "doc_id": "AMB-VER-001",
+        "rank": 1,
+        "similitud": 0.926
+      },
+      {
+        "doc_id": "AMB-OCC-004",
+        "rank": 2,
+        "similitud": 0.8964
+      },
+      {
+        "doc_id": "AMB-OCC-003",
+        "rank": 3,
+        "similitud": 0.8945
+      },
+      {
+        "doc_id": "AMB-VER-003",
+        "rank": 4,
+        "similitud": 0.8928
+      },
+      {
+        "doc_id": "AMB-VER-005",
+        "rank": 5,
+        "similitud": 0.8911
+      },
+      {
+        "doc_id": "AMB-CAG-001",
+        "rank": 6,
+        "similitud": 0.8901
+      },
+      {
+        "doc_id": "AMB-CAG-002",
+        "rank": 7,
+        "similitud": 0.8858
+      },
+      {
+        "doc_id": "AMB-LIC-004",
+        "rank": 8,
+        "similitud": 0.8862
+      },
+      {
+        "doc_id": "AMB-VER-002",
+        "rank": 9,
+        "similitud": 0.8848
+      },
+      {
+        "doc_id": "AMB-CAG-003",
+        "rank": 10,
+        "similitud": 0.8843
+      }
+    ],
+    "B": [
+      {
+        "doc_id": "AMB-VER-001",
+        "rank": 1,
+        "similitud": 0.9461,
+        "rrf_score": 28.7391
+      },
+      {
+        "doc_id": "AMB-CAG-001",
+        "rank": 2,
+        "similitud": 0.8865,
+        "rrf_score": 28.4747
+      },
+      {
+        "doc_id": "AMB-LIC-003",
+        "rank": 3,
+        "similitud": 0.8823,
+        "rrf_score": 28.2187
+      },
+      {
+        "doc_id": "AMB-LIC-005",
+        "rank": 4,
+        "similitud": 0.8775,
+        "rrf_score": 27.9707
+      },
+      {
+        "doc_id": "AMB-VER-005",
+        "rank": 5,
+        "similitud": 0.8773,
+        "rrf_score": 27.7303
+      },
+      {
+        "doc_id": "AMB-CAG-005",
+        "rank": 6,
+        "similitud": 0.8756,
+        "rrf_score": 27.4972
+      },
+      {
+        "doc_id": "AMB-VER-002",
+        "rank": 7,
+        "similitud": 0.8754,
+        "rrf_score": 27.2711
+      },
+      {
+        "doc_id": "AMB-LIC-004",
+        "rank": 8,
+        "similitud": 0.8744,
+        "rrf_score": 27.0516
+      },
+      {
+        "doc_id": "AMB-SAN-001",
+        "rank": 9,
+        "similitud": 0.8739,
+        "rrf_score": 26.8384
+      },
+      {
+        "doc_id": "AMB-RES-003",
+        "rank": 10,
+        "similitud": 0.8738,
+        "rrf_score": 26.6314
+      }
+    ]
+  },
+  {
+    "qid": "QAMB-VER-002",
+    "A": [
+      {
+        "doc_id": "AMB-VER-003",
+        "rank": 1,
+        "similitud": 0.9438
+      },
+      {
+        "doc_id": "AMB-VER-004",
+        "rank": 2,
+        "similitud": 0.9129
+      },
+      {
+        "doc_id": "AMB-VER-002",
+        "rank": 3,
+        "similitud": 0.9109
+      },
+      {
+        "doc_id": "AMB-LIC-005",
+        "rank": 4,
+        "similitud": 0.9086
+      },
+      {
+        "doc_id": "AMB-CFO-003",
+        "rank": 5,
+        "similitud": 0.9065
+      },
+      {
+        "doc_id": "AMB-VER-005",
+        "rank": 6,
+        "similitud": 0.9024
+      },
+      {
+        "doc_id": "AMB-VER-001",
+        "rank": 7,
+        "similitud": 0.9017
+      },
+      {
+        "doc_id": "AMB-CAG-005",
+        "rank": 8,
+        "similitud": 0.9
+      },
+      {
+        "doc_id": "AMB-RES-003",
+        "rank": 9,
+        "similitud": 0.8944
+      },
+      {
+        "doc_id": "AMB-RUI-001",
+        "rank": 10,
+        "similitud": 0.8923
+      }
+    ],
+    "B": [
+      {
+        "doc_id": "AMB-VER-003",
+        "rank": 1,
+        "similitud": 0.9602,
+        "rrf_score": 28.7391
+      },
+      {
+        "doc_id": "AMB-VER-005",
+        "rank": 2,
+        "similitud": 0.9116,
+        "rrf_score": 28.4747
+      },
+      {
+        "doc_id": "AMB-CFO-004",
+        "rank": 3,
+        "similitud": 0.8983,
+        "rrf_score": 28.2187
+      },
+      {
+        "doc_id": "AMB-LIC-002",
+        "rank": 4,
+        "similitud": 0.8959,
+        "rrf_score": 27.9707
+      },
+      {
+        "doc_id": "AMB-SAN-001",
+        "rank": 5,
+        "similitud": 0.8937,
+        "rrf_score": 27.7303
+      },
+      {
+        "doc_id": "AMB-CAG-005",
+        "rank": 6,
+        "similitud": 0.8888,
+        "rrf_score": 27.4972
+      },
+      {
+        "doc_id": "AMB-VER-001",
+        "rank": 7,
+        "similitud": 0.8879,
+        "rrf_score": 27.2711
+      },
+      {
+        "doc_id": "AMB-RUI-004",
+        "rank": 8,
+        "similitud": 0.8868,
+        "rrf_score": 27.0516
+      },
+      {
+        "doc_id": "AMB-VER-004",
+        "rank": 9,
+        "similitud": 0.8859,
+        "rrf_score": 26.8384
+      },
+      {
+        "doc_id": "AMB-SAN-002",
+        "rank": 10,
+        "similitud": 0.8838,
+        "rrf_score": 26.6314
+      }
+    ]
+  },
+  {
+    "qid": "QAMB-VER-003",
+    "A": [
+      {
+        "doc_id": "AMB-VER-005",
+        "rank": 1,
+        "similitud": 0.9003
+      },
+      {
+        "doc_id": "AMB-CAG-003",
+        "rank": 2,
+        "similitud": 0.8896
+      },
+      {
+        "doc_id": "AMB-LIC-005",
+        "rank": 3,
+        "similitud": 0.8891
+      },
+      {
+        "doc_id": "AMB-CAG-004",
+        "rank": 4,
+        "similitud": 0.8831
+      },
+      {
+        "doc_id": "AMB-RES-003",
+        "rank": 5,
+        "similitud": 0.883
+      },
+      {
+        "doc_id": "AMB-RES-005",
+        "rank": 6,
+        "similitud": 0.8838
+      },
+      {
+        "doc_id": "AMB-LIC-002",
+        "rank": 7,
+        "similitud": 0.8813
+      },
+      {
+        "doc_id": "AMB-CAG-002",
+        "rank": 8,
+        "similitud": 0.8807
+      },
+      {
+        "doc_id": "AMB-SAN-001",
+        "rank": 9,
+        "similitud": 0.8777
+      },
+      {
+        "doc_id": "AMB-OCC-002",
+        "rank": 10,
+        "similitud": 0.8767
+      }
+    ],
+    "B": [
+      {
+        "doc_id": "AMB-VER-005",
+        "rank": 1,
+        "similitud": 0.893,
+        "rrf_score": 28.7391
+      },
+      {
+        "doc_id": "AMB-LIC-004",
+        "rank": 2,
+        "similitud": 0.8922,
+        "rrf_score": 28.4747
+      },
+      {
+        "doc_id": "AMB-CAG-004",
+        "rank": 3,
+        "similitud": 0.8838,
+        "rrf_score": 28.2187
+      },
+      {
+        "doc_id": "AMB-VER-002",
+        "rank": 4,
+        "similitud": 0.8806,
+        "rrf_score": 27.9707
+      },
+      {
+        "doc_id": "AMB-CAG-001",
+        "rank": 5,
+        "similitud": 0.8792,
+        "rrf_score": 27.7303
+      },
+      {
+        "doc_id": "AMB-RES-005",
+        "rank": 6,
+        "similitud": 0.8757,
+        "rrf_score": 27.4972
+      },
+      {
+        "doc_id": "AMB-RES-003",
+        "rank": 7,
+        "similitud": 0.8743,
+        "rrf_score": 27.2711
+      },
+      {
+        "doc_id": "AMB-VER-001",
+        "rank": 8,
+        "similitud": 0.8732,
+        "rrf_score": 27.0516
+      },
+      {
+        "doc_id": "AMB-VER-003",
+        "rank": 9,
+        "similitud": 0.871,
+        "rrf_score": 26.8384
+      },
+      {
+        "doc_id": "AMB-LIC-005",
+        "rank": 10,
+        "similitud": 0.8709,
+        "rrf_score": 26.6314
+      }
+    ]
+  }
+]

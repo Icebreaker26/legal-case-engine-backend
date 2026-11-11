@@ -2,7 +2,7 @@ import { extraerTextoPdf } from '../../../services/pdfService.js';
 import { generarEmbeddingLocal } from '../services/aiService.js';
 import { generarDocumentoWord } from '../services/docxService.js';
 import { indexarDocumento } from '../services/memoriaService.js';
-import { recuperarPrecedentes, registrarImpresiones, resolverFusionAlphaFb } from '../services/consultaService.js';
+import { recuperarPrecedentes, registrarImpresiones, resolverFusion } from '../services/consultaService.js';
 import { extraerDatosTutela } from '../services/extractorService.js';
 import { limpiarTexto, limpiarTextoParaPostgres } from '../services/cleanerService.js';
 import { registrarLog } from '../../../services/auditService.js';
@@ -286,9 +286,9 @@ export const procesarTutela = async (req, res) => {
     // descartaba por completo los candidatos correctos cada vez que
     // extraerDatosTutela se equivocaba de categoría (recall@5=0 en ese caso,
     // medido en #104/#106) — peor que no filtrar en absoluto. `fusion` la
-    // resuelve la guarda dura de #173 (#100 fase 3) -- 'alpha_fb' solo si el
-    // flag, el modelo y los datos ya calzan, si no cae sola a 'ponderado'.
-    const fusion = await resolverFusionAlphaFb('procesarTutela');
+    // resuelve resolverFusion (#193): 'alpha' validado por defecto, 'alpha_fb'
+    // si el flag de ECCP está activo, 'ponderado' solo si falla la guarda.
+    const fusion = await resolverFusion('procesarTutela');
     const precedentesExitosos = await recuperarPrecedentes({
       tutela: { contenido_original: textoPdf },
       fusion,
@@ -436,10 +436,8 @@ export const obtenerSugerenciasTutela = async (req, res) => {
     if (rows.length === 0) return res.status(404).json({ error: 'Tutela no encontrada.' });
 
     const { contenido_original, derecho_vulnerado } = rows[0];
-    // Sin filtro de categoría (#106); fusion la resuelve la guarda dura de
-    // #173 -- 'alpha_fb' solo si el flag, el modelo y los datos ya calzan,
-    // si no cae sola a 'ponderado'.
-    const fusion = await resolverFusionAlphaFb('obtenerSugerenciasTutela');
+    // Sin filtro de categoría (#106); fusion la resuelve resolverFusion (#193).
+    const fusion = await resolverFusion('obtenerSugerenciasTutela');
     const sugerencias = await recuperarPrecedentes({
       tutela: { contenido_original },
       fusion,
@@ -475,9 +473,8 @@ export const generarBorradorContestacion = async (req, res) => {
     }
 
     // Sin IA externa: devuelve sugerencias del RAG local para que el abogado redacte manualmente
-    // Sin filtro de categoría (#106); fusion la resuelve la guarda dura de
-    // #173 (#100 fase 3).
-    const fusion = await resolverFusionAlphaFb('generarBorradorContestacion');
+    // Sin filtro de categoría (#106); fusion la resuelve resolverFusion (#193).
+    const fusion = await resolverFusion('generarBorradorContestacion');
     const sugerencias = await recuperarPrecedentes({
       tutela: { contenido_original: rows[0].contenido_original },
       fusion,
@@ -1333,9 +1330,8 @@ export const generarPromptsPeticion = async (req, res) => {
     const argumentos = argumentosRes.rows;
 
     const comprension = tutela.analisis_comprension || null;
-    // Sin filtro de categoría (#106); fusion la resuelve la guarda dura de
-    // #173 (#100 fase 3).
-    const fusion = await resolverFusionAlphaFb('generarPromptsPeticion');
+    // Sin filtro de categoría (#106); fusion la resuelve resolverFusion (#193).
+    const fusion = await resolverFusion('generarPromptsPeticion');
     const sugerencias = await recuperarPrecedentes({ tutela, fusion, contexto: tutela.derecho_vulnerado });
 
     await registrarImpresiones({

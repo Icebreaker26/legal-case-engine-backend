@@ -1,0 +1,108 @@
+{
+  "subset": "test",
+  "n_queries": 30,
+  "metricas": [
+    "recall@5",
+    "recall@10",
+    "ndcg@10",
+    "mrr@10"
+  ],
+  "stat_test": "fisher",
+  "n_permutations": 10000,
+  "max_p": 0.05,
+  "correccion_multiple": "holm-bonferroni (por métrica)",
+  "bootstrap_resamples": 2000,
+  "seed": 42,
+  "runs": {
+    "A-alpha-e5": "eval/data/ambiental_v1/runs/A-alpha-e5.trec",
+    "B-rrf-e5": "eval/data/ambiental_v1/runs/B-rrf-e5.trec"
+  },
+  "tabla": {
+    "A-alpha-e5": {
+      "recall@5": {
+        "media": 0.5439345839345839,
+        "ci95_lo": 0.4888386844636845,
+        "ci95_hi": 0.5926517556517555,
+        "n": 30
+      },
+      "recall@10": {
+        "media": 0.8319155844155846,
+        "ci95_lo": 0.7827605519480519,
+        "ci95_hi": 0.8749935966810968,
+        "n": 30
+      },
+      "ndcg@10": {
+        "media": 0.8447600822532301,
+        "ci95_lo": 0.8099738229195148,
+        "ci95_hi": 0.8761337870678193,
+        "n": 30
+      },
+      "mrr@10": {
+        "media": 0.9833333333333333,
+        "ci95_lo": 0.95,
+        "ci95_hi": 1.0,
+        "n": 30
+      }
+    },
+    "B-rrf-e5": {
+      "recall@5": {
+        "media": 0.48990019240019234,
+        "ci95_lo": 0.41917857142857146,
+        "ci95_hi": 0.5594378908128909,
+        "n": 30
+      },
+      "recall@10": {
+        "media": 0.7737409812409815,
+        "ci95_lo": 0.7049325396825397,
+        "ci95_hi": 0.8376752044252046,
+        "n": 30
+      },
+      "ndcg@10": {
+        "media": 0.7670598507939005,
+        "ci95_lo": 0.6897006896315888,
+        "ci95_hi": 0.8278847528828681,
+        "n": 30
+      },
+      "mrr@10": {
+        "media": 0.9547619047619047,
+        "ci95_lo": 0.8809523809523809,
+        "ci95_hi": 1.0,
+        "n": 30
+      }
+    }
+  },
+  "significancia": {
+    "recall@5": {
+      "A-alpha-e5 vs B-rrf-e5": {
+        "p_crudo": 0.1672,
+        "n": 30,
+        "p_holm": 0.1672,
+        "significativo_holm": false
+      }
+    },
+    "recall@10": {
+      "A-alpha-e5 vs B-rrf-e5": {
+        "p_crudo": 0.2025,
+        "n": 30,
+        "p_holm": 0.2025,
+        "significativo_holm": false
+      }
+    },
+    "ndcg@10": {
+      "A-alpha-e5 vs B-rrf-e5": {
+        "p_crudo": 0.0419,
+        "n": 30,
+        "p_holm": 0.0419,
+        "significativo_holm": true
+      }
+    },
+    "mrr@10": {
+      "A-alpha-e5 vs B-rrf-e5": {
+        "p_crudo": 0.7562,
+        "n": 30,
+        "p_holm": 0.7562,
+        "significativo_holm": false
+      }
+    }
+  }
+}

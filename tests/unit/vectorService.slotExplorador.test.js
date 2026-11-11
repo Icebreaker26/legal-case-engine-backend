@@ -64,6 +64,45 @@ describe('vectorService — aplicarSlotExplorador (ECCP fase f, #186)', () => {
     expect(resultado[4].documento_id).toBe('explorado');
   });
 
+  // #205: el ganador puede venir de un puesto que ya está en el resultado
+  // (6..limit). Copiarlo al puesto 5 lo duplicaba y hacía desaparecer al
+  // natural; ahora se intercambian.
+  test('si el ganador ya está en el resultado (limit > 5), se intercambia con el natural: sin duplicados ni pérdidas', () => {
+    const candidatos = [
+      candidato('p1', 0.95, 0.1), candidato('p2', 0.90, 0.1), candidato('p3', 0.85, 0.1), candidato('p4', 0.80, 0.1),
+      candidato('natural', 0.50, 0.1),
+      candidato('p6', 0.50 - EPSILON_EXPLORACION / 4, 0.2),
+      candidato('explorado', 0.50 - EPSILON_EXPLORACION / 2, 0.9), // puesto 7, dentro del margen, UCB más alta
+      candidato('p8', 0.40, 0.1),
+    ];
+    const resultado = aplicarSlotExplorador(candidatos, 8);
+    const ids = resultado.map((c) => c.documento_id);
+    expect(ids).toEqual(['p1', 'p2', 'p3', 'p4', 'explorado', 'p6', 'natural', 'p8']);
+    expect(new Set(ids).size).toBe(ids.length);
+    expect(resultado[4].es_exploracion).toBe(true);
+    expect(resultado[6].es_exploracion).toBeUndefined();
+  });
+
+  test('si el ganador viene de fuera del resultado (limit = 5), ocupa el puesto 5 y el natural sale', () => {
+    const candidatos = [
+      candidato('p1', 0.95, 0.1), candidato('p2', 0.90, 0.1), candidato('p3', 0.85, 0.1), candidato('p4', 0.80, 0.1),
+      candidato('natural', 0.50, 0.1),
+      candidato('explorado', 0.50 - EPSILON_EXPLORACION / 2, 0.9),
+    ];
+    const resultado = aplicarSlotExplorador(candidatos, 5);
+    expect(resultado.map((c) => c.documento_id)).toEqual(['p1', 'p2', 'p3', 'p4', 'explorado']);
+  });
+
+  test('nunca devuelve documento_id repetidos, para cualquier limit', () => {
+    const candidatos = Array.from({ length: 12 }, (_, i) =>
+      candidato(`d${i}`, 0.5 - i * (EPSILON_EXPLORACION / 10), i === 9 ? 0.99 : 0.1));
+    for (let limit = 1; limit <= candidatos.length; limit++) {
+      const ids = aplicarSlotExplorador(candidatos, limit).map((c) => c.documento_id);
+      expect(new Set(ids).size).toBe(ids.length);
+      expect(ids).toHaveLength(Math.min(limit, candidatos.length));
+    }
+  });
+
   test('Z_UCB y EPSILON_EXPLORACION son valores positivos documentados (parámetros de partida, #186)', () => {
     expect(Z_UCB).toBeGreaterThan(0);
     expect(EPSILON_EXPLORACION).toBeGreaterThan(0);

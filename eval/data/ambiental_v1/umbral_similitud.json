@@ -1,0 +1,77 @@
+{
+  "descripcion": "Análisis secundario pre-registrado (#197): umbral de similitud sobre el sistema A (top-10). Descriptivo.",
+  "consultas": 30,
+  "resultados": 300,
+  "resultados_grado2_o_mas": 75,
+  "similitud_cuantiles": {
+    "min": 0.8616,
+    "p25": 0.8792,
+    "mediana": 0.8895,
+    "p75": 0.9022,
+    "max": 0.9438
+  },
+  "similitud_media_por_grado": {
+    "0": 0.8846,
+    "1": 0.8894,
+    "2": 0.8993,
+    "3": 0.9092
+  },
+  "tabla": [
+    {
+      "umbral": 0.6,
+      "resultados": 300,
+      "precision_grado2": 0.25,
+      "cobertura_grado2": 1,
+      "consultas_sin_resultados": 0
+    },
+    {
+      "umbral": 0.65,
+      "resultados": 300,
+      "precision_grado2": 0.25,
+      "cobertura_grado2": 1,
+      "consultas_sin_resultados": 0
+    },
+    {
+      "umbral": 0.7,
+      "resultados": 300,
+      "precision_grado2": 0.25,
+      "cobertura_grado2": 1,
+      "consultas_sin_resultados": 0
+    },
+    {
+      "umbral": 0.75,
+      "resultados": 300,
+      "precision_grado2": 0.25,
+      "cobertura_grado2": 1,
+      "consultas_sin_resultados": 0
+    },
+    {
+      "umbral": 0.8,
+      "resultados": 300,
+      "precision_grado2": 0.25,
+      "cobertura_grado2": 1,
+      "consultas_sin_resultados": 0
+    },
+    {
+      "umbral": 0.85,
+      "resultados": 300,
+      "precision_grado2": 0.25,
+      "cobertura_grado2": 1,
+      "consultas_sin_resultados": 0
+    },
+    {
+      "umbral": 0.9,
+      "resultados": 82,
+      "precision_grado2": 0.4878048780487805,
+      "cobertura_grado2": 0.5333333333333333,
+      "consultas_sin_resultados": 0.2666666666666667
+    },
+    {
+      "umbral": 0.95,
+      "resultados": 0,
+      "precision_grado2": null,
+      "cobertura_grado2": 0,
+      "consultas_sin_resultados": 1
+    }
+  ]
+}

@@ -1,5 +1,6 @@
 import pool from '../../../db/database.js';
 import { obtenerParametrosBetaFeromona } from './pheromoneService.js';
+import { buscarConAlpha, construirConsultaAlpha, fuenteIndexadaConModelo, FUENTE_TUTELAS } from '../../../services/motorBusqueda.js';
 
 /**
  * Busca los documentos más similares a la tutela.
@@ -198,55 +199,15 @@ const buscarRRF = async (vectorTutelaLocal, texto, limit, categoria) => {
 // reproducirla a través del pipeline real (recuperarPrecedentes) y confirmar
 // que el código de producción, tal cual, da el mismo nDCG@10 reportado.
 //
-// Deliberadamente NO reemplaza 'ponderado' como default — fusion:'alpha' solo
-// se usa si el caller lo pide explícitamente.
+// Desde #193 es la fusión por defecto de los endpoints de tutelas: la decide
+// resolverFusion (consultaService.js), con guarda de modelo y datos.
 //
-// Orden por score crudo (no ROUND) con desempate por documento_id ASC: el
-// barrido de #115/#121 ordena así (ver v2_barrido_pesos.js) — redondear antes
-// de ordenar, como hace buildScoringCTE, puede cambiar el ranking cuando los
-// scores quedan muy juntos (típico con α alto). El ROUND solo se aplica a la
-// columna que se expone, nunca al ORDER BY.
-const buildAlphaScoringCTE = () => {
-  const scoreExpr = `
-          (1 - (COALESCE(embedding_comprension, embedding_local) <=> $1::vector)) * $5::float8 +
-          LEAST(ts_rank(contenido_tsv, plainto_tsquery('spanish', $2)), 1.0) * (1 - $5::float8)
-  `;
-
-  return `
-    WITH scored AS (
-      SELECT
-        categoria, titulo_referencia, contenido_legal, documento_id,
-        relevancia_score, comprension_doc, vigencia_factor,
-        (comprension_doc IS NOT NULL) AS tiene_comprension,
-        ${scoreExpr} AS score_crudo,
-        ROW_NUMBER() OVER (
-          PARTITION BY documento_id
-          ORDER BY ${scoreExpr} DESC, documento_id ASC
-        ) AS rn
-      FROM base_conocimiento_enel
-      WHERE embedding_local IS NOT NULL
-        AND es_exitosa = TRUE
-        AND is_active = TRUE
-        AND documento_id IS NOT NULL
-        AND ($4::text IS NULL OR categoria ILIKE $4)
-    )
-    SELECT categoria, titulo_referencia, contenido_legal, documento_id,
-           relevancia_score, ROUND(CAST(score_crudo AS NUMERIC), 6) AS score,
-           score_crudo, tiene_comprension, comprension_doc, vigencia_factor
-    FROM scored
-    WHERE rn = 1
-    ORDER BY score_crudo DESC, documento_id ASC
-    LIMIT $3;
-  `;
-};
-
-// alpha ya se valida en buscarContextoLegal antes de llegar aquí.
-const buscarAlpha = async (vectorTutelaLocal, texto, limit, categoria, alpha) => {
-  const categoriaParam = categoria?.trim() ? `%${categoria}%` : null;
-  const params = [JSON.stringify(vectorTutelaLocal), texto, limit, categoriaParam, alpha];
-  const { rows } = await pool.query(buildAlphaScoringCTE(), params);
-  return rows;
-};
+// El SQL de la fórmula vive en src/services/motorBusqueda.js (#192), parametrizado
+// por fuente para que ambiental use exactamente la misma fusión (épica #199).
+// Para tutelas genera, carácter por carácter, el mismo SQL que antes vivía aquí
+// (verificado en tests/unit/motorBusqueda.test.js).
+const buscarAlpha = (vectorTutelaLocal, texto, limit, categoria, alpha) =>
+  buscarConAlpha(FUENTE_TUTELAS, { vector: vectorTutelaLocal, texto, limit, alpha, categoria });
 
 // ── Re-ranking acotado con feromona (#161 fase e, ECCP) ──────────────────────
 //
@@ -256,7 +217,8 @@ const buscarAlpha = async (vectorTutelaLocal, texto, limit, categoria, alpha) =>
 // lejano. Con γ=0 o sin rastros (señal=0 siempre), el orden resultante es
 // idéntico al de 'alpha' puro -- degeneración segura (§3.3, §3.6 punto 4).
 //
-// Modo opcional (fusion:'alpha_fb'), nunca el default de producción.
+// Capa experimental opcional (fusion:'alpha_fb'): resolverFusion la suma a
+// 'alpha' solo si el flag de ECCP del endpoint está activo (#193).
 const K_RERANK = 20;
 
 // Calibrado offline (#161 fase e) sobre el run confirmatorio real de #121
@@ -274,10 +236,9 @@ export const GAMMA_ECCP = 0.02;
 export const ECCP_CONFIG_VERSION = 'v1-gamma0.02';
 
 // Modelo de embeddings contra el que se calibró GAMMA_ECCP (#161 fase e,
-// ver nota arriba). La guarda dura de #173 (resolverFusionAlphaFb,
-// consultaService.js) nunca activa 'alpha_fb' en producción si
-// EMBEDDING_MODEL no es exactamente este, aunque el flag de system_config
-// esté en true -- ver #100 para el rollout de este modelo.
+// ver nota arriba). Es también el modelo de la configuración validada: la
+// guarda de resolverFusion (consultaService.js, #193) nunca usa 'alpha' ni
+// 'alpha_fb' si EMBEDDING_MODEL no es exactamente este -- cae a 'ponderado'.
 export const MODELO_ALPHA_FB = 'Xenova/multilingual-e5-small';
 
 // ECCP fase (f, #186) — slot explorador (§3.3 "Exploración — slot único con
@@ -311,16 +272,7 @@ const SLOTS_EXPLOTACION = 4;
 // (BEGIN ISOLATION LEVEL REPEATABLE READ + ROLLBACK) y así quedar inmunes a
 // que otras suites inserten/actualicen filas de base_conocimiento_enel en
 // paralelo durante la corrida -- en producción nunca se pasa, usa el pool.
-export const baseIndexadaConModelo = async (modelo, db = pool) => {
-  const { rows } = await db.query(
-    `SELECT NOT EXISTS (
-       SELECT 1 FROM base_conocimiento_enel
-       WHERE is_active = TRUE AND embedding_modelo IS DISTINCT FROM $1
-     ) AS sincronizado`,
-    [modelo]
-  );
-  return rows[0].sincronizado;
-};
+export const baseIndexadaConModelo = (modelo, db = pool) => fuenteIndexadaConModelo(FUENTE_TUTELAS, modelo, db);
 
 // ECCP fase (f, #186) — slot explorador (§3.3). El último puesto del
 // resultado (puesto 5 en el caso normal; si `limit` <= SLOTS_EXPLOTACION no
@@ -356,6 +308,14 @@ export const aplicarSlotExplorador = (candidatosOrdenados, limit) => {
   // al orden puramente explotador -- es la señal auditable de "aquí la
   // exploración movió algo", y lo que dispara la etiqueta visible al
   // abogado (peticionService.js, buildFichaPrecedente).
+  //
+  // #205: con `limit` > 5, el ganador puede venir de un puesto que ya está en
+  // el resultado (6..limit). En ese caso se intercambia con el natural, que
+  // pasa al puesto que dejó libre; copiarlo lo duplicaba y hacía desaparecer
+  // al natural. Si viene de fuera del resultado (siempre con limit = 5, el de
+  // los endpoints), ocupa el puesto 5 y el natural sale, como antes.
+  const indiceGanador = resultado.findIndex((c, i) => i > indiceSlot && c.documento_id === ganador.documento_id);
+  if (indiceGanador !== -1) resultado[indiceGanador] = natural;
   resultado[indiceSlot] = { ...ganador, es_exploracion: ganador.documento_id !== natural.documento_id };
   return resultado;
 };
@@ -364,7 +324,7 @@ const buscarAlphaFb = async (vectorTutelaLocal, texto, limit, alpha, contexto, g
   // Sin filtro de categoría en la recuperación (#106) -- `contexto` solo
   // condiciona la lectura de la feromona, nunca qué candidatos entran al CTE.
   const params = [JSON.stringify(vectorTutelaLocal), texto, K_RERANK, null, alpha];
-  const { rows: candidatos } = await pool.query(buildAlphaScoringCTE(), params);
+  const { rows: candidatos } = await pool.query(construirConsultaAlpha(FUENTE_TUTELAS), params);
 
   if (!candidatos.length) return [];
 

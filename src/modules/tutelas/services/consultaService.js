@@ -57,41 +57,58 @@ export const recuperarPrecedentes = async ({
 };
 
 /**
- * Guarda dura de activación (#173) — decide si el endpoint dado puede usar
- * fusion:'alpha_fb', o debe caer a 'ponderado'. Se cumplen las 3 condiciones
- * o ninguna: el flag de system_config por endpoint, EMBEDDING_MODEL igual al
- * que calibró γ_ECCP, y que base_conocimiento_enel ya esté 100% reindexada a
- * ese modelo. Cualquier falla (de la condición o de la propia consulta a la
- * base) cae en silencio a 'ponderado' con un `logger.warn`/`error` — activar
- * alpha_fb contra el modelo o los datos equivocados queda imposible por
- * construcción, no solo por disciplina de quien prenda el flag.
+ * Decide la fusión de un endpoint de recuperación (#193, épica #199).
+ *
+ * La configuración validada en el trabajo de grado (#121/#127) es 'alpha'
+ * (2 términos, e5-small, α=0.9). Es la fusión por defecto, protegida por una
+ * guarda dura de modelo y datos:
+ *
+ *   1. EMBEDDING_MODEL debe ser el modelo validado (MODELO_ALPHA_FB, e5-small).
+ *   2. base_conocimiento_enel debe estar 100% reindexada a ese modelo.
+ *
+ * Si alguna falla — o la propia consulta de la guarda falla — se cae a
+ * 'ponderado' con `logger.warn`/`error`: comparar vectores de espacios
+ * distintos no da error, solo resultados sin sentido, así que nunca se usa α
+ * sobre el modelo o los datos equivocados.
+ *
+ * Con la guarda en regla, la estigmergia (ECCP, 'alpha_fb' = 'alpha' + re-ranking
+ * acotado, experimental) se suma solo si el flag del endpoint en system_config
+ * está activo y RAG_ALPHA_FB_KILL no lo apaga; si no, el endpoint corre 'alpha'.
+ * El kill switch apaga solo ECCP: ya no devuelve el endpoint a 'ponderado'.
+ *
+ * La fusión usada queda registrada por impresión en `fusion_modo`
+ * (registrarImpresiones), así que una caída a 'ponderado' es visible.
  */
 // `db` es inyectable (default: el pool compartido) solo para los tests de
 // integración -- ver la nota en baseIndexadaConModelo (vectorService.js).
-export const resolverFusionAlphaFb = async (endpoint, db = pool) => {
+export const resolverFusion = async (endpoint, db = pool) => {
   try {
-    if (env.RAG_ALPHA_FB_KILL) {
-      logger.warn(`alpha_fb: RAG_ALPHA_FB_KILL activo -- cae a 'ponderado' (endpoint: ${endpoint})`);
-      return 'ponderado';
-    }
-
-    const activo = await estaAlphaFbActivoParaEndpoint(endpoint);
-    if (!activo) return 'ponderado';
-
     if (env.EMBEDDING_MODEL !== MODELO_ALPHA_FB) {
-      logger.warn(`alpha_fb: EMBEDDING_MODEL="${env.EMBEDDING_MODEL}" distinto de "${MODELO_ALPHA_FB}" -- cae a 'ponderado' (endpoint: ${endpoint})`);
+      logger.warn(`fusion: EMBEDDING_MODEL="${env.EMBEDDING_MODEL}" distinto de "${MODELO_ALPHA_FB}" -- cae a 'ponderado' (endpoint: ${endpoint})`);
       return 'ponderado';
     }
 
     const sincronizado = await baseIndexadaConModelo(MODELO_ALPHA_FB, db);
     if (!sincronizado) {
-      logger.warn(`alpha_fb: base_conocimiento_enel aún tiene filas activas sin reindexar a "${MODELO_ALPHA_FB}" -- cae a 'ponderado' (endpoint: ${endpoint})`);
+      logger.warn(`fusion: base_conocimiento_enel aún tiene filas activas sin reindexar a "${MODELO_ALPHA_FB}" -- cae a 'ponderado' (endpoint: ${endpoint})`);
       return 'ponderado';
     }
 
-    return 'alpha_fb';
+    if (env.RAG_ALPHA_FB_KILL) {
+      logger.warn(`alpha_fb: RAG_ALPHA_FB_KILL activo -- ECCP apagado, corre 'alpha' (endpoint: ${endpoint})`);
+      return 'alpha';
+    }
+
+    // El flag solo decide la capa experimental: si su lectura falla, el
+    // endpoint se queda en la configuración validada, no cae a 'ponderado'.
+    try {
+      return (await estaAlphaFbActivoParaEndpoint(endpoint)) ? 'alpha_fb' : 'alpha';
+    } catch (error) {
+      logger.error(`alpha_fb: error leyendo el flag de ECCP, corre 'alpha' (endpoint: ${endpoint})`, { error: error.message });
+      return 'alpha';
+    }
   } catch (error) {
-    logger.error(`alpha_fb: error resolviendo la guarda dura, cae a 'ponderado' (endpoint: ${endpoint})`, { error: error.message });
+    logger.error(`fusion: error resolviendo la guarda dura, cae a 'ponderado' (endpoint: ${endpoint})`, { error: error.message });
     return 'ponderado';
   }
 };

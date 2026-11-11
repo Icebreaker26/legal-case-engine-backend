@@ -64,11 +64,15 @@ Gestión del ciclo de vida de expedientes de derecho ambiental en Enel Colombia.
 | Campo | Tipo | Notas |
 |---|---|---|
 | `expediente_id` | UUID PK/FK | |
-| `embedding` | vector(384) | Modelo `Xenova/all-MiniLM-L6-v2` local |
+| `embedding` | vector(384) | Modelo de `EMBEDDING_MODEL` (sin registrar por fila) |
 | `fuente` | VARCHAR(20) | `contenido` o `analisis` |
 | `updated_at` | TIMESTAMPTZ | |
 
-Índice HNSW con `vector_cosine_ops`. Umbral de similitud: **0.65**.
+Índice HNSW con `vector_cosine_ops`. Un vector por expediente, de los primeros 1.500 caracteres. Solo la lee la búsqueda RRF anterior (respaldo de la guarda, ver abajo); se retira cuando la guarda lleve un ciclo sin caer a RRF.
+
+### Tabla `chunks_ambiental` (#194/#195)
+
+Varios trozos por expediente (1.500 caracteres con solape de 300, de `contenido_texto` completo y del último resumen + `que_ordena`), cada uno con `embedding vector(384)` (prefijo `passage: ` en e5), `contenido_tsv` generado en español, `embedding_modelo` (modelo que lo generó), `fuente` (`contenido`/`analisis`) e `is_active`. Índices HNSW (coseno), GIN y por expediente. La llena la app (ver abajo) y `scripts/reindexar_ambiental.js`.
 
 ---
 
@@ -120,7 +124,7 @@ Gestión del ciclo de vida de expedientes de derecho ambiental en Enel Colombia.
 
 | Método | Ruta | Auth | Propósito |
 |---|---|---|---|
-| `GET` | `/expedientes/:id/similares` | READ | Busca hasta 10 expedientes con similitud ≥ 0.65. 404 si no hay embedding. |
+| `GET` | `/expedientes/:id/similares` | READ | Hasta 10 expedientes similares (`?limite=`, por defecto 5), con el motor α si la guarda se cumple y RRF si no. Sin umbral de similitud (pendiente de #197). 404 si el expediente no está indexado. |
 | `POST` | `/expedientes/:id/generar-embedding` | WRITE | Genera embedding para expedientes sin índice (usa `resumen` si existe, `contenido_texto[:1500]` si no). 422 sin texto. |
 | `POST` | `/expedientes/:id/prompt-comparativo` | WRITE | Genera prompt comparativo usando `precedentes_ids[]` seleccionados. 400 si array vacío. |
 
@@ -207,9 +211,11 @@ Los embeddings se generan automáticamente con `setImmediate()` (no bloqueante) 
 - Crear un expediente con `contenido_texto` → `fuente: 'contenido'`
 - Guardar análisis → `fuente: 'analisis'` (texto = resumen + que_ordena)
 
-Para expedientes sin embedding: `POST /expedientes/:id/generar-embedding`.
+En esos dos puntos, y además al editar `contenido_texto` (PATCH) y al consolidar el resumen, se regeneran los trozos de `chunks_ambiental` (#195). Si fallan, quedan en el log y el expediente queda pendiente para `scripts/reindexar_ambiental.js`.
 
-El servicio `ambientalEmbeddingService.js` usa `Xenova/all-MiniLM-L6-v2` (modelo local 384 dims). La búsqueda retorna `null` (→ 404) si el expediente actual no tiene embedding, o array vacío si no hay similares con similitud ≥ 0.65.
+Para expedientes sin embedding: `POST /expedientes/:id/generar-embedding` (escribe `embeddings_ambiental` y los trozos).
+
+El modelo es el de la variable `EMBEDDING_MODEL` (`aiService.js`; por defecto `Xenova/all-MiniLM-L6-v2`). La configuración validada es `Xenova/multilingual-e5-small`. La búsqueda retorna `null` (→ 404) si el expediente actual no está indexado. No se aplica umbral de similitud.
 
 ---
 
@@ -239,6 +245,8 @@ Todas en `tutelas_backend/migrations/`, prefijo timestamp:
 | `1785200000000` | Tablas `biblioteca_clusters` y `biblioteca_meta` |
 | `1785300000000` | Tabla `biblioteca_terminos_ignorados` |
 | `1785400000000` | Tabla `biblioteca_puntos` (coordenadas PCA 2D) |
+| `1786700000000` | Tabla `chunks_ambiental` (trozos con modelo registrado, #194) |
+| `1786800000000` | `modelo_at_compute`, `fuente_at_compute`, `silueta` en `biblioteca_meta` (#198) |
 
 ---
 
@@ -271,13 +279,22 @@ Todas en `tutelas_backend/migrations/`, prefijo timestamp:
 
 ## Búsqueda híbrida (vector + full-text)
 
-`ambientalEmbeddingService.js` — `buscarSimilares(expedienteId, limite)`:
+`ambientalEmbeddingService.js` — `buscarSimilares(expedienteId, limite)` elige el motor con `resolverMotorSimilares` (#196):
+
+### Motor α (por defecto cuando la guarda se cumple)
+
+- Misma fusión validada que tutelas (`src/services/motorBusqueda.js`, `FUENTE_AMBIENTAL`): `0.9·coseno + 0.1·min(ts_rank, 1)` sobre `chunks_ambiental`, mejor trozo por expediente, sin prefiltro de categoría, excluyendo el expediente consultado y los inactivos.
+- Consulta (estrategia de tutelas): vector `query: ` del último resumen + `que_ordena` (o de los primeros 1.500 caracteres del contenido si no hay análisis); texto léxico = contenido completo. La variante simétrica se evalúa en #197.
+- `similitud` = coseno del mejor trozo (0–1). Retorna: `id, titulo, numero_expediente, tipo_instrumento, estado, entidad_nombre, nivel_riesgo, resumen, similitud`.
+- **Guarda** (si falla, `logger.warn` y RRF): `AMBIENTAL_ALPHA_KILL` no activo; `EMBEDDING_MODEL` = `Xenova/multilingual-e5-small`; ningún trozo activo con otro modelo; ningún expediente activo con texto sin trozos activos.
+
+### RRF (comportamiento anterior, respaldo de la guarda)
 
 - **Hybrid search con Reciprocal Rank Fusion (RRF)**: combina ranking vectorial (`pgvector cosine`) y full-text (`tsvector / plainto_tsquery('spanish')`).
 - Fórmula: `1/(60 + rank_vector) + 1/(60 + rank_fulltext)` con `k = 60`, `CANDIDATOS = 20`.
 - La columna `search_vector` se mantiene actualizada por un trigger `BEFORE INSERT OR UPDATE`.
 - **Fallback**: si el expediente no tiene texto útil para full-text, cae a búsqueda vectorial pura.
-- Retorna: `id, titulo, numero_expediente, tipo_instrumento, estado, entidad_nombre, nivel_riesgo, resumen, similitud, rrf_score`.
+- Retorna: `id, titulo, numero_expediente, tipo_instrumento, estado, entidad_nombre, nivel_riesgo, resumen, similitud, rrf_score` (la UI no lee `rrf_score`).
 
 ---
 
@@ -292,16 +309,17 @@ Todas en `tutelas_backend/migrations/`, prefijo timestamp:
 - KPIs: total expedientes, con análisis, con embedding.
 
 ### Clustering semántico (`recalcularClusters`)
-1. Carga todos los embeddings activos de `embeddings_ambiental`.
-2. K-means con `ml-kmeans` — K auto-seleccionado: `n<6→2`, `n<15→3`, `n<30→5`, else `7`.
+1. Carga un vector por expediente activo. Si la guarda de similares se cumple (e5 y `chunks_ambiental` completo, sin `AMBIENTAL_ALPHA_KILL`), es el **promedio normalizado de sus trozos activos** de `chunks_ambiental` (cubre el documento completo); si no, el de `embeddings_ambiental`, como antes (#198).
+2. K-means con `ml-kmeans` y **semilla fija** (`KMEANS_SEED`): mismos vectores, misma partición. K auto-seleccionado: `n<6→2`, `n<15→3`, `n<30→5`, else `7`. La silueta media del k elegido queda en `biblioteca_meta.silueta` (diagnóstico; no cambia la regla de k).
 3. Por cada cluster: **medoid** (expediente más cercano al centroide), distribución de tipos y riesgos.
 4. PCA 2D con `ml-pca` sobre los mismos vectores — coordenadas normalizadas a `[0,1]`.
-5. Guarda en `biblioteca_clusters` (clusters) y `biblioteca_puntos` (scatter plot).
+5. Guarda en `biblioteca_clusters` (clusters) y `biblioteca_puntos` (scatter plot), y en `biblioteca_meta` el modelo y la fuente de los vectores usados.
 
 ### `needs_recalculate = true` cuando:
 - No hay clusters aún.
 - `biblioteca_puntos` está vacío pero hay clusters (post-deploy con nueva migración).
 - Hay ≥ 10 embeddings nuevos desde el último cómputo.
+- El modelo o la fuente de los vectores que se usarían hoy difieren de los del último cómputo (p. ej. tras reindexar con otro modelo, o cuando la guarda pasa de `embeddings_ambiental` a `chunks_ambiental`). Un cómputo anterior a #198, sin modelo registrado, también cuenta como desactualizado.
 
 ### Términos ignorados
 - `biblioteca_terminos_ignorados` — PRIMARY KEY `word`.
