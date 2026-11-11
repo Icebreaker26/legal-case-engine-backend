@@ -2,7 +2,7 @@ import pool from '../../src/db/database.js';
 import { env } from '../../src/config/env.js';
 import { baseIndexadaConModelo, MODELO_ALPHA_FB } from '../../src/modules/tutelas/services/vectorService.js';
 import { estaAlphaFbActivoParaEndpoint, invalidarCacheFlagsAlphaFb } from '../../src/modules/tutelas/services/featureFlagService.js';
-import { resolverFusionAlphaFb } from '../../src/modules/tutelas/services/consultaService.js';
+import { resolverFusion } from '../../src/modules/tutelas/services/consultaService.js';
 
 // #173 — guarda dura de activación de fusion:'alpha_fb'. Integración real
 // contra Postgres (flag en system_config) -- sin mocks de base de datos.
@@ -22,7 +22,7 @@ import { resolverFusionAlphaFb } from '../../src/modules/tutelas/services/consul
 //    `UPDATE ... WHERE is_active = TRUE` + transacción aislada, y en la
 //    corrida completa de la suite eso chocó con escrituras concurrentes de
 //    otros archivos -- "could not serialize access due to concurrent
-//    update"). `baseIndexadaConModelo`/`resolverFusionAlphaFb` aceptan un
+//    update"). `baseIndexadaConModelo`/`resolverFusion` aceptan un
 //    `db` inyectable justo para esto: se prueba con un `db` de prueba que
 //    responde `sincronizado: true`, aislando la rama del resto de la tabla.
 //
@@ -89,22 +89,26 @@ describe('ECCP #173 — guarda dura de alpha_fb', () => {
     });
 
     test('respeta un valor editado manualmente (panel de admin) hasta que se invalide la caché', async () => {
-      await pool.query(
-        "UPDATE system_config SET value = '{\"obtenerSugerenciasTutela\": false}'::jsonb WHERE key = 'rag.alpha_fb.endpoints'"
-      );
-      invalidarCacheFlagsAlphaFb();
+      // Se guarda el valor completo antes de editarlo y se restaura tal cual:
+      // restaurar un literal fijo borraba los otros endpoints que siembra
+      // 1786600000000 (#193).
+      const { rows } = await pool.query("SELECT value FROM system_config WHERE key = 'rag.alpha_fb.endpoints'");
+      const valorOriginal = rows[0].value;
+      try {
+        await pool.query(
+          "UPDATE system_config SET value = jsonb_set(value, '{obtenerSugerenciasTutela}', 'false'::jsonb) WHERE key = 'rag.alpha_fb.endpoints'"
+        );
+        invalidarCacheFlagsAlphaFb();
 
-      await expect(estaAlphaFbActivoParaEndpoint('obtenerSugerenciasTutela')).resolves.toBe(false);
-
-      // Restaurar el valor sembrado por la migración para no afectar otros tests.
-      await pool.query(
-        "UPDATE system_config SET value = '{\"obtenerSugerenciasTutela\": true}'::jsonb WHERE key = 'rag.alpha_fb.endpoints'"
-      );
-      invalidarCacheFlagsAlphaFb();
+        await expect(estaAlphaFbActivoParaEndpoint('obtenerSugerenciasTutela')).resolves.toBe(false);
+      } finally {
+        await pool.query("UPDATE system_config SET value = $1::jsonb WHERE key = 'rag.alpha_fb.endpoints'", [JSON.stringify(valorOriginal)]);
+        invalidarCacheFlagsAlphaFb();
+      }
     });
   });
 
-  describe('resolverFusionAlphaFb — combina las 3 condiciones', () => {
+  describe('resolverFusion (#193) — alpha validado por defecto, ECCP opcional, ponderado solo si falla la guarda', () => {
     const CATEGORIA_TEST = 'ALPHA_FB_RESOLVER_TEST';
     const modeloOriginal = env.EMBEDDING_MODEL;
     const killOriginal = env.RAG_ALPHA_FB_KILL;
@@ -120,39 +124,44 @@ describe('ECCP #173 — guarda dura de alpha_fb', () => {
       await pool.end();
     });
 
-    // Las 3 condiciones a la vez solo se pueden simular de forma determinista
-    // con el `db` de prueba (ver nota del archivo) -- contra la base real no
-    // hay forma de garantizar "0 filas desincronizadas" sin pisar datos de
-    // otras suites corriendo en paralelo.
-    test('con las 3 condiciones satisfechas, resuelve a "alpha_fb"', async () => {
+    // Con la guarda en regla (modelo + datos), solo se puede simular "0 filas
+    // desincronizadas" de forma determinista con el `db` de prueba (ver nota
+    // del archivo) -- contra la base real no hay forma de garantizarlo sin
+    // pisar datos de otras suites corriendo en paralelo.
+    test('guarda en regla + flag de ECCP activo -> "alpha_fb"', async () => {
       env.EMBEDDING_MODEL = MODELO_ALPHA_FB;
       env.RAG_ALPHA_FB_KILL = false;
 
-      await expect(resolverFusionAlphaFb('obtenerSugerenciasTutela', dbSincronizadaDePrueba)).resolves.toBe('alpha_fb');
+      await expect(resolverFusion('obtenerSugerenciasTutela', dbSincronizadaDePrueba)).resolves.toBe('alpha_fb');
     });
 
-    // Las 3 siguientes cortan ANTES de llegar a baseIndexadaConModelo (fallan
-    // en el kill switch, el flag, o EMBEDDING_MODEL) -- nunca tocan la base,
-    // así que son robustas contra la base real sin ningún aislamiento especial.
-    test('RAG_ALPHA_FB_KILL=true tiene prioridad absoluta, aunque todo lo demás esté bien', async () => {
+    test('guarda en regla + flag apagado para el endpoint -> "alpha" (la validada, #193)', async () => {
+      env.EMBEDDING_MODEL = MODELO_ALPHA_FB;
+      env.RAG_ALPHA_FB_KILL = false;
+
+      await expect(resolverFusion('endpointSinFlag', dbSincronizadaDePrueba)).resolves.toBe('alpha');
+    });
+
+    test('RAG_ALPHA_FB_KILL=true apaga solo ECCP -> "alpha", no "ponderado" (#193)', async () => {
       env.EMBEDDING_MODEL = MODELO_ALPHA_FB;
       env.RAG_ALPHA_FB_KILL = true;
 
-      await expect(resolverFusionAlphaFb('obtenerSugerenciasTutela')).resolves.toBe('ponderado');
+      await expect(resolverFusion('obtenerSugerenciasTutela', dbSincronizadaDePrueba)).resolves.toBe('alpha');
     });
 
-    test('flag apagado para el endpoint -> "ponderado" aunque el modelo ya calce', async () => {
-      env.EMBEDDING_MODEL = MODELO_ALPHA_FB;
-      env.RAG_ALPHA_FB_KILL = false;
-
-      await expect(resolverFusionAlphaFb('endpointSinFlag')).resolves.toBe('ponderado');
-    });
-
-    test('EMBEDDING_MODEL distinto al calibrado -> "ponderado" (caso real hoy: todavía MiniLM)', async () => {
+    // Corta ANTES de llegar a baseIndexadaConModelo -- nunca toca la base.
+    test('EMBEDDING_MODEL distinto al validado -> "ponderado"', async () => {
       env.EMBEDDING_MODEL = 'Xenova/all-MiniLM-L6-v2';
       env.RAG_ALPHA_FB_KILL = false;
 
-      await expect(resolverFusionAlphaFb('obtenerSugerenciasTutela')).resolves.toBe('ponderado');
+      await expect(resolverFusion('obtenerSugerenciasTutela')).resolves.toBe('ponderado');
+    });
+
+    test('EMBEDDING_MODEL distinto al validado -> "ponderado" aunque el kill switch esté activo', async () => {
+      env.EMBEDDING_MODEL = 'Xenova/all-MiniLM-L6-v2';
+      env.RAG_ALPHA_FB_KILL = true;
+
+      await expect(resolverFusion('obtenerSugerenciasTutela')).resolves.toBe('ponderado');
     });
 
     // Esta sí llega a baseIndexadaConModelo contra la base real -- robusta
@@ -175,7 +184,7 @@ describe('ECCP #173 — guarda dura de alpha_fb', () => {
         env.EMBEDDING_MODEL = MODELO_ALPHA_FB;
         env.RAG_ALPHA_FB_KILL = false;
 
-        await expect(resolverFusionAlphaFb('obtenerSugerenciasTutela')).resolves.toBe('ponderado');
+        await expect(resolverFusion('obtenerSugerenciasTutela')).resolves.toBe('ponderado');
       });
     });
   });
