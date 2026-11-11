@@ -74,4 +74,8 @@ La evaluación corre sobre la base `rag_eval_ambiental` del contenedor `rag-eval
 
 ## Enmiendas
 
-(ninguna todavía)
+> **Nota 1 (2026-11-11, antes de calcular cualquier métrica y antes de recibir ningún juicio de relevancia).** Registro de ejecución; no cambia el diseño.
+> - **Generación:** 3 subagentes Haiku sin contexto (un lote de 3 temas cada uno). La verificación independiente (`eval/scripts/ambiental_01_verificar.js` → `verificacion.json`) dio 0 errores, con 45 expedientes de corpus y 30 consultas. Tienen análisis 33 de 45 y 21 de 30. No hay PII. El Jaccard máximo de 5-gramas fue 0.125 entre consulta y corpus y 0.042 entre consultas, de modo que **ninguna consulta se descarta** y n = 30.
+> - **Indexación:** la base `rag_eval_ambiental` se creó con `src/db/init_schema.sql` + las 119 migraciones de `dev` (`f255db2`). Quedaron 75 expedientes con vector único y trozos (292 trozos, todos e5). En las 30 consultas, la guarda de `#196` eligió `alpha` sin caer a RRF. Las dos corridas completas (`ambiental_02_correr.js --correr`) produjeron salidas idénticas, así que la corrida es determinista.
+> - **Pool:** 437 pares, unión del top-10 de A y de B. La doble anotación cubre 6 consultas (20 %, elegidas con semilla 42): `QAMB-CFO-002`, `QAMB-RUI-002`, `QAMB-SAN-001`, `QAMB-SAN-003`, `QAMB-VED-002` y `QAMB-VER-003` (89 pares).
+> - **Anotadores:** el pre-registro no fijaba el modelo. Se usan sesiones Sonnet aisladas: el anotador 1 en 3 sesiones de 10 consultas y el anotador 2 en 1 sesión. Cada una solo ve su paquete (`anotacion/*.md`), sin columnas de sistema y con los pares ordenados por id de documento.
