@@ -8,7 +8,11 @@ on:
 
 jobs:
   test:
-    runs-on: ubuntu-latest
+    # Fijo a 24.04: "ubuntu-latest" pasó a apuntar a 26.04, y el postinstall de
+    # @playwright/browser-chromium (dependencia transitiva de artillery, usada
+    # solo para pruebas de carga manuales, no en `npm test`) todavía no tiene
+    # build para esa versión — rompe "npm ci" sin que el código tenga nada que ver.
+    runs-on: ubuntu-24.04
     env:
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
       DATABASE_URL: postgresql://postgres:2608@localhost:5432/DBVECTOR
