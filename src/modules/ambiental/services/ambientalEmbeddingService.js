@@ -1,6 +1,8 @@
 import pool from '../../../db/database.js';
 import { generarEmbedding, generarEmbeddingLocal } from '../../tutelas/services/aiService.js';
 import { dividirEnChunks } from '../../tutelas/services/chunkService.js';
+import { MODELO_ALPHA_FB } from '../../tutelas/services/vectorService.js';
+import { buscarConAlpha, fuenteIndexadaConModelo, FUENTE_AMBIENTAL } from '../../../services/motorBusqueda.js';
 import { env } from '../../../config/env.js';
 import logger from '../../../utils/logger.js';
 
@@ -165,8 +167,133 @@ export const guardarEmbedding = async (expedienteId, texto, fuente) => {
   }
 };
 
-export const buscarSimilares = async (expedienteId, limite = 5) => {
-  const { rows: embRows } = await pool.query(
+// ── Similares con el motor α (#196, épica #199) ──────────────────────────────
+//
+// Misma configuración validada que tutelas: α·coseno + (1−α)·min(ts_rank, 1)
+// con e5-small y α = 0.9, sin prefiltro de categoría, mejor trozo por
+// expediente (src/services/motorBusqueda.js, FUENTE_AMBIENTAL).
+//
+// La consulta replica la estrategia 'actual' de tutelas (construirConsulta en
+// consultaService.js), que es la del pipeline validado: el vector se genera
+// con prefijo `query: ` sobre el texto "comprendido" del expediente (último
+// resumen + que_ordena si hay análisis; si no, los primeros 1.500 caracteres
+// del contenido) y se compara con trozos indexados como `passage: `; el texto
+// léxico es el contenido completo. La alternativa simétrica (mismo prefijo en
+// ambos lados, la que sugiere la guía de e5 para similitud entre documentos)
+// queda para el banco de pruebas de #197.
+//
+// `similitud` es el coseno del mejor trozo (0–1), como antes. No se aplica
+// umbral: el código anterior tampoco lo aplicaba (#197 decide si y cuál).
+export const MODELO_ALPHA_AMBIENTAL = MODELO_ALPHA_FB;
+export const ALPHA_AMBIENTAL = 0.9;
+
+/**
+ * Guarda de datos: todos los trozos activos están indexados con `modelo` y
+ * ningún expediente activo con texto (contenido o resumen) se quedó sin
+ * trozos activos.
+ */
+export const ambientalIndexadoConModelo = async (modelo, db = pool) => {
+  if (!(await fuenteIndexadaConModelo(FUENTE_AMBIENTAL, modelo, db))) return false;
+  const { rows } = await db.query(
+    `SELECT NOT EXISTS (
+       SELECT 1 FROM expedientes_ambientales e
+       WHERE e.is_active = TRUE
+         AND (NULLIF(btrim(e.contenido_texto), '') IS NOT NULL
+              OR EXISTS (SELECT 1 FROM analisis_ambiental a
+                         WHERE a.expediente_id = e.id AND NULLIF(btrim(a.resumen), '') IS NOT NULL))
+         AND NOT EXISTS (SELECT 1 FROM chunks_ambiental c
+                         WHERE c.expediente_id = e.id AND c.is_active = TRUE)
+     ) AS completo`
+  );
+  return rows[0].completo;
+};
+
+/**
+ * Decide el motor de similares: 'alpha' si la guarda se cumple, 'rrf' (el
+ * comportamiento anterior, sobre embeddings_ambiental) si no, siempre con
+ * logger.warn/error. Comparar vectores de espacios distintos no da error,
+ * solo resultados sin sentido: por eso nunca se usa α con el modelo o los
+ * datos equivocados.
+ */
+export const resolverMotorSimilares = async (db = pool) => {
+  try {
+    if (env.AMBIENTAL_ALPHA_KILL) {
+      logger.warn("similares ambiental: AMBIENTAL_ALPHA_KILL activo -- usa 'rrf'");
+      return 'rrf';
+    }
+    if (env.EMBEDDING_MODEL !== MODELO_ALPHA_AMBIENTAL) {
+      logger.warn(`similares ambiental: EMBEDDING_MODEL="${env.EMBEDDING_MODEL}" distinto de "${MODELO_ALPHA_AMBIENTAL}" -- usa 'rrf'`);
+      return 'rrf';
+    }
+    if (!(await ambientalIndexadoConModelo(MODELO_ALPHA_AMBIENTAL, db))) {
+      logger.warn(`similares ambiental: chunks_ambiental no está completo con "${MODELO_ALPHA_AMBIENTAL}" (correr scripts/reindexar_ambiental.js) -- usa 'rrf'`);
+      return 'rrf';
+    }
+    return 'alpha';
+  } catch (error) {
+    logger.error("similares ambiental: error resolviendo la guarda -- usa 'rrf'", { error: error.message });
+    return 'rrf';
+  }
+};
+
+const METADATOS_SIMILARES_SQL = `
+  SELECT e.id, e.titulo, e.numero_expediente, e.tipo_instrumento, e.estado,
+         ent.nombre AS entidad_nombre,
+         a.nivel_riesgo, a.resumen
+  FROM expedientes_ambientales e
+  LEFT JOIN global_entidades ent ON ent.id = e.entidad_id
+  LEFT JOIN LATERAL (
+    SELECT nivel_riesgo, resumen FROM analisis_ambiental
+    WHERE expediente_id = e.id
+    ORDER BY created_at DESC LIMIT 1
+  ) a ON true
+  WHERE e.id = ANY($1::uuid[])`;
+
+/**
+ * Similares con el motor α. null (→ 404) si el expediente no existe, está
+ * inactivo o no tiene trozos activos; mismo contrato de campos que antes.
+ */
+export const buscarSimilaresAlpha = async (expedienteId, limite = 5, db = pool) => {
+  const textos = await leerTextosExpediente(expedienteId, db);
+  if (!textos) return null;
+  const { rows: [indexado] } = await db.query(
+    'SELECT EXISTS (SELECT 1 FROM chunks_ambiental WHERE expediente_id = $1 AND is_active = TRUE) AS si',
+    [expedienteId]
+  );
+  if (!indexado.si) return null;
+
+  const textoVector = textos.analisis ?? textos.contenido.slice(0, TROZO_TAMANO);
+  const textoLexico = textos.contenido ?? textos.analisis;
+  const vector = await generarEmbeddingLocal(textoVector, { tipo: 'query' });
+
+  const ranking = await buscarConAlpha(FUENTE_AMBIENTAL, {
+    vector, texto: textoLexico, limit: limite, alpha: ALPHA_AMBIENTAL, excluirDocumento: expedienteId, db,
+  });
+  if (!ranking.length) return [];
+
+  const { rows: metadatos } = await db.query(METADATOS_SIMILARES_SQL, [ranking.map((r) => r.expediente_id)]);
+  const porId = new Map(metadatos.map((m) => [m.id, m]));
+  return ranking
+    .filter((r) => porId.has(r.expediente_id))
+    .map((r) => ({ ...porId.get(r.expediente_id), similitud: r.similitud }));
+};
+
+/**
+ * GET /expedientes/:id/similares. Usa el motor α cuando la guarda se cumple;
+ * si no, el RRF anterior sobre embeddings_ambiental (buscarSimilaresRRF).
+ */
+export const buscarSimilares = async (expedienteId, limite = 5, db = pool) => {
+  const motor = await resolverMotorSimilares(db);
+  return motor === 'alpha'
+    ? buscarSimilaresAlpha(expedienteId, limite, db)
+    : buscarSimilaresRRF(expedienteId, limite, db);
+};
+
+// Comportamiento anterior (RRF, un vector por expediente en
+// embeddings_ambiental). Se retira junto con esa tabla cuando la guarda lleve
+// un ciclo sin caer aquí (#196, punto 6: issue aparte).
+export const buscarSimilaresRRF = async (expedienteId, limite = 5, db = pool) => {
+  const { rows: embRows } = await db.query(
     `SELECT ea.embedding, e.titulo, e.que_ordena, a.resumen
      FROM embeddings_ambiental ea
      JOIN expedientes_ambientales e ON e.id = ea.expediente_id
@@ -190,7 +317,7 @@ export const buscarSimilares = async (expedienteId, limite = 5) => {
 
   // Sin texto útil — solo búsqueda vectorial
   if (!textoFT.trim()) {
-    const { rows: soloVector } = await pool.query(
+    const { rows: soloVector } = await db.query(
       `SELECT
          e.id, e.titulo, e.numero_expediente, e.tipo_instrumento, e.estado,
          ent.nombre AS entidad_nombre,
@@ -213,7 +340,7 @@ export const buscarSimilares = async (expedienteId, limite = 5) => {
     return soloVector;
   }
 
-  const { rows } = await pool.query(
+  const { rows } = await db.query(
     `WITH vector_results AS (
        SELECT ea.expediente_id,
               ROW_NUMBER() OVER (ORDER BY ea.embedding <=> $1) AS rank

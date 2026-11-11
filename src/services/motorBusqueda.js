@@ -18,8 +18,12 @@ import pool from '../db/database.js';
 //   $2 texto de la consulta (para la rama léxica)
 //   $3 límite de documentos
 //   $4 filtro de categoría (texto con comodines, o NULL para no filtrar) —
-//      solo si la fuente declara `columnaCategoria`
+//      solo filtra si la fuente declara `columnaCategoria`; si no, se declara
+//      como un no-op tipado (`$4::text IS NULL`), porque PostgreSQL rechaza un
+//      parámetro que la consulta no usa y el contrato manda siempre $1..$5 (#196)
 //   $5 α (float entre 0 y 1)
+//   $6 documento a excluir — solo con `{ excluirDocumento: true }` (búsqueda
+//      documento contra documento, p. ej. similares de ambiental, #196)
 //
 // Orden por score crudo (no redondeado) con desempate por documento ASC: es el
 // orden del barrido de #115/#121; redondear antes de ordenar puede cambiar el
@@ -46,10 +50,12 @@ const exprScore = (fuente) => `
   `;
 
 /** SQL de la fusión α para una fuente. Ver el contrato de parámetros arriba. */
-export const construirConsultaAlpha = (fuente) => {
+export const construirConsultaAlpha = (fuente, { excluirDocumento = false } = {}) => {
   const scoreExpr = exprScore(fuente);
   const filtros = [...fuente.filtros];
   if (fuente.columnaCategoria) filtros.push(`($4::text IS NULL OR ${fuente.columnaCategoria} ILIKE $4)`);
+  else filtros.push('$4::text IS NULL');
+  if (excluirDocumento) filtros.push(`${fuente.columnaDocumento} <> $6`);
 
   return `
     WITH scored AS (
@@ -80,12 +86,15 @@ const validarAlpha = (alpha) => {
 /**
  * Ejecuta la fusión α sobre una fuente y devuelve el mejor trozo por documento.
  * `categoria` solo aplica si la fuente declara `columnaCategoria` (se envuelve con comodines).
+ * `excluirDocumento` (opcional) deja fuera ese documento ($6).
  */
-export const buscarConAlpha = async (fuente, { vector, texto = '', limit, alpha, categoria = null, db = pool }) => {
+export const buscarConAlpha = async (fuente, { vector, texto = '', limit, alpha, categoria = null, excluirDocumento = null, db = pool }) => {
   validarAlpha(alpha);
   const categoriaParam = fuente.columnaCategoria && categoria?.trim() ? `%${categoria}%` : null;
   const params = [JSON.stringify(vector), texto, limit, categoriaParam, alpha];
-  const { rows } = await db.query(construirConsultaAlpha(fuente), params);
+  const excluir = excluirDocumento != null;
+  if (excluir) params.push(excluirDocumento);
+  const { rows } = await db.query(construirConsultaAlpha(fuente, { excluirDocumento: excluir }), params);
   return rows;
 };
 
@@ -125,6 +134,34 @@ export const FUENTE_TUTELAS = Object.freeze({
   ],
   filtros: ['embedding_local IS NOT NULL', 'es_exitosa = TRUE', 'is_active = TRUE', 'documento_id IS NOT NULL'],
   columnaCategoria: 'categoria',
+  columnaModelo: 'embedding_modelo',
+  columnaActivo: 'is_active',
+});
+
+/**
+ * Trozos de expedientes ambientales (chunks_ambiental, #194/#195). Solo
+ * trozos activos de expedientes activos; sin filtro de categoría. Devuelve el
+ * mejor trozo por expediente con su coseno (`similitud`, 0–1), que es lo que
+ * muestra la UI.
+ */
+export const FUENTE_AMBIENTAL = Object.freeze({
+  tabla: 'chunks_ambiental',
+  expresionVector: 'embedding',
+  columnaTsv: 'contenido_tsv',
+  columnaDocumento: 'expediente_id',
+  columnasScored: [
+    'expediente_id, chunk_index, fuente',
+    '(1 - (embedding <=> $1::vector)) AS similitud_coseno',
+  ],
+  columnasSalida: [
+    'expediente_id, chunk_index, fuente',
+    'ROUND(CAST(similitud_coseno AS NUMERIC), 4) AS similitud',
+    'ROUND(CAST(score_crudo AS NUMERIC), 6) AS score, score_crudo',
+  ],
+  filtros: [
+    'is_active = TRUE',
+    'expediente_id IN (SELECT id FROM expedientes_ambientales WHERE is_active = TRUE)',
+  ],
   columnaModelo: 'embedding_modelo',
   columnaActivo: 'is_active',
 });
