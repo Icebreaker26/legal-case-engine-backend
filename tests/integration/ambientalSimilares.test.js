@@ -1,5 +1,6 @@
 import { jest } from '@jest/globals';
 import crypto from 'node:crypto';
+import { enAislamiento as aislar } from '../helpers/aislamientoAmbiental.js';
 
 // #196 (épica #199): buscarSimilares sobre el motor α (chunks_ambiental) con
 // guarda de modelo y datos, kill switch y caída al RRF anterior.
@@ -57,23 +58,9 @@ describe('Ambiental — similares con el motor α (#196)', () => {
     return rows[0].id;
   };
 
-  // Corre `fn` con un cliente en una transacción donde solo los expedientes de
-  // este archivo siguen activos, y la deshace al final: así la guarda (que mira
-  // TODA la tabla) no depende de lo que otras suites escriban en paralelo.
-  const enAislamiento = async (fn, mantenerActivos = Object.values(ids)) => {
-    const client = await pool.connect();
-    try {
-      await client.query('BEGIN');
-      await client.query(
-        'UPDATE expedientes_ambientales SET is_active = FALSE WHERE is_active = TRUE AND id <> ALL($1::uuid[])',
-        [mantenerActivos]
-      );
-      return await fn(client);
-    } finally {
-      await client.query('ROLLBACK');
-      client.release();
-    }
-  };
+  // Solo los expedientes de este archivo siguen activos, en una transacción
+  // que se deshace (ver tests/helpers/aislamientoAmbiental.js).
+  const enAislamiento = (fn, mantenerActivos = Object.values(ids)) => aislar(pool, mantenerActivos, fn);
 
   beforeAll(async () => {
     env.EMBEDDING_MODEL = MODELO_ALPHA_AMBIENTAL;
