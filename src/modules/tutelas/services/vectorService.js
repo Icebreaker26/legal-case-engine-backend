@@ -1,5 +1,6 @@
 import pool from '../../../db/database.js';
 import { obtenerParametrosBetaFeromona } from './pheromoneService.js';
+import { buscarConAlpha, construirConsultaAlpha, fuenteIndexadaConModelo, FUENTE_TUTELAS } from '../../../services/motorBusqueda.js';
 
 /**
  * Busca los documentos más similares a la tutela.
@@ -201,52 +202,12 @@ const buscarRRF = async (vectorTutelaLocal, texto, limit, categoria) => {
 // Deliberadamente NO reemplaza 'ponderado' como default — fusion:'alpha' solo
 // se usa si el caller lo pide explícitamente.
 //
-// Orden por score crudo (no ROUND) con desempate por documento_id ASC: el
-// barrido de #115/#121 ordena así (ver v2_barrido_pesos.js) — redondear antes
-// de ordenar, como hace buildScoringCTE, puede cambiar el ranking cuando los
-// scores quedan muy juntos (típico con α alto). El ROUND solo se aplica a la
-// columna que se expone, nunca al ORDER BY.
-const buildAlphaScoringCTE = () => {
-  const scoreExpr = `
-          (1 - (COALESCE(embedding_comprension, embedding_local) <=> $1::vector)) * $5::float8 +
-          LEAST(ts_rank(contenido_tsv, plainto_tsquery('spanish', $2)), 1.0) * (1 - $5::float8)
-  `;
-
-  return `
-    WITH scored AS (
-      SELECT
-        categoria, titulo_referencia, contenido_legal, documento_id,
-        relevancia_score, comprension_doc, vigencia_factor,
-        (comprension_doc IS NOT NULL) AS tiene_comprension,
-        ${scoreExpr} AS score_crudo,
-        ROW_NUMBER() OVER (
-          PARTITION BY documento_id
-          ORDER BY ${scoreExpr} DESC, documento_id ASC
-        ) AS rn
-      FROM base_conocimiento_enel
-      WHERE embedding_local IS NOT NULL
-        AND es_exitosa = TRUE
-        AND is_active = TRUE
-        AND documento_id IS NOT NULL
-        AND ($4::text IS NULL OR categoria ILIKE $4)
-    )
-    SELECT categoria, titulo_referencia, contenido_legal, documento_id,
-           relevancia_score, ROUND(CAST(score_crudo AS NUMERIC), 6) AS score,
-           score_crudo, tiene_comprension, comprension_doc, vigencia_factor
-    FROM scored
-    WHERE rn = 1
-    ORDER BY score_crudo DESC, documento_id ASC
-    LIMIT $3;
-  `;
-};
-
-// alpha ya se valida en buscarContextoLegal antes de llegar aquí.
-const buscarAlpha = async (vectorTutelaLocal, texto, limit, categoria, alpha) => {
-  const categoriaParam = categoria?.trim() ? `%${categoria}%` : null;
-  const params = [JSON.stringify(vectorTutelaLocal), texto, limit, categoriaParam, alpha];
-  const { rows } = await pool.query(buildAlphaScoringCTE(), params);
-  return rows;
-};
+// El SQL de la fórmula vive en src/services/motorBusqueda.js (#192), parametrizado
+// por fuente para que ambiental use exactamente la misma fusión (épica #199).
+// Para tutelas genera, carácter por carácter, el mismo SQL que antes vivía aquí
+// (verificado en tests/unit/motorBusqueda.test.js).
+const buscarAlpha = (vectorTutelaLocal, texto, limit, categoria, alpha) =>
+  buscarConAlpha(FUENTE_TUTELAS, { vector: vectorTutelaLocal, texto, limit, alpha, categoria });
 
 // ── Re-ranking acotado con feromona (#161 fase e, ECCP) ──────────────────────
 //
@@ -311,16 +272,7 @@ const SLOTS_EXPLOTACION = 4;
 // (BEGIN ISOLATION LEVEL REPEATABLE READ + ROLLBACK) y así quedar inmunes a
 // que otras suites inserten/actualicen filas de base_conocimiento_enel en
 // paralelo durante la corrida -- en producción nunca se pasa, usa el pool.
-export const baseIndexadaConModelo = async (modelo, db = pool) => {
-  const { rows } = await db.query(
-    `SELECT NOT EXISTS (
-       SELECT 1 FROM base_conocimiento_enel
-       WHERE is_active = TRUE AND embedding_modelo IS DISTINCT FROM $1
-     ) AS sincronizado`,
-    [modelo]
-  );
-  return rows[0].sincronizado;
-};
+export const baseIndexadaConModelo = (modelo, db = pool) => fuenteIndexadaConModelo(FUENTE_TUTELAS, modelo, db);
 
 // ECCP fase (f, #186) — slot explorador (§3.3). El último puesto del
 // resultado (puesto 5 en el caso normal; si `limit` <= SLOTS_EXPLOTACION no
@@ -364,7 +316,7 @@ const buscarAlphaFb = async (vectorTutelaLocal, texto, limit, alpha, contexto, g
   // Sin filtro de categoría en la recuperación (#106) -- `contexto` solo
   // condiciona la lectura de la feromona, nunca qué candidatos entran al CTE.
   const params = [JSON.stringify(vectorTutelaLocal), texto, K_RERANK, null, alpha];
-  const { rows: candidatos } = await pool.query(buildAlphaScoringCTE(), params);
+  const { rows: candidatos } = await pool.query(construirConsultaAlpha(FUENTE_TUTELAS), params);
 
   if (!candidatos.length) return [];
 
