@@ -308,6 +308,14 @@ export const aplicarSlotExplorador = (candidatosOrdenados, limit) => {
   // al orden puramente explotador -- es la señal auditable de "aquí la
   // exploración movió algo", y lo que dispara la etiqueta visible al
   // abogado (peticionService.js, buildFichaPrecedente).
+  //
+  // #205: con `limit` > 5, el ganador puede venir de un puesto que ya está en
+  // el resultado (6..limit). En ese caso se intercambia con el natural, que
+  // pasa al puesto que dejó libre; copiarlo lo duplicaba y hacía desaparecer
+  // al natural. Si viene de fuera del resultado (siempre con limit = 5, el de
+  // los endpoints), ocupa el puesto 5 y el natural sale, como antes.
+  const indiceGanador = resultado.findIndex((c, i) => i > indiceSlot && c.documento_id === ganador.documento_id);
+  if (indiceGanador !== -1) resultado[indiceGanador] = natural;
   resultado[indiceSlot] = { ...ganador, es_exploracion: ganador.documento_id !== natural.documento_id };
   return resultado;
 };
