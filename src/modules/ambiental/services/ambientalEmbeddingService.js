@@ -214,19 +214,24 @@ export const ambientalIndexadoConModelo = async (modelo, db = pool) => {
  * logger.warn/error. Comparar vectores de espacios distintos no da error,
  * solo resultados sin sentido: por eso nunca se usa α con el modelo o los
  * datos equivocados.
+ *
+ * `avisar: false` omite los logger.warn de caída: lo usa la biblioteca
+ * (#198) al consultar el estado en cada GET, para no repetir el aviso que ya
+ * deja la búsqueda de similares. Los errores se registran siempre.
  */
-export const resolverMotorSimilares = async (db = pool) => {
+export const resolverMotorSimilares = async (db = pool, { avisar = true } = {}) => {
+  const aviso = (mensaje) => { if (avisar) logger.warn(mensaje); };
   try {
     if (env.AMBIENTAL_ALPHA_KILL) {
-      logger.warn("similares ambiental: AMBIENTAL_ALPHA_KILL activo -- usa 'rrf'");
+      aviso("similares ambiental: AMBIENTAL_ALPHA_KILL activo -- usa 'rrf'");
       return 'rrf';
     }
     if (env.EMBEDDING_MODEL !== MODELO_ALPHA_AMBIENTAL) {
-      logger.warn(`similares ambiental: EMBEDDING_MODEL="${env.EMBEDDING_MODEL}" distinto de "${MODELO_ALPHA_AMBIENTAL}" -- usa 'rrf'`);
+      aviso(`similares ambiental: EMBEDDING_MODEL="${env.EMBEDDING_MODEL}" distinto de "${MODELO_ALPHA_AMBIENTAL}" -- usa 'rrf'`);
       return 'rrf';
     }
     if (!(await ambientalIndexadoConModelo(MODELO_ALPHA_AMBIENTAL, db))) {
-      logger.warn(`similares ambiental: chunks_ambiental no está completo con "${MODELO_ALPHA_AMBIENTAL}" (correr scripts/reindexar_ambiental.js) -- usa 'rrf'`);
+      aviso(`similares ambiental: chunks_ambiental no está completo con "${MODELO_ALPHA_AMBIENTAL}" (correr scripts/reindexar_ambiental.js) -- usa 'rrf'`);
       return 'rrf';
     }
     return 'alpha';

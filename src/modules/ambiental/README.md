@@ -245,6 +245,8 @@ Todas en `tutelas_backend/migrations/`, prefijo timestamp:
 | `1785200000000` | Tablas `biblioteca_clusters` y `biblioteca_meta` |
 | `1785300000000` | Tabla `biblioteca_terminos_ignorados` |
 | `1785400000000` | Tabla `biblioteca_puntos` (coordenadas PCA 2D) |
+| `1786700000000` | Tabla `chunks_ambiental` (trozos con modelo registrado, #194) |
+| `1786800000000` | `modelo_at_compute`, `fuente_at_compute`, `silueta` en `biblioteca_meta` (#198) |
 
 ---
 
@@ -307,16 +309,17 @@ Todas en `tutelas_backend/migrations/`, prefijo timestamp:
 - KPIs: total expedientes, con análisis, con embedding.
 
 ### Clustering semántico (`recalcularClusters`)
-1. Carga todos los embeddings activos de `embeddings_ambiental`.
-2. K-means con `ml-kmeans` — K auto-seleccionado: `n<6→2`, `n<15→3`, `n<30→5`, else `7`.
+1. Carga un vector por expediente activo. Si la guarda de similares se cumple (e5 y `chunks_ambiental` completo, sin `AMBIENTAL_ALPHA_KILL`), es el **promedio normalizado de sus trozos activos** de `chunks_ambiental` (cubre el documento completo); si no, el de `embeddings_ambiental`, como antes (#198).
+2. K-means con `ml-kmeans` y **semilla fija** (`KMEANS_SEED`): mismos vectores, misma partición. K auto-seleccionado: `n<6→2`, `n<15→3`, `n<30→5`, else `7`. La silueta media del k elegido queda en `biblioteca_meta.silueta` (diagnóstico; no cambia la regla de k).
 3. Por cada cluster: **medoid** (expediente más cercano al centroide), distribución de tipos y riesgos.
 4. PCA 2D con `ml-pca` sobre los mismos vectores — coordenadas normalizadas a `[0,1]`.
-5. Guarda en `biblioteca_clusters` (clusters) y `biblioteca_puntos` (scatter plot).
+5. Guarda en `biblioteca_clusters` (clusters) y `biblioteca_puntos` (scatter plot), y en `biblioteca_meta` el modelo y la fuente de los vectores usados.
 
 ### `needs_recalculate = true` cuando:
 - No hay clusters aún.
 - `biblioteca_puntos` está vacío pero hay clusters (post-deploy con nueva migración).
 - Hay ≥ 10 embeddings nuevos desde el último cómputo.
+- El modelo o la fuente de los vectores que se usarían hoy difieren de los del último cómputo (p. ej. tras reindexar con otro modelo, o cuando la guarda pasa de `embeddings_ambiental` a `chunks_ambiental`). Un cómputo anterior a #198, sin modelo registrado, también cuenta como desactualizado.
 
 ### Términos ignorados
 - `biblioteca_terminos_ignorados` — PRIMARY KEY `word`.
